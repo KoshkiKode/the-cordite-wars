@@ -75,7 +75,7 @@ public partial class GameHUD : CanvasLayer
 /// <summary>
 /// Draws the selection rectangle when dragging.
 /// </summary>
-file partial class BoxSelectOverlay : Control
+internal partial class BoxSelectOverlay : Control
 {
     private readonly SelectionManager _selectionManager;
 

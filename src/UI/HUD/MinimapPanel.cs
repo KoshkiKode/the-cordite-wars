@@ -110,7 +110,7 @@ public partial class MinimapPanel : PanelContainer
 /// <summary>
 /// Draws the camera viewport rectangle on the minimap.
 /// </summary>
-file partial class MinimapViewportRect : Control
+internal partial class MinimapViewportRect : Control
 {
     public MinimapViewportRect()
     {

@@ -319,7 +319,7 @@ public partial class CommandCard : PanelContainer
 
 // ── Supporting Types ─────────────────────────────────────────────────
 
-file enum CardActionType
+internal enum CardActionType
 {
     None,
     Move,
@@ -332,7 +332,7 @@ file enum CardActionType
     SetRally
 }
 
-file struct CardAction
+internal struct CardAction
 {
     public CardActionType Type;
     public string TargetId;

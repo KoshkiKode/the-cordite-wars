@@ -147,36 +147,6 @@ public struct TickResult
 }
 
 /// <summary>
-/// Result of a unit-vs-unit collision resolution. Produced by CollisionResolver.
-/// </summary>
-public struct UnitCollisionResult
-{
-    /// <summary>New position after collision push-out.</summary>
-    public FixedVector2 NewPosition;
-
-    /// <summary>Damage taken from the collision (e.g., crush damage).</summary>
-    public FixedPoint DamageTaken;
-
-    /// <summary>The unit this result applies to.</summary>
-    public int UnitId;
-}
-
-/// <summary>
-/// Result of a crush event — a heavy unit driving over a lighter unit.
-/// </summary>
-public struct CrushResult
-{
-    /// <summary>The heavy unit that did the crushing.</summary>
-    public int CrusherId;
-
-    /// <summary>The unit that was crushed.</summary>
-    public int VictimId;
-
-    /// <summary>Damage dealt by the crush.</summary>
-    public FixedPoint DamageDealt;
-}
-
-/// <summary>
 /// The master tick coordinator. Processes all simulation phases in the exact
 /// deterministic order required for lockstep multiplayer.
 ///
@@ -220,6 +190,7 @@ public class UnitInteractionSystem
     private readonly List<UnitCombatInfo> _combatInfos = new List<UnitCombatInfo>(256);
     private readonly List<int> _destroyedIds = new List<int>(32);
     private readonly List<AttackResult> _attackResults = new List<AttackResult>(64);
+    private readonly List<CollisionPair> _collisionPairs = new List<CollisionPair>(64);
     private readonly List<UnitCollisionResult> _collisionResults = new List<UnitCollisionResult>(64);
     private readonly List<CrushResult> _crushResults = new List<CrushResult>(16);
 
@@ -295,6 +266,7 @@ public class UnitInteractionSystem
         _combatInfos.Clear();
         _destroyedIds.Clear();
         _attackResults.Clear();
+        _collisionPairs.Clear();
         _collisionResults.Clear();
         _crushResults.Clear();
 
@@ -564,10 +536,10 @@ public class UnitInteractionSystem
         }
 
         // 6b. Detect collisions between units
-        _collisionResolver.DetectCollisions(_collisionInfos, _collisionResults);
+        _collisionResolver.DetectCollisions(_collisionInfos, _spatialHash, _collisionPairs);
 
         // 6c. Resolve collisions — compute push-out vectors and crush damage
-        _collisionResolver.ResolveCollisions(_collisionResults, _crushResults);
+        _collisionResolver.ResolveCollisions(_collisionPairs, _collisionResults);
 
         // 6d. Apply position adjustments from collision resolution
         for (int r = 0; r < _collisionResults.Count; r++)
@@ -598,7 +570,7 @@ public class UnitInteractionSystem
         }
 
         // 6e. Resolve static collisions (push out of buildings/terrain)
-        _collisionResolver.ResolveStaticCollisions(_collisionInfos, _occupancyGrid);
+        _collisionResolver.ResolveStaticCollisions(_collisionInfos, terrain, _occupancyGrid);
 
         // Apply static collision position adjustments
         for (int c = 0; c < _collisionInfos.Count; c++)

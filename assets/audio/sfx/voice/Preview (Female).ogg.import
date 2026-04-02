@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://debps6u17k7jr"
+path="res://.godot/imported/Preview (Female).ogg-346aa5b94ad98fde8f8568fb29027cc4.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/sfx/voice/Preview (Female).ogg"
+dest_files=["res://.godot/imported/Preview (Female).ogg-346aa5b94ad98fde8f8568fb29027cc4.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

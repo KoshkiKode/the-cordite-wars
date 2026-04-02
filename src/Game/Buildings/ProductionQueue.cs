@@ -1,6 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 using UnnamedRTS.Core;
+using UnnamedRTS.Game.Assets;
 using UnnamedRTS.Game.Economy;
 using UnnamedRTS.Game.Tech;
 using UnnamedRTS.Game.Units;

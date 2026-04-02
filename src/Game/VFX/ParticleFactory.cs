@@ -4,14 +4,14 @@ using UnnamedRTS.Systems.Graphics;
 namespace UnnamedRTS.Game.VFX;
 
 /// <summary>
-/// Creates programmatic particle effects using GPUParticles3D + ParticleProcessMaterial.
+/// Creates programmatic particle effects using GpuParticles3D + ParticleProcessMaterial.
 /// All effects auto-free after emission completes. Quality-tier aware.
 /// </summary>
 public static class ParticleFactory
 {
     // ── Explosions ─────────────────────────────────────────────────────────
 
-    public static GPUParticles3D CreateExplosionSmall()
+    public static GpuParticles3D CreateExplosionSmall()
     {
         return CreateExplosion(
             baseCount: 20,
@@ -24,7 +24,7 @@ public static class ParticleFactory
         );
     }
 
-    public static GPUParticles3D CreateExplosionMedium()
+    public static GpuParticles3D CreateExplosionMedium()
     {
         return CreateExplosion(
             baseCount: 50,
@@ -37,7 +37,7 @@ public static class ParticleFactory
         );
     }
 
-    public static GPUParticles3D CreateExplosionLarge()
+    public static GpuParticles3D CreateExplosionLarge()
     {
         return CreateExplosion(
             baseCount: 100,
@@ -52,7 +52,7 @@ public static class ParticleFactory
 
     // ── Muzzle Flash ───────────────────────────────────────────────────────
 
-    public static GPUParticles3D CreateMuzzleFlash()
+    public static GpuParticles3D CreateMuzzleFlash()
     {
         int count = ScaleParticleCount(5);
 
@@ -78,7 +78,7 @@ public static class ParticleFactory
 
     // ── Smoke Puff ─────────────────────────────────────────────────────────
 
-    public static GPUParticles3D CreateSmokePuff()
+    public static GpuParticles3D CreateSmokePuff()
     {
         int count = ScaleParticleCount(15);
 
@@ -105,7 +105,7 @@ public static class ParticleFactory
 
     // ── Dust Cloud ─────────────────────────────────────────────────────────
 
-    public static GPUParticles3D CreateDustCloud()
+    public static GpuParticles3D CreateDustCloud()
     {
         int count = ScaleParticleCount(20);
 
@@ -132,7 +132,7 @@ public static class ParticleFactory
 
     // ── Thruster Trail ─────────────────────────────────────────────────────
 
-    public static GPUParticles3D CreateThrusterTrail()
+    public static GpuParticles3D CreateThrusterTrail()
     {
         int count = ScaleParticleCount(30);
 
@@ -158,7 +158,7 @@ public static class ParticleFactory
 
     // ── Bullet Tracer ──────────────────────────────────────────────────────
 
-    public static GPUParticles3D CreateBulletTracer()
+    public static GpuParticles3D CreateBulletTracer()
     {
         int count = ScaleParticleCount(2);
         if (count < 1) count = 1;
@@ -184,7 +184,7 @@ public static class ParticleFactory
 
     // ── Spark ──────────────────────────────────────────────────────────────
 
-    public static GPUParticles3D CreateSpark()
+    public static GpuParticles3D CreateSpark()
     {
         int count = ScaleParticleCount(10);
 
@@ -209,7 +209,7 @@ public static class ParticleFactory
 
     // ── Water Splash ───────────────────────────────────────────────────────
 
-    public static GPUParticles3D CreateWaterSplash()
+    public static GpuParticles3D CreateWaterSplash()
     {
         int count = ScaleParticleCount(15);
 
@@ -236,7 +236,7 @@ public static class ParticleFactory
 
     // ── Shared Helpers ─────────────────────────────────────────────────────
 
-    private static GPUParticles3D CreateExplosion(int baseCount, float lifetime,
+    private static GpuParticles3D CreateExplosion(int baseCount, float lifetime,
         Color colorStart, Color colorEnd, float spread, float velocity, float scale)
     {
         int count = ScaleParticleCount(baseCount);
@@ -262,10 +262,10 @@ public static class ParticleFactory
         return BuildParticles(count, lifetime, material, oneShot: true);
     }
 
-    private static GPUParticles3D BuildParticles(int count, float lifetime,
+    private static GpuParticles3D BuildParticles(int count, float lifetime,
         ParticleProcessMaterial material, bool oneShot)
     {
-        var particles = new GPUParticles3D();
+        var particles = new GpuParticles3D();
         particles.Amount = count > 0 ? count : 1;
         particles.Lifetime = lifetime;
         particles.OneShot = oneShot;
