@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.5
+Type=Application
+Name=Cordite Wars: Six Fronts
+GenericName=Real-Time Strategy Game
+Comment=Command six factions across land, air, and sea
+Exec=cordite-wars %u
+Icon=/snap/cordite-wars/current/assets/icons/icon.png
+Terminal=false
+Categories=Game;StrategyGame;
+Keywords=strategy;rts;war;tactics;
+StartupNotify=true
+StartupWMClass=CorditeWars
+MimeType=

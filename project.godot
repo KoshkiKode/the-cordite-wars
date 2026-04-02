@@ -10,9 +10,14 @@ config_version=5
 
 [application]
 
-config/name="Unnamed RTS"
+config/name="Cordite Wars: Six Fronts"
 config/description="A cross-platform real-time strategy game inspired by Command & Conquer and Tempest Rising."
-config/version="0.0.1"
+config/version="0.1.0"
+config/version_major=0
+config/version_minor=1
+config/version_patch=0
+config/version_protocol=1
+config/version_build="alpha"
 run/main_scene="res://scenes/Core/Boot.tscn"
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 config/icon="res://assets/icons/icon.svg"

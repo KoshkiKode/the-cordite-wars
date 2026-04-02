@@ -1,0 +1,1091 @@
+{
+  "categories": {
+    "combat": {
+      "weapon_submachinegun": {
+        "Files": [
+          "assets/audio/sfx/combat/smg_burst_01.ogg",
+          "assets/audio/sfx/combat/smg_burst_02.ogg",
+          "assets/audio/sfx/combat/smg_burst_03.ogg"
+        ],
+        "Volume": 0.8,
+        "PitchVariation": 0.1,
+        "MaxDistance": 50.0,
+        "Priority": 8,
+        "Cooldown": 0.1
+      },
+      "weapon_machinegun": {
+        "Files": [
+          "assets/audio/sfx/combat/machinegun_fire_01.ogg",
+          "assets/audio/sfx/combat/machinegun_fire_02.ogg",
+          "assets/audio/sfx/combat/machinegun_fire_03.ogg"
+        ],
+        "Volume": 0.85,
+        "PitchVariation": 0.08,
+        "MaxDistance": 70.0,
+        "Priority": 8,
+        "Cooldown": 0.08
+      },
+      "weapon_autocannon": {
+        "Files": [
+          "assets/audio/sfx/combat/autocannon_fire_01.ogg",
+          "assets/audio/sfx/combat/autocannon_fire_02.ogg",
+          "assets/audio/sfx/combat/autocannon_fire_03.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.07,
+        "MaxDistance": 80.0,
+        "Priority": 8,
+        "Cooldown": 0.12
+      },
+      "weapon_rocket_launcher": {
+        "Files": [
+          "assets/audio/sfx/combat/rocket_launch_01.ogg",
+          "assets/audio/sfx/combat/rocket_launch_02.ogg",
+          "assets/audio/sfx/combat/rocket_launch_03.ogg"
+        ],
+        "Volume": 0.95,
+        "PitchVariation": 0.05,
+        "MaxDistance": 100.0,
+        "Priority": 9,
+        "Cooldown": 0.5
+      },
+      "weapon_sam_missile": {
+        "Files": [
+          "assets/audio/sfx/combat/sam_launch_01.ogg",
+          "assets/audio/sfx/combat/sam_launch_02.ogg",
+          "assets/audio/sfx/combat/sam_launch_03.ogg"
+        ],
+        "Volume": 0.92,
+        "PitchVariation": 0.05,
+        "MaxDistance": 120.0,
+        "Priority": 9,
+        "Cooldown": 0.8
+      },
+      "weapon_chaingun": {
+        "Files": [
+          "assets/audio/sfx/combat/chaingun_spin_01.ogg",
+          "assets/audio/sfx/combat/chaingun_spin_02.ogg",
+          "assets/audio/sfx/combat/chaingun_spin_03.ogg"
+        ],
+        "Volume": 0.88,
+        "PitchVariation": 0.06,
+        "MaxDistance": 65.0,
+        "Priority": 8,
+        "Cooldown": 0.05
+      },
+      "weapon_cannon_light": {
+        "Files": [
+          "assets/audio/sfx/combat/cannon_light_fire_01.ogg",
+          "assets/audio/sfx/combat/cannon_light_fire_02.ogg",
+          "assets/audio/sfx/combat/cannon_light_fire_03.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.08,
+        "MaxDistance": 90.0,
+        "Priority": 8,
+        "Cooldown": 0.3
+      },
+      "weapon_cannon_heavy": {
+        "Files": [
+          "assets/audio/sfx/combat/cannon_heavy_fire_01.ogg",
+          "assets/audio/sfx/combat/cannon_heavy_fire_02.ogg",
+          "assets/audio/sfx/combat/cannon_heavy_fire_03.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.05,
+        "MaxDistance": 140.0,
+        "Priority": 9,
+        "Cooldown": 1.2
+      },
+      "weapon_cannon_siege": {
+        "Files": [
+          "assets/audio/sfx/combat/siege_cannon_fire_01.ogg",
+          "assets/audio/sfx/combat/siege_cannon_fire_02.ogg",
+          "assets/audio/sfx/combat/siege_cannon_fire_03.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.04,
+        "MaxDistance": 200.0,
+        "Priority": 10,
+        "Cooldown": 2.0
+      },
+      "weapon_laser": {
+        "Files": [
+          "assets/audio/sfx/combat/laser_fire_01.ogg",
+          "assets/audio/sfx/combat/laser_fire_02.ogg",
+          "assets/audio/sfx/combat/laser_fire_03.ogg"
+        ],
+        "Volume": 0.82,
+        "PitchVariation": 0.12,
+        "MaxDistance": 75.0,
+        "Priority": 8,
+        "Cooldown": 0.15
+      },
+      "weapon_plasma": {
+        "Files": [
+          "assets/audio/sfx/combat/plasma_fire_01.ogg",
+          "assets/audio/sfx/combat/plasma_fire_02.ogg",
+          "assets/audio/sfx/combat/plasma_fire_03.ogg"
+        ],
+        "Volume": 0.95,
+        "PitchVariation": 0.1,
+        "MaxDistance": 110.0,
+        "Priority": 9,
+        "Cooldown": 0.6
+      },
+      "weapon_flak": {
+        "Files": [
+          "assets/audio/sfx/combat/flak_burst_01.ogg",
+          "assets/audio/sfx/combat/flak_burst_02.ogg",
+          "assets/audio/sfx/combat/flak_burst_03.ogg"
+        ],
+        "Volume": 0.88,
+        "PitchVariation": 0.09,
+        "MaxDistance": 95.0,
+        "Priority": 8,
+        "Cooldown": 0.2
+      },
+      "weapon_torpedo": {
+        "Files": [
+          "assets/audio/sfx/combat/torpedo_launch_01.ogg",
+          "assets/audio/sfx/combat/torpedo_launch_02.ogg",
+          "assets/audio/sfx/combat/torpedo_launch_03.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.06,
+        "MaxDistance": 130.0,
+        "Priority": 9,
+        "Cooldown": 1.5
+      },
+      "weapon_pistol": {
+        "Files": [
+          "assets/audio/sfx/combat/pistol_fire_01.ogg",
+          "assets/audio/sfx/combat/pistol_fire_02.ogg",
+          "assets/audio/sfx/combat/pistol_fire_03.ogg"
+        ],
+        "Volume": 0.65,
+        "PitchVariation": 0.12,
+        "MaxDistance": 35.0,
+        "Priority": 5,
+        "Cooldown": 0.25
+      },
+      "impact_bullet_metal": {
+        "Files": [
+          "assets/audio/sfx/combat/impact_metal_01.ogg",
+          "assets/audio/sfx/combat/impact_metal_02.ogg",
+          "assets/audio/sfx/combat/impact_metal_03.ogg",
+          "assets/audio/sfx/combat/impact_metal_04.ogg"
+        ],
+        "Volume": 0.7,
+        "PitchVariation": 0.15,
+        "MaxDistance": 40.0,
+        "Priority": 6,
+        "Cooldown": 0.05
+      },
+      "impact_bullet_dirt": {
+        "Files": [
+          "assets/audio/sfx/combat/impact_dirt_01.ogg",
+          "assets/audio/sfx/combat/impact_dirt_02.ogg",
+          "assets/audio/sfx/combat/impact_dirt_03.ogg",
+          "assets/audio/sfx/combat/impact_dirt_04.ogg"
+        ],
+        "Volume": 0.55,
+        "PitchVariation": 0.18,
+        "MaxDistance": 30.0,
+        "Priority": 4,
+        "Cooldown": 0.05
+      },
+      "impact_bullet_flesh": {
+        "Files": [
+          "assets/audio/sfx/combat/impact_flesh_01.ogg",
+          "assets/audio/sfx/combat/impact_flesh_02.ogg",
+          "assets/audio/sfx/combat/impact_flesh_03.ogg"
+        ],
+        "Volume": 0.45,
+        "PitchVariation": 0.1,
+        "MaxDistance": 20.0,
+        "Priority": 3,
+        "Cooldown": 0.05
+      },
+      "impact_explosion_small": {
+        "Files": [
+          "assets/audio/sfx/combat/explosion_small_01.ogg",
+          "assets/audio/sfx/combat/explosion_small_02.ogg",
+          "assets/audio/sfx/combat/explosion_small_03.ogg"
+        ],
+        "Volume": 0.85,
+        "PitchVariation": 0.12,
+        "MaxDistance": 80.0,
+        "Priority": 8,
+        "Cooldown": 0.1
+      },
+      "impact_explosion_medium": {
+        "Files": [
+          "assets/audio/sfx/combat/explosion_medium_01.ogg",
+          "assets/audio/sfx/combat/explosion_medium_02.ogg",
+          "assets/audio/sfx/combat/explosion_medium_03.ogg"
+        ],
+        "Volume": 0.95,
+        "PitchVariation": 0.08,
+        "MaxDistance": 120.0,
+        "Priority": 9,
+        "Cooldown": 0.2
+      },
+      "impact_explosion_large": {
+        "Files": [
+          "assets/audio/sfx/combat/explosion_large_01.ogg",
+          "assets/audio/sfx/combat/explosion_large_02.ogg",
+          "assets/audio/sfx/combat/explosion_large_03.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.06,
+        "MaxDistance": 180.0,
+        "Priority": 10,
+        "Cooldown": 0.5
+      },
+      "impact_explosion_massive": {
+        "Files": [
+          "assets/audio/sfx/combat/explosion_massive_01.ogg",
+          "assets/audio/sfx/combat/explosion_massive_02.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.04,
+        "MaxDistance": 300.0,
+        "Priority": 10,
+        "Cooldown": 2.0
+      },
+      "unit_death_infantry": {
+        "Files": [
+          "assets/audio/sfx/combat/death_infantry_01.ogg",
+          "assets/audio/sfx/combat/death_infantry_02.ogg",
+          "assets/audio/sfx/combat/death_infantry_03.ogg",
+          "assets/audio/sfx/combat/death_infantry_04.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.15,
+        "MaxDistance": 30.0,
+        "Priority": 5,
+        "Cooldown": 0.1
+      },
+      "unit_death_vehicle": {
+        "Files": [
+          "assets/audio/sfx/combat/death_vehicle_01.ogg",
+          "assets/audio/sfx/combat/death_vehicle_02.ogg",
+          "assets/audio/sfx/combat/death_vehicle_03.ogg"
+        ],
+        "Volume": 0.95,
+        "PitchVariation": 0.07,
+        "MaxDistance": 120.0,
+        "Priority": 9,
+        "Cooldown": 0.3
+      },
+      "unit_death_aircraft": {
+        "Files": [
+          "assets/audio/sfx/combat/death_aircraft_01.ogg",
+          "assets/audio/sfx/combat/death_aircraft_02.ogg",
+          "assets/audio/sfx/combat/death_aircraft_03.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.08,
+        "MaxDistance": 150.0,
+        "Priority": 9,
+        "Cooldown": 0.5
+      },
+      "unit_death_building": {
+        "Files": [
+          "assets/audio/sfx/combat/death_building_01.ogg",
+          "assets/audio/sfx/combat/death_building_02.ogg",
+          "assets/audio/sfx/combat/death_building_03.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.05,
+        "MaxDistance": 160.0,
+        "Priority": 9,
+        "Cooldown": 1.0
+      }
+    },
+    "movement": {
+      "footstep_grass": {
+        "Files": [
+          "assets/audio/sfx/movement/footstep_grass_01.ogg",
+          "assets/audio/sfx/movement/footstep_grass_02.ogg",
+          "assets/audio/sfx/movement/footstep_grass_03.ogg",
+          "assets/audio/sfx/movement/footstep_grass_04.ogg"
+        ],
+        "Volume": 0.4,
+        "PitchVariation": 0.12,
+        "MaxDistance": 18.0,
+        "Priority": 2,
+        "Cooldown": 0.3
+      },
+      "footstep_dirt": {
+        "Files": [
+          "assets/audio/sfx/movement/footstep_dirt_01.ogg",
+          "assets/audio/sfx/movement/footstep_dirt_02.ogg",
+          "assets/audio/sfx/movement/footstep_dirt_03.ogg",
+          "assets/audio/sfx/movement/footstep_dirt_04.ogg"
+        ],
+        "Volume": 0.42,
+        "PitchVariation": 0.12,
+        "MaxDistance": 18.0,
+        "Priority": 2,
+        "Cooldown": 0.3
+      },
+      "footstep_metal": {
+        "Files": [
+          "assets/audio/sfx/movement/footstep_metal_01.ogg",
+          "assets/audio/sfx/movement/footstep_metal_02.ogg",
+          "assets/audio/sfx/movement/footstep_metal_03.ogg",
+          "assets/audio/sfx/movement/footstep_metal_04.ogg"
+        ],
+        "Volume": 0.5,
+        "PitchVariation": 0.1,
+        "MaxDistance": 22.0,
+        "Priority": 2,
+        "Cooldown": 0.28
+      },
+      "footstep_water": {
+        "Files": [
+          "assets/audio/sfx/movement/footstep_water_01.ogg",
+          "assets/audio/sfx/movement/footstep_water_02.ogg",
+          "assets/audio/sfx/movement/footstep_water_03.ogg",
+          "assets/audio/sfx/movement/footstep_water_04.ogg"
+        ],
+        "Volume": 0.55,
+        "PitchVariation": 0.15,
+        "MaxDistance": 25.0,
+        "Priority": 2,
+        "Cooldown": 0.32
+      },
+      "vehicle_engine_light": {
+        "Files": [
+          "assets/audio/sfx/movement/engine_light_loop_01.ogg",
+          "assets/audio/sfx/movement/engine_light_loop_02.ogg"
+        ],
+        "Volume": 0.65,
+        "PitchVariation": 0.08,
+        "MaxDistance": 55.0,
+        "Priority": 5,
+        "Cooldown": 0.0
+      },
+      "vehicle_engine_heavy": {
+        "Files": [
+          "assets/audio/sfx/movement/engine_heavy_loop_01.ogg",
+          "assets/audio/sfx/movement/engine_heavy_loop_02.ogg"
+        ],
+        "Volume": 0.78,
+        "PitchVariation": 0.06,
+        "MaxDistance": 80.0,
+        "Priority": 6,
+        "Cooldown": 0.0
+      },
+      "vehicle_engine_artillery": {
+        "Files": [
+          "assets/audio/sfx/movement/engine_artillery_loop_01.ogg",
+          "assets/audio/sfx/movement/engine_artillery_loop_02.ogg"
+        ],
+        "Volume": 0.72,
+        "PitchVariation": 0.05,
+        "MaxDistance": 70.0,
+        "Priority": 5,
+        "Cooldown": 0.0
+      },
+      "vehicle_treads": {
+        "Files": [
+          "assets/audio/sfx/movement/treads_loop_01.ogg",
+          "assets/audio/sfx/movement/treads_loop_02.ogg",
+          "assets/audio/sfx/movement/treads_loop_03.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.07,
+        "MaxDistance": 65.0,
+        "Priority": 4,
+        "Cooldown": 0.0
+      },
+      "helicopter_rotor": {
+        "Files": [
+          "assets/audio/sfx/movement/helicopter_rotor_loop_01.ogg",
+          "assets/audio/sfx/movement/helicopter_rotor_loop_02.ogg"
+        ],
+        "Volume": 0.82,
+        "PitchVariation": 0.05,
+        "MaxDistance": 110.0,
+        "Priority": 7,
+        "Cooldown": 0.0
+      },
+      "helicopter_flyby": {
+        "Files": [
+          "assets/audio/sfx/movement/helicopter_flyby_01.ogg",
+          "assets/audio/sfx/movement/helicopter_flyby_02.ogg"
+        ],
+        "Volume": 0.88,
+        "PitchVariation": 0.06,
+        "MaxDistance": 130.0,
+        "Priority": 7,
+        "Cooldown": 1.0
+      },
+      "jet_engine": {
+        "Files": [
+          "assets/audio/sfx/movement/jet_engine_loop_01.ogg",
+          "assets/audio/sfx/movement/jet_engine_loop_02.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.05,
+        "MaxDistance": 150.0,
+        "Priority": 7,
+        "Cooldown": 0.0
+      },
+      "jet_flyby": {
+        "Files": [
+          "assets/audio/sfx/movement/jet_flyby_01.ogg",
+          "assets/audio/sfx/movement/jet_flyby_02.ogg"
+        ],
+        "Volume": 0.95,
+        "PitchVariation": 0.04,
+        "MaxDistance": 200.0,
+        "Priority": 8,
+        "Cooldown": 1.5
+      },
+      "jet_afterburner": {
+        "Files": [
+          "assets/audio/sfx/movement/jet_afterburner_01.ogg",
+          "assets/audio/sfx/movement/jet_afterburner_02.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.04,
+        "MaxDistance": 200.0,
+        "Priority": 8,
+        "Cooldown": 2.0
+      },
+      "ship_engine": {
+        "Files": [
+          "assets/audio/sfx/movement/ship_engine_loop_01.ogg",
+          "assets/audio/sfx/movement/ship_engine_loop_02.ogg"
+        ],
+        "Volume": 0.7,
+        "PitchVariation": 0.06,
+        "MaxDistance": 90.0,
+        "Priority": 5,
+        "Cooldown": 0.0
+      },
+      "ship_wake": {
+        "Files": [
+          "assets/audio/sfx/movement/ship_wake_loop_01.ogg",
+          "assets/audio/sfx/movement/ship_wake_loop_02.ogg"
+        ],
+        "Volume": 0.55,
+        "PitchVariation": 0.1,
+        "MaxDistance": 60.0,
+        "Priority": 3,
+        "Cooldown": 0.0
+      }
+    },
+    "ambient": {
+      "ambient_wind_light": {
+        "Files": [
+          "assets/audio/sfx/ambient/wind_light_01.ogg",
+          "assets/audio/sfx/ambient/wind_light_02.ogg"
+        ],
+        "Volume": 0.3,
+        "PitchVariation": 0.05,
+        "MaxDistance": 0.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_wind_heavy": {
+        "Files": [
+          "assets/audio/sfx/ambient/wind_heavy_01.ogg",
+          "assets/audio/sfx/ambient/wind_heavy_02.ogg"
+        ],
+        "Volume": 0.5,
+        "PitchVariation": 0.06,
+        "MaxDistance": 0.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_rain_light": {
+        "Files": [
+          "assets/audio/sfx/ambient/rain_light_01.ogg",
+          "assets/audio/sfx/ambient/rain_light_02.ogg"
+        ],
+        "Volume": 0.38,
+        "PitchVariation": 0.04,
+        "MaxDistance": 0.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_rain_heavy": {
+        "Files": [
+          "assets/audio/sfx/ambient/rain_heavy_01.ogg",
+          "assets/audio/sfx/ambient/rain_heavy_02.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.04,
+        "MaxDistance": 0.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_thunder_distant": {
+        "Files": [
+          "assets/audio/sfx/ambient/thunder_distant_01.ogg",
+          "assets/audio/sfx/ambient/thunder_distant_02.ogg",
+          "assets/audio/sfx/ambient/thunder_distant_03.ogg"
+        ],
+        "Volume": 0.55,
+        "PitchVariation": 0.1,
+        "MaxDistance": 0.0,
+        "Priority": 2,
+        "Cooldown": 5.0
+      },
+      "ambient_thunder_close": {
+        "Files": [
+          "assets/audio/sfx/ambient/thunder_close_01.ogg",
+          "assets/audio/sfx/ambient/thunder_close_02.ogg",
+          "assets/audio/sfx/ambient/thunder_close_03.ogg"
+        ],
+        "Volume": 0.88,
+        "PitchVariation": 0.08,
+        "MaxDistance": 0.0,
+        "Priority": 3,
+        "Cooldown": 3.0
+      },
+      "ambient_river_flowing": {
+        "Files": [
+          "assets/audio/sfx/ambient/river_flowing_01.ogg",
+          "assets/audio/sfx/ambient/river_flowing_02.ogg"
+        ],
+        "Volume": 0.5,
+        "PitchVariation": 0.05,
+        "MaxDistance": 40.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_waterfall": {
+        "Files": [
+          "assets/audio/sfx/ambient/waterfall_01.ogg",
+          "assets/audio/sfx/ambient/waterfall_02.ogg"
+        ],
+        "Volume": 0.65,
+        "PitchVariation": 0.04,
+        "MaxDistance": 55.0,
+        "Priority": 2,
+        "Cooldown": 0.0
+      },
+      "ambient_water_splash": {
+        "Files": [
+          "assets/audio/sfx/ambient/water_splash_01.ogg",
+          "assets/audio/sfx/ambient/water_splash_02.ogg",
+          "assets/audio/sfx/ambient/water_splash_03.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.15,
+        "MaxDistance": 30.0,
+        "Priority": 2,
+        "Cooldown": 0.3
+      },
+      "ambient_birds_chirping": {
+        "Files": [
+          "assets/audio/sfx/ambient/birds_chirping_01.ogg",
+          "assets/audio/sfx/ambient/birds_chirping_02.ogg",
+          "assets/audio/sfx/ambient/birds_chirping_03.ogg"
+        ],
+        "Volume": 0.35,
+        "PitchVariation": 0.1,
+        "MaxDistance": 35.0,
+        "Priority": 1,
+        "Cooldown": 2.0
+      },
+      "ambient_birds_alarmed": {
+        "Files": [
+          "assets/audio/sfx/ambient/birds_alarmed_01.ogg",
+          "assets/audio/sfx/ambient/birds_alarmed_02.ogg"
+        ],
+        "Volume": 0.55,
+        "PitchVariation": 0.12,
+        "MaxDistance": 40.0,
+        "Priority": 2,
+        "Cooldown": 3.0
+      },
+      "ambient_dogs_barking": {
+        "Files": [
+          "assets/audio/sfx/ambient/dogs_barking_01.ogg",
+          "assets/audio/sfx/ambient/dogs_barking_02.ogg",
+          "assets/audio/sfx/ambient/dogs_barking_03.ogg"
+        ],
+        "Volume": 0.45,
+        "PitchVariation": 0.12,
+        "MaxDistance": 40.0,
+        "Priority": 1,
+        "Cooldown": 4.0
+      },
+      "ambient_insects": {
+        "Files": [
+          "assets/audio/sfx/ambient/insects_loop_01.ogg",
+          "assets/audio/sfx/ambient/insects_loop_02.ogg"
+        ],
+        "Volume": 0.28,
+        "PitchVariation": 0.06,
+        "MaxDistance": 0.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_fire_crackling": {
+        "Files": [
+          "assets/audio/sfx/ambient/fire_crackling_01.ogg",
+          "assets/audio/sfx/ambient/fire_crackling_02.ogg"
+        ],
+        "Volume": 0.5,
+        "PitchVariation": 0.08,
+        "MaxDistance": 35.0,
+        "Priority": 2,
+        "Cooldown": 0.0
+      },
+      "ambient_machinery": {
+        "Files": [
+          "assets/audio/sfx/ambient/machinery_loop_01.ogg",
+          "assets/audio/sfx/ambient/machinery_loop_02.ogg"
+        ],
+        "Volume": 0.45,
+        "PitchVariation": 0.04,
+        "MaxDistance": 50.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_crowd_distant": {
+        "Files": [
+          "assets/audio/sfx/ambient/crowd_distant_01.ogg",
+          "assets/audio/sfx/ambient/crowd_distant_02.ogg"
+        ],
+        "Volume": 0.32,
+        "PitchVariation": 0.06,
+        "MaxDistance": 60.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      }
+    },
+    "construction": {
+      "building_place": {
+        "Files": [
+          "assets/audio/sfx/construction/building_place_01.ogg",
+          "assets/audio/sfx/construction/building_place_02.ogg",
+          "assets/audio/sfx/construction/building_place_03.ogg"
+        ],
+        "Volume": 0.7,
+        "PitchVariation": 0.08,
+        "MaxDistance": 60.0,
+        "Priority": 6,
+        "Cooldown": 0.5
+      },
+      "building_construct_loop": {
+        "Files": [
+          "assets/audio/sfx/construction/build_loop_01.ogg",
+          "assets/audio/sfx/construction/build_loop_02.ogg"
+        ],
+        "Volume": 0.55,
+        "PitchVariation": 0.05,
+        "MaxDistance": 55.0,
+        "Priority": 3,
+        "Cooldown": 0.0
+      },
+      "building_complete": {
+        "Files": [
+          "assets/audio/sfx/construction/build_complete_01.ogg",
+          "assets/audio/sfx/construction/build_complete_02.ogg"
+        ],
+        "Volume": 0.8,
+        "PitchVariation": 0.04,
+        "MaxDistance": 80.0,
+        "Priority": 7,
+        "Cooldown": 1.0
+      },
+      "building_destroyed": {
+        "Files": [
+          "assets/audio/sfx/construction/building_collapse_01.ogg",
+          "assets/audio/sfx/construction/building_collapse_02.ogg",
+          "assets/audio/sfx/construction/building_collapse_03.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.05,
+        "MaxDistance": 160.0,
+        "Priority": 9,
+        "Cooldown": 1.0
+      },
+      "building_damaged": {
+        "Files": [
+          "assets/audio/sfx/construction/building_damaged_01.ogg",
+          "assets/audio/sfx/construction/building_damaged_02.ogg",
+          "assets/audio/sfx/construction/building_damaged_03.ogg"
+        ],
+        "Volume": 0.75,
+        "PitchVariation": 0.1,
+        "MaxDistance": 90.0,
+        "Priority": 6,
+        "Cooldown": 0.5
+      },
+      "harvester_loading": {
+        "Files": [
+          "assets/audio/sfx/construction/harvester_load_01.ogg",
+          "assets/audio/sfx/construction/harvester_load_02.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.07,
+        "MaxDistance": 50.0,
+        "Priority": 3,
+        "Cooldown": 0.0
+      },
+      "harvester_unloading": {
+        "Files": [
+          "assets/audio/sfx/construction/harvester_unload_01.ogg",
+          "assets/audio/sfx/construction/harvester_unload_02.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.07,
+        "MaxDistance": 50.0,
+        "Priority": 3,
+        "Cooldown": 1.0
+      },
+      "refinery_processing": {
+        "Files": [
+          "assets/audio/sfx/construction/refinery_loop_01.ogg",
+          "assets/audio/sfx/construction/refinery_loop_02.ogg"
+        ],
+        "Volume": 0.5,
+        "PitchVariation": 0.04,
+        "MaxDistance": 65.0,
+        "Priority": 2,
+        "Cooldown": 0.0
+      },
+      "reactor_hum": {
+        "Files": [
+          "assets/audio/sfx/construction/reactor_hum_01.ogg",
+          "assets/audio/sfx/construction/reactor_hum_02.ogg"
+        ],
+        "Volume": 0.42,
+        "PitchVariation": 0.03,
+        "MaxDistance": 55.0,
+        "Priority": 2,
+        "Cooldown": 0.0
+      },
+      "cordite_node_depleted": {
+        "Files": [
+          "assets/audio/sfx/construction/node_depleted_01.ogg",
+          "assets/audio/sfx/construction/node_depleted_02.ogg"
+        ],
+        "Volume": 0.85,
+        "PitchVariation": 0.06,
+        "MaxDistance": 100.0,
+        "Priority": 8,
+        "Cooldown": 5.0
+      }
+    },
+    "ui": {
+      "ui_click": {
+        "Files": [
+          "assets/audio/sfx/ui/click_01.ogg",
+          "assets/audio/sfx/ui/click_02.ogg",
+          "assets/audio/sfx/ui/click_03.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.05,
+        "MaxDistance": 0.0,
+        "Priority": 7,
+        "Cooldown": 0.05
+      },
+      "ui_hover": {
+        "Files": [
+          "assets/audio/sfx/ui/hover_01.ogg",
+          "assets/audio/sfx/ui/hover_02.ogg"
+        ],
+        "Volume": 0.35,
+        "PitchVariation": 0.04,
+        "MaxDistance": 0.0,
+        "Priority": 4,
+        "Cooldown": 0.08
+      },
+      "ui_confirm": {
+        "Files": [
+          "assets/audio/sfx/ui/confirm_01.ogg",
+          "assets/audio/sfx/ui/confirm_02.ogg"
+        ],
+        "Volume": 0.65,
+        "PitchVariation": 0.03,
+        "MaxDistance": 0.0,
+        "Priority": 7,
+        "Cooldown": 0.1
+      },
+      "ui_cancel": {
+        "Files": [
+          "assets/audio/sfx/ui/cancel_01.ogg",
+          "assets/audio/sfx/ui/cancel_02.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.04,
+        "MaxDistance": 0.0,
+        "Priority": 6,
+        "Cooldown": 0.1
+      },
+      "ui_error": {
+        "Files": [
+          "assets/audio/sfx/ui/error_01.ogg",
+          "assets/audio/sfx/ui/error_02.ogg"
+        ],
+        "Volume": 0.7,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 8,
+        "Cooldown": 0.3
+      },
+      "ui_alert": {
+        "Files": [
+          "assets/audio/sfx/ui/alert_01.ogg",
+          "assets/audio/sfx/ui/alert_02.ogg",
+          "assets/audio/sfx/ui/alert_03.ogg"
+        ],
+        "Volume": 0.8,
+        "PitchVariation": 0.03,
+        "MaxDistance": 0.0,
+        "Priority": 9,
+        "Cooldown": 1.5
+      },
+      "ui_upgrade_complete": {
+        "Files": [
+          "assets/audio/sfx/ui/upgrade_complete_01.ogg",
+          "assets/audio/sfx/ui/upgrade_complete_02.ogg"
+        ],
+        "Volume": 0.75,
+        "PitchVariation": 0.03,
+        "MaxDistance": 0.0,
+        "Priority": 8,
+        "Cooldown": 1.0
+      },
+      "ui_production_complete": {
+        "Files": [
+          "assets/audio/sfx/ui/production_complete_01.ogg",
+          "assets/audio/sfx/ui/production_complete_02.ogg"
+        ],
+        "Volume": 0.72,
+        "PitchVariation": 0.03,
+        "MaxDistance": 0.0,
+        "Priority": 8,
+        "Cooldown": 0.5
+      },
+      "ui_select_unit": {
+        "Files": [
+          "assets/audio/sfx/ui/select_unit_01.ogg",
+          "assets/audio/sfx/ui/select_unit_02.ogg",
+          "assets/audio/sfx/ui/select_unit_03.ogg"
+        ],
+        "Volume": 0.5,
+        "PitchVariation": 0.06,
+        "MaxDistance": 0.0,
+        "Priority": 5,
+        "Cooldown": 0.1
+      },
+      "ui_select_building": {
+        "Files": [
+          "assets/audio/sfx/ui/select_building_01.ogg",
+          "assets/audio/sfx/ui/select_building_02.ogg"
+        ],
+        "Volume": 0.52,
+        "PitchVariation": 0.05,
+        "MaxDistance": 0.0,
+        "Priority": 5,
+        "Cooldown": 0.15
+      },
+      "ui_group_assign": {
+        "Files": [
+          "assets/audio/sfx/ui/group_assign_01.ogg",
+          "assets/audio/sfx/ui/group_assign_02.ogg"
+        ],
+        "Volume": 0.55,
+        "PitchVariation": 0.04,
+        "MaxDistance": 0.0,
+        "Priority": 6,
+        "Cooldown": 0.2
+      },
+      "ui_group_recall": {
+        "Files": [
+          "assets/audio/sfx/ui/group_recall_01.ogg",
+          "assets/audio/sfx/ui/group_recall_02.ogg"
+        ],
+        "Volume": 0.5,
+        "PitchVariation": 0.04,
+        "MaxDistance": 0.0,
+        "Priority": 5,
+        "Cooldown": 0.15
+      },
+      "ui_chat_message": {
+        "Files": [
+          "assets/audio/sfx/ui/chat_message_01.ogg",
+          "assets/audio/sfx/ui/chat_message_02.ogg"
+        ],
+        "Volume": 0.55,
+        "PitchVariation": 0.03,
+        "MaxDistance": 0.0,
+        "Priority": 6,
+        "Cooldown": 0.5
+      },
+      "ui_match_start": {
+        "Files": [
+          "assets/audio/sfx/ui/match_start_01.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 10.0
+      },
+      "ui_match_victory": {
+        "Files": [
+          "assets/audio/sfx/ui/match_victory_01.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 10.0
+      },
+      "ui_match_defeat": {
+        "Files": [
+          "assets/audio/sfx/ui/match_defeat_01.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 10.0
+      }
+    },
+    "voice": {
+      "voice_move_acknowledge": {
+        "Files": [
+          "assets/audio/sfx/voice/move_ack_01.ogg",
+          "assets/audio/sfx/voice/move_ack_02.ogg",
+          "assets/audio/sfx/voice/move_ack_03.ogg"
+        ],
+        "Volume": 0.75,
+        "PitchVariation": 0.05,
+        "MaxDistance": 30.0,
+        "Priority": 6,
+        "Cooldown": 0.5,
+        "Subtitles": ["Moving out.", "On my way.", "Copy that."]
+      },
+      "voice_attack_acknowledge": {
+        "Files": [
+          "assets/audio/sfx/voice/attack_ack_01.ogg",
+          "assets/audio/sfx/voice/attack_ack_02.ogg",
+          "assets/audio/sfx/voice/attack_ack_03.ogg"
+        ],
+        "Volume": 0.78,
+        "PitchVariation": 0.05,
+        "MaxDistance": 30.0,
+        "Priority": 7,
+        "Cooldown": 0.5,
+        "Subtitles": ["Engaging.", "Target acquired.", "Weapons hot."]
+      },
+      "voice_select_acknowledge": {
+        "Files": [
+          "assets/audio/sfx/voice/select_ack_01.ogg",
+          "assets/audio/sfx/voice/select_ack_02.ogg",
+          "assets/audio/sfx/voice/select_ack_03.ogg"
+        ],
+        "Volume": 0.72,
+        "PitchVariation": 0.05,
+        "MaxDistance": 30.0,
+        "Priority": 5,
+        "Cooldown": 0.8,
+        "Subtitles": ["Ready.", "Standing by.", "Awaiting orders."]
+      },
+      "voice_under_attack": {
+        "Files": [
+          "assets/audio/sfx/voice/under_attack_01.ogg",
+          "assets/audio/sfx/voice/under_attack_02.ogg",
+          "assets/audio/sfx/voice/under_attack_03.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.06,
+        "MaxDistance": 50.0,
+        "Priority": 9,
+        "Cooldown": 3.0,
+        "Subtitles": ["We're under fire!", "Taking hits!", "Need backup!"]
+      },
+      "voice_base_under_attack": {
+        "Files": [
+          "assets/audio/sfx/voice/base_under_attack_01.ogg",
+          "assets/audio/sfx/voice/base_under_attack_02.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.04,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 5.0,
+        "Subtitles": ["Our base is under attack!"]
+      }
+    },
+    "music": {
+      "music_menu": {
+        "Files": [
+          "assets/audio/music/menu_theme_01.ogg"
+        ],
+        "Volume": 0.7,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 0.0
+      },
+      "music_loading": {
+        "Files": [
+          "assets/audio/music/loading_theme_01.ogg"
+        ],
+        "Volume": 0.5,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 0.0
+      },
+      "music_battle_calm": {
+        "Files": [
+          "assets/audio/music/battle_calm_01.ogg",
+          "assets/audio/music/battle_calm_02.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 9,
+        "Cooldown": 0.0
+      },
+      "music_battle_intense": {
+        "Files": [
+          "assets/audio/music/battle_intense_01.ogg",
+          "assets/audio/music/battle_intense_02.ogg",
+          "assets/audio/music/battle_intense_03.ogg"
+        ],
+        "Volume": 0.65,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 9,
+        "Cooldown": 0.0
+      },
+      "music_victory": {
+        "Files": [
+          "assets/audio/music/victory_01.ogg"
+        ],
+        "Volume": 0.8,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 0.0
+      },
+      "music_defeat": {
+        "Files": [
+          "assets/audio/music/defeat_01.ogg"
+        ],
+        "Volume": 0.75,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 0.0
+      }
+    }
+  }
+}
