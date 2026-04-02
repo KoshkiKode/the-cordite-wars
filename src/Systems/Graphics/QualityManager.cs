@@ -31,7 +31,7 @@ namespace UnnamedRTS.Systems.Graphics
     ///   QualityManager.Instance.ApplyTier(QualityTier.High);
     ///   QualityManager.Instance.SetAntiAliasing(3);   // override individual setting
     /// </summary>
-    public sealed class QualityManager : Node
+    public sealed partial class QualityManager : Node
     {
         // ─── Singleton ────────────────────────────────────────────────────────
 
@@ -166,25 +166,25 @@ namespace UnnamedRTS.Systems.Graphics
             {
                 case 0:
                     viewport.Msaa3D  = Viewport.Msaa.Disabled;
-                    viewport.ScreenSpaceAa = Viewport.ScreenSpaceAA.Disabled;
+                    viewport.ScreenSpaceAA = Viewport.ScreenSpaceAAEnum.Disabled;
                     GD.Print("[QualityManager] AA: OFF");
                     break;
 
                 case 1:
                     viewport.Msaa3D  = Viewport.Msaa.Disabled;
-                    viewport.ScreenSpaceAa = Viewport.ScreenSpaceAA.Fxaa;
+                    viewport.ScreenSpaceAA = Viewport.ScreenSpaceAAEnum.Fxaa;
                     GD.Print("[QualityManager] AA: FXAA");
                     break;
 
                 case 2:
                     viewport.Msaa3D  = Viewport.Msaa.Msaa2X;
-                    viewport.ScreenSpaceAa = Viewport.ScreenSpaceAA.Disabled;
+                    viewport.ScreenSpaceAA = Viewport.ScreenSpaceAAEnum.Disabled;
                     GD.Print("[QualityManager] AA: MSAA 2×");
                     break;
 
                 case 3:
                     viewport.Msaa3D  = Viewport.Msaa.Msaa4X;
-                    viewport.ScreenSpaceAa = Viewport.ScreenSpaceAA.Disabled;
+                    viewport.ScreenSpaceAA = Viewport.ScreenSpaceAAEnum.Disabled;
                     GD.Print("[QualityManager] AA: MSAA 4×");
                     break;
             }

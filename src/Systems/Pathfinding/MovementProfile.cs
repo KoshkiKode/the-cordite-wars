@@ -222,6 +222,44 @@ public sealed class MovementProfile
         ImpassableTerrain = impassableTerrain;
     }
 
+    // ── With* Overrides ──────────────────────────────────────────────
+
+    /// <summary>Creates a copy of this profile with a different MaxSpeed.</summary>
+    public MovementProfile WithSpeed(FixedPoint newSpeed)
+    {
+        return new MovementProfile(
+            Domain, Class, newSpeed, Acceleration, Deceleration, TurnRate,
+            MaxSlopeAngle, Mass, SuspensionStiffness, GroundClearance,
+            GravityMultiplier, CrushStrength, FootprintWidth, FootprintHeight,
+            new Dictionary<TerrainType, FixedPoint>(
+                (IDictionary<TerrainType, FixedPoint>)TerrainSpeedModifiers),
+            new HashSet<TerrainType>(ImpassableTerrain));
+    }
+
+    /// <summary>Creates a copy of this profile with a different TurnRate.</summary>
+    public MovementProfile WithTurnRate(FixedPoint newTurnRate)
+    {
+        return new MovementProfile(
+            Domain, Class, MaxSpeed, Acceleration, Deceleration, newTurnRate,
+            MaxSlopeAngle, Mass, SuspensionStiffness, GroundClearance,
+            GravityMultiplier, CrushStrength, FootprintWidth, FootprintHeight,
+            new Dictionary<TerrainType, FixedPoint>(
+                (IDictionary<TerrainType, FixedPoint>)TerrainSpeedModifiers),
+            new HashSet<TerrainType>(ImpassableTerrain));
+    }
+
+    /// <summary>Creates a copy of this profile with a different Mass.</summary>
+    public MovementProfile WithMass(FixedPoint newMass)
+    {
+        return new MovementProfile(
+            Domain, Class, MaxSpeed, Acceleration, Deceleration, TurnRate,
+            MaxSlopeAngle, newMass, SuspensionStiffness, GroundClearance,
+            GravityMultiplier, CrushStrength, FootprintWidth, FootprintHeight,
+            new Dictionary<TerrainType, FixedPoint>(
+                (IDictionary<TerrainType, FixedPoint>)TerrainSpeedModifiers),
+            new HashSet<TerrainType>(ImpassableTerrain));
+    }
+
     // ── Helper: FixedPoint Shorthands ────────────────────────────────────
     //
     // These are used only within the factory methods below.  We define them

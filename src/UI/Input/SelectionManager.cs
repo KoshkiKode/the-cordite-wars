@@ -121,7 +121,7 @@ public partial class SelectionManager : Node
             if (keyEvent.CtrlPressed)
                 AssignControlGroup(groupIndex);
             else
-                RecallControlGroup(groupIndex, keyEvent.IsEcho);
+                RecallControlGroup(groupIndex, keyEvent.IsEcho());
         }
     }
 
