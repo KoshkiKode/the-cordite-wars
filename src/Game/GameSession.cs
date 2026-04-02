@@ -2,14 +2,19 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using UnnamedRTS.Core;
+using UnnamedRTS.Game.AI;
 using UnnamedRTS.Game.Assets;
+using UnnamedRTS.Game.Buildings;
 using UnnamedRTS.Game.Camera;
 using UnnamedRTS.Game.Economy;
 using UnnamedRTS.Game.Tech;
 using UnnamedRTS.Game.Units;
 using UnnamedRTS.Game.World;
 using UnnamedRTS.Systems.Networking;
+using UnnamedRTS.Systems.Pathfinding;
 using UnnamedRTS.Systems.Persistence;
+using UnnamedRTS.UI.HUD;
+using UnnamedRTS.UI.Input;
 
 namespace UnnamedRTS.Game;
 
@@ -57,6 +62,15 @@ public partial class GameSession : Node
     // ── Camera ──────────────────────────────────────────────────────
 
     private RTSCamera? _camera;
+
+    // ── Gameplay Systems (Systems 1-5) ───────────────────────────────
+
+    private SelectionManager? _selectionManager;
+    private CommandInput? _commandInput;
+    private BuildingPlacer? _buildingPlacer;
+    private BuildingManifest _buildingManifest = new();
+    private GameHUD? _gameHUD;
+    private readonly List<SkirmishAI> _skirmishAIs = new();
 
     // ── Session State ───────────────────────────────────────────────
 
@@ -155,6 +169,9 @@ public partial class GameSession : Node
 
         // k. Set up RTS camera
         SetupCamera();
+
+        // k2. Set up gameplay systems (Selection, Commands, Building, HUD, AI)
+        SetupGameplaySystems(config);
 
         // l. Wire up GameManager
         _gameManager = GetNodeOrNull<GameManager>("/root/GameManager");
@@ -559,6 +576,171 @@ public partial class GameSession : Node
     }
 
     // ═════════════════════════════════════════════════════════════════
+    // GAMEPLAY SYSTEMS SETUP
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Sets up SelectionManager, CommandInput, BuildingPlacer, GameHUD,
+    /// and SkirmishAI controllers for each AI player.
+    /// </summary>
+    private void SetupGameplaySystems(MatchConfig config)
+    {
+        if (_camera is null || _unitSpawner is null || _economyManager is null) return;
+
+        // Find the local (human) player ID
+        int localPlayerId = 0;
+        for (int i = 0; i < config.PlayerConfigs.Length; i++)
+        {
+            if (!config.PlayerConfigs[i].IsAI)
+            {
+                localPlayerId = config.PlayerConfigs[i].PlayerId;
+                break;
+            }
+        }
+
+        // Load building manifest
+        _buildingManifest.Load("res://data/building_manifest.json");
+
+        // a. SelectionManager
+        _selectionManager = new SelectionManager();
+        _selectionManager.Name = "SelectionManager";
+        _selectionManager.Initialize(localPlayerId, _unitSpawner, _camera);
+        AddChild(_selectionManager);
+
+        // b. CommandInput — needs CommandBuffer from GameManager
+        var commandBuffer = new CommandBuffer();
+        _commandInput = new CommandInput();
+        _commandInput.Name = "CommandInput";
+        _commandInput.Initialize(
+            localPlayerId,
+            _selectionManager,
+            commandBuffer,
+            _unitSpawner,
+            _camera);
+        AddChild(_commandInput);
+
+        // c. BuildingPlacer
+        var occupancyGrid = new OccupancyGrid(
+            ActiveMap?.Width ?? 256,
+            ActiveMap?.Height ?? 256);
+
+        _buildingPlacer = new BuildingPlacer();
+        _buildingPlacer.Name = "BuildingPlacer";
+        _buildingPlacer.Initialize(
+            localPlayerId,
+            occupancyGrid,
+            _economyManager,
+            _buildingRegistry,
+            _buildingManifest,
+            _camera);
+        AddChild(_buildingPlacer);
+
+        // Register HQ positions for build radius validation
+        if (ActiveMap is not null)
+        {
+            for (int i = 0; i < config.PlayerConfigs.Length; i++)
+            {
+                PlayerConfig pc = config.PlayerConfigs[i];
+                for (int s = 0; s < ActiveMap.StartingPositions.Length; s++)
+                {
+                    if (ActiveMap.StartingPositions[s].PlayerId == pc.PlayerId ||
+                        (s == i && ActiveMap.StartingPositions.Length > i))
+                    {
+                        var sp = ActiveMap.StartingPositions[s < ActiveMap.StartingPositions.Length ? s : 0];
+                        FixedVector2 hqPos = new FixedVector2(
+                            FixedPoint.FromInt(sp.X),
+                            FixedPoint.FromInt(sp.Y));
+                        _buildingPlacer.RegisterHQPosition(pc.PlayerId, hqPos);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // d. GameHUD
+        _gameHUD = new GameHUD();
+        _gameHUD.Initialize(
+            localPlayerId,
+            _economyManager,
+            _selectionManager,
+            _buildingPlacer,
+            _unitSpawner,
+            _unitDataRegistry,
+            _buildingRegistry);
+        AddChild(_gameHUD);
+
+        // e. Wire minimap click-to-move to camera
+        EventBus.Instance?.Connect(EventBus.SignalName.MinimapClick,
+            Callable.From<Vector3>((pos) => _camera?.SetFocusPoint(pos)));
+
+        // f. Skirmish AI for each AI player
+        SetupAIPlayers(config);
+
+        GD.Print("[GameSession] Gameplay systems initialized.");
+    }
+
+    /// <summary>
+    /// Creates SkirmishAI controller for each AI player.
+    /// </summary>
+    private void SetupAIPlayers(MatchConfig config)
+    {
+        if (ActiveMap is null || _economyManager is null || _unitSpawner is null ||
+            _buildingPlacer is null || _techTreeManager is null) return;
+
+        for (int i = 0; i < config.PlayerConfigs.Length; i++)
+        {
+            PlayerConfig pc = config.PlayerConfigs[i];
+            if (!pc.IsAI) continue;
+
+            // Find starting position for this AI
+            FixedVector2 basePos = FixedVector2.Zero;
+            for (int s = 0; s < ActiveMap.StartingPositions.Length; s++)
+            {
+                if (ActiveMap.StartingPositions[s].PlayerId == pc.PlayerId)
+                {
+                    basePos = new FixedVector2(
+                        FixedPoint.FromInt(ActiveMap.StartingPositions[s].X),
+                        FixedPoint.FromInt(ActiveMap.StartingPositions[s].Y));
+                    break;
+                }
+            }
+
+            if (basePos.X == FixedPoint.Zero && basePos.Y == FixedPoint.Zero && i < ActiveMap.StartingPositions.Length)
+            {
+                var sp = ActiveMap.StartingPositions[i];
+                basePos = new FixedVector2(
+                    FixedPoint.FromInt(sp.X),
+                    FixedPoint.FromInt(sp.Y));
+            }
+
+            AIDifficulty difficulty = pc.AIDifficulty switch
+            {
+                0 => AIDifficulty.Easy,
+                1 => AIDifficulty.Medium,
+                2 => AIDifficulty.Hard,
+                _ => AIDifficulty.Medium
+            };
+
+            var ai = new SkirmishAI();
+            ai.Initialize(
+                pc.PlayerId,
+                pc.FactionId,
+                difficulty,
+                basePos,
+                _economyManager,
+                _unitSpawner,
+                _buildingPlacer,
+                _techTreeManager,
+                _unitDataRegistry,
+                _buildingRegistry);
+            AddChild(ai);
+            _skirmishAIs.Add(ai);
+
+            GD.Print($"[GameSession] Created AI player {pc.PlayerId} ({pc.FactionId}, {difficulty}).");
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════
     // PRIVATE HELPERS
     // ═════════════════════════════════════════════════════════════════
 
@@ -807,6 +989,11 @@ public partial class GameSession : Node
         _lockstepManager = null;
         _networkTransport = null;
         _camera = null;
+        _selectionManager = null;
+        _commandInput = null;
+        _buildingPlacer = null;
+        _gameHUD = null;
+        _skirmishAIs.Clear();
 
         CurrentMatchState = MatchState.Setup;
     }

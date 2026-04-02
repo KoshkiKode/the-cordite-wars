@@ -89,6 +89,16 @@ public partial class EventBus : Node
     [Signal] public delegate void GameSavedEventHandler(string slotName);
     [Signal] public delegate void GameLoadedEventHandler(string slotName);
 
+    // ── Selection & Command Events ──────────────────────────────────
+
+    [Signal] public delegate void SelectionChangedEventHandler(int[] unitIds);
+    [Signal] public delegate void UnitOrderedEventHandler(int[] unitIds, string orderType);
+
+    // ── Production Events ────────────────────────────────────────────
+
+    [Signal] public delegate void ProductionStartedEventHandler(Node building, string unitTypeId);
+    [Signal] public delegate void ProductionCompletedEventHandler(Node building, string unitTypeId);
+
     // ── UI Events ────────────────────────────────────────────────────
 
     [Signal] public delegate void TooltipRequestedEventHandler(string text, Vector2 position);
@@ -113,6 +123,13 @@ public partial class EventBus : Node
     public void EmitUnitSelected(Node unit) => EmitSignal(SignalName.UnitSelected, unit);
     public void EmitUnitDeselected(Node unit) => EmitSignal(SignalName.UnitDeselected, unit);
     public void EmitSelectionCleared() => EmitSignal(SignalName.SelectionCleared);
+
+    public void EmitMoveCommandIssued(Vector3 target) =>
+        EmitSignal(SignalName.MoveCommandIssued, target);
+    public void EmitAttackCommandIssued(Node target) =>
+        EmitSignal(SignalName.AttackCommandIssued, target);
+    public void EmitBuildCommandIssued(string buildingId, Vector3 position) =>
+        EmitSignal(SignalName.BuildCommandIssued, buildingId, position);
 
     public void EmitResourcesChanged(int playerId, string type, int amount) =>
         EmitSignal(SignalName.ResourcesChanged, playerId, type, amount);
@@ -159,6 +176,20 @@ public partial class EventBus : Node
     // ── Map Emit Helpers ───────────────────────────────────────────
 
     public void EmitMapLoaded(string mapId) => EmitSignal(SignalName.MapLoaded, mapId);
+
+    // ── Selection & Command Emit Helpers ────────────────────────────
+
+    public void EmitSelectionChanged(int[] unitIds) =>
+        EmitSignal(SignalName.SelectionChanged, unitIds);
+    public void EmitUnitOrdered(int[] unitIds, string orderType) =>
+        EmitSignal(SignalName.UnitOrdered, unitIds, orderType);
+
+    // ── Production Emit Helpers ──────────────────────────────────────
+
+    public void EmitProductionStarted(Node building, string unitTypeId) =>
+        EmitSignal(SignalName.ProductionStarted, building, unitTypeId);
+    public void EmitProductionCompleted(Node building, string unitTypeId) =>
+        EmitSignal(SignalName.ProductionCompleted, building, unitTypeId);
 
     // ── Persistence Emit Helpers ────────────────────────────────────
 
