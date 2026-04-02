@@ -574,6 +574,22 @@ public class CommandBuffer
     }
 
     /// <summary>
+    /// Injects a batch of pre-sorted commands from the lockstep networking layer.
+    /// These commands have already been merged and sorted by LockstepManager
+    /// (PlayerId → CommandType → InsertionOrder). They are added to the buffer
+    /// for execution on their ScheduledTick.
+    /// </summary>
+    public void InjectCommands(ulong tick, List<GameCommand> commands)
+    {
+        for (int i = 0; i < commands.Count; i++)
+        {
+            GameCommand cmd = commands[i];
+            cmd.ScheduledTick = tick;
+            AddCommand(cmd);
+        }
+    }
+
+    /// <summary>
     /// Removes all commands for ticks before the given tick. Used to
     /// garbage-collect commands that can no longer execute (e.g., after
     /// a confirmed sync point in networking).

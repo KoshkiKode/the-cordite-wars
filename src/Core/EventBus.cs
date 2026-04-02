@@ -59,6 +59,14 @@ public partial class EventBus : Node
     [Signal] public delegate void MinimapClickEventHandler(Vector3 worldPosition);
     [Signal] public delegate void BaseUnderAttackEventHandler(int playerId, Vector3 position);
 
+    // ── Networking Events ────────────────────────────────────────────
+
+    [Signal] public delegate void DesyncDetectedEventHandler(ulong tick);
+    [Signal] public delegate void PlayerConnectedEventHandler(int playerId, string playerName);
+    [Signal] public delegate void PlayerDisconnectedEventHandler(int playerId);
+    [Signal] public delegate void LobbyUpdatedEventHandler();
+    [Signal] public delegate void MatchCountdownEventHandler(int secondsRemaining);
+
     // ── UI Events ────────────────────────────────────────────────────
 
     [Signal] public delegate void TooltipRequestedEventHandler(string text, Vector2 position);
@@ -105,4 +113,15 @@ public partial class EventBus : Node
         EmitSignal(SignalName.MinimapClick, worldPosition);
     public void EmitBaseUnderAttack(int playerId, Vector3 position) =>
         EmitSignal(SignalName.BaseUnderAttack, playerId, position);
+
+    // ── Networking Emit Helpers ──────────────────────────────────────
+
+    public void EmitDesyncDetected(ulong tick) => EmitSignal(SignalName.DesyncDetected, tick);
+    public void EmitPlayerConnected(int playerId, string playerName) =>
+        EmitSignal(SignalName.PlayerConnected, playerId, playerName);
+    public void EmitPlayerDisconnected(int playerId) =>
+        EmitSignal(SignalName.PlayerDisconnected, playerId);
+    public void EmitLobbyUpdated() => EmitSignal(SignalName.LobbyUpdated);
+    public void EmitMatchCountdown(int secondsRemaining) =>
+        EmitSignal(SignalName.MatchCountdown, secondsRemaining);
 }

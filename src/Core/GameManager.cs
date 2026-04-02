@@ -1,4 +1,5 @@
 using Godot;
+using UnnamedRTS.Systems.Networking;
 
 namespace UnnamedRTS.Core;
 
@@ -32,6 +33,24 @@ public partial class GameManager : Node
     /// </summary>
     public DeterministicRng Rng { get; private set; } = new(0);
 
+    /// <summary>
+    /// Whether the current match is networked multiplayer.
+    /// When true, tick advancement is gated by LockstepManager.
+    /// </summary>
+    public bool IsMultiplayer { get; private set; }
+
+    /// <summary>
+    /// Reference to the lockstep manager for multiplayer matches.
+    /// Null in single-player.
+    /// </summary>
+    public LockstepManager? Lockstep { get; private set; }
+
+    /// <summary>
+    /// Reference to the command system for injecting remote commands.
+    /// Set externally during initialization.
+    /// </summary>
+    public CommandBuffer? CommandBuffer { get; set; }
+
     public override void _Ready()
     {
         GD.Print("[GameManager] Initialized.");
@@ -40,23 +59,73 @@ public partial class GameManager : Node
 
     public override void _PhysicsProcess(double delta)
     {
-        if (State == GameState.Playing)
+        if (State != GameState.Playing)
+            return;
+
+        if (IsMultiplayer && Lockstep != null)
         {
-            CurrentTick++;
+            ulong nextTick = CurrentTick + 1;
+
+            // In multiplayer: only advance if all players' commands are received
+            if (!Lockstep.CanAdvanceTick(nextTick))
+                return; // Waiting for remote commands
+
+            // Confirm our own tick (signals we have no more commands for nextTick)
+            Lockstep.ConfirmLocalTick(nextTick);
+
+            // Get merged commands for this tick and inject into the command buffer
+            var commands = Lockstep.GetCommandsForTick(nextTick);
+            if (CommandBuffer != null)
+            {
+                for (int i = 0; i < commands.Count; i++)
+                {
+                    CommandBuffer.AddCommand(commands[i]);
+                }
+            }
+        }
+
+        CurrentTick++;
+
+        if (IsMultiplayer && Lockstep != null)
+        {
+            // Compute and submit checksum every 30 ticks (1 second)
+            if (CurrentTick % 30 == 0)
+            {
+                // Checksum computation requires the simulation state list.
+                // The actual SimUnit list is provided by the tick pipeline caller.
+                // Here we emit a signal / delegate pattern for the pipeline to supply it.
+                // For now, the checksum is triggered externally after the tick pipeline runs.
+            }
         }
     }
 
     /// <summary>
-    /// Starts a new match with the given RNG seed.
-    /// All clients must use the same seed for deterministic lockstep.
+    /// Starts a new single-player match with the given RNG seed.
     /// </summary>
     public void StartMatch(ulong seed)
     {
         CurrentTick = 0;
         Rng = new DeterministicRng(seed);
+        IsMultiplayer = false;
+        Lockstep = null;
         State = GameState.Playing;
         EventBus.Instance?.EmitMatchStarted(seed);
         GD.Print($"[GameManager] Match started with seed {seed}.");
+    }
+
+    /// <summary>
+    /// Starts a multiplayer match with lockstep networking.
+    /// Called after lobby setup — all clients must use the same seed.
+    /// </summary>
+    public void StartMultiplayerMatch(ulong seed, LockstepManager lockstep)
+    {
+        CurrentTick = 0;
+        Rng = new DeterministicRng(seed);
+        IsMultiplayer = true;
+        Lockstep = lockstep;
+        State = GameState.Playing;
+        EventBus.Instance?.EmitMatchStarted(seed);
+        GD.Print($"[GameManager] Multiplayer match started with seed {seed}.");
     }
 
     /// <summary>

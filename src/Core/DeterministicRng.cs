@@ -16,6 +16,12 @@ public class DeterministicRng
 {
     private ulong _s0, _s1, _s2, _s3;
 
+    /// <summary>
+    /// Returns the full internal state for deterministic checksum comparison.
+    /// Used by StateChecksum to verify lockstep sync.
+    /// </summary>
+    public (ulong s0, ulong s1, ulong s2, ulong s3) GetState() => (_s0, _s1, _s2, _s3);
+
     public DeterministicRng(ulong seed)
     {
         // Use SplitMix64 to initialize state from a single seed.
