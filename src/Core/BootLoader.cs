@@ -12,7 +12,7 @@ public partial class BootLoader : Node
     public override void _Ready()
     {
         GD.Print("╔════════════════════════════════════════╗");
-        GD.Print("║        Unnamed RTS — v0.0.1            ║");
+        GD.Print("║   Cordite Wars: Six Fronts — v0.1.0    ║");
         GD.Print("║   Godot 4.4 + C# | Forward Plus       ║");
         GD.Print("╚════════════════════════════════════════╝");
         GD.Print("");
@@ -29,9 +29,8 @@ public partial class BootLoader : Node
         }
 
         GD.Print("[Boot] All core systems initialized.");
-        GD.Print("[Boot] Ready for main menu scene.");
+        GD.Print("[Boot] Transitioning to splash screen...");
 
-        // TODO: Transition to main menu scene once it exists.
-        // GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+        GetTree().ChangeSceneToFile("res://scenes/UI/SplashScreen.tscn");
     }
 }
