@@ -3,6 +3,9 @@ on:
   push:
     branches: [ "main" ]
 
+env:
+  GODOT_VERSION: "4.6.2-stable"
+
 jobs:
   export-windows:
     name: Windows Export
@@ -19,8 +22,8 @@ jobs:
       - name: Export Windows
         uses: firebelley/godot-export@v7.0.0
         with:
-          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_mono_linux_x86_64.zip
-          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_mono_export_templates.tpz
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
           archive_output: true
           export_debug: false
@@ -46,8 +49,8 @@ jobs:
       - name: Export Linux
         uses: firebelley/godot-export@v7.0.0
         with:
-          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_mono_linux_x86_64.zip
-          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_mono_export_templates.tpz
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
           archive_output: true
           export_debug: false
@@ -79,11 +82,32 @@ jobs:
         run: |
           mkdir -p ~/.local/share/godot/
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+      - name: Configure Godot Android SDK Path
+        run: |
+          mkdir -p ~/.config/godot
+          printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\n' \
+            "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" \
+            > ~/.config/godot/editor_settings-4.tres
+      - name: Install Android Build Template
+        run: |
+          TEMPLATES_URL="https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz"
+          echo "Downloading export templates to extract Android build template..."
+          wget -q "$TEMPLATES_URL" -O /tmp/templates.tpz
+          mkdir -p android/build
+          python3 - <<'PYEOF'
+          import zipfile, io, sys
+          with zipfile.ZipFile('/tmp/templates.tpz') as outer:
+              android_src_data = outer.read('templates/android_source.zip')
+          with zipfile.ZipFile(io.BytesIO(android_src_data)) as inner:
+              inner.extractall('android/build')
+          print('Android build template installed to android/build/')
+          PYEOF
+          rm /tmp/templates.tpz
       - name: Export Android
         uses: firebelley/godot-export@v7.0.0
         with:
-          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_mono_linux_x86_64.zip
-          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_mono_export_templates.tpz
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
           archive_output: true
           export_debug: false
