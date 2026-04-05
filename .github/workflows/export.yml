@@ -5,6 +5,7 @@ on:
 
 env:
   GODOT_VERSION: "4.6.2-stable"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   export-windows:
