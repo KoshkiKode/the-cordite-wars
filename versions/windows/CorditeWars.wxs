@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  CorditeWars.wxs — WiX v4 MSI installer for Cordite Wars: Six Fronts
+  Build: wix build versions\windows\CorditeWars.wxs -arch x64
+           -ext WixToolset.UI.wixext
+           -d BuildDir=build\windows
+           -out dist\windows\CorditeWars_0.1.0.msi
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+  <Package Name="Cordite Wars: Six Fronts"
+           Version="0.1.0"
+           Manufacturer="Cordite Wars Team"
+           UpgradeCode="F2A3B7E2-88F4-4F7B-A6D2-8F70B97A7C11"
+           Language="1033"
+           Compressed="yes"
+           InstallerVersion="500"
+           Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+
+    <!-- Install all exported game files into Program Files -->
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="Cordite Wars Six Fronts">
+        <Files Source="$(BuildDir)\**" />
+      </Directory>
+    </StandardDirectory>
+
+    <!-- Start Menu shortcut -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppShortcutDir" Name="Cordite Wars: Six Fronts">
+        <Component Id="StartMenuShortcut" Guid="A2B3C4D5-E6F7-8901-ABCD-EF0123456789">
+          <Shortcut Id="AppShortcut"
+                    Name="Cordite Wars: Six Fronts"
+                    Description="A cross-platform real-time strategy game"
+                    Target="[INSTALLFOLDER]CorditeWars.exe"
+                    WorkingDirectory="INSTALLFOLDER" />
+          <RemoveFolder Id="RemoveAppShortcutDir" Directory="AppShortcutDir" On="uninstall" />
+          <RegistryValue Root="HKCU"
+                         Key="Software\CorditeWarsTeam\CorditeWarsSixFronts"
+                         Name="installed"
+                         Type="integer"
+                         Value="1"
+                         KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <!-- Registry: store install path for launchers / updaters -->
+    <Component Id="RegistryEntries" Guid="B3C4D5E6-F7A8-9012-BCDE-F01234567890" Directory="INSTALLFOLDER">
+      <RegistryKey Root="HKLM" Key="Software\CorditeWarsTeam\CorditeWarsSixFronts">
+        <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" KeyPath="yes" />
+        <RegistryValue Name="Version" Type="string" Value="0.1.0" />
+      </RegistryKey>
+    </Component>
+
+  </Package>
+</Wix>

@@ -1,197 +1,254 @@
 name: "Export Godot Project"
-on: 
+
+on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+  workflow_dispatch:
 
 env:
   GODOT_VERSION: "4.6.2-stable"
+  APP_VERSION: "0.1.0"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  export-windows:
-    name: Windows Export
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 0. Validate project — confirm the boot scene and all platform presets exist
+  #    before spending runner minutes on exports.
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-project:
+    name: Validate Project
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check boot scene and required project files
+        run: |
+          set -euo pipefail
+          ERRORS=0
+
+          check_file() {
+            if [ ! -e "$1" ]; then
+              echo "MISSING: $1"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "OK:      $1"
+            fi
+          }
+
+          # Core Godot project files
+          check_file project.godot
+          check_file export_presets.cfg
+          check_file scenes/Core/Boot.tscn
+          check_file scenes/UI/MainMenu.tscn
+          check_file scenes/UI/SplashScreen.tscn
+
+          # Autoload singletons
+          check_file src/Core/GameManager.cs
+          check_file src/Core/EventBus.cs
+          check_file src/Systems/Audio/AudioManager.cs
+
+          # C# project
+          check_file UnnamedRTS.csproj
+
+          # Platform packaging assets
+          check_file versions/windows/inno-setup.iss
+          check_file versions/windows/CorditeWars.wxs
+          check_file versions/linux/snapcraft.yaml
+          check_file versions/macos/entitlements.plist
+
+          # Confirm Boot.tscn is the main scene
+          if ! grep -q 'run/main_scene.*Boot\.tscn' project.godot; then
+            echo "FAIL: project.godot does not set run/main_scene to Boot.tscn"
+            ERRORS=$((ERRORS + 1))
+          else
+            echo "OK:      project.godot -> Boot.tscn"
+          fi
+
+          # Confirm all four export presets are present
+          for PRESET in "Windows Desktop" "Linux/X11" "Android" "iOS"; do
+            if ! grep -q "name=\"$PRESET\"" export_presets.cfg; then
+              echo "FAIL: export_presets.cfg missing preset: $PRESET"
+              ERRORS=$((ERRORS + 1))
+            else
+              echo "OK:      export preset: $PRESET"
+            fi
+          done
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo ""
+            echo "Project validation FAILED with $ERRORS error(s)."
+            exit 1
+          fi
+          echo ""
+          echo "Project validation passed."
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 1a. Export Windows binary
+  # ─────────────────────────────────────────────────────────────────────────────
+  export-windows:
+    name: Windows Export
+    runs-on: ubuntu-latest
+    needs: validate-project
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+
       - name: Build C# Assemblies
         run: dotnet build -c ExportRelease
-      - name: Install Android Build Template
-        run: |
-          TEMPLATES_URL="https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz"
-          echo "Downloading export templates to extract Android build template..."
-          wget -q "$TEMPLATES_URL" -O /tmp/templates.tpz
-          rm -rf android/build
-          mkdir -p android/build
-          python3 - <<'PYEOF'
-          import io
-          import os
-          import zipfile
 
-          with zipfile.ZipFile('/tmp/templates.tpz') as outer:
-              android_src_data = outer.read('templates/android_source.zip')
-
-          with zipfile.ZipFile(io.BytesIO(android_src_data)) as inner:
-              for member in inner.infolist():
-                  if not member.filename.startswith('android_source/'):
-                      continue
-
-                  rel = member.filename[len('android_source/'):]
-                  if not rel:
-                      continue
-
-                  dest = os.path.join('android/build', rel)
-                  if member.is_dir():
-                      os.makedirs(dest, exist_ok=True)
-                  else:
-                      os.makedirs(os.path.dirname(dest), exist_ok=True)
-                      with inner.open(member) as src, open(dest, 'wb') as out:
-                          out.write(src.read())
-
-          print('Android build template installed to android/build/')
-          PYEOF
-          rm /tmp/templates.tpz
       - name: Export Windows
         uses: firebelley/godot-export@v7.0.0
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
-          archive_output: true
+          archive_output: false
           export_debug: false
           export_name: Windows Desktop
-      - name: Upload Artifact
+
+      - name: Verify Windows export
+        run: |
+          echo "Windows export contents:"
+          ls -la build/windows/
+          if [ ! -f build/windows/CorditeWars.exe ]; then
+            echo "ERROR: CorditeWars.exe not found after export"
+            exit 1
+          fi
+
+      - name: Upload Windows export artifact
         uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Windows
-          path: /home/runner/.local/share/godot/exports/Windows Desktop/
+          path: build/windows/
 
-  export-linux:
-    name: Linux Export
-    runs-on: ubuntu-latest
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 1b. Package Windows — builds both the Inno Setup .exe and WiX .msi installers
+  # ─────────────────────────────────────────────────────────────────────────────
+  package-windows:
+    name: Windows Installers (EXE + MSI)
+    runs-on: windows-latest
+    needs: export-windows
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download Windows export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows
+          path: build/windows
+
+      - name: Verify Windows export files
+        shell: powershell
+        run: |
+          Write-Host "Windows export contents:"
+          Get-ChildItem build\windows
+          if (-not (Test-Path "build\windows\CorditeWars.exe")) {
+            throw "CorditeWars.exe missing from Windows export artifact."
+          }
+
+      - name: Create output directory
+        shell: powershell
+        run: New-Item -ItemType Directory -Force -Path dist\windows | Out-Null
+
+      - name: Install Inno Setup 6
+        shell: powershell
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build EXE installer (Inno Setup)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" versions\windows\inno-setup.iss
+          if (-not (Test-Path "dist\windows\CorditeWars_Setup_0.1.0.exe")) {
+            throw "Inno Setup did not produce CorditeWars_Setup_0.1.0.exe"
+          }
+          Write-Host "EXE installer: dist\windows\CorditeWars_Setup_0.1.0.exe"
+
+      - name: Install WiX Toolset v4
+        shell: powershell
+        run: dotnet tool install --global wix --version 5.0.2
+
+      - name: Add WiX UI extension
+        shell: powershell
+        run: wix extension add --global WixToolset.UI.wixext/5.0.2
+
+      - name: Build MSI installer (WiX)
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          wix build versions\windows\CorditeWars.wxs `
+            -arch x64 `
+            -ext WixToolset.UI.wixext `
+            -d BuildDir=build\windows `
+            -out dist\windows\CorditeWars_${{ env.APP_VERSION }}.msi
+          if (-not (Test-Path "dist\windows\CorditeWars_${{ env.APP_VERSION }}.msi")) {
+            throw "WiX did not produce CorditeWars_${{ env.APP_VERSION }}.msi"
+          }
+          Write-Host "MSI installer: dist\windows\CorditeWars_${{ env.APP_VERSION }}.msi"
+
+      - name: Upload EXE installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Windows-Setup-EXE
+          path: dist/windows/CorditeWars_Setup_0.1.0.exe
+
+      - name: Upload MSI installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Windows-MSI
+          path: dist/windows/CorditeWars_${{ env.APP_VERSION }}.msi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 2a. Export Linux binary
+  # ─────────────────────────────────────────────────────────────────────────────
+  export-linux:
+    name: Linux Export
+    runs-on: ubuntu-latest
+    needs: validate-project
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+
       - name: Build C# Assemblies
         run: dotnet build -c ExportRelease
-      - name: Install Android Build Template
-        run: |
-          TEMPLATES_URL="https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz"
-          echo "Downloading export templates to extract Android build template..."
-          wget -q "$TEMPLATES_URL" -O /tmp/templates.tpz
-          rm -rf android/build
-          mkdir -p android/build
-          python3 - <<'PYEOF'
-          import io
-          import os
-          import zipfile
 
-          with zipfile.ZipFile('/tmp/templates.tpz') as outer:
-              android_src_data = outer.read('templates/android_source.zip')
-
-          with zipfile.ZipFile(io.BytesIO(android_src_data)) as inner:
-              for member in inner.infolist():
-                  if not member.filename.startswith('android_source/'):
-                      continue
-
-                  rel = member.filename[len('android_source/'):]
-                  if not rel:
-                      continue
-
-                  dest = os.path.join('android/build', rel)
-                  if member.is_dir():
-                      os.makedirs(dest, exist_ok=True)
-                  else:
-                      os.makedirs(os.path.dirname(dest), exist_ok=True)
-                      with inner.open(member) as src, open(dest, 'wb') as out:
-                          out.write(src.read())
-
-          print('Android build template installed to android/build/')
-          PYEOF
-          rm /tmp/templates.tpz
       - name: Export Linux
         uses: firebelley/godot-export@v7.0.0
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
-          archive_output: true
+          archive_output: false
           export_debug: false
           export_name: Linux/X11
-      - name: Upload Artifact
+
+      - name: Verify Linux export
+        run: |
+          echo "Linux export contents:"
+          ls -la build/linux/
+
+      - name: Upload Linux export artifact
         uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Linux
-          path: /home/runner/.local/share/godot/exports/Linux/X11/
+          path: build/linux/
 
-  package-windows-msi:
-    name: Windows MSI Package
-    runs-on: windows-latest
-    needs: export-windows
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Download Windows Export Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: CorditeWars-Windows
-          path: build/windows
-      - name: Install WiX Toolset
-        shell: powershell
-        run: |
-          choco install wixtoolset --yes --no-progress
-      - name: Build MSI
-        shell: powershell
-        run: |
-          $ErrorActionPreference = "Stop"
-          New-Item -ItemType Directory -Force -Path dist\windows | Out-Null
-
-          if (-not (Test-Path "build/windows/CorditeWars.exe")) {
-            throw "Expected build/windows/CorditeWars.exe from export artifact."
-          }
-
-          @'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-            <Product Id="*" Name="Cordite Wars: Six Fronts" Language="1033" Version="0.1.0" Manufacturer="Cordite Wars Team" UpgradeCode="F2A3B7E2-88F4-4F7B-A6D2-8F70B97A7C11">
-              <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64" />
-              <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
-              <MediaTemplate EmbedCab="yes" />
-              <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-              <UIRef Id="WixUI_InstallDir" />
-              <UIRef Id="WixUI_ErrorProgressText" />
-
-              <Directory Id="TARGETDIR" Name="SourceDir">
-                <Directory Id="ProgramFiles64Folder">
-                  <Directory Id="INSTALLFOLDER" Name="Cordite Wars Six Fronts" />
-                </Directory>
-              </Directory>
-
-              <Feature Id="MainFeature" Title="Cordite Wars: Six Fronts" Level="1">
-                <ComponentGroupRef Id="HarvestedFiles" />
-              </Feature>
-            </Product>
-          </Wix>
-          '@ | Set-Content versions\windows\Product.wxs
-
-          $wixBin = "C:\Program Files (x86)\WiX Toolset v3.11\bin"
-          & "$wixBin\heat.exe" dir build\windows -cg HarvestedFiles -dr INSTALLFOLDER -scom -sreg -sfrag -gg -out versions\windows\HarvestedFiles.wxs
-          & "$wixBin\candle.exe" -arch x64 -ext WixUIExtension versions\windows\Product.wxs versions\windows\HarvestedFiles.wxs
-          & "$wixBin\light.exe" -ext WixUIExtension -out dist\windows\CorditeWars_0.1.0.msi Product.wixobj HarvestedFiles.wixobj
-      - name: Upload MSI Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: CorditeWars-Windows-MSI
-          path: dist/windows/CorditeWars_0.1.0.msi
-
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 2b. Package Linux Snap
+  # ─────────────────────────────────────────────────────────────────────────────
   package-linux-snap:
     name: Linux Snap Package
     runs-on: ubuntu-latest
@@ -199,104 +256,119 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Download Linux Export Artifact
+
+      - name: Download Linux export
         uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Linux
           path: build/linux
+
       - name: Normalize Linux binary name
         run: |
+          # Godot exports as CorditeWars.x86_64; Snap expects CorditeWars
           if [ -f build/linux/CorditeWars.x86_64 ] && [ ! -f build/linux/CorditeWars ]; then
             cp build/linux/CorditeWars.x86_64 build/linux/CorditeWars
           fi
-          chmod +x build/linux/CorditeWars || true
+          chmod +x build/linux/CorditeWars
+          echo "Linux build contents:"
+          ls -la build/linux/
+
       - name: Build Snap
         id: snapcraft
         uses: snapcore/action-build@v1
         with:
           path: versions/linux
-      - name: Upload Snap Artifact
+
+      - name: Upload Snap artifact
         uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Linux-Snap
           path: ${{ steps.snapcraft.outputs.snap }}
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 3. Export Android APK (release-signed when keystore secrets are set)
+  # ─────────────────────────────────────────────────────────────────────────────
   export-android:
     name: Android Export
     runs-on: ubuntu-latest
+    needs: validate-project
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+
       - name: Build C# Assemblies
         run: dotnet build -c ExportRelease
-      - name: Setup Android SDK Build Tools
+
+      - name: Generate debug keystore
         run: |
-          mkdir -p ~/.local/share/godot/
-          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android -keystore debug.keystore -storepass android -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
-      - name: Prepare Android release keystore (optional)
+          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android \
+            -keystore debug.keystore -storepass android \
+            -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+
+      - name: Prepare release keystore
         env:
           ANDROID_RELEASE_KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
         run: |
           if [ -n "$ANDROID_RELEASE_KEYSTORE_B64" ]; then
             echo "$ANDROID_RELEASE_KEYSTORE_B64" | base64 --decode > release.keystore
+            echo "Release keystore ready — APK will be release-signed."
+          else
+            echo "No release keystore secret set — APK will use debug signing."
           fi
-      - name: Configure Godot Android SDK Path
+
+      - name: Configure Godot Android SDK path
         run: |
           mkdir -p ~/.config/godot
           printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\n' \
             "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" \
             > ~/.config/godot/editor_settings-4.tres
-      - name: Install Android Build Template
+
+      - name: Install Android build template
         run: |
           TEMPLATES_URL="https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz"
-          echo "Downloading export templates to extract Android build template..."
           wget -q "$TEMPLATES_URL" -O /tmp/templates.tpz
           rm -rf android/build
           mkdir -p android/build
           python3 - <<'PYEOF'
-          import io
-          import os
-          import zipfile
-
+          import io, os, zipfile
           with zipfile.ZipFile('/tmp/templates.tpz') as outer:
-              android_src_data = outer.read('templates/android_source.zip')
-
-          with zipfile.ZipFile(io.BytesIO(android_src_data)) as inner:
-              for member in inner.infolist():
-                  if not member.filename.startswith('android_source/'):
+              data = outer.read('templates/android_source.zip')
+          with zipfile.ZipFile(io.BytesIO(data)) as inner:
+              for m in inner.infolist():
+                  if not m.filename.startswith('android_source/'):
                       continue
-
-                  rel = member.filename[len('android_source/'):]
+                  rel = m.filename[len('android_source/'):]
                   if not rel:
                       continue
-
                   dest = os.path.join('android/build', rel)
-                  if member.is_dir():
+                  if m.is_dir():
                       os.makedirs(dest, exist_ok=True)
                   else:
                       os.makedirs(os.path.dirname(dest), exist_ok=True)
-                      with inner.open(member) as src, open(dest, 'wb') as out:
+                      with inner.open(m) as src, open(dest, 'wb') as out:
                           out.write(src.read())
-
-          print('Android build template installed to android/build/')
+          print('Android build template installed.')
           PYEOF
           rm /tmp/templates.tpz
+
       - name: Export Android
         uses: firebelley/godot-export@v7.0.0
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
-          archive_output: true
+          archive_output: false
           export_debug: false
           export_name: Android
         env:
@@ -306,71 +378,60 @@ jobs:
           GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ./release.keystore
           GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
           GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
-      - name: Upload Artifact
+
+      - name: Verify Android APK
+        run: |
+          echo "Android build contents:"
+          ls -la build/android/
+          if [ ! -f build/android/CorditeWars.apk ]; then
+            echo "ERROR: CorditeWars.apk not found"
+            exit 1
+          fi
+
+      - name: Upload Android APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Android
-          path: /home/runner/.local/share/godot/exports/Android/
+          path: build/android/CorditeWars.apk
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 4. iOS/iPadOS Handoff — generates the Xcode project for local Mac with Xcode
+  # ─────────────────────────────────────────────────────────────────────────────
   export-ios-handoff:
     name: iOS/iPadOS Handoff Export
     runs-on: macos-latest
+    needs: validate-project
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+
       - name: Build C# Assemblies
         run: dotnet build -c ExportRelease
-      - name: Install Android Build Template
-        run: |
-          TEMPLATES_URL="https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz"
-          echo "Downloading export templates to extract Android build template..."
-          curl -L "$TEMPLATES_URL" -o /tmp/templates.tpz
-          rm -rf android/build
-          mkdir -p android/build
-          python3 - <<'PYEOF'
-          import io
-          import os
-          import zipfile
 
-          with zipfile.ZipFile('/tmp/templates.tpz') as outer:
-              android_src_data = outer.read('templates/android_source.zip')
-
-          with zipfile.ZipFile(io.BytesIO(android_src_data)) as inner:
-              for member in inner.infolist():
-                  if not member.filename.startswith('android_source/'):
-                      continue
-
-                  rel = member.filename[len('android_source/'):]
-                  if not rel:
-                      continue
-
-                  dest = os.path.join('android/build', rel)
-                  if member.is_dir():
-                      os.makedirs(dest, exist_ok=True)
-                  else:
-                      os.makedirs(os.path.dirname(dest), exist_ok=True)
-                      with inner.open(member) as src, open(dest, 'wb') as out:
-                          out.write(src.read())
-
-          print('Android build template installed to android/build/')
-          PYEOF
-          rm /tmp/templates.tpz
-      - name: Export iOS project handoff files
+      - name: Export iOS/iPadOS Xcode project
         uses: firebelley/godot-export@v7.0.0
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_macos.universal.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
-          relative_export_path: ./builds/ios_handoff
           archive_output: false
           export_debug: false
           export_name: iOS
-      - name: Upload iOS/iPadOS Handoff Artifact
+
+      - name: Verify iOS export
+        run: |
+          echo "iOS export contents:"
+          ls -la build/ios/ 2>/dev/null || echo "WARNING: build/ios/ not found"
+          find . -maxdepth 4 \( -name "*.xcodeproj" -o -name "*.xcworkspace" \) 2>/dev/null | head -20
+
+      - name: Upload iOS/iPadOS Handoff artifact
         uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-iOS-iPadOS-Handoff
-          path: builds/ios_handoff/
+          path: build/ios/
+

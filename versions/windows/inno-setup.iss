@@ -23,7 +23,6 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=..\..\dist\windows
 OutputBaseFilename=CorditeWars_Setup_0.1.0
-SetupIconFile=..\..\assets\icons\icon.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -45,8 +44,8 @@ Source: "..\..\build\windows\CorditeWars.exe"; DestDir: "{app}"; Flags: ignoreve
 Source: "..\..\build\windows\*.dll"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\..\build\windows\*.pck"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
 ; Game data
-Source: "..\..\build\windows\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\build\windows\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\build\windows\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+Source: "..\..\build\windows\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
