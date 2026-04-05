@@ -14,7 +14,7 @@ description: |
 
   Minimum spec: Ubuntu 20.04 compatible, 4 GB RAM, OpenGL ES 3.0.
 
-grade: devel
+grade: stable
 confinement: strict
 
 architectures:
@@ -26,8 +26,6 @@ apps:
     command: bin/CorditeWars
     command-chain: []
     extensions: [gnome]
-    environment:
-      GODOT_DATA_DIR: $SNAP/data
     plugs:
       - audio-playback
       - opengl
@@ -46,8 +44,10 @@ parts:
     source: ../../build/linux/
     stage:
       - CorditeWars
+      - CorditeWars.pck
     organize:
       CorditeWars: bin/CorditeWars
+      CorditeWars.pck: bin/CorditeWars.pck
     override-build: |
       craftctl default
       chmod +x "$CRAFTPARTS_INSTALL/bin/CorditeWars" || true
@@ -61,10 +61,3 @@ parts:
       - libxinerama1
       - libxcursor1
       - libxi6
-
-  game-data:
-    plugin: dump
-    source: ../../build/linux/
-    stage:
-      - data/
-      - assets/
