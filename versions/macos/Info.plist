@@ -9,7 +9,7 @@
 <dict>
   <!-- Identity -->
   <key>CFBundleIdentifier</key>
-  <string>com.corditewars.sixfronts</string>
+  <string>com.koshkikode.corditewars</string>
 
   <key>CFBundleName</key>
   <string>Cordite Wars</string>
