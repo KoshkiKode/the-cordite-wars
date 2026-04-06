@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ios-export-options.plist — Xcode export options for Cordite Wars: Six Fronts
+  Used with: xcodebuild -exportArchive -exportOptionsPlist versions/ios/ios-export-options.plist
+  
+  For development/testing (ad-hoc distribution):
+    Set method to "ad-hoc" and populate provisioningProfiles with your team's
+    ad-hoc profile UUID.
+
+  For App Store submission:
+    Set method to "app-store" and ensure the signing identity and provisioning
+    profile are valid for distribution.
+
+  See: https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases
+-->
+<plist version="1.0">
+<dict>
+  <!-- Distribution method: "development", "ad-hoc", "app-store", "enterprise" -->
+  <key>method</key>
+  <string>development</string>
+
+  <!-- Bundle identifier for the app -->
+  <key>provisioningProfiles</key>
+  <dict>
+    <key>com.koshkikode.corditewars</key>
+    <string>Cordite Wars Development</string>
+  </dict>
+
+  <!-- Signing identity (automatic or specific cert name) -->
+  <key>signingStyle</key>
+  <string>automatic</string>
+
+  <!-- Team ID (set APPLE_TEAM_ID in CI secrets or replace here) -->
+  <key>teamID</key>
+  <string>$(APPLE_TEAM_ID)</string>
+
+  <!-- Strip Swift symbols to reduce IPA size -->
+  <key>stripSwiftSymbols</key>
+  <true/>
+
+  <!-- Upload symbols to Apple for crash reporting -->
+  <key>uploadSymbols</key>
+  <true/>
+
+  <!-- Compile bitcode (disabled — Godot does not support bitcode) -->
+  <key>compileBitcode</key>
+  <false/>
+
+  <!-- Destination: device -->
+  <key>destination</key>
+  <string>export</string>
+
+  <!-- Thinning: none (distribute as universal/fat binary for device variety) -->
+  <key>thinning</key>
+  <string>&lt;none&gt;</string>
+</dict>
+</plist>

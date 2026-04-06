@@ -11,7 +11,7 @@ android {
     ndkVersion "23.2.8568313"
 
     defaultConfig {
-        applicationId "com.corditewars.sixfronts"
+        applicationId "com.koshkikode.corditewars"
         minSdk 24            // Android 7.0 Nougat — minimum supported
         targetSdk 34         // Android 14
         versionCode 100

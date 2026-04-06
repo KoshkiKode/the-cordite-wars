@@ -62,12 +62,12 @@ Root: HKLM; Subkey: "Software\CorditeWarsTeam\CorditeWarsSixFronts"; ValueType: 
 
 [Code]
 { ──────────────────────────────────────────────────────────────────
-   .NET 8 Runtime detection
+   .NET 9 Runtime detection
    Checks HKLM for the shared framework registration that the
-   .NET 8 installer writes on Windows.
+   .NET 9 installer writes on Windows.
 ────────────────────────────────────────────────────────────────── }
 
-function IsDotNet8Installed: Boolean;
+function IsDotNet9Installed: Boolean;
 var
   KeyPath: String;
   SubKey: String;
@@ -80,8 +80,8 @@ begin
   begin
     for i := 0 to GetArrayLength(Names) - 1 do
     begin
-      // Accept any 8.x version
-      if Pos('8.', Names[i]) = 1 then
+      // Accept any 9.x version
+      if Pos('9.', Names[i]) = 1 then
       begin
         Result := True;
         Exit;
@@ -92,11 +92,11 @@ end;
 
 procedure InitializeWizard;
 begin
-  if not IsDotNet8Installed then
+  if not IsDotNet9Installed then
     MsgBox(
-      '.NET 8 Runtime is required to run ' + ExpandConstant('{#MyAppName}') + '.' + #13#10 +
+      '.NET 9 Runtime is required to run ' + ExpandConstant('{#MyAppName}') + '.' + #13#10 +
       'After installation, you will be prompted to download it from Microsoft.' + #13#10 +
-      'Alternatively, install it from: https://dotnet.microsoft.com/download/dotnet/8.0',
+      'Alternatively, install it from: https://dotnet.microsoft.com/download/dotnet/9.0',
       mbInformation, MB_OK
     );
 end;
@@ -106,11 +106,11 @@ var
   DotNetURL: String;
   ResultCode: Integer;
 begin
-  if (CurStep = ssPostInstall) and not IsDotNet8Installed then
+  if (CurStep = ssPostInstall) and not IsDotNet9Installed then
   begin
-    DotNetURL := 'https://aka.ms/dotnet/8.0/dotnet-runtime-win-x64.exe';
+    DotNetURL := 'https://aka.ms/dotnet/9.0/dotnet-runtime-win-x64.exe';
     if MsgBox(
-      '.NET 8 Runtime was not found on your system.' + #13#10 +
+      '.NET 9 Runtime was not found on your system.' + #13#10 +
       'Would you like to download and install it now?',
       mbConfirmation, MB_YESNO) = IDYES then
     begin

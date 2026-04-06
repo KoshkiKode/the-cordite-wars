@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ios-info.plist — iOS/iPadOS app bundle metadata for Cordite Wars: Six Fronts
+  Merged into the Godot-exported Xcode project's Info.plist before signing.
+  Minimum target: iOS 16.0 (iPhone/iPad).
+-->
+<plist version="1.0">
+<dict>
+  <!-- Identity -->
+  <key>CFBundleIdentifier</key>
+  <string>com.koshkikode.corditewars</string>
+
+  <key>CFBundleName</key>
+  <string>CorditeWars</string>
+
+  <key>CFBundleDisplayName</key>
+  <string>Cordite Wars</string>
+
+  <key>CFBundleExecutable</key>
+  <string>CorditeWars</string>
+
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+
+  <!-- Versioning -->
+  <key>CFBundleShortVersionString</key>
+  <string>0.1.0</string>
+
+  <key>CFBundleVersion</key>
+  <string>100</string>
+
+  <!-- iOS deployment target (16.0+) -->
+  <key>MinimumOSVersion</key>
+  <string>16.0</string>
+
+  <!-- Supported platforms -->
+  <key>CFBundleSupportedPlatforms</key>
+  <array>
+    <string>iPhoneOS</string>
+  </array>
+
+  <!-- Required device capabilities: arm64 and Metal GPU -->
+  <key>UIRequiredDeviceCapabilities</key>
+  <array>
+    <string>arm64</string>
+    <string>metal</string>
+  </array>
+
+  <!-- Supported interface orientations: landscape only (RTS game) -->
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+
+  <!-- iPad supported orientations -->
+  <key>UISupportedInterfaceOrientations~ipad</key>
+  <array>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+
+  <!-- Full-screen on iPad (no split-view) -->
+  <key>UIRequiresFullScreen</key>
+  <true/>
+
+  <!-- Launch screen: blank with dark background while Godot loads -->
+  <key>UILaunchScreen</key>
+  <dict>
+    <key>UIColorName</key>
+    <string>LaunchScreenBackground</string>
+  </dict>
+
+  <!-- Status bar hidden during gameplay -->
+  <key>UIStatusBarHidden</key>
+  <true/>
+
+  <!-- Network: allow LAN (RFC 1918) multiplayer without ATS exceptions -->
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsLocalNetworking</key>
+    <true/>
+  </dict>
+
+  <!-- Disable multi-scene support (single-window game) -->
+  <key>UIApplicationSupportsMultipleScenes</key>
+  <false/>
+
+  <!-- Copyright -->
+  <key>NSHumanReadableCopyright</key>
+  <string>Copyright © 2025 KoshkiKode. All rights reserved.</string>
+
+  <!-- App Store category -->
+  <key>LSApplicationCategoryType</key>
+  <string>public.app-category.strategy-games</string>
+</dict>
+</plist>

@@ -45,9 +45,13 @@ parts:
     stage:
       - CorditeWars
       - CorditeWars.pck
+      - UnnamedRTS.dll
+      - GodotSharp/
     organize:
       CorditeWars: bin/CorditeWars
       CorditeWars.pck: bin/CorditeWars.pck
+      UnnamedRTS.dll: bin/UnnamedRTS.dll
+      GodotSharp/: bin/GodotSharp/
     override-build: |
       craftctl default
       chmod +x "$CRAFTPARTS_INSTALL/bin/CorditeWars" || true

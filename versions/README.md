@@ -31,8 +31,12 @@ versions/
 │   ├── AndroidManifest.xml         ← Android permissions and activity configuration
 │   └── build-android.sh            ← Godot export + gradle assemble + APK sign
 │
+├── ios/
+│   ├── ios-info.plist              ← iOS/iPadOS app bundle metadata (CFBundle + UIKit keys)
+│   └── ios-export-options.plist    ← Xcode export options for xcodebuild -exportArchive
+│
 └── shared/
-    ├── export_presets.cfg          ← Godot export presets for all four platforms
+    ├── export_presets.cfg          ← Godot export presets for all five platforms
     └── version.json                ← Current version info (semver + protocol number)
 ```
 
@@ -80,7 +84,7 @@ Apple property list for the `.app` bundle. Key entries:
 
 | Key | Value |
 |-----|-------|
-| `CFBundleIdentifier` | `com.corditewars.sixfronts` |
+| `CFBundleIdentifier` | `com.koshkikode.corditewars` |
 | `LSMinimumSystemVersion` | `12.0` (Monterey) |
 | `NSHighResolutionCapable` | `true` (Retina support) |
 | `CFBundleShortVersionString` | Matches `version.json` semver |
@@ -103,7 +107,7 @@ Android Gradle configuration:
 
 | Setting | Value |
 |---------|-------|
-| `applicationId` | `com.corditewars.sixfronts` |
+| `applicationId` | `com.koshkikode.corditewars` |
 | `minSdk` | 24 (Android 7.0) |
 | `targetSdk` | 34 (Android 14) |
 | ABI filters | `arm64-v8a` (primary), optional `armeabi-v7a` |
@@ -116,6 +120,39 @@ Required permissions: `INTERNET`, `ACCESS_WIFI_STATE`, `ACCESS_NETWORK_STATE`, `
 
 Calls `$GODOT4 --headless --export-release "Android"`, then runs `./gradlew assembleRelease`, signs with `jarsigner`, and aligns with `zipalign`. Output: `dist/android/CorditeWars_X.Y.Z.apk`.
 
+---
+
+## `ios/`
+
+### `ios/ios-info.plist`
+
+iOS/iPadOS app bundle metadata. Key entries:
+
+| Key | Value |
+|-----|-------|
+| `CFBundleIdentifier` | `com.koshkikode.corditewars` |
+| `MinimumOSVersion` | `16.0` (iOS 16+) |
+| `UIRequiredDeviceCapabilities` | `arm64`, `metal` |
+| `UISupportedInterfaceOrientations` | Landscape only (RTS game) |
+| `NSAllowsLocalNetworking` | `true` (LAN multiplayer) |
+
+This file is merged into the Godot-generated Xcode project's `Info.plist` before signing.
+
+### `ios/ios-export-options.plist`
+
+Xcode export options file used with `xcodebuild -exportArchive`:
+
+```bash
+xcodebuild -exportArchive \
+  -archivePath CorditeWars.xcarchive \
+  -exportPath dist/ios \
+  -exportOptionsPlist versions/ios/ios-export-options.plist
+```
+
+Supports `development`, `ad-hoc`, and `app-store` distribution methods. Set `signingStyle` to `automatic` for Xcode-managed signing, or `manual` with explicit provisioning profile UUIDs.
+
+---
+
 ### `shared/export_presets.cfg`
 
 Godot export presets file. Contains preset definitions for:
@@ -123,8 +160,7 @@ Godot export presets file. Contains preset definitions for:
 2. Linux/X11 (x86_64, embedded PCK)
 3. macOS (Universal Binary: x86_64 + arm64)
 4. Android (arm64-v8a, Gradle build, minSdk 24)
-
-This file is referenced directly by Godot's headless export commands.
+5. iOS (arm64, Xcode project handoff)
 
 ### `shared/version.json`
 
