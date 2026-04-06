@@ -5,7 +5,7 @@
 # Prerequisites:
 #   - Xcode 14+ and Command Line Tools installed
 #   - Apple Developer Program membership
-#   - $GODOT4 points to Godot 4.4 headless binary
+#   - $GODOT4 points to Godot 4.6 headless binary
 #   - macOS export templates installed
 #   - Environment variables set:
 #       APPLE_DEV_ID    — "Developer ID Application: Your Name (TEAMID)"

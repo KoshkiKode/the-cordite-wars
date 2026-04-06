@@ -48,7 +48,7 @@ versions/
 
 Inno Setup 6 installer script. Running `iscc versions/windows/inno-setup.iss` produces a single `CorditeWars_Setup.exe` installer that:
 
-- Detects whether .NET 8 Desktop Runtime is installed; prompts to download if missing
+- Detects whether .NET 9 Desktop Runtime is installed; prompts to download if missing
 - Installs the game to `%ProgramFiles%\Cordite Wars Six Fronts\` by default
 - Creates a Start Menu group and optional desktop shortcut
 - Registers an uninstaller

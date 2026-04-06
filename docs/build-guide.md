@@ -227,8 +227,8 @@ Handshake sequence:
 
 All platforms require:
 
-- **Godot 4.4** with C# / .NET support (`godot4` available on PATH, or `GODOT4` env var set)
-- **.NET 8 SDK** (`dotnet --version` ≥ 8.0)
+- **Godot 4.6** with C# / .NET support (`godot4` available on PATH, or `GODOT4` env var set)
+- **.NET 9 SDK** (`dotnet --version` ≥ 9.0)
 - **Godot export templates** installed for each target platform (Editor → AssetLib → Export Templates, or download from `godotengine.org/download`)
 
 Platform-specific:
@@ -322,11 +322,11 @@ Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription
 Filename: "{app}\CorditeWars.exe"; Description: "Launch Cordite Wars: Six Fronts"; Flags: nowait postinstall skipifsilent
 ```
 
-**.NET 8 Runtime Check:** The installer checks for the .NET 8 Desktop Runtime. If absent, it offers to download it:
+**.NET 9 Runtime Check:** The installer checks for the .NET 9 Desktop Runtime. If absent, it offers to download it:
 
 ```iss
 [Code]
-function IsDotNet8Installed: Boolean;
+function IsDotNet9Installed: Boolean;
 var
   Key: String;
 begin
@@ -336,8 +336,8 @@ end;
 
 procedure InitializeWizard;
 begin
-  if not IsDotNet8Installed then
-    MsgBox('The .NET 8 Runtime is required. It will be downloaded during installation.', mbInformation, MB_OK);
+  if not IsDotNet9Installed then
+    MsgBox('The .NET 9 Runtime is required. It will be downloaded during installation.', mbInformation, MB_OK);
 end;
 ```
 
@@ -440,7 +440,7 @@ snapcraft --destructive-mode
 
 ### macOS Export Configuration
 
-Godot 4.4 produces a `.app` bundle. For App Store or notarization, it must be a Universal Binary (x86_64 + ARM64).
+Godot 4.6 produces a `.app` bundle. For App Store or notarization, it must be a Universal Binary (x86_64 + ARM64).
 
 ```ini
 [preset.2]
@@ -691,8 +691,8 @@ The project uses GitHub Actions. Three workflows are defined:
 
 Triggers on push to `main` and version tags (`v*.*.*`). Runs on `windows-latest`. Steps:
 1. Checkout
-2. Install .NET 8 SDK
-3. Install Godot 4.4 + export templates (cached)
+2. Install .NET 9 SDK
+3. Install Godot 4.6 + export templates (cached)
 4. `godot4 --headless --export-release "Windows Desktop" ...`
 5. Inno Setup compile
 6. Upload `CorditeWars_Setup.exe` as artifact
@@ -701,8 +701,8 @@ Triggers on push to `main` and version tags (`v*.*.*`). Runs on `windows-latest`
 
 Triggers on push to `main` and version tags. Runs on `ubuntu-22.04`. Steps:
 1. Checkout
-2. Install .NET 8 SDK
-3. Install Godot 4.4 + export templates
+2. Install .NET 9 SDK
+3. Install Godot 4.6 + export templates
 4. Export Linux binary
 5. `snapcraft --destructive-mode`
 6. Upload `.snap` as artifact
@@ -712,7 +712,7 @@ Triggers on push to `main` and version tags. Runs on `ubuntu-22.04`. Steps:
 Triggers on version tags only (APK uploads to Play Store are manual). Runs on `ubuntu-22.04`. Steps:
 1. Checkout
 2. Setup Java 17, Android SDK
-3. Install Godot 4.4 + export templates + Android build template
+3. Install Godot 4.6 + export templates + Android build template
 4. Export and sign APK
 5. Upload signed APK as artifact
 
@@ -720,9 +720,9 @@ Triggers on version tags only (APK uploads to Play Store are manual). Runs on `u
 
 ## Troubleshooting
 
-### "Missing export templates" on Godot 4.4
+### "Missing export templates" on Godot 4.6
 
-Download templates from `https://godotengine.org/download` and install via Editor → Manage Export Templates, or place the `.tpz` file in `$GODOT_DATA_DIR/export_templates/4.4.stable/`.
+Download templates from `https://godotengine.org/download` and install via Editor → Manage Export Templates, or place the `.tpz` file in `$GODOT_DATA_DIR/export_templates/4.6.stable/`.
 
 ### Windows build: DLL not found at runtime
 
@@ -747,7 +747,7 @@ Run `snap install --dangerous cordite-wars_*.snap` for development. Production b
 
 ### Android: Black screen after splash
 
-Usually caused by a missing `.NET 8` runtime (the Android export template must have Mono/C# support compiled in). Ensure you are using Godot 4.4 with the Mono build, and that the Android build template was installed correctly:
+Usually caused by a missing `.NET 9` runtime (the Android export template must have Mono/C# support compiled in). Ensure you are using Godot 4.6 with the Mono build, and that the Android build template was installed correctly:
 
 ```bash
 godot4 --install-android-build-template

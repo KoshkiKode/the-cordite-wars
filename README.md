@@ -4,8 +4,8 @@ A cross-platform real-time strategy game inspired by Command & Conquer and Tempe
 
 ## Project Details
 
-- **Engine:** Godot 4.4 with C# (.NET 8)
-- **Platforms:** Windows, Linux, Android
+- **Engine:** Godot 4.6 with C# (.NET 9)
+- **Platforms:** Windows, Linux, macOS, Android, iOS
 - **Multiplayer:** LAN/Local deterministic lockstep (no backend servers)
 - **License:** Proprietary — all rights reserved
 - **Assets:** Human-made, royalty-free (CC0/CC-BY)
@@ -49,8 +49,8 @@ A cross-platform real-time strategy game inspired by Command & Conquer and Tempe
 
 ## Building
 
-1. Install [Godot 4.4 .NET edition](https://godotengine.org/download)
-2. Install [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+1. Install [Godot 4.6 .NET edition](https://godotengine.org/download)
+2. Install [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 3. Open `project.godot` in Godot
 4. Build via Godot editor or `dotnet build`
 
