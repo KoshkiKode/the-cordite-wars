@@ -342,34 +342,6 @@ jobs:
             "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" \
             > ~/.config/godot/editor_settings-4.tres
 
-      - name: Install Android build template
-        run: |
-          TEMPLATES_URL="https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz"
-          wget -q "$TEMPLATES_URL" -O /tmp/templates.tpz
-          rm -rf android/build
-          mkdir -p android/build
-          python3 - <<'PYEOF'
-          import io, os, zipfile
-          with zipfile.ZipFile('/tmp/templates.tpz') as outer:
-              data = outer.read('templates/android_source.zip')
-          with zipfile.ZipFile(io.BytesIO(data)) as inner:
-              for m in inner.infolist():
-                  if not m.filename.startswith('android_source/'):
-                      continue
-                  rel = m.filename[len('android_source/'):]
-                  if not rel:
-                      continue
-                  dest = os.path.join('android/build', rel)
-                  if m.is_dir():
-                      os.makedirs(dest, exist_ok=True)
-                  else:
-                      os.makedirs(os.path.dirname(dest), exist_ok=True)
-                      with inner.open(m) as src, open(dest, 'wb') as out:
-                          out.write(src.read())
-          print('Android build template installed.')
-          PYEOF
-          rm /tmp/templates.tpz
-
       - name: Export Android
         uses: firebelley/godot-export@v7.0.0
         with:
