@@ -33,6 +33,7 @@ public partial class UnitNode3D : Node3D
     public FixedPoint ArmorValue { get; private set; }
     public ArmorType ArmorClass { get; private set; }
     public UnitCategory Category { get; private set; }
+    public FixedPoint SightRange { get; private set; }
     public MovementProfile? MovementProfile { get; private set; }
 
     // ── Child Nodes ──────────────────────────────────────────────────
@@ -64,6 +65,7 @@ public partial class UnitNode3D : Node3D
         ArmorValue = data.ArmorValue;
         ArmorClass = data.ArmorClass;
         Category = data.Category;
+        SightRange = data.SightRange;
         MovementProfile = data.GetMovementProfile();
 
         _isAirUnit = asset.Domain == "Air";

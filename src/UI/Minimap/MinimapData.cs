@@ -269,8 +269,15 @@ public class MinimapData
     ///   <item><description>Visible → fully transparent (0,0,0,0)</description></item>
     /// </list>
     /// </summary>
-    public void UpdateFogLayer(FogGrid fog)
+    public void UpdateFogLayer(FogGrid? fog)
     {
+        if (fog is null)
+        {
+            // No fog grid available — treat everything as fully visible
+            Array.Clear(FogOverlay, 0, FogOverlay.Length);
+            return;
+        }
+
         for (int py = 0; py < MinimapHeight; py++)
         {
             for (int px = 0; px < MinimapWidth; px++)
