@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "product": {
+    "id": "YOUR_GOG_PRODUCT_ID",
+    "name": "Cordite Wars: Six Fronts"
+  },
+  "os": "osx",
+  "project": {
+    "name": "Cordite Wars (macOS)",
+    "base_product_id": "YOUR_GOG_PRODUCT_ID",
+    "client_id": "YOUR_GOG_CLIENT_ID",
+    "client_secret": "YOUR_GOG_CLIENT_SECRET",
+    "depots": [
+      {
+        "name": "Cordite Wars macOS",
+        "bitness": ["64"],
+        "os": ["osx"],
+        "languages": ["*"],
+        "files": {
+          "sources": [
+            {
+              "path": "../../build/macos/app"
+            }
+          ]
+        }
+      }
+    ],
+    "tasks": [
+      {
+        "type": "task",
+        "name": "Play",
+        "is_primary": true,
+        "platforms": ["osx"],
+        "executable": "CorditeWars.app/Contents/MacOS/CorditeWars",
+        "arguments": ""
+      }
+    ],
+    "support_commands": [],
+    "install_directory": "Cordite Wars"
+  }
+}

@@ -72,8 +72,8 @@ jobs:
             echo "OK:      project.godot -> Boot.tscn"
           fi
 
-          # Confirm all five export presets are present
-          for PRESET in "Windows Desktop" "Linux/X11" "Android" "iOS" "macOS"; do
+          # Confirm all required export presets are present
+          for PRESET in "Windows Desktop" "Linux/X11" "Android" "Android AAB" "iOS" "macOS"; do
             if ! grep -q "name=\"$PRESET\"" export_presets.cfg; then
               echo "FAIL: export_presets.cfg missing preset: $PRESET"
               ERRORS=$((ERRORS + 1))
@@ -119,6 +119,16 @@ jobs:
           export_debug: false
           use_preset_export_path: true
           presets_to_export: "Windows Desktop"
+
+      - name: Flatten Windows export output
+        run: |
+          # godot-export copies the internal build dir (named after the preset) into
+          # the configured path, producing build/windows/Windows Desktop/*.  Flatten it.
+          if [ -d "build/windows/Windows Desktop" ]; then
+            mv "build/windows/Windows Desktop/"* build/windows/
+            rmdir "build/windows/Windows Desktop"
+            echo "Flattened build/windows/Windows Desktop/ → build/windows/"
+          fi
 
       - name: Verify Windows export
         run: |
@@ -243,6 +253,16 @@ jobs:
           export_debug: false
           use_preset_export_path: true
           presets_to_export: "Linux/X11"
+
+      - name: Flatten Linux export output
+        run: |
+          # godot-export copies the internal build dir (named "LinuxX11") into the
+          # configured path, producing build/linux/LinuxX11/*.  Flatten it.
+          if [ -d "build/linux/LinuxX11" ]; then
+            mv "build/linux/LinuxX11/"* build/linux/
+            rmdir "build/linux/LinuxX11"
+            echo "Flattened build/linux/LinuxX11/ → build/linux/"
+          fi
 
       - name: Verify Linux export
         run: |
@@ -401,6 +421,108 @@ jobs:
           path: build/android/CorditeWars.apk
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # 3b. Export Android AAB for Google Play Store
+  # ─────────────────────────────────────────────────────────────────────────────
+  export-android-aab:
+    name: Android AAB Export (Google Play)
+    runs-on: ubuntu-latest
+    needs: validate-project
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Build C# Assemblies
+        run: dotnet build -c ExportRelease
+
+      - name: Generate debug keystore
+        run: |
+          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android \
+            -keystore debug.keystore -storepass android \
+            -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+
+      - name: Prepare release keystore
+        id: release_keystore
+        env:
+          ANDROID_RELEASE_KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$ANDROID_RELEASE_KEYSTORE_B64" ]; then
+            echo "$ANDROID_RELEASE_KEYSTORE_B64" | base64 --decode > release.keystore
+            echo "has_release_keystore=true" >> "$GITHUB_OUTPUT"
+            echo "Release keystore ready — AAB will be release-signed."
+          else
+            echo "has_release_keystore=false" >> "$GITHUB_OUTPUT"
+            echo "No release keystore secret set — AAB will use debug signing."
+          fi
+
+      - name: Configure Godot Android SDK path
+        run: |
+          mkdir -p ~/.config/godot
+          printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\n' \
+            "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" \
+            > ~/.config/godot/editor_settings-4.tres
+
+      - name: Export Android AAB (debug-signed)
+        if: steps.release_keystore.outputs.has_release_keystore != 'true'
+        uses: firebelley/godot-export@v7.0.0
+        with:
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
+          relative_project_path: ./
+          archive_output: false
+          export_debug: false
+          use_preset_export_path: true
+          presets_to_export: "Android AAB"
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ./debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+
+      - name: Export Android AAB (release-signed)
+        if: steps.release_keystore.outputs.has_release_keystore == 'true'
+        uses: firebelley/godot-export@v7.0.0
+        with:
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
+          relative_project_path: ./
+          archive_output: false
+          export_debug: false
+          use_preset_export_path: true
+          presets_to_export: "Android AAB"
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ./debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ./release.keystore
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+
+      - name: Verify Android AAB
+        run: |
+          echo "Android AAB build contents:"
+          ls -la build/android/
+          if [ ! -f build/android/CorditeWars.aab ]; then
+            echo "ERROR: CorditeWars.aab not found"
+            exit 1
+          fi
+
+      - name: Upload Android AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Android-AAB
+          path: build/android/CorditeWars.aab
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # 4. iOS/iPadOS Handoff — generates the Xcode project for local Mac with Xcode
   # ─────────────────────────────────────────────────────────────────────────────
   export-ios-handoff:
@@ -484,6 +606,16 @@ jobs:
           export_debug: false
           use_preset_export_path: true
           presets_to_export: "macOS"
+
+      - name: Flatten macOS export output
+        run: |
+          # godot-export copies the internal build dir (named "macOS") into the
+          # configured path, producing build/macos/macOS/*.  Flatten it.
+          if [ -d "build/macos/macOS" ]; then
+            mv "build/macos/macOS/"* build/macos/
+            rmdir "build/macos/macOS"
+            echo "Flattened build/macos/macOS/ → build/macos/"
+          fi
 
       - name: Verify macOS export
         run: |

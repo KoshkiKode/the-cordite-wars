@@ -135,5 +135,6 @@ common/physics_ticks_per_second=30
 
 lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
 textures/default_filters/anisotropic_filtering_level=4
+textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_3d=2
 environment/defaults/default_clear_color=Color(0.1, 0.1, 0.12, 1)

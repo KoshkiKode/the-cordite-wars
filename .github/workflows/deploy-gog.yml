@@ -1,0 +1,231 @@
+name: "Deploy to GOG"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Triggered automatically when a versioned release tag is pushed, or
+# manually from the Actions tab.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "GOG branch to publish to (e.g. 'beta', 'master')"
+        required: false
+        default: "beta"
+
+permissions:
+  contents: read
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 1. Build all platform exports first (reuses the existing export workflow)
+  # ─────────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build All Platforms
+    uses: ./.github/workflows/export.yml
+    permissions:
+      contents: read
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 2. Upload Windows build to GOG
+  # ─────────────────────────────────────────────────────────────────────────────
+  gog-upload-windows:
+    name: GOG Upload (Windows)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Windows export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows
+          path: build/windows/
+
+      - name: Patch GOG build config
+        env:
+          GOG_PRODUCT_ID:    ${{ secrets.GOG_PRODUCT_ID }}
+          GOG_CLIENT_ID:     ${{ secrets.GOG_CLIENT_ID }}
+          GOG_CLIENT_SECRET: ${{ secrets.GOG_CLIENT_SECRET }}
+        run: |
+          sed -i \
+            -e "s/YOUR_GOG_PRODUCT_ID/${GOG_PRODUCT_ID}/g" \
+            -e "s/YOUR_GOG_CLIENT_ID/${GOG_CLIENT_ID}/g" \
+            -e "s/YOUR_GOG_CLIENT_SECRET/${GOG_CLIENT_SECRET}/g" \
+            gog/build-windows.json
+
+      - name: Install GOG Pipeline Builder
+        run: |
+          mkdir -p ~/gogpipe
+          curl -sSL \
+            "https://pipeline-builder.gog.com/prod/linux/pipeline_builder" \
+            -o ~/gogpipe/pipeline_builder
+          chmod +x ~/gogpipe/pipeline_builder
+          echo "$HOME/gogpipe" >> "$GITHUB_PATH"
+
+      - name: Upload Windows build to GOG
+        env:
+          GOG_USERNAME: ${{ secrets.GOG_USERNAME }}
+          GOG_PASSWORD: ${{ secrets.GOG_PASSWORD }}
+          GOG_BRANCH:   ${{ github.event.inputs.branch || 'beta' }}
+        run: |
+          pipeline_builder build \
+            --username  "$GOG_USERNAME" \
+            --password  "$GOG_PASSWORD" \
+            --version   "${GITHUB_REF_NAME:-dev}" \
+            --branch    "$GOG_BRANCH" \
+            gog/build-windows.json
+
+      - name: Report result
+        if: success()
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "### ✅ GOG Windows Upload Successful" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Version | ${VERSION} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch  | ${{ github.event.inputs.branch || 'beta' }} |" >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 3. Upload Linux build to GOG
+  # ─────────────────────────────────────────────────────────────────────────────
+  gog-upload-linux:
+    name: GOG Upload (Linux)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Linux export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux
+          path: build/linux/
+
+      - name: Patch GOG build config
+        env:
+          GOG_PRODUCT_ID:    ${{ secrets.GOG_PRODUCT_ID }}
+          GOG_CLIENT_ID:     ${{ secrets.GOG_CLIENT_ID }}
+          GOG_CLIENT_SECRET: ${{ secrets.GOG_CLIENT_SECRET }}
+        run: |
+          sed -i \
+            -e "s/YOUR_GOG_PRODUCT_ID/${GOG_PRODUCT_ID}/g" \
+            -e "s/YOUR_GOG_CLIENT_ID/${GOG_CLIENT_ID}/g" \
+            -e "s/YOUR_GOG_CLIENT_SECRET/${GOG_CLIENT_SECRET}/g" \
+            gog/build-linux.json
+
+      - name: Install GOG Pipeline Builder
+        run: |
+          mkdir -p ~/gogpipe
+          curl -sSL \
+            "https://pipeline-builder.gog.com/prod/linux/pipeline_builder" \
+            -o ~/gogpipe/pipeline_builder
+          chmod +x ~/gogpipe/pipeline_builder
+          echo "$HOME/gogpipe" >> "$GITHUB_PATH"
+
+      - name: Upload Linux build to GOG
+        env:
+          GOG_USERNAME: ${{ secrets.GOG_USERNAME }}
+          GOG_PASSWORD: ${{ secrets.GOG_PASSWORD }}
+          GOG_BRANCH:   ${{ github.event.inputs.branch || 'beta' }}
+        run: |
+          pipeline_builder build \
+            --username  "$GOG_USERNAME" \
+            --password  "$GOG_PASSWORD" \
+            --version   "${GITHUB_REF_NAME:-dev}" \
+            --branch    "$GOG_BRANCH" \
+            gog/build-linux.json
+
+      - name: Report result
+        if: success()
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "### ✅ GOG Linux Upload Successful" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Version | ${VERSION} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch  | ${{ github.event.inputs.branch || 'beta' }} |" >> "$GITHUB_STEP_SUMMARY"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 4. Upload macOS build to GOG
+  # ─────────────────────────────────────────────────────────────────────────────
+  gog-upload-macos:
+    name: GOG Upload (macOS)
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download macOS export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-macOS-Export
+          path: build/macos/
+
+      - name: Extract .app bundle from zip
+        run: |
+          mkdir -p build/macos/app
+          unzip -q build/macos/CorditeWars.zip -d build/macos/app
+          echo "Extracted macOS contents:"
+          ls -la build/macos/app/
+
+      - name: Patch GOG build config
+        env:
+          GOG_PRODUCT_ID:    ${{ secrets.GOG_PRODUCT_ID }}
+          GOG_CLIENT_ID:     ${{ secrets.GOG_CLIENT_ID }}
+          GOG_CLIENT_SECRET: ${{ secrets.GOG_CLIENT_SECRET }}
+        run: |
+          sed -i \
+            -e "s/YOUR_GOG_PRODUCT_ID/${GOG_PRODUCT_ID}/g" \
+            -e "s/YOUR_GOG_CLIENT_ID/${GOG_CLIENT_ID}/g" \
+            -e "s/YOUR_GOG_CLIENT_SECRET/${GOG_CLIENT_SECRET}/g" \
+            gog/build-macos.json
+
+      - name: Install GOG Pipeline Builder
+        run: |
+          mkdir -p ~/gogpipe
+          curl -sSL \
+            "https://pipeline-builder.gog.com/prod/linux/pipeline_builder" \
+            -o ~/gogpipe/pipeline_builder
+          chmod +x ~/gogpipe/pipeline_builder
+          echo "$HOME/gogpipe" >> "$GITHUB_PATH"
+
+      - name: Upload macOS build to GOG
+        env:
+          GOG_USERNAME: ${{ secrets.GOG_USERNAME }}
+          GOG_PASSWORD: ${{ secrets.GOG_PASSWORD }}
+          GOG_BRANCH:   ${{ github.event.inputs.branch || 'beta' }}
+        run: |
+          pipeline_builder build \
+            --username  "$GOG_USERNAME" \
+            --password  "$GOG_PASSWORD" \
+            --version   "${GITHUB_REF_NAME:-dev}" \
+            --branch    "$GOG_BRANCH" \
+            gog/build-macos.json
+
+      - name: Report result
+        if: success()
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "### ✅ GOG macOS Upload Successful" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Version | ${VERSION} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch  | ${{ github.event.inputs.branch || 'beta' }} |" >> "$GITHUB_STEP_SUMMARY"
