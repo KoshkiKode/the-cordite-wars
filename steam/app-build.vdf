@@ -1,0 +1,43 @@
+"AppBuild"
+{
+    "AppID"       "YOUR_STEAM_APP_ID"
+    "Desc"        "Cordite Wars build"
+    "BuildOutput" "./build/steam/"
+    "SetLive"     "beta"
+
+    "Depots"
+    {
+        // Windows depot
+        "YOUR_WINDOWS_DEPOT_ID"
+        {
+            "FileMapping"
+            {
+                "LocalPath" "./build/windows/*"
+                "DepotPath" "."
+                "recursive" "1"
+            }
+        }
+
+        // Linux depot
+        "YOUR_LINUX_DEPOT_ID"
+        {
+            "FileMapping"
+            {
+                "LocalPath" "./build/linux/*"
+                "DepotPath" "."
+                "recursive" "1"
+            }
+        }
+
+        // macOS depot
+        "YOUR_MACOS_DEPOT_ID"
+        {
+            "FileMapping"
+            {
+                "LocalPath" "./build/macos/*"
+                "DepotPath" "."
+                "recursive" "1"
+            }
+        }
+    }
+}

@@ -305,6 +305,50 @@
         "MaxDistance": 160.0,
         "Priority": 9,
         "Cooldown": 1.0
+      },
+      "unit_death_naval_small": {
+        "Files": [
+          "assets/audio/sfx/combat/death_vehicle_01.ogg",
+          "assets/audio/sfx/combat/death_vehicle_02.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.1,
+        "MaxDistance": 130.0,
+        "Priority": 9,
+        "Cooldown": 0.5
+      },
+      "unit_death_naval_medium": {
+        "Files": [
+          "assets/audio/sfx/combat/death_vehicle_02.ogg",
+          "assets/audio/sfx/combat/death_vehicle_03.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.06,
+        "MaxDistance": 180.0,
+        "Priority": 9,
+        "Cooldown": 0.8
+      },
+      "unit_death_naval_large": {
+        "Files": [
+          "assets/audio/sfx/combat/death_building_01.ogg",
+          "assets/audio/sfx/combat/death_vehicle_03.ogg"
+        ],
+        "Volume": 1.0,
+        "PitchVariation": 0.04,
+        "MaxDistance": 250.0,
+        "Priority": 10,
+        "Cooldown": 2.0
+      },
+      "impact_water_splash": {
+        "Files": [
+          "assets/audio/sfx/combat/impact_dirt_01.ogg",
+          "assets/audio/sfx/combat/impact_dirt_02.ogg"
+        ],
+        "Volume": 0.6,
+        "PitchVariation": 0.15,
+        "MaxDistance": 60.0,
+        "Priority": 6,
+        "Cooldown": 0.1
       }
     },
     "movement": {

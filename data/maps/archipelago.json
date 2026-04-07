@@ -318,6 +318,38 @@
           0
         ]
       ]
+    },
+    {
+      "Type": "water_body",
+      "Points": [[72, 0], [168, 68]]
+    },
+    {
+      "Type": "water_body",
+      "Points": [[72, 172], [168, 240]]
+    },
+    {
+      "Type": "water_body",
+      "Points": [[0, 72], [68, 168]]
+    },
+    {
+      "Type": "water_body",
+      "Points": [[172, 72], [240, 168]]
+    },
+    {
+      "Type": "water_body",
+      "Points": [[72, 72], [168, 98]]
+    },
+    {
+      "Type": "water_body",
+      "Points": [[72, 142], [168, 168]]
+    },
+    {
+      "Type": "water_body",
+      "Points": [[72, 72], [98, 168]]
+    },
+    {
+      "Type": "water_body",
+      "Points": [[142, 72], [168, 168]]
     }
   ],
   "Props": [

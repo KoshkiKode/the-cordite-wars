@@ -117,5 +117,8 @@
   "HUD_VC": "VC: {0}",
   "HUD_SUPPLY": "Снабжение: {0}/{1}",
   "SUBTITLES_ENABLED": "Subtitles enabled",
-  "SUBTITLES_DISABLED": "Subtitles disabled"
+  "SUBTITLES_DISABLED": "Subtitles disabled",
+  "CAMPAIGN_COMING_SOON_TITLE": "Coming Soon",
+  "CAMPAIGN_COMING_SOON_BODY": "Campaign missions are not yet available. Check back in a future update!",
+  "MENU_OK": "OK"
 }

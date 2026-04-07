@@ -112,7 +112,7 @@ public class GameDataValidationTests
     [Fact]
     public void UnitFiles_IdsMatchFilenames()
     {
-        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json"))
+        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json", SearchOption.AllDirectories))
         {
             string json = File.ReadAllText(file);
             var doc = JsonDocument.Parse(json);
@@ -126,7 +126,7 @@ public class GameDataValidationTests
     [Fact]
     public void UnitFiles_HavePositiveHealth()
     {
-        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json"))
+        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json", SearchOption.AllDirectories))
         {
             string json = File.ReadAllText(file);
             var doc = JsonDocument.Parse(json);
@@ -139,7 +139,7 @@ public class GameDataValidationTests
     [Fact]
     public void UnitFiles_HavePositiveCost()
     {
-        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json"))
+        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json", SearchOption.AllDirectories))
         {
             string json = File.ReadAllText(file);
             var doc = JsonDocument.Parse(json);
@@ -152,7 +152,7 @@ public class GameDataValidationTests
     [Fact]
     public void UnitFiles_FactionIdMatchesPrefix()
     {
-        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json"))
+        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json", SearchOption.AllDirectories))
         {
             string json = File.ReadAllText(file);
             var doc = JsonDocument.Parse(json);
@@ -166,7 +166,7 @@ public class GameDataValidationTests
     [Fact]
     public void UnitFiles_BelongToKnownFaction()
     {
-        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json"))
+        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json", SearchOption.AllDirectories))
         {
             string json = File.ReadAllText(file);
             var doc = JsonDocument.Parse(json);
@@ -313,7 +313,7 @@ public class GameDataValidationTests
     public void FactionUnits_ReferenceExistingUnitFiles()
     {
         var unitIds = new HashSet<string>();
-        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json"))
+        foreach (string file in Directory.GetFiles(Path.Combine(DataRoot, "units"), "*.json", SearchOption.AllDirectories))
         {
             string json = File.ReadAllText(file);
             var doc = JsonDocument.Parse(json);

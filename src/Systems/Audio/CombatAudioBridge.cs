@@ -132,11 +132,16 @@ public partial class CombatAudioBridge : Node
     {
         return category switch
         {
-            UnitCategory.Infantry   => "unit_death_infantry",
-            UnitCategory.Helicopter => "unit_death_aircraft",
-            UnitCategory.Jet        => "unit_death_aircraft",
-            UnitCategory.Defense    => "unit_death_building",
-            _                       => "unit_death_vehicle"
+            UnitCategory.Infantry    => "unit_death_infantry",
+            UnitCategory.Helicopter  => "unit_death_aircraft",
+            UnitCategory.Jet         => "unit_death_aircraft",
+            UnitCategory.Defense     => "unit_death_building",
+            // Naval units use a distinct water-hull destruction sound
+            UnitCategory.PatrolBoat  => "unit_death_naval_small",
+            UnitCategory.Destroyer   => "unit_death_naval_medium",
+            UnitCategory.Submarine   => "unit_death_naval_medium",
+            UnitCategory.CapitalShip => "unit_death_naval_large",
+            _                        => "unit_death_vehicle"
         };
     }
 

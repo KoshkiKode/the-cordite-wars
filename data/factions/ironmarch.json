@@ -23,7 +23,8 @@
         "ironmarch_airfield",
         "ironmarch_tech_lab",
         "ironmarch_supply_depot",
-        "ironmarch_forward_assembly"
+        "ironmarch_forward_assembly",
+        "ironmarch_shipyard"
     ],
     "TechTreeUnlocks": {
         "ironmarch_reinforced_fob": 2000,
@@ -45,6 +46,10 @@
         "ironmarch_siegebreaker",
         "ironmarch_signal_truck",
         "ironmarch_stonehail",
-        "ironmarch_trenchline_apc"
+        "ironmarch_trenchline_apc",
+        "ironmarch_march_barge",
+        "ironmarch_ironclad_frigate",
+        "ironmarch_trench_diver",
+        "ironmarch_battleship"
     ]
 }

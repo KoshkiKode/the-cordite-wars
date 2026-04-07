@@ -143,6 +143,15 @@ public static class TerrainCostCalculator
         if (profile.Domain == MovementDomain.Air)
             return BaseCost;
 
+        // ── Naval units get a flat base cost on water ────────────────────
+        //
+        // Design decision: naval units move on a flat water surface, so slope
+        // and elevation penalties are meaningless.  CanTraverse already ensures
+        // only Water/DeepWater cells are reachable; here we simply return the
+        // base cost for any cell that passed that check.
+        if (profile.Domain == MovementDomain.Water)
+            return BaseCost;
+
         // ── Slope penalty ────────────────────────────────────────────────
         FixedPoint slopePenalty = GetSlopePenalty(destCell.SlopeAngle, profile.MaxSlopeAngle);
         if (slopePenalty == FixedPoint.MaxValue)
@@ -200,6 +209,14 @@ public static class TerrainCostCalculator
         // cliffs, etc.  Void is the absolute boundary of the playable area.
         if (profile.Domain == MovementDomain.Air)
             return cell.Type != TerrainType.Void;
+
+        // ── Naval units ──────────────────────────────────────────────────
+        //
+        // Design decision: naval units can only traverse Water and DeepWater
+        // cells.  All land terrain (including Bridges, which are land crossings
+        // over water rather than navigable channels) is impassable to ships.
+        if (profile.Domain == MovementDomain.Water)
+            return cell.Type == TerrainType.Water || cell.Type == TerrainType.DeepWater;
 
         // ── Hard-blocked cells ───────────────────────────────────────────
         // Buildings, cliff markers, or editor-placed blockers.

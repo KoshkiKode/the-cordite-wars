@@ -21,7 +21,11 @@ public enum UnitCategory
     Jet,
     Support,
     Special,
-    Defense
+    Defense,
+    PatrolBoat,    // Small fast naval vessel — cheap, early-game scouting
+    Destroyer,     // Mid-range naval combat ship — balanced attack and defence
+    Submarine,     // Stealth naval unit — torpedo specialist, low visibility
+    CapitalShip    // Heavy naval asset — high health, powerful weapons, slow
 }
 
 /// <summary>
@@ -59,7 +63,9 @@ public enum ArmorType
     Medium,
     Heavy,
     Aircraft,
-    Building
+    Building,
+    Naval    // Ship hull — anti-ship weapons (torpedoes) deal bonus damage;
+             // most small-arms weapons are ineffective against naval armour
 }
 
 /// <summary>
@@ -236,6 +242,7 @@ public sealed class UnitData
             "Artillery"    => MovementProfile.Artillery(),
             "Helicopter"   => MovementProfile.Helicopter(),
             "Jet"          => MovementProfile.Jet(),
+            "Naval"        => MovementProfile.Naval(),
             _ => throw new ArgumentException(
                 $"Unknown MovementClassId '{MovementClassId}' on unit '{Id}'.")
         };

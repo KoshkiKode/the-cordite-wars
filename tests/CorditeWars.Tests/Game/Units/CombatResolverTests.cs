@@ -1,5 +1,5 @@
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Units;
 
 namespace CorditeWars.Tests.Game.Units;
 
@@ -174,7 +174,7 @@ public class CombatResolverTests
         };
 
         var rng = new DeterministicRng(42);
-        var spatial = new UnnamedRTS.Systems.Pathfinding.SpatialHash(256, 256);
+        var spatial = new CorditeWars.Systems.Pathfinding.SpatialHash(256, 256);
 
         var result = _resolver.ResolveAttack(attacker, target, weapon, 0, rng, spatial, allUnits);
         Assert.True(result.DidHit);
@@ -209,7 +209,7 @@ public class CombatResolverTests
         };
 
         var rng = new DeterministicRng(42);
-        var spatial = new UnnamedRTS.Systems.Pathfinding.SpatialHash(256, 256);
+        var spatial = new CorditeWars.Systems.Pathfinding.SpatialHash(256, 256);
 
         // Run multiple times — all should miss
         for (int i = 0; i < 20; i++)
@@ -262,7 +262,7 @@ public class CombatResolverTests
         };
 
         var rng = new DeterministicRng(42);
-        var spatial = new UnnamedRTS.Systems.Pathfinding.SpatialHash(256, 256);
+        var spatial = new CorditeWars.Systems.Pathfinding.SpatialHash(256, 256);
 
         var result = _resolver.ResolveAttack(attacker, target, weapon, 0, rng, spatial, allUnits);
         Assert.True(result.DidHit);
@@ -300,7 +300,7 @@ public class CombatResolverTests
         };
 
         var rng = new DeterministicRng(42);
-        var spatial = new UnnamedRTS.Systems.Pathfinding.SpatialHash(256, 256);
+        var spatial = new CorditeWars.Systems.Pathfinding.SpatialHash(256, 256);
 
         var result = _resolver.ResolveAttack(attacker, target, weapon, 0, rng, spatial, allUnits);
         Assert.True(result.DidHit);
@@ -338,7 +338,7 @@ public class CombatResolverTests
         };
 
         var rng = new DeterministicRng(42);
-        var spatial = new UnnamedRTS.Systems.Pathfinding.SpatialHash(256, 256);
+        var spatial = new CorditeWars.Systems.Pathfinding.SpatialHash(256, 256);
 
         var result = _resolver.ResolveAttack(attacker, target, weapon, 0, rng, spatial, allUnits);
         Assert.True(result.DidHit);
@@ -377,7 +377,7 @@ public class CombatResolverTests
             }
         };
 
-        var spatial = new UnnamedRTS.Systems.Pathfinding.SpatialHash(256, 256);
+        var spatial = new CorditeWars.Systems.Pathfinding.SpatialHash(256, 256);
 
         // Run twice with same seed
         var rng1 = new DeterministicRng(999);

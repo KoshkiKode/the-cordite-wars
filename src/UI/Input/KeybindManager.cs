@@ -1,7 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 
-namespace UnnamedRTS.UI.Input;
+namespace CorditeWars.UI.Input;
 
 /// <summary>
 /// Manages remappable keybinds. Stores action→key mappings, handles conflict

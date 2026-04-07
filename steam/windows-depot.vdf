@@ -1,0 +1,13 @@
+"DepotBuild"
+{
+    "DepotID"     "YOUR_WINDOWS_DEPOT_ID"
+    "ContentRoot" "./build/windows/"
+    "BuildOutput" "./build/steam/"
+
+    "FileMapping"
+    {
+        "LocalPath" "*"
+        "DepotPath" "."
+        "recursive" "1"
+    }
+}

@@ -1,0 +1,34 @@
+{
+  "Id": "bastion_shipyard",
+  "DisplayName": "Bastion Drydock",
+  "FactionId": "bastion",
+  "Category": "Production",
+  "MaxHealth": 2200,
+  "ArmorClass": "Building",
+  "ArmorValue": 8,
+  "Cost": 2000,
+  "SecondaryCost": 200,
+  "BuildTime": 50.0,
+  "FootprintWidth": 4,
+  "FootprintHeight": 4,
+  "PowerRequired": 0,
+  "PowerGenerated": 0,
+  "SupplyProvided": 0,
+  "PassiveIncome": 0,
+  "VCGeneration": 0,
+  "RequiresWaterAccess": true,
+  "Abilities": [
+    "produce_naval"
+  ],
+  "Prerequisites": [
+    "bastion_vehicle_factory",
+    "bastion_tech_lab"
+  ],
+  "UnlocksUnitIds": [
+    "bastion_fortress_boat",
+    "bastion_bulwark_cruiser",
+    "bastion_aegis_destroyer",
+    "bastion_citadel_ship"
+  ],
+  "Description": "Bastion reinforced drydock — the most heavily armoured shipyard in the theatre. Slow to build, but the ships that emerge are fortresses in their own right. Must be placed adjacent to navigable water."
+}

@@ -59,6 +59,9 @@ public struct CombatTarget
     /// <summary>True if the target is a building/structure.</summary>
     public bool IsBuilding;
 
+    /// <summary>True if the target is a naval unit.</summary>
+    public bool IsNaval;
+
     /// <summary>Player ID of the target (for friend/foe checks).</summary>
     public int TargetPlayerId;
 }
@@ -169,6 +172,9 @@ public struct UnitCombatInfo
     /// <summary>True if this is a building/structure.</summary>
     public bool IsBuilding;
 
+    /// <summary>True if this is a naval unit (Water movement domain).</summary>
+    public bool IsNaval;
+
     /// <summary>True if this unit is currently stealthed and undetected.</summary>
     public bool IsStealthed;
 
@@ -235,6 +241,11 @@ public class CombatResolver
         else if (target.IsBuilding)
         {
             if ((weapon.CanTarget & TargetType.Building) == TargetType.None)
+                return false;
+        }
+        else if (target.IsNaval)
+        {
+            if ((weapon.CanTarget & TargetType.Naval) == TargetType.None)
                 return false;
         }
         else
@@ -468,6 +479,7 @@ public class CombatResolver
                         TargetArmor = allUnits[i].ArmorClass,
                         IsAir = allUnits[i].IsAir,
                         IsBuilding = allUnits[i].IsBuilding,
+                        IsNaval = allUnits[i].IsNaval,
                         TargetPlayerId = allUnits[i].PlayerId
                     };
 
@@ -530,6 +542,7 @@ public class CombatResolver
                 TargetArmor = candidate.ArmorClass,
                 IsAir = candidate.IsAir,
                 IsBuilding = candidate.IsBuilding,
+                IsNaval = candidate.IsNaval,
                 TargetPlayerId = candidate.PlayerId
             };
 

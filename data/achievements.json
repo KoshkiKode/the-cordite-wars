@@ -1,0 +1,109 @@
+{
+  "achievements": [
+    {
+      "id": "FIRST_VICTORY",
+      "name": "First Blood",
+      "description": "Win your first skirmish match.",
+      "hidden": false,
+      "icon": "achievements/first_victory.png"
+    },
+    {
+      "id": "WIN_ALL_FACTIONS",
+      "name": "Six Fronts, One Commander",
+      "description": "Win a skirmish match with each of the six factions.",
+      "hidden": false,
+      "icon": "achievements/win_all_factions.png"
+    },
+    {
+      "id": "WIN_AS_ARCLOFT",
+      "name": "Silent Watchers",
+      "description": "Win a skirmish match as the Arcloft Syndicate.",
+      "hidden": false,
+      "icon": "achievements/win_arcloft.png"
+    },
+    {
+      "id": "WIN_AS_VALKYR",
+      "name": "Sovereign Skies",
+      "description": "Win a skirmish match as Valkyr Command.",
+      "hidden": false,
+      "icon": "achievements/win_valkyr.png"
+    },
+    {
+      "id": "WIN_AS_KRAGMORE",
+      "name": "Crimson Tide",
+      "description": "Win a skirmish match as the Kragmore Clans.",
+      "hidden": false,
+      "icon": "achievements/win_kragmore.png"
+    },
+    {
+      "id": "WIN_AS_BASTION",
+      "name": "Iron Bastion",
+      "description": "Win a skirmish match as the Bastion Republic.",
+      "hidden": false,
+      "icon": "achievements/win_bastion.png"
+    },
+    {
+      "id": "WIN_AS_IRONMARCH",
+      "name": "Steel March",
+      "description": "Win a skirmish match as the Ironmarch Union.",
+      "hidden": false,
+      "icon": "achievements/win_ironmarch.png"
+    },
+    {
+      "id": "WIN_AS_STORMREND",
+      "name": "Storm's Fury",
+      "description": "Win a skirmish match as the Stormrend Accord.",
+      "hidden": false,
+      "icon": "achievements/win_stormrend.png"
+    },
+    {
+      "id": "WIN_MULTIPLAYER",
+      "name": "Beyond the Wire",
+      "description": "Win an online multiplayer match.",
+      "hidden": false,
+      "icon": "achievements/win_multiplayer.png"
+    },
+    {
+      "id": "FIRST_NAVAL_VICTORY",
+      "name": "Master of the Seas",
+      "description": "Win a match on a map with a naval theatre.",
+      "hidden": false,
+      "icon": "achievements/naval_victory.png"
+    },
+    {
+      "id": "MATCH_UNDER_10_MIN",
+      "name": "Blitz Commander",
+      "description": "Win a skirmish match in under 10 minutes.",
+      "hidden": false,
+      "icon": "achievements/blitz.png"
+    },
+    {
+      "id": "DESTROY_100_UNITS",
+      "name": "Attrition Warfare",
+      "description": "Destroy 100 enemy units across all matches.",
+      "hidden": false,
+      "icon": "achievements/attrition.png"
+    },
+    {
+      "id": "LOSE_A_MATCH",
+      "name": "Tactical Retreat",
+      "description": "Lose a skirmish match. Every commander falls once.",
+      "hidden": false,
+      "icon": "achievements/retreat.png"
+    },
+    {
+      "id": "DEFEAT_HARD_AI",
+      "name": "Machine Breaker",
+      "description": "Defeat a Hard difficulty AI opponent.",
+      "hidden": false,
+      "icon": "achievements/hard_ai.png"
+    },
+    {
+      "id": "PLAY_10_MATCHES",
+      "name": "Veteran",
+      "description": "Play 10 skirmish matches.",
+      "hidden": false,
+      "icon": "achievements/veteran.png"
+    }
+  ]
+}

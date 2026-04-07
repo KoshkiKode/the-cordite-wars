@@ -1,3 +1,5 @@
+using CorditeWars.Game.World;
+
 namespace CorditeWars.Game;
 
 /// <summary>
@@ -23,4 +25,10 @@ public sealed class MatchConfig
     public int GameSpeed { get; init; } = 1;
     public bool FogOfWar { get; init; } = true;
     public int StartingCordite { get; init; } = 5000;
+
+    /// <summary>
+    /// When set, a map is generated procedurally using this config instead of
+    /// loading a static map identified by <see cref="MapId"/>.
+    /// </summary>
+    public MapGenConfig? MapGeneration { get; init; }
 }

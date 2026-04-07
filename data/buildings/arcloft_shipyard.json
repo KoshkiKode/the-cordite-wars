@@ -1,0 +1,34 @@
+{
+  "Id": "arcloft_shipyard",
+  "DisplayName": "Arcloft Naval Platform",
+  "FactionId": "arcloft",
+  "Category": "Production",
+  "MaxHealth": 1800,
+  "ArmorClass": "Building",
+  "ArmorValue": 6,
+  "Cost": 2000,
+  "SecondaryCost": 200,
+  "BuildTime": 45.0,
+  "FootprintWidth": 4,
+  "FootprintHeight": 4,
+  "PowerRequired": 0,
+  "PowerGenerated": 0,
+  "SupplyProvided": 0,
+  "PassiveIncome": 0,
+  "VCGeneration": 0,
+  "RequiresWaterAccess": true,
+  "Abilities": [
+    "produce_naval"
+  ],
+  "Prerequisites": [
+    "arcloft_vehicle_factory",
+    "arcloft_tech_lab"
+  ],
+  "UnlocksUnitIds": [
+    "arcloft_aurora_skimmer",
+    "arcloft_aetherfin_corvette",
+    "arcloft_tempest_frigate",
+    "arcloft_stormcrest_carrier"
+  ],
+  "Description": "Arcloft floating naval platform — uses levitation technology to construct warships at the water's edge. Requires Tech Lab and Workshop. Must be placed adjacent to navigable water."
+}

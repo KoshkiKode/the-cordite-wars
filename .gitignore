@@ -42,6 +42,7 @@ desktop.ini
 # Export
 export/
 builds/
+build/
 *.pck
 *.zip
 

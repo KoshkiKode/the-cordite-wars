@@ -58,6 +58,24 @@ public partial class AIBuildOrder : Node
         CreateStandardBuildOrder(factionId, difficulty);
     }
 
+    /// <summary>
+    /// Appends naval Shipyard steps to the build order when the map is
+    /// water-heavy.  Call this after <see cref="Initialize"/> when the terrain
+    /// grid water analysis is available.
+    /// </summary>
+    public void AppendNavalBuildSteps(string factionId)
+    {
+        // Shipyard after Vehicle Factory and Reactor are up
+        _steps.Add(new BuildStep
+        {
+            Type = BuildStepType.BuildBuilding,
+            TargetId = $"{factionId}_shipyard",
+            Count = 1,
+            OffsetX = FixedPoint.FromInt(0),
+            OffsetY = FixedPoint.FromInt(-10)  // toward shoreline (negative Y = south by convention)
+        });
+    }
+
     private void CreateStandardBuildOrder(string factionId, AIDifficulty difficulty)
     {
         _steps.Clear();

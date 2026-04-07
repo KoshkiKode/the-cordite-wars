@@ -1,0 +1,129 @@
+name: "Deploy to Steam"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Triggered automatically when a versioned release tag is pushed, or
+# manually from the Actions tab.
+# ─────────────────────────────────────────────────────────────────────────────
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Steam branch to set live (e.g. 'beta', 'default')"
+        required: false
+        default: "beta"
+
+permissions:
+  contents: read
+
+env:
+  STEAM_APP_ID: ${{ secrets.STEAM_APP_ID }}
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 1. Build all platform exports first (reuses the existing export workflow)
+  # ─────────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build All Platforms
+    uses: ./.github/workflows/export.yml
+    permissions:
+      contents: read
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 2. Upload to Steam via SteamCMD
+  # ─────────────────────────────────────────────────────────────────────────────
+  steam-upload:
+    name: Upload to Steam
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Download platform exports produced by the build job ──────────────
+      - name: Download Windows export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows
+          path: build/windows/
+
+      - name: Download Linux export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux
+          path: build/linux/
+
+      - name: Download macOS export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-macOS
+          path: build/macos/
+
+      # ── Substitute real App ID / Depot IDs into the VDF scripts ──────────
+      - name: Patch VDF files
+        env:
+          WINDOWS_DEPOT_ID: ${{ secrets.STEAM_WINDOWS_DEPOT_ID }}
+          LINUX_DEPOT_ID:   ${{ secrets.STEAM_LINUX_DEPOT_ID }}
+          MACOS_DEPOT_ID:   ${{ secrets.STEAM_MACOS_DEPOT_ID }}
+          STEAM_SET_LIVE_BRANCH: ${{ github.event.inputs.branch || 'beta' }}
+        run: |
+          sed -i \
+            -e "s/YOUR_STEAM_APP_ID/${STEAM_APP_ID}/g" \
+            -e "s/YOUR_WINDOWS_DEPOT_ID/${WINDOWS_DEPOT_ID}/g" \
+            -e "s/YOUR_LINUX_DEPOT_ID/${LINUX_DEPOT_ID}/g" \
+            -e "s/YOUR_MACOS_DEPOT_ID/${MACOS_DEPOT_ID}/g" \
+            -e "s/\"SetLive\"[[:space:]]*\"[^\"]*\"/\"SetLive\"     \"${STEAM_SET_LIVE_BRANCH}\"/" \
+            steam/app-build.vdf \
+            steam/windows-depot.vdf \
+            steam/linux-depot.vdf \
+            steam/macos-depot.vdf
+
+      # ── Install SteamCMD ──────────────────────────────────────────────────
+      - name: Install SteamCMD
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y lib32gcc-s1
+          mkdir -p ~/steamcmd
+          cd ~/steamcmd
+          curl -sSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz | tar -xz
+          echo "$HOME/steamcmd" >> "$GITHUB_PATH"
+
+      # ── Upload to Steam ───────────────────────────────────────────────────
+      - name: Upload build to Steam
+        env:
+          STEAM_USERNAME:    ${{ secrets.STEAM_USERNAME }}
+          STEAM_PASSWORD:    ${{ secrets.STEAM_PASSWORD }}
+          STEAM_TOTP_SECRET: ${{ secrets.STEAM_TOTP_SECRET }}
+        run: |
+          # Generate a one-time TOTP code from the shared secret (requires oathtool)
+          sudo apt-get install -y oathtool 2>/dev/null || true
+          TOTP_CODE=""
+          if [ -n "${STEAM_TOTP_SECRET}" ]; then
+            TOTP_CODE=$(oathtool --base32 --totp "${STEAM_TOTP_SECRET}" 2>/dev/null || true)
+          fi
+
+          ~/steamcmd/steamcmd.sh \
+            +login "${STEAM_USERNAME}" "${STEAM_PASSWORD}" "${TOTP_CODE}" \
+            +run_app_build "$(pwd)/steam/app-build.vdf" \
+            +quit
+
+      # ── Summarise result ──────────────────────────────────────────────────
+      - name: Report upload result
+        if: success()
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "### ✅ Steam Upload Successful" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Version | ${VERSION} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| App ID | ${STEAM_APP_ID} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | ${{ github.event.inputs.branch || 'beta' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Platforms | Windows, Linux, macOS |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Check [Steamworks](https://partner.steamgames.com/) to promote the build to the **default** branch." >> "$GITHUB_STEP_SUMMARY"

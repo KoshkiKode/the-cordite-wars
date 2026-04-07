@@ -59,6 +59,7 @@ public partial class SkirmishAI : Node
 
     private AIBuildOrder? _buildOrder;
     private AICommander? _commander;
+    private NavalBehaviourTree? _navalTree;
 
     // ── Timing ───────────────────────────────────────────────────────
 
@@ -88,7 +89,8 @@ public partial class SkirmishAI : Node
         BuildingPlacer buildingPlacer,
         TechTreeManager techTreeManager,
         UnitDataRegistry unitDataRegistry,
-        BuildingRegistry buildingRegistry)
+        BuildingRegistry buildingRegistry,
+        int waterCellPercent = 0)
     {
         PlayerId = playerId;
         FactionId = factionId;
@@ -128,6 +130,17 @@ public partial class SkirmishAI : Node
         _commander = new AICommander();
         _commander.Initialize(playerId, factionId, difficulty, _basePosition, unitSpawner);
         AddChild(_commander);
+
+        // Create naval behaviour tree — activates automatically on water-heavy maps
+        _navalTree = new NavalBehaviourTree();
+        _navalTree.Initialize(playerId, factionId, difficulty, waterCellPercent);
+        AddChild(_navalTree);
+
+        // If naval is active, append Shipyard build steps to the build order
+        if (_navalTree.IsActive)
+        {
+            _buildOrder.AppendNavalBuildSteps(factionId);
+        }
 
         // Listen for attacks on our base
         EventBus.Instance?.Connect(EventBus.SignalName.BaseUnderAttack,
@@ -223,6 +236,22 @@ public partial class SkirmishAI : Node
 
         // Commander always manages squads
         _commander.Update(CurrentState);
+
+        // Naval behaviour tree ticks in parallel with the ground pipeline
+        if (_navalTree is not null && _navalTree.IsActive && _unitSpawner is not null &&
+            _economyManager is not null && _buildingPlacer is not null &&
+            _buildingRegistry is not null && _unitDataRegistry is not null)
+        {
+            _navalTree.ProcessTick(
+                FixedPoint.One,   // deltaTime placeholder — naval tree uses tick counts internally
+                _totalTicksElapsed,
+                economy,
+                _economyManager,
+                _buildingPlacer,
+                _buildingRegistry,
+                _unitDataRegistry,
+                _unitSpawner);
+        }
     }
 
     // ── State Execution ──────────────────────────────────────────────

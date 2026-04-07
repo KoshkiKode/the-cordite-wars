@@ -21,6 +21,7 @@ public partial class BuildingPlacer : Node
     private BuildingManifest? _buildingManifest;
     private Camera3D? _camera;
     private int _localPlayerId;
+    private TerrainGrid? _terrainGrid;
 
     // ── Placement State ──────────────────────────────────────────────
 
@@ -53,7 +54,8 @@ public partial class BuildingPlacer : Node
         EconomyManager economyManager,
         BuildingRegistry buildingRegistry,
         BuildingManifest buildingManifest,
-        Camera3D camera)
+        Camera3D camera,
+        TerrainGrid? terrainGrid = null)
     {
         _localPlayerId = localPlayerId;
         _occupancyGrid = occupancyGrid;
@@ -61,6 +63,7 @@ public partial class BuildingPlacer : Node
         _buildingRegistry = buildingRegistry;
         _buildingManifest = buildingManifest;
         _camera = camera;
+        _terrainGrid = terrainGrid;
     }
 
     // ── Public API ───────────────────────────────────────────────────
@@ -274,6 +277,11 @@ public partial class BuildingPlacer : Node
         if (!IsWithinBuildRadius(worldX, worldZ))
             return false;
 
+        // For buildings that require water access (e.g., Shipyard), verify that
+        // at least one cell adjacent to the footprint is Water or DeepWater.
+        if (_placingData.RequiresWaterAccess && !IsAdjacentToWater(gridX, gridY, fw, fh))
+            return false;
+
         // Check if player can afford it
         PlayerEconomy? economy = _economyManager.GetPlayer(_localPlayerId);
         if (economy is null) return false;
@@ -281,6 +289,42 @@ public partial class BuildingPlacer : Node
             return false;
 
         return true;
+    }
+
+    /// <summary>
+    /// Returns true if any cell immediately surrounding the given footprint is
+    /// Water or DeepWater terrain.  Used to enforce coastal placement for Shipyards.
+    /// Returns true if TerrainGrid is not available (permissive fallback).
+    /// </summary>
+    private bool IsAdjacentToWater(int gridX, int gridY, int footprintW, int footprintH)
+    {
+        if (_terrainGrid is null)
+            return true; // No terrain data — allow placement (fail-open)
+
+        // Check a 1-cell border around the entire footprint
+        int x0 = gridX - 1;
+        int y0 = gridY - 1;
+        int x1 = gridX + footprintW;
+        int y1 = gridY + footprintH;
+
+        for (int y = y0; y <= y1; y++)
+        {
+            for (int x = x0; x <= x1; x++)
+            {
+                // Skip cells inside the footprint itself
+                if (x >= gridX && x < gridX + footprintW &&
+                    y >= gridY && y < gridY + footprintH)
+                    continue;
+
+                if (!_terrainGrid.IsInBounds(x, y)) continue;
+
+                TerrainCell cell = _terrainGrid.GetCellSafe(x, y);
+                if (cell.Type == TerrainType.Water || cell.Type == TerrainType.DeepWater)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private bool IsWithinBuildRadius(float worldX, float worldZ)

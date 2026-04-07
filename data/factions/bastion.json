@@ -23,7 +23,8 @@
         "bastion_airfield",
         "bastion_tech_lab",
         "bastion_supply_depot",
-        "bastion_command_hub"
+        "bastion_command_hub",
+        "bastion_shipyard"
     ],
     "TechTreeUnlocks": {
         "bastion_redundant_systems": 2000,
@@ -45,6 +46,10 @@
         "bastion_sentinel",
         "bastion_shield_bearer",
         "bastion_warden",
-        "bastion_watcher"
+        "bastion_watcher",
+        "bastion_shield_skiff",
+        "bastion_corvette",
+        "bastion_depth_ward",
+        "bastion_citadel_ship"
     ]
 }

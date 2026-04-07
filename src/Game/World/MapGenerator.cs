@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Deterministic procedural map generator that produces <see cref="MapData"/>

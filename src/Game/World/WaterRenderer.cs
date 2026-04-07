@@ -73,10 +73,15 @@ void fragment() {
         for (int i = 0; i < mapData.TerrainFeatures.Length; i++)
         {
             TerrainFeature feature = mapData.TerrainFeatures[i];
-            if (feature.Type != "river" || feature.Points == null || feature.Points.Length < 2)
-                continue;
 
-            CreateRiverWater(feature, terrainRenderer);
+            if (feature.Type == "river" && feature.Points != null && feature.Points.Length >= 2)
+            {
+                CreateRiverWater(feature, terrainRenderer);
+            }
+            else if (feature.Type == "water_body" && feature.Points != null && feature.Points.Length >= 2)
+            {
+                CreateWaterBodyPlane(feature, terrainRenderer);
+            }
         }
 
         GD.Print($"[WaterRenderer] Generated water for {mapData.TerrainFeatures.Length} terrain features.");
@@ -168,6 +173,76 @@ void fragment() {
         meshInstance.MaterialOverride = _waterMaterial;
         meshInstance.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
         meshInstance.Transparency = 0.3f;
+
+        AddChild(meshInstance);
+    }
+
+    /// <summary>
+    /// Renders a large water body (ocean/lake/sea) defined by a 2-point rectangle or
+    /// polygon in the terrain feature data.  Uses a deeper-colour variant of the water
+    /// shader to visually distinguish open water from rivers.
+    ///
+    /// <para>For 2-point features: points[0] = top-left corner, points[1] = bottom-right.
+    /// For polygon features: the bounding box is computed and a single large plane is
+    /// rendered at the mean elevation of the region.</para>
+    /// </summary>
+    private void CreateWaterBodyPlane(TerrainFeature body, TerrainRenderer terrainRenderer)
+    {
+        if (body.Points == null || body.Points.Length < 2) return;
+
+        // Compute bounding box
+        int minX = int.MaxValue, minY = int.MaxValue;
+        int maxX = int.MinValue, maxY = int.MinValue;
+
+        for (int i = 0; i < body.Points.Length; i++)
+        {
+            int[] pt = body.Points[i];
+            if (pt == null || pt.Length < 2) continue;
+            if (pt[0] < minX) minX = pt[0];
+            if (pt[1] < minY) minY = pt[1];
+            if (pt[0] > maxX) maxX = pt[0];
+            if (pt[1] > maxY) maxY = pt[1];
+        }
+
+        if (minX == int.MaxValue) return;
+
+        float cx = (minX + maxX) * 0.5f;
+        float cy = (minY + maxY) * 0.5f;
+        float width  = maxX - minX;
+        float height = maxY - minY;
+
+        // Sample elevation at the centre of the water body
+        float terrainElev = terrainRenderer != null
+            ? terrainRenderer.GetElevationAtWorld(cx, cy)
+            : 0f;
+        float waterY = terrainElev + WaterYOffset - 0.1f; // slightly lower for open water
+
+        // Build a single large quad covering the bounding box
+        var st = new SurfaceTool();
+        st.Begin(Mesh.PrimitiveType.Triangles);
+
+        Vector3 v0 = new(minX, waterY, minY);
+        Vector3 v1 = new(maxX, waterY, minY);
+        Vector3 v2 = new(minX, waterY, maxY);
+        Vector3 v3 = new(maxX, waterY, maxY);
+
+        Vector3 normal = Vector3.Up;
+        float uvScale = 0.05f; // tile the shader pattern over the large water body
+
+        st.SetNormal(normal); st.SetUV(new Vector2(0,               0));               st.AddVertex(v0);
+        st.SetNormal(normal); st.SetUV(new Vector2(width * uvScale, 0));               st.AddVertex(v1);
+        st.SetNormal(normal); st.SetUV(new Vector2(0,               height * uvScale)); st.AddVertex(v2);
+
+        st.SetNormal(normal); st.SetUV(new Vector2(width * uvScale, 0));               st.AddVertex(v1);
+        st.SetNormal(normal); st.SetUV(new Vector2(width * uvScale, height * uvScale)); st.AddVertex(v3);
+        st.SetNormal(normal); st.SetUV(new Vector2(0,               height * uvScale)); st.AddVertex(v2);
+
+        var mesh = st.Commit();
+        var meshInstance = new MeshInstance3D();
+        meshInstance.Mesh = mesh;
+        meshInstance.MaterialOverride = _waterMaterial;
+        meshInstance.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+        meshInstance.Transparency = 0.2f; // slightly more opaque than rivers
 
         AddChild(meshInstance);
     }

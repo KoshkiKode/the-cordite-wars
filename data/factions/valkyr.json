@@ -23,7 +23,8 @@
         "valkyr_carrier_pad",
         "valkyr_tech_lab",
         "valkyr_supply_depot",
-        "valkyr_vehicle_factory"
+        "valkyr_vehicle_factory",
+        "valkyr_shipyard"
     ],
     "TechTreeUnlocks": {
         "valkyr_afterburner_array": 1500,
@@ -45,6 +46,9 @@
         "valkyr_updraft",
         "valkyr_valkyrie_carrier",
         "valkyr_windrunner",
-        "valkyr_zephyr_buggy"
+        "valkyr_zephyr_buggy",
+        "valkyr_seabird_cutter",
+        "valkyr_tempest_frigate",
+        "valkyr_depth_hunter"
     ]
 }

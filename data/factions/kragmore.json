@@ -23,7 +23,8 @@
         "kragmore_airfield",
         "kragmore_tech_lab",
         "kragmore_supply_depot",
-        "kragmore_war_forge"
+        "kragmore_war_forge",
+        "kragmore_shipyard"
     ],
     "TechTreeUnlocks": {
         "kragmore_heavy_plate_kits": 1500,
@@ -45,6 +46,10 @@
         "kragmore_spotter",
         "kragmore_strix_gunship",
         "kragmore_vanguard",
-        "kragmore_wrecker"
+        "kragmore_wrecker",
+        "kragmore_iron_trawler",
+        "kragmore_deep_bore",
+        "kragmore_leviathan",
+        "kragmore_dreadnought"
     ]
 }

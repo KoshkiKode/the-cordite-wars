@@ -1,0 +1,34 @@
+{
+  "Id": "stormrend_shipyard",
+  "DisplayName": "Stormrend Strike Dock",
+  "FactionId": "stormrend",
+  "Category": "Production",
+  "MaxHealth": 1600,
+  "ArmorClass": "Building",
+  "ArmorValue": 5,
+  "Cost": 2000,
+  "SecondaryCost": 200,
+  "BuildTime": 38.0,
+  "FootprintWidth": 4,
+  "FootprintHeight": 4,
+  "PowerRequired": 0,
+  "PowerGenerated": 0,
+  "SupplyProvided": 0,
+  "PassiveIncome": 0,
+  "VCGeneration": 0,
+  "RequiresWaterAccess": true,
+  "Abilities": [
+    "produce_naval"
+  ],
+  "Prerequisites": [
+    "stormrend_vehicle_factory",
+    "stormrend_tech_lab"
+  ],
+  "UnlocksUnitIds": [
+    "stormrend_blitz_boat",
+    "stormrend_razortide_corvette",
+    "stormrend_tempest_destroyer",
+    "stormrend_stormfront_flagship"
+  ],
+  "Description": "Stormrend rapid-build strike dock — built for speed above all else. Stormrend ships are lightly armoured but devastating in the first strike. The pact shattered empires; the sea will be no different. Must be placed adjacent to navigable water."
+}

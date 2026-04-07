@@ -32,31 +32,74 @@ This guide covers deploying your game to all major platforms and distribution ch
 
 ### Steam Distribution
 
-1. **Prepare for Steamworks**
-   - Create Steamworks account & app (requires publisher verification)
-   - Build number must increment with each upload
+#### Prerequisites
 
-2. **Upload Build**
-   ```bash
-   # Use Steam SDK tools
-   steamcmd +login <username> <password> +run_app_build <script.vdf>
-   ```
+1. **Steamworks account** — create at https://partner.steamgames.com/ ($100 one-time fee)
+2. **App ID** — assigned by Valve after app creation; replace `YOUR_STEAM_APP_ID` in
+   `steam/app-build.vdf` and the `steam_appid.txt` file in the repo root.
+3. **Depot IDs** — Valve assigns one depot per platform; update
+   `steam/windows-depot.vdf`, `steam/linux-depot.vdf`, `steam/macos-depot.vdf`.
 
-3. **Build Script** (`windows-build.vdf`)
-   ```
-   "AppBuild"
-   {
-     "AppID"           "YOUR_APP_ID"
-     "Desc"            "Cordite Wars 0.1.0"
-     "BuildOutput"     "./build/steam/"
-     "ContentRoot"     "./build/windows/"
-     "SetLive"         "default"
-     "Depots"
-     {
-       "1000000"  { "FileMapping" { "" "." } }
-     }
-   }
-   ```
+#### Automated CI/CD Upload
+
+The `.github/workflows/steam-deploy.yml` workflow automatically uploads to Steam
+whenever a versioned tag is pushed (`v*`).
+
+Required GitHub Secrets:
+
+| Secret | Description |
+|--------|-------------|
+| `STEAM_APP_ID` | Numeric Steam App ID (e.g. `2345678`) |
+| `STEAM_WINDOWS_DEPOT_ID` | Windows depot ID |
+| `STEAM_LINUX_DEPOT_ID` | Linux depot ID |
+| `STEAM_MACOS_DEPOT_ID` | macOS depot ID |
+| `STEAM_USERNAME` | Steamworks builder account username |
+| `STEAM_PASSWORD` | Steamworks builder account password |
+| `STEAM_TOTP_SECRET` | Steam Guard shared secret (base32) — optional but recommended |
+
+To trigger manually: **Actions → Deploy to Steam → Run workflow**.
+
+#### Manual Upload via SteamCMD
+
+```bash
+# Install SteamCMD (Linux/macOS)
+mkdir ~/steamcmd && cd ~/steamcmd
+curl -sSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz | tar -xz
+
+# Patch the VDF files with your real IDs first, then:
+~/steamcmd/steamcmd.sh \
+  +login YOUR_USERNAME YOUR_PASSWORD \
+  +run_app_build "$(pwd)/steam/app-build.vdf" \
+  +quit
+```
+
+#### Promoting a Build to Default Branch
+
+After upload, set the build live in the Steamworks dashboard:
+**App Admin → SteamPipe → Builds → Set build live on branch: default**
+
+Or use SteamCMD directly:
+```bash
+~/steamcmd/steamcmd.sh \
+  +login YOUR_USERNAME YOUR_PASSWORD \
+  +app_set_build_live YOUR_APP_ID BUILD_ID default \
+  +quit
+```
+
+#### Steamworks Integration in Code
+
+`SteamManager` (`src/Systems/Platform/SteamManager.cs`) wraps the Steamworks API:
+
+- **Achievements** — defined in `data/achievements.json`; call
+  `SteamManager.Instance?.UnlockAchievement("ACHIEVEMENT_ID")`.
+- **Rich Presence** — set automatically on match start/end via `OnMatchStarted()` /
+  `OnMatchWon()` / `OnMatchLost()`.
+- **Cloud Saves** — call `SteamManager.Instance?.NotifySaveChanged()` after every save.
+- **Overlay** — enabled automatically by `SteamAPI.Init()` in `TryInitSteam()`.
+
+To activate real Steamworks calls, add [Steamworks.NET](https://steamworks.github.io/)
+via NuGet and replace the stub bodies in the `// Native shim layer` section of
+`SteamManager.cs`.
 
 ### Microsoft Store
 

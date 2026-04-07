@@ -239,13 +239,25 @@ public partial class CampaignSelect : Control
     {
         if (_selectedFaction < 0) return;
         GD.Print($"[CampaignSelect] Starting campaign: {UITheme.FactionNames[_selectedFaction]}");
-        // TODO: Transition to first campaign mission
+        ShowComingSoonDialog();
     }
 
     private void OnContinuePressed()
     {
         if (_selectedFaction < 0) return;
         GD.Print($"[CampaignSelect] Continuing campaign: {UITheme.FactionNames[_selectedFaction]}");
-        // TODO: Transition to saved mission
+        ShowComingSoonDialog();
+    }
+
+    private void ShowComingSoonDialog()
+    {
+        var dialog = new AcceptDialog();
+        dialog.Title = Tr("CAMPAIGN_COMING_SOON_TITLE");
+        dialog.DialogText = Tr("CAMPAIGN_COMING_SOON_BODY");
+        dialog.OkButtonText = Tr("MENU_OK");
+        AddChild(dialog);
+        dialog.PopupCentered();
+        dialog.Confirmed += () => dialog.QueueFree();
+        dialog.Canceled += () => dialog.QueueFree();
     }
 }

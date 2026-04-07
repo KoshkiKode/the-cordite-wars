@@ -1,4 +1,4 @@
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Configuration parameters for procedural map generation.

@@ -23,7 +23,8 @@
         "arcloft_overwatch_tower",
         "arcloft_tech_lab",
         "arcloft_supply_depot",
-        "arcloft_vehicle_factory"
+        "arcloft_vehicle_factory",
+        "arcloft_shipyard"
     ],
     "TechTreeUnlocks": {
         "arcloft_expanded_overwatch": 1800,
@@ -44,6 +45,9 @@
         "arcloft_stormshot",
         "arcloft_stratos",
         "arcloft_templar",
-        "arcloft_vigilant"
+        "arcloft_vigilant",
+        "arcloft_sky_skimmer",
+        "arcloft_phantom_sub",
+        "arcloft_arc_cruiser"
     ]
 }

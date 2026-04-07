@@ -177,8 +177,12 @@ public partial class GameSession : Node
 
         // d2. Create deterministic simulation tick pipeline
         _terrainGrid = new TerrainGrid(ActiveMap.Width, ActiveMap.Height, FixedPoint.One);
-        // Note: Ideally we'd populate _terrainGrid.Cells from MapData here, 
-        // but an empty grid works for basic pathfinding collisions on grass.
+        // Populate terrain grid with water body cells from map data so that
+        // naval pathfinding works correctly on maps with defined water bodies.
+        BuildTerrainGridFromMapData(ActiveMap, _terrainGrid);
+        // Share the populated terrain grid with UnitSpawner so naval units
+        // can be relocated to the nearest water cell on production/spawn.
+        _unitSpawner.SetTerrainGrid(_terrainGrid);
         _spatialHash = new SpatialHash(ActiveMap.Width, ActiveMap.Height);
         _occupancyGrid = new OccupancyGrid(ActiveMap.Width, ActiveMap.Height);
         
@@ -1057,7 +1061,8 @@ public partial class GameSession : Node
             _economyManager,
             _buildingRegistry,
             _buildingManifest,
-            _camera);
+            _camera,
+            _terrainGrid);
         AddChild(_buildingPlacer);
 
         // Register HQ positions for build radius validation
@@ -1112,6 +1117,9 @@ public partial class GameSession : Node
         if (ActiveMap is null || _economyManager is null || _unitSpawner is null ||
             _buildingPlacer is null || _techTreeManager is null) return;
 
+        // Compute water cell percentage once for all AI players
+        int waterCellPercent = ComputeWaterCellPercent(_terrainGrid);
+
         for (int i = 0; i < config.PlayerConfigs.Length; i++)
         {
             PlayerConfig pc = config.PlayerConfigs[i];
@@ -1157,7 +1165,8 @@ public partial class GameSession : Node
                 _buildingPlacer,
                 _techTreeManager,
                 _unitDataRegistry,
-                _buildingRegistry);
+                _buildingRegistry,
+                waterCellPercent);
             AddChild(ai);
             _skirmishAIs.Add(ai);
 
@@ -1165,9 +1174,161 @@ public partial class GameSession : Node
         }
     }
 
+    /// <summary>
+    /// Returns the percentage of TerrainGrid cells that are Water or DeepWater.
+    /// Returns 0 if the grid is null.
+    /// </summary>
+    private static int ComputeWaterCellPercent(TerrainGrid? grid)
+    {
+        if (grid is null) return 0;
+
+        int total = grid.Width * grid.Height;
+        if (total == 0) return 0;
+
+        int waterCount = 0;
+        for (int i = 0; i < grid.Cells.Length; i++)
+        {
+            TerrainType t = grid.Cells[i].Type;
+            if (t == TerrainType.Water || t == TerrainType.DeepWater)
+                waterCount++;
+        }
+
+        return waterCount * 100 / total;
+    }
+
     // ═════════════════════════════════════════════════════════════════
     // PRIVATE HELPERS
     // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Populates the <see cref="TerrainGrid"/> with terrain types derived from
+    /// <see cref="MapData"/> terrain features.  Currently handles:
+    /// <list type="bullet">
+    ///   <item><c>"water_body"</c> — fills a rectangular or polygonal area with
+    ///         <see cref="TerrainType.DeepWater"/> cells so that naval units can
+    ///         navigate the water.  If the feature has exactly 2 points it is
+    ///         treated as an axis-aligned rectangle (top-left / bottom-right).
+    ///         Three or more points define a convex/concave polygon filled via
+    ///         a scanline algorithm.</item>
+    /// </list>
+    /// All other terrain defaults to <see cref="TerrainType.Grass"/> (the grid
+    /// is already zero-initialised to Grass).
+    /// </summary>
+    private static void BuildTerrainGridFromMapData(MapData mapData, TerrainGrid grid)
+    {
+        if (mapData.TerrainFeatures == null || mapData.TerrainFeatures.Length == 0)
+            return;
+
+        for (int f = 0; f < mapData.TerrainFeatures.Length; f++)
+        {
+            TerrainFeature feature = mapData.TerrainFeatures[f];
+            if (feature.Type != "water_body" || feature.Points == null || feature.Points.Length < 2)
+                continue;
+
+            if (feature.Points.Length == 2)
+            {
+                // Rectangle: Points[0] = top-left, Points[1] = bottom-right
+                int[] p0 = feature.Points[0];
+                int[] p1 = feature.Points[1];
+                if (p0 == null || p0.Length < 2 || p1 == null || p1.Length < 2) continue;
+
+                int x0 = Math.Min(p0[0], p1[0]);
+                int y0 = Math.Min(p0[1], p1[1]);
+                int x1 = Math.Max(p0[0], p1[0]);
+                int y1 = Math.Max(p0[1], p1[1]);
+
+                x0 = Math.Max(0, x0);
+                y0 = Math.Max(0, y0);
+                x1 = Math.Min(grid.Width - 1, x1);
+                y1 = Math.Min(grid.Height - 1, y1);
+
+                for (int y = y0; y <= y1; y++)
+                {
+                    for (int x = x0; x <= x1; x++)
+                    {
+                        grid.Cells[y * grid.Width + x].Type = TerrainType.DeepWater;
+                    }
+                }
+            }
+            else
+            {
+                // Polygon scanline fill
+                FillWaterBodyPolygon(grid, feature.Points);
+            }
+        }
+
+        GD.Print($"[GameSession] TerrainGrid populated from {mapData.TerrainFeatures.Length} terrain features.");
+    }
+
+    /// <summary>
+    /// Fills a polygon defined by <paramref name="points"/> with
+    /// <see cref="TerrainType.DeepWater"/> using a scanline algorithm.
+    /// </summary>
+    private static void FillWaterBodyPolygon(TerrainGrid grid, int[][] points)
+    {
+        // Compute bounding box
+        int minY = int.MaxValue;
+        int maxY = int.MinValue;
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            if (points[i] == null || points[i].Length < 2) continue;
+            if (points[i][1] < minY) minY = points[i][1];
+            if (points[i][1] > maxY) maxY = points[i][1];
+        }
+
+        minY = Math.Max(0, minY);
+        maxY = Math.Min(grid.Height - 1, maxY);
+
+        int n = points.Length;
+
+        for (int scanY = minY; scanY <= maxY; scanY++)
+        {
+            // Find all X intersections of the polygon edges at this scanline
+            var intersections = new System.Collections.Generic.List<int>(8);
+
+            for (int i = 0; i < n; i++)
+            {
+                int[] pa = points[i];
+                int[] pb = points[(i + 1) % n];
+                if (pa == null || pa.Length < 2 || pb == null || pb.Length < 2) continue;
+
+                int ay = pa[1];
+                int by = pb[1];
+
+                if (ay == by) continue; // horizontal edge — skip
+
+                // Check if the scanline crosses this edge
+                if ((scanY >= ay && scanY < by) || (scanY >= by && scanY < ay))
+                {
+                    // Compute X intersection using rounding to avoid truncation gaps.
+                    // Using integer round-half-up: add half the denominator before dividing.
+                    int ax = pa[0];
+                    int bx = pb[0];
+                    int numerator   = (scanY - ay) * (bx - ax);
+                    int denominator = by - ay;
+                    int xIntersect  = ax + (numerator + denominator / 2) / denominator;
+                    intersections.Add(xIntersect);
+                }
+            }
+
+            if (intersections.Count < 2) continue;
+
+            // Sort intersections and fill between pairs
+            intersections.Sort();
+
+            for (int k = 0; k + 1 < intersections.Count; k += 2)
+            {
+                int xStart = Math.Max(0, intersections[k]);
+                int xEnd   = Math.Min(grid.Width - 1, intersections[k + 1]);
+
+                for (int x = xStart; x <= xEnd; x++)
+                {
+                    grid.Cells[scanY * grid.Width + x].Type = TerrainType.DeepWater;
+                }
+            }
+        }
+    }
 
     /// <summary>
     /// Loads all data registries from res://data/ paths.

@@ -112,6 +112,13 @@ public sealed class BuildingData
     /// <summary>Enables minimap radar vision when constructed.</summary>
     public bool ProvidesRadar { get; init; }
 
+    /// <summary>
+    /// Shipyard and coastal buildings require placement adjacent to at least
+    /// one Water or DeepWater cell.  The <see cref="BuildingPlacer"/> enforces
+    /// this constraint at placement time.
+    /// </summary>
+    public bool RequiresWaterAccess { get; init; }
+
     // ── Flavor ───────────────────────────────────────────────────────
 
     /// <summary>Lore / flavor text.</summary>

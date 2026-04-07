@@ -1,5 +1,5 @@
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Economy;
+using CorditeWars.Core;
+using CorditeWars.Game.Economy;
 
 namespace CorditeWars.Tests.Game.Economy;
 

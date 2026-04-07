@@ -30,6 +30,7 @@ public enum EditorTool
     StructurePlacer,
     CorditeNodePlacer,
     StartingPositionPlacer,
+    WaterBodyTool,  // Paints navigable water body areas for naval units
     Eraser
 }
 
@@ -456,7 +457,68 @@ public partial class MapEditor : Node3D
         return _riverPoints;
     }
 
-    // ── Bridge Tool ────────────────────────────────────────────────────────
+    // ── Water Body Tool ────────────────────────────────────────────────────
+
+    // Accumulated water body rectangle: [x0, y0] start corner, set on first click
+    private int[] _waterBodyStart = null!;
+
+    /// <summary>
+    /// Begins or completes a water body rectangle.
+    /// First click sets the start corner; second click defines the end corner
+    /// and commits the water_body terrain feature.
+    /// </summary>
+    public void ApplyWaterBodyPoint(int x, int y)
+    {
+        if (_waterBodyStart == null)
+        {
+            // First click — record start corner
+            _waterBodyStart = new[] { x, y };
+            GD.Print($"[MapEditor] Water body start: ({x},{y})");
+            return;
+        }
+
+        // Second click — commit rectangle
+        int x0 = Math.Min(_waterBodyStart[0], x);
+        int y0 = Math.Min(_waterBodyStart[1], y);
+        int x1 = Math.Max(_waterBodyStart[0], x);
+        int y1 = Math.Max(_waterBodyStart[1], y);
+
+        _waterBodyStart = null!;
+
+        if (x1 - x0 < 2 || y1 - y0 < 2)
+        {
+            GD.PushWarning("[MapEditor] Water body too small — requires at least 2×2 cells.");
+            return;
+        }
+
+        var feature = new TerrainFeature
+        {
+            Type = "water_body",
+            Points = new[] { new[] { x0, y0 }, new[] { x1, y1 } }
+        };
+
+        _terrainFeatures.Add(feature);
+
+        PushUndo(new EditorAction
+        {
+            Type = "water_body_add",
+            Description = $"Water body ({x0},{y0}) → ({x1},{y1})",
+            AffectedX = x0,
+            AffectedY = y0,
+            AffectedRadius = Math.Max(x1 - x0, y1 - y0)
+        });
+
+        EmitSignal(SignalName.MapModified);
+        GD.Print($"[MapEditor] Water body placed: ({x0},{y0}) → ({x1},{y1})");
+    }
+
+    /// <summary>
+    /// Cancels any in-progress water body placement.
+    /// </summary>
+    public void CancelWaterBody()
+    {
+        _waterBodyStart = null!;
+    }
 
     public void PlaceBridge(int x, int y, float rotation)
     {

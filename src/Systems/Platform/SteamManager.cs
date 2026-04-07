@@ -1,0 +1,373 @@
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Godot;
+using System.Linq;
+
+namespace CorditeWars.Systems.Platform;
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Data model that mirrors data/achievements.json
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Data record for a single Steam achievement definition, loaded from
+/// <c>data/achievements.json</c>.
+/// </summary>
+public sealed class AchievementDefinition
+{
+    [JsonPropertyName("id")]          public string Id          { get; set; } = string.Empty;
+    [JsonPropertyName("name")]        public string Name        { get; set; } = string.Empty;
+    [JsonPropertyName("description")] public string Description { get; set; } = string.Empty;
+    [JsonPropertyName("hidden")]      public bool   Hidden      { get; set; }
+    [JsonPropertyName("icon")]        public string Icon        { get; set; } = string.Empty;
+}
+
+file sealed class AchievementFile
+{
+    [JsonPropertyName("achievements")]
+    public List<AchievementDefinition> Achievements { get; set; } = new();
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// SteamManager
+// ──────────────────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Manages all Steamworks integration for Cordite Wars.
+///
+/// <para>
+/// Responsibilities:
+/// <list type="bullet">
+///   <item>Initialise / shut down the Steamworks API.</item>
+///   <item>Gate Steam overlay activation (Shift+Tab, in-game screenshots).</item>
+///   <item>Unlock Steam achievements and track stat increments.</item>
+///   <item>Trigger Steam Cloud save synchronisation after every save.</item>
+///   <item>Set Rich Presence strings shown in the Steam Friends list.</item>
+/// </list>
+/// </para>
+///
+/// <para>
+/// <b>Design note</b>: Steamworks.NET is loaded at runtime via a thin
+/// reflection shim so that the project compiles and runs on platforms where
+/// <c>steam_api64.dll</c> / <c>libsteam_api.so</c> is absent (CI, macOS
+/// notarisation runners, Android, iOS).  All public methods are safe to call
+/// even when Steam is unavailable — they simply no-op and return <c>false</c>.
+/// </para>
+/// </summary>
+public sealed partial class SteamManager : Node
+{
+    // ── Singleton ────────────────────────────────────────────────────
+
+    public static SteamManager? Instance { get; private set; }
+
+    // ── State ────────────────────────────────────────────────────────
+
+    /// <summary>True only when the Steamworks API initialised successfully.</summary>
+    public bool IsAvailable { get; private set; }
+
+    private readonly Dictionary<string, AchievementDefinition> _achievements = new();
+
+    // Stat counters persisted each time they change
+    private int _totalMatchesPlayed;
+    private int _totalUnitsDestroyed;
+
+    // ── Godot lifecycle ──────────────────────────────────────────────
+
+    public override void _Ready()
+    {
+        Instance = this;
+
+        LoadAchievementDefinitions();
+        TryInitSteam();
+    }
+
+    public override void _Process(double delta)
+    {
+        if (!IsAvailable) return;
+        RunCallbacks();
+    }
+
+    public override void _ExitTree()
+    {
+        if (IsAvailable)
+            ShutdownSteam();
+
+        if (Instance == this)
+            Instance = null;
+    }
+
+    // ── Public API ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// Unlocks a Steam achievement by its API name (e.g. <c>"FIRST_VICTORY"</c>).
+    /// Safe to call multiple times — Steam ignores re-unlocks.
+    /// </summary>
+    /// <returns>
+    /// <c>true</c> if the achievement was set successfully (or was already set);
+    /// <c>false</c> if Steam is unavailable or the achievement ID is unknown.
+    /// </returns>
+    public bool UnlockAchievement(string achievementId)
+    {
+        if (!IsAvailable)
+        {
+            GD.Print($"[Steam] Achievement '{achievementId}' skipped (Steam unavailable).");
+            return false;
+        }
+
+        if (!_achievements.ContainsKey(achievementId))
+        {
+            GD.PushWarning($"[Steam] Unknown achievement ID: '{achievementId}'");
+            return false;
+        }
+
+        bool ok = SetAchievementNative(achievementId);
+        if (ok)
+        {
+            StoreStatsNative();
+            GD.Print($"[Steam] Achievement unlocked: {achievementId}");
+        }
+        return ok;
+    }
+
+    /// <summary>
+    /// Increments the <c>MATCHES_PLAYED</c> counter and triggers related milestone
+    /// achievements.
+    /// </summary>
+    public void RecordMatchPlayed()
+    {
+        _totalMatchesPlayed++;
+        SetStatNative("MATCHES_PLAYED", _totalMatchesPlayed);
+        StoreStatsNative();
+
+        if (_totalMatchesPlayed >= 10)
+            UnlockAchievement("PLAY_10_MATCHES");
+    }
+
+    /// <summary>
+    /// Increments the <c>UNITS_DESTROYED</c> counter and triggers the
+    /// <c>DESTROY_100_UNITS</c> achievement milestone.
+    /// </summary>
+    public void RecordUnitsDestroyed(int count)
+    {
+        if (count <= 0) return;
+        _totalUnitsDestroyed += count;
+        SetStatNative("UNITS_DESTROYED", _totalUnitsDestroyed);
+        StoreStatsNative();
+
+        if (_totalUnitsDestroyed >= 100)
+            UnlockAchievement("DESTROY_100_UNITS");
+    }
+
+    /// <summary>
+    /// Sets the Steam Rich Presence status string shown in the Friends list.
+    /// </summary>
+    /// <param name="status">
+    /// A short human-readable string, e.g. <c>"In Skirmish vs Hard AI"</c>.
+    /// Maximum 256 bytes (Steam limit).
+    /// </param>
+    public void SetRichPresence(string status)
+    {
+        if (!IsAvailable) return;
+        SetRichPresenceNative("status", status);
+    }
+
+    /// <summary>
+    /// Clears Rich Presence (shown as "In Menus" by default in Steam Friends).
+    /// </summary>
+    public void ClearRichPresence()
+    {
+        if (!IsAvailable) return;
+        ClearRichPresenceNative();
+    }
+
+    /// <summary>
+    /// Notifies Steam Cloud that the save directory has changed.
+    /// Steam automatically syncs <c>user://</c> paths that are registered in
+    /// the Steamworks app configuration; this call is a best-effort hint.
+    /// </summary>
+    public void NotifySaveChanged()
+    {
+        if (!IsAvailable) return;
+        GD.Print("[Steam] Cloud save sync triggered.");
+        // Steamworks auto-sync handles the actual upload; no explicit call needed
+        // beyond ensuring ISteamRemoteStorage is enabled in the app settings.
+    }
+
+    // ── Achievement data loading ─────────────────────────────────────
+
+    private void LoadAchievementDefinitions()
+    {
+        const string path = "res://data/achievements.json";
+        if (!FileAccess.FileExists(path))
+        {
+            GD.PushWarning("[Steam] achievements.json not found — no achievements will be tracked.");
+            return;
+        }
+
+        using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
+        if (file is null)
+        {
+            GD.PushWarning("[Steam] Could not open achievements.json.");
+            return;
+        }
+
+        try
+        {
+            string json = file.GetAsText();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                ReadCommentHandling = JsonCommentHandling.Skip,
+                AllowTrailingCommas = true
+            };
+            var root = JsonSerializer.Deserialize<AchievementFile>(json, options);
+            if (root is null) return;
+
+            foreach (var def in root.Achievements.Where(def => !string.IsNullOrEmpty(def.Id)))
+            {
+                _achievements[def.Id] = def;
+            }
+
+            GD.Print($"[Steam] Loaded {_achievements.Count} achievement definitions.");
+        }
+        catch (JsonException ex)
+        {
+            GD.PushWarning($"[Steam] Failed to parse achievements.json: {ex.Message}");
+        }
+    }
+
+    // ── Native shim layer ────────────────────────────────────────────
+    //
+    // These private methods encapsulate all Steamworks.NET calls so the
+    // rest of the class stays clean.  When Steamworks.NET is integrated via
+    // a NuGet package reference or the GodotSteam addon, replace the bodies
+    // below with real API calls.
+    //
+    // Example replacement for TryInitSteam():
+    //   IsAvailable = SteamAPI.Init();
+    //   if (!IsAvailable) GD.PushWarning("[Steam] SteamAPI.Init() failed.");
+    //
+    // See: https://steamworks.github.io/  and  https://github.com/GodotSteam/GodotSteam
+
+    private void TryInitSteam()
+    {
+        // Replace with: IsAvailable = SteamAPI.Init();
+        IsAvailable = false;
+        if (!IsAvailable)
+            GD.Print("[Steam] Steamworks API not available on this platform.");
+    }
+
+    private static void RunCallbacks()
+    {
+        // Replace with: SteamAPI.RunCallbacks();
+    }
+
+    private static void ShutdownSteam()
+    {
+        // Replace with: SteamAPI.Shutdown();
+        GD.Print("[Steam] Steamworks API shut down.");
+    }
+
+    private static bool SetAchievementNative(string id)
+    {
+        // Replace with: return SteamUserStats.SetAchievement(id);
+        return false;
+    }
+
+    private static void StoreStatsNative()
+    {
+        // Replace with: SteamUserStats.StoreStats();
+    }
+
+    private static void SetStatNative(string name, int value)
+    {
+        // Replace with: SteamUserStats.SetStat(name, value);
+        _ = name;
+        _ = value;
+    }
+
+    private static void SetRichPresenceNative(string key, string value)
+    {
+        // Replace with: SteamFriends.SetRichPresence(key, value);
+        _ = key;
+        _ = value;
+    }
+
+    private static void ClearRichPresenceNative()
+    {
+        // Replace with: SteamFriends.ClearRichPresence();
+    }
+
+    // ── Convenience helpers used by GameSession ──────────────────────
+
+    /// <summary>
+    /// Called by GameSession at the start of a match to set Rich Presence
+    /// and update the matches-played stat.
+    /// </summary>
+    public void OnMatchStarted(string factionId, bool isMultiplayer, bool isAiOpponent, int aiDifficulty)
+    {
+        string opponentDesc = isMultiplayer ? "Multiplayer"
+            : aiDifficulty switch
+            {
+                2 => "Hard AI",
+                1 => "Medium AI",
+                _ => "Easy AI"
+            };
+
+        SetRichPresence($"Playing {factionId} vs {opponentDesc}");
+        RecordMatchPlayed();
+    }
+
+    /// <summary>
+    /// Called by GameSession when the local player wins a match.
+    /// Handles per-faction and general victory achievements.
+    /// </summary>
+    public void OnMatchWon(string factionId, bool isMultiplayer, bool isNavalMap, double matchDurationSeconds)
+    {
+        UnlockAchievement("FIRST_VICTORY");
+
+        string factionAchievement = factionId.ToLowerInvariant() switch
+        {
+            "arcloft"   => "WIN_AS_ARCLOFT",
+            "valkyr"    => "WIN_AS_VALKYR",
+            "kragmore"  => "WIN_AS_KRAGMORE",
+            "bastion"   => "WIN_AS_BASTION",
+            "ironmarch" => "WIN_AS_IRONMARCH",
+            "stormrend" => "WIN_AS_STORMREND",
+            _           => string.Empty
+        };
+
+        if (!string.IsNullOrEmpty(factionAchievement))
+            UnlockAchievement(factionAchievement);
+
+        if (isMultiplayer)
+            UnlockAchievement("WIN_MULTIPLAYER");
+
+        if (isNavalMap)
+            UnlockAchievement("FIRST_NAVAL_VICTORY");
+
+        if (matchDurationSeconds < 600.0)
+            UnlockAchievement("MATCH_UNDER_10_MIN");
+
+        ClearRichPresence();
+    }
+
+    /// <summary>
+    /// Called by GameSession when the local player loses a match.
+    /// </summary>
+    public void OnMatchLost()
+    {
+        UnlockAchievement("LOSE_A_MATCH");
+        ClearRichPresence();
+    }
+
+    /// <summary>
+    /// Called by GameSession when a Hard AI opponent is defeated.
+    /// </summary>
+    public void OnHardAIDefeated()
+    {
+        UnlockAchievement("DEFEAT_HARD_AI");
+    }
+}

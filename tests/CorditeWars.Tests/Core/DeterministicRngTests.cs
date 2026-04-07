@@ -1,4 +1,4 @@
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
 namespace CorditeWars.Tests.Core;
 

@@ -23,7 +23,8 @@
         "stormrend_airfield",
         "stormrend_tech_lab",
         "stormrend_supply_depot",
-        "stormrend_storm_capacitor"
+        "stormrend_storm_capacitor",
+        "stormrend_shipyard"
     ],
     "TechTreeUnlocks": {
         "stormrend_momentum_overdrive": 1500,
@@ -46,6 +47,9 @@
         "stormrend_tempest_raider",
         "stormrend_thunderclap",
         "stormrend_thunderjaw",
-        "stormrend_vortex"
+        "stormrend_vortex",
+        "stormrend_lightning_skiff",
+        "stormrend_riptide_sub",
+        "stormrend_storm_destroyer"
     ]
 }

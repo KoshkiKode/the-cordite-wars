@@ -17,6 +17,7 @@ namespace CorditeWars.Systems.Pathfinding;
 ///   <item><b>Amphibious</b> — ground rules on land, but can also enter shallow water.</item>
 ///   <item><b>Hover</b> — ignores most ground penalties (mud, sand) but cannot fly over cliffs.</item>
 ///   <item><b>Air</b> — ignores all terrain except Void (off-map).</item>
+///   <item><b>Water</b> — naval vessels; traverses Water/DeepWater only; inverse of Ground.</item>
 /// </list>
 /// </summary>
 public enum MovementDomain
@@ -24,7 +25,8 @@ public enum MovementDomain
     Ground,
     Amphibious,
     Hover,
-    Air
+    Air,
+    Water    // Naval vessels — water-only, cannot traverse land tiles
 }
 
 /// <summary>
@@ -44,7 +46,8 @@ public enum MovementClass
     Amphibious,     // APCs that can swim — ground + shallow water
     Hover,          // Hovercraft — floats over mud/water, limited by cliffs
     LowAir,         // Helicopters — low altitude, affected by tall structures
-    HighAir         // Jets — high altitude, ignores everything except Void
+    HighAir,        // Jets — high altitude, ignores everything except Void
+    Naval           // Ships — Water/DeepWater only, no slope/elevation penalties
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -683,6 +686,69 @@ public sealed class MovementProfile
             crushStrength:        FixedPoint.Zero,
             footprintWidth:       1,
             footprintHeight:      1,
+            terrainSpeedModifiers: modifiers,
+            impassableTerrain:    impassable
+        );
+    }
+
+    /// <summary>
+    /// <b>Naval</b> — surface ships and submarines.
+    ///
+    /// <list type="bullet">
+    ///   <item>Medium speed (0.25 u/tick ≈ 7.5 u/s); overridden per unit via SpeedOverride.</item>
+    ///   <item>Water domain — traverses Water and DeepWater cells only.</item>
+    ///   <item>All land terrain types (Grass, Dirt, Sand, Rock, Mud, Road, Ice,
+    ///         Concrete, Bridge, Lava) are impassable.</item>
+    ///   <item>No slope or elevation penalties — the water surface is flat.</item>
+    ///   <item>Slow acceleration and deceleration — ships have significant momentum.</item>
+    ///   <item>Wide turns (0.08 rad/tick ≈ 4.6°) — most ships cannot pivot in place.</item>
+    ///   <item>2×2 default footprint; overridden per unit (3×3 destroyer, 4×4 capital).</item>
+    ///   <item>Heavy mass (10.0) — default; overridden per unit.</item>
+    ///   <item>Cannot crush land units.</item>
+    ///   <item>No gravity multiplier — buoyant, no ground interaction.</item>
+    /// </list>
+    /// </summary>
+    public static MovementProfile Naval()
+    {
+        // Naval units move at full speed on both shallow and deep water.
+        var modifiers = new Dictionary<TerrainType, FixedPoint>
+        {
+            { TerrainType.Water,     FP(1.0f) },
+            { TerrainType.DeepWater, FP(1.0f) },
+        };
+
+        // All land-based terrain is impassable.  Bridge is a land-crossing
+        // over water, not navigable water, so it is also impassable for ships.
+        var impassable = new HashSet<TerrainType>
+        {
+            TerrainType.Grass,
+            TerrainType.Dirt,
+            TerrainType.Sand,
+            TerrainType.Rock,
+            TerrainType.Mud,
+            TerrainType.Road,
+            TerrainType.Ice,
+            TerrainType.Concrete,
+            TerrainType.Bridge,
+            TerrainType.Lava,
+            TerrainType.Void,
+        };
+
+        return new MovementProfile(
+            domain:               MovementDomain.Water,
+            movementClass:        MovementClass.Naval,
+            maxSpeed:             FP(0.25f),     // ~7.5 u/s; overridden per-unit
+            acceleration:         FP(0.02f),     // slow to start — naval inertia
+            deceleration:         FP(0.015f),    // slow to stop — heavy momentum
+            turnRate:             FP(0.08f),     // ~4.6° per tick — wide naval turns
+            maxSlopeAngle:        FP(1.57f),     // π/2 — irrelevant for water surface
+            mass:                 FP(10.0f),     // default; overridden per unit
+            suspensionStiffness:  FixedPoint.Zero,   // no suspension on water
+            groundClearance:      FixedPoint.Zero,   // no ground interaction
+            gravityMultiplier:    FixedPoint.Zero,   // buoyant — no gravity effect
+            crushStrength:        FixedPoint.Zero,   // cannot crush land units
+            footprintWidth:       2,             // default patrol boat; overridden per unit
+            footprintHeight:      2,
             terrainSpeedModifiers: modifiers,
             impassableTerrain:    impassable
         );
