@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Manages accessibility settings: high contrast mode.

@@ -1,7 +1,7 @@
 using Godot;
-using UnnamedRTS.Systems.Localization;
+using CorditeWars.Systems.Localization;
 
-namespace UnnamedRTS.UI.HUD;
+namespace CorditeWars.UI.HUD;
 
 /// <summary>
 /// HUD overlay that displays subtitles for voice lines at the bottom

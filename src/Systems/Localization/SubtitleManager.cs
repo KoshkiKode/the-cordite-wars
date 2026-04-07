@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace UnnamedRTS.Systems.Localization;
+namespace CorditeWars.Systems.Localization;
 
 /// <summary>
 /// Manages versioned subtitles for voice lines and audio events.

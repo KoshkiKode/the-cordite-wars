@@ -1,5 +1,5 @@
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Tech;
+using CorditeWars.Core;
+using CorditeWars.Game.Tech;
 
 namespace CorditeWars.Tests.Game.Tech;
 

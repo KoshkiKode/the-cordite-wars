@@ -1,6 +1,6 @@
 using Godot;
-using UnnamedRTS.UI;
-using UnnamedRTS.UI.Input;
+using CorditeWars.UI;
+using CorditeWars.UI.Input;
 
 namespace CorditeWars.Core;
 

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
-namespace UnnamedRTS.Systems.Localization;
+namespace CorditeWars.Systems.Localization;
 
 /// <summary>
 /// Manages game translations via Godot's TranslationServer.
@@ -127,10 +127,17 @@ public partial class LocalizationManager : Node
 
     /// <summary>
     /// Sets the active locale and notifies listeners.
+    /// Only accepts codes listed in <see cref="SupportedLocales"/>; falls back to English
+    /// for unrecognised codes.
     /// </summary>
     /// <param name="localeCode">A locale code from <see cref="SupportedLocales"/>.</param>
     public void SetLanguage(string localeCode)
     {
+        if (!IsLocaleSupported(localeCode))
+        {
+            GD.PushWarning($"[LocalizationManager] Unsupported locale '{localeCode}', falling back to 'en'.");
+            localeCode = "en";
+        }
         TranslationServer.SetLocale(localeCode);
         GD.Print($"[LocalizationManager] Language set to: {localeCode}");
         EmitSignal(SignalName.LanguageChanged, localeCode);
@@ -240,19 +247,21 @@ public partial class LocalizationManager : Node
 
     /// <summary>
     /// Static translation helper that calls TranslationServer.Translate.
+    /// Falls back to the raw key when no translation is found.
     /// Convenience for non-Node classes.
     /// </summary>
     public static string Translate(string key)
     {
-        return TranslationServer.Translate(key);
+        return TranslationServer.Translate(key) ?? key;
     }
 
     /// <summary>
     /// Static translation helper with string.Format support.
+    /// Falls back to the raw key when no translation is found.
     /// </summary>
     public static string Translate(string key, params object[] args)
     {
-        string translated = TranslationServer.Translate(key);
+        string translated = TranslationServer.Translate(key) ?? key;
         return string.Format(translated, args);
     }
 

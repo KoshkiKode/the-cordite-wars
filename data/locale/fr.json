@@ -117,5 +117,8 @@
   "HUD_VC": "CV : {0}",
   "HUD_SUPPLY": "Ravitaillement : {0}/{1}",
   "SUBTITLES_ENABLED": "Sous-titres activés",
-  "SUBTITLES_DISABLED": "Sous-titres désactivés"
+  "SUBTITLES_DISABLED": "Sous-titres désactivés",
+  "CAMPAIGN_COMING_SOON_TITLE": "Coming Soon",
+  "CAMPAIGN_COMING_SOON_BODY": "Campaign missions are not yet available. Check back in a future update!",
+  "MENU_OK": "OK"
 }

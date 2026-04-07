@@ -337,6 +337,12 @@ public partial class SkirmishLobby : Control
     private void OnStartPressed()
     {
         GD.Print("[SkirmishLobby] Starting skirmish game...");
+
+        if (_mapSelector.Selected < 0 || _mapSelector.Selected >= _mapIds.Length)
+        {
+            GD.PushWarning("[SkirmishLobby] No valid map selected.");
+            return;
+        }
         
         var playerConfigs = new System.Collections.Generic.List<CorditeWars.Game.PlayerConfig>();
         for (int i = 0; i < _playerCount; i++)
@@ -345,7 +351,7 @@ public partial class SkirmishLobby : Control
             if (faction == "Random") 
             {
                 // Simple random: pick a random faction (1 through length-1)
-                faction = _slotFaction[i].GetItemText(GD.RandRange(1, UITheme.FactionNames.Length));
+                faction = _slotFaction[i].GetItemText((int)GD.RandRange(1, UITheme.FactionNames.Length));
             }
             // Normalize generic name into internal ID (lowercase, no spaces)
             faction = faction.ToLower().Replace(" ", "_");
@@ -377,7 +383,7 @@ public partial class SkirmishLobby : Control
         {
             MapId = _mapIds[_mapSelector.Selected],
             MatchSeed = (ulong)System.DateTime.Now.Ticks,
-            GameSpeed = 1,
+            GameSpeed = _gameSpeed.Selected + 1,
             FogOfWar = _fogOfWar.ButtonPressed,
             StartingCordite = startingCordite,
             PlayerConfigs = playerConfigs.ToArray()
