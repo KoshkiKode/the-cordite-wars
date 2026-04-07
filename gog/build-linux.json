@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "product": {
+    "id": "YOUR_GOG_PRODUCT_ID",
+    "name": "Cordite Wars: Six Fronts"
+  },
+  "os": "linux",
+  "project": {
+    "name": "Cordite Wars (Linux)",
+    "base_product_id": "YOUR_GOG_PRODUCT_ID",
+    "client_id": "YOUR_GOG_CLIENT_ID",
+    "client_secret": "YOUR_GOG_CLIENT_SECRET",
+    "depots": [
+      {
+        "name": "Cordite Wars Linux",
+        "bitness": ["64"],
+        "os": ["linux"],
+        "languages": ["*"],
+        "files": {
+          "sources": [
+            {
+              "path": "../../build/linux"
+            }
+          ]
+        }
+      }
+    ],
+    "tasks": [
+      {
+        "type": "task",
+        "name": "Play",
+        "is_primary": true,
+        "platforms": ["linux"],
+        "executable": "CorditeWars.x86_64",
+        "arguments": ""
+      }
+    ],
+    "support_commands": [],
+    "install_directory": "Cordite Wars"
+  }
+}

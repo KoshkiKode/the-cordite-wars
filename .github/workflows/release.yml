@@ -84,9 +84,15 @@ jobs:
           echo "Multi-platform release featuring:" >> release_notes.md
           echo "- 🪟 **Windows** (.exe + .msi installer)" >> release_notes.md
           echo "- 🐧 **Linux** (binary + snap)" >> release_notes.md
-          echo "- 🤖 **Android** (.apk)" >> release_notes.md
+          echo "- 🤖 **Android** (.apk sideload + .aab for Google Play)" >> release_notes.md
           echo "- 🍎 **macOS** (.app + .dmg)" >> release_notes.md
-          echo "- 📱 **iOS/iPadOS** (Xcode project handoff)" >> release_notes.md
+          echo "- 📱 **iOS/iPadOS** (Xcode project handoff for App Store)" >> release_notes.md
+          echo "" >> release_notes.md
+          echo "## Store Distribution" >> release_notes.md
+          echo "- 🎮 **Steam** — auto-deployed via \`deploy-steam\` workflow" >> release_notes.md
+          echo "- 🛒 **GOG** — auto-deployed via \`deploy-gog\` workflow" >> release_notes.md
+          echo "- 🤖 **Google Play** — auto-deployed via \`deploy-google-play\` workflow" >> release_notes.md
+          echo "- 📱 **App Store** — auto-deployed via \`deploy-app-store\` workflow" >> release_notes.md
           echo "" >> release_notes.md
           echo "## Installation" >> release_notes.md
           echo "See [Deployment Guide](docs/deployment-guide.md) for platform-specific instructions." >> release_notes.md
