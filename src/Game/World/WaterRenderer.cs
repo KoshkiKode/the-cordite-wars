@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Renders water planes along river TerrainFeature paths.

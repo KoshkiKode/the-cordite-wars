@@ -1,6 +1,6 @@
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Starting position for a player on the map.

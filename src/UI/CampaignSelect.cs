@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Campaign faction selection: 6 faction cards in 3x2 grid.

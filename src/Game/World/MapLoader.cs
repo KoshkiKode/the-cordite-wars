@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Factions;
+using CorditeWars.Core;
+using CorditeWars.Game.Factions;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Loads all map JSON files from a directory into a deterministic SortedList lookup.

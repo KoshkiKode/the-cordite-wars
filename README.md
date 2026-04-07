@@ -1,4 +1,4 @@
-# Unnamed RTS
+# The Cordite Wars: Six Fronts
 
 A cross-platform real-time strategy game inspired by Command & Conquer and Tempest Rising.
 
@@ -14,8 +14,8 @@ A cross-platform real-time strategy game inspired by Command & Conquer and Tempe
 
 ```
 ├── project.godot          # Godot project configuration
-├── UnnamedRTS.sln         # C# solution
-├── UnnamedRTS.csproj      # C# project
+├── CorditeWars.sln        # C# solution
+├── CorditeWars.csproj     # C# project
 ├── src/                   # All C# source code
 │   ├── Core/              # Game manager, event bus, deterministic RNG, fixed-point math
 │   ├── Game/              # Gameplay logic (units, buildings, factions, resources, AI)

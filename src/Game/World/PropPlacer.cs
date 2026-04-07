@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Tracks runtime state for a destructible prop.

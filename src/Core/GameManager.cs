@@ -1,11 +1,11 @@
 using System;
 using Godot;
-using UnnamedRTS.Game.Economy;
-using UnnamedRTS.Game.Tech;
-using UnnamedRTS.Game.World;
-using UnnamedRTS.Systems.Networking;
+using CorditeWars.Game.Economy;
+using CorditeWars.Game.Tech;
+using CorditeWars.Game.World;
+using CorditeWars.Systems.Networking;
 
-namespace UnnamedRTS.Core;
+namespace CorditeWars.Core;
 
 /// <summary>
 /// Global game manager autoload. Handles game state, tick management,

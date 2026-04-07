@@ -1,9 +1,9 @@
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game;
-using UnnamedRTS.Systems.Networking;
+using CorditeWars.Core;
+using CorditeWars.Game;
+using CorditeWars.Systems.Networking;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// LAN multiplayer lobby. Host/Find buttons, LAN game list from LanDiscovery,
@@ -489,7 +489,7 @@ public partial class MultiplayerLobby : Control
             PlayerConfigs = players.ToArray()
         };
 
-        UnnamedRTS.Game.Main.PendingConfig = config;
+        CorditeWars.Game.Main.PendingConfig = config;
 
         // Reparent NetworkTransport to scene root so it survives the scene change.
         // GameSession.SetupMultiplayer() looks for it at /root/NetworkTransport.

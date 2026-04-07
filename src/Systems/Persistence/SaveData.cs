@@ -1,4 +1,4 @@
-namespace UnnamedRTS.Systems.Persistence;
+namespace CorditeWars.Systems.Persistence;
 
 /// <summary>
 /// Complete save game state. All FixedPoint simulation values are stored

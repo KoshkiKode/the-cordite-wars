@@ -1,10 +1,10 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Camera;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Camera;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.UI.Input;
+namespace CorditeWars.UI.Input;
 
 /// <summary>
 /// Handles all unit selection mechanics: click, box select, shift-add,

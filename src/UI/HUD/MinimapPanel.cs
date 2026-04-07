@@ -1,7 +1,7 @@
 using Godot;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.UI.HUD;
+namespace CorditeWars.UI.HUD;
 
 /// <summary>
 /// Bottom-left minimap. Renders terrain colors, unit dots (team colored),

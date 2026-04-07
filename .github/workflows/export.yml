@@ -53,7 +53,7 @@ jobs:
           check_file src/Systems/Audio/AudioManager.cs
 
           # C# project
-          check_file UnnamedRTS.csproj
+          check_file CorditeWars.csproj
 
           # Platform packaging assets
           check_file versions/windows/inno-setup.iss

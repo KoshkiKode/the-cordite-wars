@@ -1,6 +1,6 @@
 using System;
 
-namespace UnnamedRTS.Core;
+namespace CorditeWars.Core;
 
 /// <summary>
 /// Fixed-point number type using Q16.16 format (32-bit integer with 16 fractional bits).

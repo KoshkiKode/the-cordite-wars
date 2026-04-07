@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace UnnamedRTS.Systems.Networking;
+namespace CorditeWars.Systems.Networking;
 
 /// <summary>
 /// Low-level UDP transport using Godot 4's ENetMultiplayerPeer.

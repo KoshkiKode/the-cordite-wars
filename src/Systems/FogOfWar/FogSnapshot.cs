@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Systems.FogOfWar;
+namespace CorditeWars.Systems.FogOfWar;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  GhostedEntity

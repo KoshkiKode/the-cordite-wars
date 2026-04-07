@@ -1,7 +1,7 @@
 using Godot;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Game;
+namespace CorditeWars.Game;
 
 /// <summary>
 /// The main gameplay scene root.

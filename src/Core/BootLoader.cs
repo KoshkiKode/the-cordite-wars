@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.Core;
+namespace CorditeWars.Core;
 
 /// <summary>
 /// Boot scene script. Runs once at application start.

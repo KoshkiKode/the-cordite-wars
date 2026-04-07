@@ -1,7 +1,7 @@
 using System;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.UI.Minimap;
+namespace CorditeWars.UI.Minimap;
 
 /// <summary>
 /// Handles the camera viewport indicator on the minimap and click-to-scroll.

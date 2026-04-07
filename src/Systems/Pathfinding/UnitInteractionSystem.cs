@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.Systems.Pathfinding;
+namespace CorditeWars.Systems.Pathfinding;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // UNIT INTERACTION SYSTEM — The master simulation tick pipeline
@@ -604,7 +604,7 @@ public class UnitInteractionSystem
         //   7d. Apply damage to targets
         //   7e. Check for kills → add to destroyed list
         //
-        // Uses CombatResolver from UnnamedRTS.Game.Units namespace.
+        // Uses CombatResolver from CorditeWars.Game.Units namespace.
         //
         // Processing order: ascending UnitId.
         // ══════════════════════════════════════════════════════════════════

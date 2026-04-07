@@ -1,4 +1,4 @@
-namespace UnnamedRTS.Game;
+namespace CorditeWars.Game;
 
 /// <summary>
 /// Configuration for a single player slot in a match.

@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.Systems.Audio;
+namespace CorditeWars.Systems.Audio;
 
 /// <summary>
 /// Global audio manager autoload. Handles music playback, sound effects,

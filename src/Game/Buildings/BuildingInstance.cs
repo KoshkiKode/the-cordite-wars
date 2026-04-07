@@ -1,8 +1,8 @@
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Economy;
+using CorditeWars.Core;
+using CorditeWars.Game.Economy;
 
-namespace UnnamedRTS.Game.Buildings;
+namespace CorditeWars.Game.Buildings;
 
 /// <summary>
 /// Runtime building node. Handles construction progress (model scales up),

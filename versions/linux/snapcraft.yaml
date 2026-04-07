@@ -45,12 +45,12 @@ parts:
     stage:
       - CorditeWars
       - CorditeWars.pck
-      - UnnamedRTS.dll
+      - CorditeWars.dll
       - GodotSharp/
     organize:
       CorditeWars: bin/CorditeWars
       CorditeWars.pck: bin/CorditeWars.pck
-      UnnamedRTS.dll: bin/UnnamedRTS.dll
+      CorditeWars.dll: bin/CorditeWars.dll
       GodotSharp/: bin/GodotSharp/
     override-build: |
       craftctl default

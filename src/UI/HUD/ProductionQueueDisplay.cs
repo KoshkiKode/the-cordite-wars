@@ -1,10 +1,10 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Buildings;
-using UnnamedRTS.UI.Input;
+using CorditeWars.Core;
+using CorditeWars.Game.Buildings;
+using CorditeWars.UI.Input;
 
-namespace UnnamedRTS.UI.HUD;
+namespace CorditeWars.UI.HUD;
 
 /// <summary>
 /// Shows current production queue for selected building.

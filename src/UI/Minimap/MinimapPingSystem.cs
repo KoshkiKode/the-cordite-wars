@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace UnnamedRTS.UI.Minimap;
+namespace CorditeWars.UI.Minimap;
 
 /// <summary>
 /// Categories of minimap pings.

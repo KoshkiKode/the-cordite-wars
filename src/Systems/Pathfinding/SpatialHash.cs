@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Systems.Pathfinding;
+namespace CorditeWars.Systems.Pathfinding;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SPATIAL HASH — Fast O(1) spatial lookup for nearby-unit queries

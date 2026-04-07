@@ -1,7 +1,7 @@
 using Godot;
-using UnnamedRTS.Systems.Graphics;
+using CorditeWars.Systems.Graphics;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Options menu with 4 tabs: Display, Audio, Controls, Game.

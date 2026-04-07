@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-namespace UnnamedRTS.Systems.Graphics
+namespace CorditeWars.Systems.Graphics
 {
     /// <summary>
     /// Rendering quality tiers, ordered from lowest to highest.

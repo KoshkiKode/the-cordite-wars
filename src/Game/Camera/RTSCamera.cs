@@ -1,7 +1,7 @@
 using Godot;
-using UnnamedRTS.Systems.Platform;
+using CorditeWars.Systems.Platform;
 
-namespace UnnamedRTS.Game.Camera;
+namespace CorditeWars.Game.Camera;
 
 /// <summary>
 /// Top-down RTS camera with WASD/arrow panning, mouse edge scrolling,

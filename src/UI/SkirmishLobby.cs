@@ -1,7 +1,7 @@
 using Godot;
-using UnnamedRTS.Game.World;
+using CorditeWars.Game.World;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Skirmish setup (vs AI). Map selector from MapLoader, player slots
@@ -338,7 +338,7 @@ public partial class SkirmishLobby : Control
     {
         GD.Print("[SkirmishLobby] Starting skirmish game...");
         
-        var playerConfigs = new System.Collections.Generic.List<UnnamedRTS.Game.PlayerConfig>();
+        var playerConfigs = new System.Collections.Generic.List<CorditeWars.Game.PlayerConfig>();
         for (int i = 0; i < _playerCount; i++)
         {
             string faction = _slotFaction[i].GetItemText(_slotFaction[i].Selected);
@@ -354,7 +354,7 @@ public partial class SkirmishLobby : Control
             int diff = isAI ? _slotDifficulty[i].Selected : 0;
             string name = isAI ? $"AI {faction}" : "Player 1";
 
-            playerConfigs.Add(new UnnamedRTS.Game.PlayerConfig
+            playerConfigs.Add(new CorditeWars.Game.PlayerConfig
             {
                 PlayerId = i + 1,
                 FactionId = faction,
@@ -373,7 +373,7 @@ public partial class SkirmishLobby : Control
             _ => 5000
         };
 
-        var config = new UnnamedRTS.Game.MatchConfig
+        var config = new CorditeWars.Game.MatchConfig
         {
             MapId = _mapIds[_mapSelector.Selected],
             MatchSeed = (ulong)System.DateTime.Now.Ticks,
@@ -383,7 +383,7 @@ public partial class SkirmishLobby : Control
             PlayerConfigs = playerConfigs.ToArray()
         };
 
-        UnnamedRTS.Game.Main.PendingConfig = config;
+        CorditeWars.Game.Main.PendingConfig = config;
         SceneTransition.TransitionTo(GetTree(), "res://scenes/Game/Main.tscn");
     }
 

@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Factions;
+using CorditeWars.Core;
+using CorditeWars.Game.Factions;
 
-namespace UnnamedRTS.Game.Assets;
+namespace CorditeWars.Game.Assets;
 
 /// <summary>
 /// Data for a single unit type from the asset manifest.

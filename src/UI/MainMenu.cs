@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Main menu hub: Campaign, Skirmish, Multiplayer, Options, Credits, Quit.

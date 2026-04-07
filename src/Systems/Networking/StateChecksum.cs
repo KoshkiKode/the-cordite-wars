@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Systems.Networking;
+namespace CorditeWars.Systems.Networking;
 
 /// <summary>
 /// Computes deterministic FNV-1a checksums of game state for desync detection.
