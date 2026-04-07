@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Static helper that creates consistent StyleBoxFlat, fonts, and colors for all UI elements.

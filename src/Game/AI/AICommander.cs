@@ -1,9 +1,9 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.Game.AI;
+namespace CorditeWars.Game.AI;
 
 /// <summary>
 /// AI army management. Groups units into squads, manages scouting,

@@ -1,10 +1,10 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Units;
-using UnnamedRTS.Systems.Networking;
+using CorditeWars.Core;
+using CorditeWars.Game.Units;
+using CorditeWars.Systems.Networking;
 
-namespace UnnamedRTS.UI.Input;
+namespace CorditeWars.UI.Input;
 
 /// <summary>
 /// Handles right-click commands, hotkeys, and shift-queue orders.

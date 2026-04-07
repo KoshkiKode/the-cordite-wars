@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Buildings;
-using UnnamedRTS.Game.Factions;
+using CorditeWars.Core;
+using CorditeWars.Game.Buildings;
+using CorditeWars.Game.Factions;
 
-namespace UnnamedRTS.Game.Economy;
+namespace CorditeWars.Game.Economy;
 
 /// <summary>
 /// Loads all building JSONs from data/buildings/ into a deterministic SortedList lookup.

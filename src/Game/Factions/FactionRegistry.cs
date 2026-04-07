@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Buildings;
-using UnnamedRTS.Game.Units;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Game.Buildings;
+using CorditeWars.Game.Units;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Game.Factions;
+namespace CorditeWars.Game.Factions;
 
 // ═════════════════════════════════════════════════════════════════════
 //  JSON Converters

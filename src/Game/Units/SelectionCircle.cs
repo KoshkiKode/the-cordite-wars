@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.Game.Units;
+namespace CorditeWars.Game.Units;
 
 /// <summary>
 /// Flat ring mesh on the ground plane visualizing a unit's collision radius

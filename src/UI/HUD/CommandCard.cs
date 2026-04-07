@@ -1,13 +1,13 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Game.Buildings;
-using UnnamedRTS.Game.Economy;
-using UnnamedRTS.Game.Units;
-using UnnamedRTS.UI.Input;
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
+using CorditeWars.Game.Buildings;
+using CorditeWars.Game.Economy;
+using CorditeWars.Game.Units;
+using CorditeWars.UI.Input;
 
-namespace UnnamedRTS.UI.HUD;
+namespace CorditeWars.UI.HUD;
 
 /// <summary>
 /// Bottom-right 3x4 grid of command buttons. Context-sensitive:

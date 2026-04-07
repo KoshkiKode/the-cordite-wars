@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Boot splash: "CORDITE WARS / SIX FRONTS" logo fade-in, hold, fade-out.

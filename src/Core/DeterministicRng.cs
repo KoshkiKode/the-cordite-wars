@@ -1,4 +1,4 @@
-namespace UnnamedRTS.Core;
+namespace CorditeWars.Core;
 
 /// <summary>
 /// Deterministic random number generator using xoshiro256** algorithm.

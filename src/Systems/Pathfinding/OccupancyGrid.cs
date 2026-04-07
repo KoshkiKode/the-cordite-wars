@@ -1,8 +1,8 @@
 using System;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Assets;
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
 
-namespace UnnamedRTS.Systems.Pathfinding;
+namespace CorditeWars.Systems.Pathfinding;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // OCCUPANCY GRID — Dynamic blocking layer for units and buildings

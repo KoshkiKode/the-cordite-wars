@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Factions;
+using CorditeWars.Core;
+using CorditeWars.Game.Factions;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Data for a single building model entry from the building manifest.

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using Godot;
 
-namespace UnnamedRTS.Systems.Networking;
+namespace CorditeWars.Systems.Networking;
 
 /// <summary>
 /// LAN game discovery via UDP broadcast on port 7946.

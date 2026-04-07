@@ -1,13 +1,12 @@
 using Godot;
-using UnnamedRTS.Systems.Graphics;
-using UnnamedRTS.UI.Input;
+using CorditeWars.Systems.Graphics;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
-/// Options menu with 5 tabs: Display, Audio, Controls, Game, Accessibility.
+/// Options menu with 4 tabs: Display, Audio, Controls, Game.
 /// All settings persist to user://settings.cfg via ConfigFile.
-/// Integrates with QualityManager, AudioManager, KeybindManager, and AccessibilitySettings.
+/// Integrates with QualityManager and AudioManager.
 /// </summary>
 public partial class OptionsMenu : Control
 {
@@ -47,14 +46,6 @@ public partial class OptionsMenu : Control
     private CheckBox _showHealthBars = null!;
     private OptionButton _minimapSize = null!;
     private CheckBox _autoSaveReplays = null!;
-    private OptionButton _language = null!;
-    private CheckBox _subtitles = null!;
-
-    // ── Accessibility controls ────────────────────────────────────────
-    private OptionButton _contrastMode = null!;
-    private readonly System.Collections.Generic.Dictionary<KeybindManager.GameAction, Button> _keybindButtons = new();
-    private KeybindManager.GameAction? _waitingForKey;
-    private Button? _waitingButton;
 
     private static readonly string[] QualityNames = { "Potato", "Low", "Medium", "High", "Custom" };
     private static readonly string[] ResolutionLabels = { "1280x720", "1920x1080", "2560x1440", "3840x2160" };
@@ -94,7 +85,7 @@ public partial class OptionsMenu : Control
         outerVBox.AddChild(header);
 
         var backBtn = new Button();
-        backBtn.Text = Tr("OPTIONS_BACK");
+        backBtn.Text = "\u25C4 BACK";
         UITheme.StyleButton(backBtn);
         backBtn.Pressed += OnBackPressed;
         header.AddChild(backBtn);
@@ -104,7 +95,7 @@ public partial class OptionsMenu : Control
         header.AddChild(spacer);
 
         var title = new Label();
-        title.Text = Tr("OPTIONS_TITLE");
+        title.Text = "OPTIONS";
         UITheme.StyleLabel(title, UITheme.FontSizeHeading, UITheme.Accent);
         header.AddChild(title);
 
@@ -119,7 +110,6 @@ public partial class OptionsMenu : Control
         tabs.AddChild(BuildAudioTab());
         tabs.AddChild(BuildControlsTab());
         tabs.AddChild(BuildGameTab());
-        tabs.AddChild(BuildAccessibilityTab());
 
         // Bottom buttons
         var btnRow = new HBoxContainer();
@@ -128,14 +118,14 @@ public partial class OptionsMenu : Control
         outerVBox.AddChild(btnRow);
 
         var applyBtn = new Button();
-        applyBtn.Text = Tr("OPTIONS_APPLY");
+        applyBtn.Text = "APPLY";
         applyBtn.CustomMinimumSize = new Vector2(160, 0);
         UITheme.StyleAccentButton(applyBtn);
         applyBtn.Pressed += OnApplyPressed;
         btnRow.AddChild(applyBtn);
 
         var resetBtn = new Button();
-        resetBtn.Text = Tr("OPTIONS_RESET");
+        resetBtn.Text = "RESET TO DEFAULTS";
         resetBtn.CustomMinimumSize = new Vector2(220, 0);
         UITheme.StyleButton(resetBtn);
         resetBtn.Pressed += OnResetPressed;
@@ -150,7 +140,7 @@ public partial class OptionsMenu : Control
     private Control BuildDisplayTab()
     {
         var scroll = new ScrollContainer();
-        scroll.Name = Tr("OPTIONS_TAB_DISPLAY");
+        scroll.Name = "Display";
         scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
 
         var vbox = new VBoxContainer();
@@ -251,7 +241,7 @@ public partial class OptionsMenu : Control
     private Control BuildAudioTab()
     {
         var scroll = new ScrollContainer();
-        scroll.Name = Tr("OPTIONS_TAB_AUDIO");
+        scroll.Name = "Audio";
         scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
 
         var vbox = new VBoxContainer();
@@ -277,7 +267,7 @@ public partial class OptionsMenu : Control
     private Control BuildControlsTab()
     {
         var scroll = new ScrollContainer();
-        scroll.Name = Tr("OPTIONS_TAB_CONTROLS");
+        scroll.Name = "Controls";
         scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
 
         var vbox = new VBoxContainer();
@@ -317,7 +307,7 @@ public partial class OptionsMenu : Control
     private Control BuildGameTab()
     {
         var scroll = new ScrollContainer();
-        scroll.Name = Tr("OPTIONS_TAB_GAME");
+        scroll.Name = "Game";
         scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
 
         var vbox = new VBoxContainer();
@@ -325,35 +315,19 @@ public partial class OptionsMenu : Control
         vbox.AddThemeConstantOverride("separation", 12);
         scroll.AddChild(vbox);
 
-        // Language
-        _language = new OptionButton();
-        for (int i = 0; i < LocalizationManager.SupportedLocales.Length; i++)
-            _language.AddItem(LocalizationManager.SupportedLocales[i].DisplayName, i);
-        _language.Selected = LocalizationManager.GetLocaleIndex(
-            LocalizationManager.Instance?.GetCurrentLocale() ?? "en");
-        UITheme.StyleOptionButton(_language);
-        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_LANGUAGE"), _language));
-
-        // Subtitles
-        _subtitles = new CheckBox();
-        _subtitles.Text = Tr("OPTIONS_ENABLED");
-        _subtitles.ButtonPressed = LocalizationManager.Instance?.SubtitlesEnabled ?? true;
-        UITheme.StyleCheckBox(_subtitles);
-        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_SUBTITLES"), _subtitles));
-
         // Show FPS Counter
         _showFps = new CheckBox();
-        _showFps.Text = Tr("OPTIONS_SHOW");
+        _showFps.Text = "Show";
         _showFps.ButtonPressed = false;
         UITheme.StyleCheckBox(_showFps);
-        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_FPS_COUNTER"), _showFps));
+        vbox.AddChild(MakeSettingRow("FPS Counter:", _showFps));
 
         // Show Unit Health Bars
         _showHealthBars = new CheckBox();
-        _showHealthBars.Text = Tr("OPTIONS_SHOW");
+        _showHealthBars.Text = "Show";
         _showHealthBars.ButtonPressed = true;
         UITheme.StyleCheckBox(_showHealthBars);
-        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_HEALTH_BARS"), _showHealthBars));
+        vbox.AddChild(MakeSettingRow("Unit Health Bars:", _showHealthBars));
 
         // Mini-map Size
         _minimapSize = new OptionButton();
@@ -361,169 +335,16 @@ public partial class OptionsMenu : Control
             _minimapSize.AddItem(MinimapNames[i], i);
         _minimapSize.Selected = 1; // Medium
         UITheme.StyleOptionButton(_minimapSize);
-        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_MINIMAP_SIZE"), _minimapSize));
+        vbox.AddChild(MakeSettingRow("Mini-map Size:", _minimapSize));
 
         // Auto-save Replays
         _autoSaveReplays = new CheckBox();
-        _autoSaveReplays.Text = Tr("OPTIONS_ENABLED");
+        _autoSaveReplays.Text = "Enabled";
         _autoSaveReplays.ButtonPressed = true;
         UITheme.StyleCheckBox(_autoSaveReplays);
-        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_AUTO_SAVE_REPLAYS"), _autoSaveReplays));
+        vbox.AddChild(MakeSettingRow("Auto-save Replays:", _autoSaveReplays));
 
         return scroll;
-    }
-
-    private Control BuildAccessibilityTab()
-    {
-        var scroll = new ScrollContainer();
-        scroll.Name = "Accessibility";
-        scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
-
-        var vbox = new VBoxContainer();
-        vbox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        vbox.AddThemeConstantOverride("separation", 12);
-        scroll.AddChild(vbox);
-
-        // ── High Contrast Mode ──────────────────────────────────────
-        var contrastLabel = new Label();
-        contrastLabel.Text = "HIGH CONTRAST";
-        UITheme.StyleLabel(contrastLabel, UITheme.FontSizeHeading, UITheme.Accent);
-        vbox.AddChild(contrastLabel);
-
-        _contrastMode = new OptionButton();
-        for (int i = 0; i < AccessibilitySettings.ContrastModeNames.Length; i++)
-            _contrastMode.AddItem(AccessibilitySettings.ContrastModeNames[i], i);
-        _contrastMode.Selected = (int)(AccessibilitySettings.Instance?.CurrentContrastMode
-            ?? AccessibilitySettings.ContrastMode.Normal);
-        UITheme.StyleOptionButton(_contrastMode);
-        vbox.AddChild(MakeSettingRow("Contrast Mode:", _contrastMode));
-
-        // Separator
-        var sep = new HSeparator();
-        sep.AddThemeConstantOverride("separation", 20);
-        vbox.AddChild(sep);
-
-        // ── Keybind Remapping ───────────────────────────────────────
-        var keybindLabel = new Label();
-        keybindLabel.Text = "KEYBIND REMAPPING";
-        UITheme.StyleLabel(keybindLabel, UITheme.FontSizeHeading, UITheme.Accent);
-        vbox.AddChild(keybindLabel);
-
-        var hint = new Label();
-        hint.Text = "Click a key button to rebind, then press the new key. Press Delete to unbind. Conflicts are resolved automatically.";
-        UITheme.StyleLabel(hint, UITheme.FontSizeSmall, UITheme.TextSecondary);
-        hint.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        vbox.AddChild(hint);
-
-        var km = KeybindManager.Instance;
-        _keybindButtons.Clear();
-
-        // Unit commands
-        AddKeybindSection(vbox, "Unit Commands");
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.AttackMove);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.Stop);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.HoldPosition);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.Patrol);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.CancelMode);
-
-        // Control groups
-        AddKeybindSection(vbox, "Control Groups");
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup1);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup2);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup3);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup4);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup5);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup6);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup7);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup8);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup9);
-        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup0);
-
-        // Reset keybinds button
-        var resetKeybindsBtn = new Button();
-        resetKeybindsBtn.Text = "RESET KEYBINDS TO DEFAULTS";
-        resetKeybindsBtn.CustomMinimumSize = new Vector2(280, 0);
-        UITheme.StyleButton(resetKeybindsBtn);
-        resetKeybindsBtn.Pressed += OnResetKeybindsPressed;
-        vbox.AddChild(resetKeybindsBtn);
-
-        return scroll;
-    }
-
-    private static void AddKeybindSection(VBoxContainer vbox, string title)
-    {
-        var label = new Label();
-        label.Text = title;
-        UITheme.StyleLabel(label, UITheme.FontSizeLarge, UITheme.TextSecondary);
-        vbox.AddChild(label);
-    }
-
-    private void AddKeybindRow(VBoxContainer vbox, KeybindManager? km, KeybindManager.GameAction action)
-    {
-        Key currentKey = km?.GetKey(action) ?? KeybindManager.GetDefaultKey(action);
-
-        var btn = new Button();
-        btn.Text = KeybindManager.GetKeyName(currentKey);
-        btn.CustomMinimumSize = new Vector2(120, 0);
-        UITheme.StyleButton(btn);
-        btn.Pressed += () => OnKeybindButtonPressed(action, btn);
-
-        _keybindButtons[action] = btn;
-        vbox.AddChild(MakeSettingRow(KeybindManager.GetActionLabel(action) + ":", btn));
-    }
-
-    private void OnKeybindButtonPressed(KeybindManager.GameAction action, Button btn)
-    {
-        // Cancel previous wait if any
-        if (_waitingButton is not null && _waitingForKey is not null)
-            _waitingButton.Text = KeybindManager.GetKeyName(
-                KeybindManager.Instance?.GetKey(_waitingForKey.Value) ?? Key.None);
-
-        _waitingForKey = action;
-        _waitingButton = btn;
-        btn.Text = "[ Press a key... ]";
-    }
-
-    public override void _UnhandledKeyInput(InputEvent @event)
-    {
-        if (_waitingForKey is null || _waitingButton is null
-            || @event is not InputEventKey keyEvent || !keyEvent.Pressed)
-            return;
-
-        var km = KeybindManager.Instance;
-        if (km is null) return;
-
-        Key newKey = keyEvent.Keycode;
-        var action = _waitingForKey.Value;
-
-        // Allow unbinding with Delete/Backspace
-        if (newKey == Key.Delete || newKey == Key.Backspace)
-            newKey = Key.None;
-
-        var displaced = km.SetKey(action, newKey);
-
-        // Update the button we just set
-        _waitingButton!.Text = KeybindManager.GetKeyName(newKey);
-
-        // If a conflict was resolved, update that button too
-        if (displaced.HasValue && _keybindButtons.TryGetValue(displaced.Value, out Button? conflictBtn))
-            conflictBtn.Text = KeybindManager.GetKeyName(Key.None);
-
-        _waitingForKey = null;
-        _waitingButton = null;
-        GetViewport().SetInputAsHandled();
-    }
-
-    private void OnResetKeybindsPressed()
-    {
-        var km = KeybindManager.Instance;
-        if (km is null) return;
-
-        km.ResetToDefaults();
-
-        // Refresh all buttons
-        foreach (var kvp in _keybindButtons)
-            kvp.Value.Text = KeybindManager.GetKeyName(km.GetKey(kvp.Key));
     }
 
     // ── UI Helpers ────────────────────────────────────────────────────
@@ -649,7 +470,6 @@ public partial class OptionsMenu : Control
     {
         ApplyDisplaySettings();
         ApplyAudioSettings();
-        ApplyAccessibilitySettings();
         SaveSettings();
         GD.Print("[OptionsMenu] Settings applied and saved.");
     }
@@ -684,18 +504,11 @@ public partial class OptionsMenu : Control
         _showHealthBars.ButtonPressed = true;
         _minimapSize.Selected = 1;
         _autoSaveReplays.ButtonPressed = true;
-        _language.Selected = 0; // English
-        _subtitles.ButtonPressed = true;
-
-        // Accessibility defaults
-        _contrastMode.Selected = 0;
-        OnResetKeybindsPressed();
 
         _suppressPresetChange = false;
 
         ApplyDisplaySettings();
         ApplyAudioSettings();
-        ApplyAccessibilitySettings();
         SaveSettings();
         GD.Print("[OptionsMenu] Settings reset to defaults.");
     }
@@ -762,24 +575,6 @@ public partial class OptionsMenu : Control
         }
     }
 
-    private void ApplyAccessibilitySettings()
-    {
-        // Apply contrast mode
-        var accessibility = AccessibilitySettings.Instance;
-        if (accessibility is not null)
-        {
-            accessibility.CurrentContrastMode =
-                (AccessibilitySettings.ContrastMode)_contrastMode.Selected;
-            accessibility.Save();
-
-            Core.EventBus.Instance?.EmitHighContrastChanged(_contrastMode.Selected);
-        }
-
-        // Save keybinds
-        KeybindManager.Instance?.Save();
-        Core.EventBus.Instance?.EmitKeybindsChanged();
-    }
-
     // ── Persistence ───────────────────────────────────────────────────
 
     private void SaveSettings()
@@ -813,8 +608,6 @@ public partial class OptionsMenu : Control
         cfg.SetValue("Game", "show_health_bars", _showHealthBars.ButtonPressed);
         cfg.SetValue("Game", "minimap_size", _minimapSize.Selected);
         cfg.SetValue("Game", "auto_save_replays", _autoSaveReplays.ButtonPressed);
-        cfg.SetValue("Game", "language", _language.Selected);
-        cfg.SetValue("Game", "subtitles", _subtitles.ButtonPressed);
 
         var err = cfg.Save(SettingsPath);
         if (err != Error.Ok)
@@ -855,9 +648,6 @@ public partial class OptionsMenu : Control
         _showHealthBars.ButtonPressed = (bool)cfg.GetValue("Game", "show_health_bars", true);
         _minimapSize.Selected = (int)cfg.GetValue("Game", "minimap_size", 1);
         _autoSaveReplays.ButtonPressed = (bool)cfg.GetValue("Game", "auto_save_replays", true);
-        _language.Selected = (int)cfg.GetValue("Game", "language",
-            LocalizationManager.GetLocaleIndex(LocalizationManager.Instance?.GetCurrentLocale() ?? "en"));
-        _subtitles.ButtonPressed = (bool)cfg.GetValue("Game", "subtitles", true);
 
         _suppressPresetChange = false;
     }

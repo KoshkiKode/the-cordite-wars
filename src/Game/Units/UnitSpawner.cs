@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Assets;
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
 
-namespace UnnamedRTS.Game.Units;
+namespace CorditeWars.Game.Units;
 
 /// <summary>
 /// Factory that creates <see cref="UnitNode3D"/> instances from registry data.

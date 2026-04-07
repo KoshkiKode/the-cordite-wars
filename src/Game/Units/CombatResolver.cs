@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Game.Units;
+namespace CorditeWars.Game.Units;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMBAT RESOLVER — Deterministic damage pipeline for unit combat
@@ -176,8 +176,8 @@ public struct UnitCombatInfo
     public FixedPoint Radius;
 }
 
-// NOTE: DeterministicRng is defined in UnnamedRTS.Core.DeterministicRng.
-// The CombatResolver uses it via the 'using UnnamedRTS.Core;' import.
+// NOTE: DeterministicRng is defined in CorditeWars.Core.DeterministicRng.
+// The CombatResolver uses it via the 'using CorditeWars.Core;' import.
 // It is the xoshiro256** algorithm — high quality, fast, and deterministic.
 
 /// <summary>

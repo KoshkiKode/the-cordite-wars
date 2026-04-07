@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Procedurally generates the ground mesh from MapData.

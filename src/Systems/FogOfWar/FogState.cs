@@ -1,4 +1,4 @@
-namespace UnnamedRTS.Systems.FogOfWar;
+namespace CorditeWars.Systems.FogOfWar;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Enums

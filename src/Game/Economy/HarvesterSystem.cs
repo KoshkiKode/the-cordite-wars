@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Game.Economy;
+namespace CorditeWars.Game.Economy;
 
 /// <summary>
 /// States for the harvester AI loop.

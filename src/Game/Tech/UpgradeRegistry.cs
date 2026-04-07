@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Factions;
+using CorditeWars.Core;
+using CorditeWars.Game.Factions;
 
-namespace UnnamedRTS.Game.Tech;
+namespace CorditeWars.Game.Tech;
 
 /// <summary>
 /// Loads and caches all upgrade definitions from JSON files on disk.

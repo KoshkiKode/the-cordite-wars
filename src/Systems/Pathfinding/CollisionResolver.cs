@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.Systems.Pathfinding;
+namespace CorditeWars.Systems.Pathfinding;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COLLISION RESOLVER — Post-movement physical collision detection & response

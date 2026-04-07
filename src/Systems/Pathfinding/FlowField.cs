@@ -1,7 +1,7 @@
 using System;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Systems.Pathfinding;
+namespace CorditeWars.Systems.Pathfinding;
 
 /// <summary>
 /// Enumerates the 8 cardinal/ordinal directions plus a "no direction" sentinel.

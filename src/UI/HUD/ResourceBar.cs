@@ -1,7 +1,7 @@
 using Godot;
-using UnnamedRTS.Game.Economy;
+using CorditeWars.Game.Economy;
 
-namespace UnnamedRTS.UI.HUD;
+namespace CorditeWars.UI.HUD;
 
 /// <summary>
 /// Top bar HUD: Cordite, Voltaic Charge, Supply counters.

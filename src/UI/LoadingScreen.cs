@@ -1,13 +1,12 @@
 using Godot;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Game.Factions;
-using UnnamedRTS.Game.Tech;
-using UnnamedRTS.Game.World;
-using UnnamedRTS.Systems.Audio;
-using UnnamedRTS.Systems.Graphics;
-using UnnamedRTS.Systems.Localization;
+using CorditeWars.Game.Assets;
+using CorditeWars.Game.Factions;
+using CorditeWars.Game.Tech;
+using CorditeWars.Game.World;
+using CorditeWars.Systems.Audio;
+using CorditeWars.Systems.Graphics;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Progress bar loading screen. Loads all registries in sequence,
@@ -23,40 +22,39 @@ public partial class LoadingScreen : Control
     private int _currentStep;
     private bool _loadingComplete;
 
-    private static readonly string[] LoadingTipKeys =
+    private static readonly string[] LoadingTips =
     {
-        "TIP_VALKYR_REARM",
-        "TIP_KRAGMORE_HORDE",
-        "TIP_BASTION_REFINERY",
-        "TIP_ARCLOFT_OVERWATCH",
-        "TIP_IRONMARCH_FOB",
-        "TIP_STORMREND_MOMENTUM",
-        "TIP_CAMERA_CONTROLS",
-        "TIP_COMMAND_UNITS",
-        "TIP_CONTROL_GROUPS",
-        "TIP_DESTROY_REACTORS"
+        "Valkyr jets must return to Airstrips to rearm.",
+        "Kragmore's Horde Protocol rewards grouping 5+ units together.",
+        "Bastion Refineries generate passive Cordite income.",
+        "Arcloft can designate up to 3 Overwatch Zones on the map.",
+        "Ironmarch FOB Trucks deploy into forward operating bases.",
+        "Stormrend's Momentum Gauge fills when dealing damage.",
+        "Use WASD to pan the camera, scroll wheel to zoom.",
+        "Right-click to move or attack. Shift+click to queue orders.",
+        "Ctrl+1-9 assigns control groups. Press the number to recall.",
+        "Destroying enemy Reactors cripples their tech production."
     };
 
     private struct LoadStep
     {
-        public string StatusKey;
+        public string StatusText;
         public float TargetPercent;
     }
 
     private static readonly LoadStep[] Steps =
     {
-        new() { StatusKey = "LOADING_DETECTING_HARDWARE",  TargetPercent = 5 },
-        new() { StatusKey = "LOADING_UNIT_DATA",           TargetPercent = 12 },
-        new() { StatusKey = "LOADING_BUILDING_DATA",       TargetPercent = 22 },
-        new() { StatusKey = "LOADING_ASSET_MANIFEST",      TargetPercent = 32 },
-        new() { StatusKey = "LOADING_BUILDING_MANIFEST",   TargetPercent = 40 },
-        new() { StatusKey = "LOADING_TERRAIN_MANIFEST",    TargetPercent = 48 },
-        new() { StatusKey = "LOADING_UPGRADE_DATA",        TargetPercent = 56 },
-        new() { StatusKey = "LOADING_MAPS",                TargetPercent = 64 },
-        new() { StatusKey = "LOADING_SOUND_MANIFEST",      TargetPercent = 72 },
-        new() { StatusKey = "LOADING_FACTION_DATA",        TargetPercent = 80 },
-        new() { StatusKey = "LOADING_TRANSLATIONS",        TargetPercent = 90 },
-        new() { StatusKey = "LOADING_READY",               TargetPercent = 100 },
+        new() { StatusText = "Detecting hardware...",       TargetPercent = 5 },
+        new() { StatusText = "Loading unit data...",        TargetPercent = 15 },
+        new() { StatusText = "Loading building data...",    TargetPercent = 25 },
+        new() { StatusText = "Loading asset manifest...",   TargetPercent = 35 },
+        new() { StatusText = "Loading building manifest...", TargetPercent = 45 },
+        new() { StatusText = "Loading terrain manifest...", TargetPercent = 55 },
+        new() { StatusText = "Loading upgrade data...",     TargetPercent = 65 },
+        new() { StatusText = "Loading maps...",             TargetPercent = 75 },
+        new() { StatusText = "Loading sound manifest...",   TargetPercent = 85 },
+        new() { StatusText = "Loading faction data...",     TargetPercent = 95 },
+        new() { StatusText = "Ready!",                     TargetPercent = 100 },
     };
 
     public override void _Ready()
@@ -85,7 +83,7 @@ public partial class LoadingScreen : Control
 
         // LOADING text
         var loadingLabel = new Label();
-        loadingLabel.Text = Tr("LOADING_TITLE");
+        loadingLabel.Text = "LOADING...";
         loadingLabel.HorizontalAlignment = HorizontalAlignment.Center;
         UITheme.StyleLabel(loadingLabel, UITheme.FontSizeHeading, UITheme.TextPrimary);
         vbox.AddChild(loadingLabel);
@@ -114,8 +112,7 @@ public partial class LoadingScreen : Control
 
         // Tip text at bottom
         _tipLabel = new Label();
-        string tipKey = LoadingTipKeys[GD.RandRange(0, LoadingTipKeys.Length - 1)];
-        _tipLabel.Text = Tr(tipKey);
+        _tipLabel.Text = LoadingTips[GD.RandRange(0, LoadingTips.Length - 1)];
         _tipLabel.HorizontalAlignment = HorizontalAlignment.Center;
         _tipLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         UITheme.StyleLabel(_tipLabel, UITheme.FontSizeSmall, UITheme.TextMuted);
@@ -133,7 +130,7 @@ public partial class LoadingScreen : Control
     {
         for (_currentStep = 0; _currentStep < Steps.Length; _currentStep++)
         {
-            _statusLabel.Text = Tr(Steps[_currentStep].StatusKey);
+            _statusLabel.Text = Steps[_currentStep].StatusText;
 
             // Animate progress bar
             var tween = CreateTween();
@@ -257,19 +254,7 @@ public partial class LoadingScreen : Control
                 }
                 break;
 
-            case 10: // Translations & subtitles
-                try
-                {
-                    LocalizationManager.Instance?.LoadAllTranslations();
-                    SubtitleManager.Instance?.LoadSubtitles();
-                }
-                catch
-                {
-                    GD.PushWarning("[LoadingScreen] Translation data not found, skipping.");
-                }
-                break;
-
-            case 11: // Ready!
+            case 10: // Ready!
                 GD.Print("[LoadingScreen] All registries loaded.");
                 break;
         }

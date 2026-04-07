@@ -1,9 +1,9 @@
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Game.Units;
+namespace CorditeWars.Game.Units;
 
 /// <summary>
 /// Visual scene node representing a single unit in the Godot scene tree.

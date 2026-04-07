@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Game.Units;
+namespace CorditeWars.Game.Units;
 
 /// <summary>
 /// Broad unit classification. Drives UI grouping, AI targeting

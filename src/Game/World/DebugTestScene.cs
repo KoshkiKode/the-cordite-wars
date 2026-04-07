@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Game.Camera;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
+using CorditeWars.Game.Camera;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Debug test scene that spawns 18 sample units (3 per faction) in a grid,

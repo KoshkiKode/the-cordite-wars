@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.Core;
+namespace CorditeWars.Core;
 
 /// <summary>
 /// Global event bus autoload. Provides decoupled communication between

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using UnnamedRTS.Core;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Systems.FogOfWar;
+namespace CorditeWars.Systems.FogOfWar;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  VisionComponent

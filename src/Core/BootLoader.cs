@@ -2,7 +2,7 @@ using Godot;
 using UnnamedRTS.UI;
 using UnnamedRTS.UI.Input;
 
-namespace UnnamedRTS.Core;
+namespace CorditeWars.Core;
 
 /// <summary>
 /// Boot scene script. Runs once at application start.

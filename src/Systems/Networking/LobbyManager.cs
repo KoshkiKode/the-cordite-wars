@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Systems.Networking;
+namespace CorditeWars.Systems.Networking;
 
 /// <summary>
 /// Pre-game lobby managing player slots, faction selection, ready state, and match start.
