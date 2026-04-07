@@ -1661,8 +1661,7 @@ public partial class GameSession : Node
         for (int i = 0; i < factionUnits.Count; i++)
         {
             var u = factionUnits[i];
-            if (u.Category == UnitCategory.Support &&
-                u.MovementClassId != "Helicopter" && u.MovementClassId != "Jet")
+            if (u.Category == UnitCategory.Support && IsGroundMovementClass(u.MovementClassId))
                 return u.Id;
         }
 
@@ -1681,14 +1680,20 @@ public partial class GameSession : Node
         for (int i = 0; i < factionUnits.Count; i++)
         {
             var u = factionUnits[i];
-            if (u.MovementClassId != "Helicopter" && u.MovementClassId != "Jet" &&
-                u.MovementClassId != "Naval")
+            if (IsGroundMovementClass(u.MovementClassId))
                 return u.Id;
         }
 
         // 5. Absolute fallback: any faction unit
         return factionUnits.Count > 0 ? factionUnits[0].Id : string.Empty;
     }
+
+    /// <summary>
+    /// Returns true when the given MovementClassId belongs to a ground/surface unit
+    /// (not a helicopter, jet, or naval vessel).
+    /// </summary>
+    private static bool IsGroundMovementClass(string movementClassId) =>
+        movementClassId != "Helicopter" && movementClassId != "Jet" && movementClassId != "Naval";
 
     /// <summary>
     /// Tears down all child nodes and managers from a previous match.
