@@ -18,7 +18,7 @@ public sealed class StartingPosition
 /// </summary>
 public sealed class CorditeNodeData
 {
-    public string NodeId { get; init; } = string.Empty;
+    public int NodeId { get; init; }
     public int X { get; init; }
     public int Y { get; init; }
     public int Amount { get; init; }

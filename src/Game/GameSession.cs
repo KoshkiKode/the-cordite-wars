@@ -159,7 +159,18 @@ public partial class GameSession : Node
         }
         else
         {
-            ActiveMap = _mapLoader.GetMap(config.MapId);
+            // Guard: if the map isn't loaded (e.g. ID typo or load error), fall back to first available
+            string mapId = config.MapId;
+            if (!_mapLoader.HasMap(mapId))
+            {
+                var available = _mapLoader.GetMapIds();
+                if (available.Count > 0)
+                {
+                    mapId = available[0];
+                    GD.PushWarning($"[GameSession] Map '{config.MapId}' not found — falling back to '{mapId}'.");
+                }
+            }
+            ActiveMap = _mapLoader.GetMap(mapId);
         }
         EventBus.Instance?.EmitMapLoaded(ActiveMap.Id);
 
@@ -1423,6 +1434,26 @@ public partial class GameSession : Node
             int refineryId = pc.PlayerId * 1000; // Unique ID per player's starting refinery
             _harvesterSystem?.RegisterRefinery(refineryId, pc.PlayerId, hqPos);
 
+            // Spawn a visual HQ building node so the base is visible on screen
+            string hqBuildingId = $"{pc.FactionId}_command_center";
+            if (_buildingRegistry is not null && _buildingRegistry.HasBuilding(hqBuildingId))
+            {
+                BuildingData hqData = _buildingRegistry.GetBuilding(hqBuildingId);
+                int buildingId = -(pc.PlayerId * 100); // Negative IDs for pre-placed HQ buildings
+                var hqNode = new BuildingInstance();
+                hqNode.Initialize(buildingId, hqBuildingId, hqData, pc.PlayerId,
+                    startPos.X, startPos.Y);
+                // Mark fully constructed so it doesn't animate in during the game start
+                hqNode.RestoreState(hqData.MaxHealth, true, hqData.BuildTime);
+                AddChild(hqNode);
+
+                // Occupy the footprint in the grid so units path around the HQ
+                _occupancyGrid?.OccupyFootprint(
+                    startPos.X, startPos.Y,
+                    hqData.FootprintWidth, hqData.FootprintHeight,
+                    OccupancyType.Building, buildingId, pc.PlayerId);
+            }
+
             GD.Print($"[GameSession] Placed HQ for player {pc.PlayerId} at ({startPos.X}, {startPos.Y}).");
         }
     }
@@ -1616,18 +1647,47 @@ public partial class GameSession : Node
     private string FindHarvesterTypeId(string factionId)
     {
         var factionUnits = _unitDataRegistry.GetFactionUnits(factionId);
-        for (int i = 0; i < factionUnits.Count; i++)
-        {
-            string id = factionUnits[i].Id;
-            if (id.Contains("harvester", StringComparison.OrdinalIgnoreCase))
-                return id;
-        }
 
-        // Fallback: search all units for a generic harvester
+        // 1. Explicit "harvester" in the unit ID (forward-compat when dedicated harvester units are added)
+        for (int i = 0; i < factionUnits.Count; i++)
+            if (factionUnits[i].Id.Contains("harvester", StringComparison.OrdinalIgnoreCase))
+                return factionUnits[i].Id;
+
+        // Cross-faction generic harvester unit
         if (_unitDataRegistry.HasUnit("harvester"))
             return "harvester";
 
-        return string.Empty;
+        // 2. Support category, non-air (engineer / worker archetype — best proxy for a harvester)
+        for (int i = 0; i < factionUnits.Count; i++)
+        {
+            var u = factionUnits[i];
+            if (u.Category == UnitCategory.Support &&
+                u.MovementClassId != "Helicopter" && u.MovementClassId != "Jet")
+                return u.Id;
+        }
+
+        // 3. Cheapest LightVehicle — visible on ground, fast, clearly a scout/worker
+        UnitData? cheapestLight = null;
+        for (int i = 0; i < factionUnits.Count; i++)
+        {
+            var u = factionUnits[i];
+            if (u.Category == UnitCategory.LightVehicle &&
+                (cheapestLight == null || u.Cost < cheapestLight.Cost))
+                cheapestLight = u;
+        }
+        if (cheapestLight != null) return cheapestLight.Id;
+
+        // 4. Any non-air, non-naval ground unit
+        for (int i = 0; i < factionUnits.Count; i++)
+        {
+            var u = factionUnits[i];
+            if (u.MovementClassId != "Helicopter" && u.MovementClassId != "Jet" &&
+                u.MovementClassId != "Naval")
+                return u.Id;
+        }
+
+        // 5. Absolute fallback: any faction unit
+        return factionUnits.Count > 0 ? factionUnits[0].Id : string.Empty;
     }
 
     /// <summary>

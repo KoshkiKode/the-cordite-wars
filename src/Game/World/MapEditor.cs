@@ -612,7 +612,7 @@ public partial class MapEditor : Node3D
         int id = _nextObjectId++;
         var node = new CorditeNodeData
         {
-            NodeId = id.ToString(),
+            NodeId = id,
             X = x,
             Y = y,
             Amount = amount > 0 ? amount : SelectedCorditeAmount

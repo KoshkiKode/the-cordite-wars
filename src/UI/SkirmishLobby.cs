@@ -265,8 +265,8 @@ public partial class SkirmishLobby : Control
         {
             _mapSelector.AddItem("Crossroads", 0);
             _mapSelector.AddItem("Six Fronts", 1);
-            _mapSelector.AddItem("Coral Atoll", 2);
-            _mapIds = new[] { "crossroads", "six_fronts", "coral_atoll" };
+            _mapSelector.AddItem("Archipelago", 2);
+            _mapIds = new[] { "crossroads", "six_fronts", "archipelago" };
         }
 
         _mapSelector.Selected = 0;
