@@ -1,12 +1,13 @@
 using Godot;
 using UnnamedRTS.Systems.Graphics;
+using UnnamedRTS.UI.Input;
 
 namespace UnnamedRTS.UI;
 
 /// <summary>
-/// Options menu with 4 tabs: Display, Audio, Controls, Game.
+/// Options menu with 5 tabs: Display, Audio, Controls, Game, Accessibility.
 /// All settings persist to user://settings.cfg via ConfigFile.
-/// Integrates with QualityManager and AudioManager.
+/// Integrates with QualityManager, AudioManager, KeybindManager, and AccessibilitySettings.
 /// </summary>
 public partial class OptionsMenu : Control
 {
@@ -46,6 +47,12 @@ public partial class OptionsMenu : Control
     private CheckBox _showHealthBars = null!;
     private OptionButton _minimapSize = null!;
     private CheckBox _autoSaveReplays = null!;
+
+    // ── Accessibility controls ────────────────────────────────────────
+    private OptionButton _contrastMode = null!;
+    private readonly System.Collections.Generic.Dictionary<KeybindManager.GameAction, Button> _keybindButtons = new();
+    private KeybindManager.GameAction? _waitingForKey;
+    private Button? _waitingButton;
 
     private static readonly string[] QualityNames = { "Potato", "Low", "Medium", "High", "Custom" };
     private static readonly string[] ResolutionLabels = { "1280x720", "1920x1080", "2560x1440", "3840x2160" };
@@ -110,6 +117,7 @@ public partial class OptionsMenu : Control
         tabs.AddChild(BuildAudioTab());
         tabs.AddChild(BuildControlsTab());
         tabs.AddChild(BuildGameTab());
+        tabs.AddChild(BuildAccessibilityTab());
 
         // Bottom buttons
         var btnRow = new HBoxContainer();
@@ -347,6 +355,158 @@ public partial class OptionsMenu : Control
         return scroll;
     }
 
+    private Control BuildAccessibilityTab()
+    {
+        var scroll = new ScrollContainer();
+        scroll.Name = "Accessibility";
+        scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
+
+        var vbox = new VBoxContainer();
+        vbox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        vbox.AddThemeConstantOverride("separation", 12);
+        scroll.AddChild(vbox);
+
+        // ── High Contrast Mode ──────────────────────────────────────
+        var contrastLabel = new Label();
+        contrastLabel.Text = "HIGH CONTRAST";
+        UITheme.StyleLabel(contrastLabel, UITheme.FontSizeHeading, UITheme.Accent);
+        vbox.AddChild(contrastLabel);
+
+        _contrastMode = new OptionButton();
+        for (int i = 0; i < AccessibilitySettings.ContrastModeNames.Length; i++)
+            _contrastMode.AddItem(AccessibilitySettings.ContrastModeNames[i], i);
+        _contrastMode.Selected = (int)(AccessibilitySettings.Instance?.CurrentContrastMode
+            ?? AccessibilitySettings.ContrastMode.Normal);
+        UITheme.StyleOptionButton(_contrastMode);
+        vbox.AddChild(MakeSettingRow("Contrast Mode:", _contrastMode));
+
+        // Separator
+        var sep = new HSeparator();
+        sep.AddThemeConstantOverride("separation", 20);
+        vbox.AddChild(sep);
+
+        // ── Keybind Remapping ───────────────────────────────────────
+        var keybindLabel = new Label();
+        keybindLabel.Text = "KEYBIND REMAPPING";
+        UITheme.StyleLabel(keybindLabel, UITheme.FontSizeHeading, UITheme.Accent);
+        vbox.AddChild(keybindLabel);
+
+        var hint = new Label();
+        hint.Text = "Click a key button to rebind, then press the new key. Conflicts are resolved automatically.";
+        UITheme.StyleLabel(hint, UITheme.FontSizeSmall, UITheme.TextSecondary);
+        hint.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        vbox.AddChild(hint);
+
+        var km = KeybindManager.Instance;
+        _keybindButtons.Clear();
+
+        // Unit commands
+        AddKeybindSection(vbox, "Unit Commands");
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.AttackMove);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.Stop);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.HoldPosition);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.Patrol);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.CancelMode);
+
+        // Control groups
+        AddKeybindSection(vbox, "Control Groups");
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup1);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup2);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup3);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup4);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup5);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup6);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup7);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup8);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup9);
+        AddKeybindRow(vbox, km, KeybindManager.GameAction.ControlGroup0);
+
+        // Reset keybinds button
+        var resetKeybindsBtn = new Button();
+        resetKeybindsBtn.Text = "RESET KEYBINDS TO DEFAULTS";
+        resetKeybindsBtn.CustomMinimumSize = new Vector2(280, 0);
+        UITheme.StyleButton(resetKeybindsBtn);
+        resetKeybindsBtn.Pressed += OnResetKeybindsPressed;
+        vbox.AddChild(resetKeybindsBtn);
+
+        return scroll;
+    }
+
+    private static void AddKeybindSection(VBoxContainer vbox, string title)
+    {
+        var label = new Label();
+        label.Text = title;
+        UITheme.StyleLabel(label, UITheme.FontSizeLarge, UITheme.TextSecondary);
+        vbox.AddChild(label);
+    }
+
+    private void AddKeybindRow(VBoxContainer vbox, KeybindManager? km, KeybindManager.GameAction action)
+    {
+        Key currentKey = km?.GetKey(action) ?? KeybindManager.GetDefaultKey(action);
+
+        var btn = new Button();
+        btn.Text = KeybindManager.GetKeyName(currentKey);
+        btn.CustomMinimumSize = new Vector2(120, 0);
+        UITheme.StyleButton(btn);
+        btn.Pressed += () => OnKeybindButtonPressed(action, btn);
+
+        _keybindButtons[action] = btn;
+        vbox.AddChild(MakeSettingRow(KeybindManager.GetActionLabel(action) + ":", btn));
+    }
+
+    private void OnKeybindButtonPressed(KeybindManager.GameAction action, Button btn)
+    {
+        // Cancel previous wait if any
+        if (_waitingButton is not null)
+            _waitingButton.Text = KeybindManager.GetKeyName(
+                KeybindManager.Instance?.GetKey(_waitingForKey!.Value) ?? Key.None);
+
+        _waitingForKey = action;
+        _waitingButton = btn;
+        btn.Text = "[ Press a key... ]";
+    }
+
+    public override void _UnhandledKeyInput(InputEvent @event)
+    {
+        if (_waitingForKey is null || @event is not InputEventKey keyEvent || !keyEvent.Pressed)
+            return;
+
+        var km = KeybindManager.Instance;
+        if (km is null) return;
+
+        Key newKey = keyEvent.Keycode;
+        var action = _waitingForKey.Value;
+
+        // Allow unbinding with Delete/Backspace
+        if (newKey == Key.Delete || newKey == Key.Backspace)
+            newKey = Key.None;
+
+        var displaced = km.SetKey(action, newKey);
+
+        // Update the button we just set
+        _waitingButton!.Text = KeybindManager.GetKeyName(newKey);
+
+        // If a conflict was resolved, update that button too
+        if (displaced.HasValue && _keybindButtons.TryGetValue(displaced.Value, out Button? conflictBtn))
+            conflictBtn.Text = KeybindManager.GetKeyName(Key.None);
+
+        _waitingForKey = null;
+        _waitingButton = null;
+        GetViewport().SetInputAsHandled();
+    }
+
+    private void OnResetKeybindsPressed()
+    {
+        var km = KeybindManager.Instance;
+        if (km is null) return;
+
+        km.ResetToDefaults();
+
+        // Refresh all buttons
+        foreach (var kvp in _keybindButtons)
+            kvp.Value.Text = KeybindManager.GetKeyName(km.GetKey(kvp.Key));
+    }
+
     // ── UI Helpers ────────────────────────────────────────────────────
 
     private static HBoxContainer MakeSettingRow(string labelText, Control control)
@@ -470,6 +630,7 @@ public partial class OptionsMenu : Control
     {
         ApplyDisplaySettings();
         ApplyAudioSettings();
+        ApplyAccessibilitySettings();
         SaveSettings();
         GD.Print("[OptionsMenu] Settings applied and saved.");
     }
@@ -505,10 +666,15 @@ public partial class OptionsMenu : Control
         _minimapSize.Selected = 1;
         _autoSaveReplays.ButtonPressed = true;
 
+        // Accessibility defaults
+        _contrastMode.Selected = 0;
+        OnResetKeybindsPressed();
+
         _suppressPresetChange = false;
 
         ApplyDisplaySettings();
         ApplyAudioSettings();
+        ApplyAccessibilitySettings();
         SaveSettings();
         GD.Print("[OptionsMenu] Settings reset to defaults.");
     }
@@ -573,6 +739,24 @@ public partial class OptionsMenu : Control
             am.SetMusicVolume((float)_musicVolume.Value);
             am.SetSfxVolume((float)_sfxVolume.Value);
         }
+    }
+
+    private void ApplyAccessibilitySettings()
+    {
+        // Apply contrast mode
+        var accessibility = AccessibilitySettings.Instance;
+        if (accessibility is not null)
+        {
+            accessibility.CurrentContrastMode =
+                (AccessibilitySettings.ContrastMode)_contrastMode.Selected;
+            accessibility.Save();
+
+            Core.EventBus.Instance?.EmitHighContrastChanged(_contrastMode.Selected);
+        }
+
+        // Save keybinds
+        KeybindManager.Instance?.Save();
+        Core.EventBus.Instance?.EmitKeybindsChanged();
     }
 
     // ── Persistence ───────────────────────────────────────────────────

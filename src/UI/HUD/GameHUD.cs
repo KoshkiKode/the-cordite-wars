@@ -94,9 +94,20 @@ internal partial class BoxSelectOverlay : Control
         Rect2 rect = _selectionManager.GetDragRect();
         if (rect.Size.LengthSquared() < 64) return;
 
-        // Green selection box
-        DrawRect(rect, new Color(0.29f, 0.62f, 0.80f, 0.15f), true);
-        DrawRect(rect, new Color(0.29f, 0.62f, 0.80f, 0.8f), false, 1.5f);
+        var accessibility = AccessibilitySettings.Instance;
+        Color fill, border;
+        if (accessibility is not null)
+        {
+            (fill, border) = accessibility.GetSelectionBoxColors();
+        }
+        else
+        {
+            fill = new Color(0.29f, 0.62f, 0.80f, 0.15f);
+            border = new Color(0.29f, 0.62f, 0.80f, 0.8f);
+        }
+
+        DrawRect(rect, fill, true);
+        DrawRect(rect, border, false, 1.5f);
     }
 
     public override void _Process(double delta)
