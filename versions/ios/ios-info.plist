@@ -26,10 +26,10 @@
 
   <!-- Versioning -->
   <key>CFBundleShortVersionString</key>
-  <string>0.1.0</string>
+  <string>0.0.1</string>
 
   <key>CFBundleVersion</key>
-  <string>100</string>
+  <string>1</string>
 
   <!-- iOS deployment target (16.0+) -->
   <key>MinimumOSVersion</key>
