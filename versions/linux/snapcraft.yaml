@@ -4,7 +4,7 @@
 
 name: cordite-wars
 base: core22
-version: '0.1.0'
+version: '0.0.1'
 summary: Cordite Wars — Six Fronts real-time strategy
 description: |
   Command six distinct factions across land, air, and sea in Cordite Wars:

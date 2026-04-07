@@ -54,7 +54,7 @@
     <Component Id="RegistryEntries" Guid="B3C4D5E6-F7A8-9012-BCDE-F01234567890" Directory="INSTALLFOLDER">
       <RegistryKey Root="HKLM" Key="Software\CorditeWarsTeam\CorditeWarsSixFronts">
         <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" KeyPath="yes" />
-        <RegistryValue Name="Version" Type="string" Value="0.1.0" />
+        <RegistryValue Name="Version" Type="string" Value="0.0.1" />
       </RegistryKey>
     </Component>
 

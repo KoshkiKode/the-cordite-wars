@@ -4,7 +4,7 @@
 ; Compile: iscc versions/windows/inno-setup.iss
 
 #define MyAppName "Cordite Wars: Six Fronts"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "0.0.1"
 #define MyAppPublisher "Cordite Wars Team"
 #define MyAppURL "https://github.com/corditewars/sixfronts"
 #define MyAppExeName "CorditeWars.exe"
