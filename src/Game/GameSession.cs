@@ -442,11 +442,11 @@ public partial class GameSession : Node
     /// </summary>
     public FogSnapshot? GetPlayerFogSnapshot(int playerId)
     {
-        if (_playerFogSnapshots == null) return null;
+        if (_playerFogSnapshots == null || _playerFogs == null) return null;
 
         for (int i = 0; i < _playerFogSnapshots.Length; i++)
         {
-            if (_playerFogs != null && _playerFogs[i].PlayerId == playerId)
+            if (_playerFogs[i].PlayerId == playerId)
                 return _playerFogSnapshots[i];
         }
         return null;
