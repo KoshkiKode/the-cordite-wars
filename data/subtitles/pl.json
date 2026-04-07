@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "pl",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Dowódca na mostku. Wszystkie jednostki, raport.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Bitwa rozpoczęta. Zbuduj bazę i zabezpiecz węzły Kordytu.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Uwaga! Nasza baza jest atakowana!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Produkcja jednostki zakończona. Gotowa do rozmieszczenia.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Budowa zakończona.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Niewystarczająca ilość Kordytu. Zabezpiecz więcej węzłów.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Badania ulepszenia zakończone. Nowe zdolności dostępne.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Wszystkie siły wroga wyeliminowane. Zwycięstwo jest nasze!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Nasza baza została zniszczona. Misja nieudana.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Węzeł Kordytu wyczerpany. Przenieś kombajny.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Kontakt z wrogiem! Wykryto wrogie siły.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Posiłki w drodze. Utrzymujcie pozycje.",
+      "duration": 2.5
+    }
+  }
+}

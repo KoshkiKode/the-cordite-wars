@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "en",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Commander on deck. All units, report status.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Match initiated. Establish your base and secure Cordite nodes.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Warning! Our base is under attack!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Unit production complete. Ready for deployment.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Construction complete.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Insufficient Cordite. Secure more resource nodes.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Upgrade research complete. New capabilities online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "All enemy forces eliminated. Victory is ours!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Our base has been destroyed. Mission failed.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Cordite node depleted. Relocate harvesters.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Enemy contact! Hostile forces detected.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Reinforcements arriving. Hold your positions.",
+      "duration": 2.5
+    }
+  }
+}

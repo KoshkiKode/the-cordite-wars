@@ -10,7 +10,7 @@ public partial class MainMenu : Control
 {
     private const string VersionString = "v0.1.0-alpha";
 
-    private static readonly string[] ButtonLabels = { "CAMPAIGN", "SKIRMISH", "MULTIPLAYER", "OPTIONS", "CREDITS", "QUIT" };
+    private static readonly string[] ButtonLabelKeys = { "MENU_CAMPAIGN", "MENU_SKIRMISH", "MENU_MULTIPLAYER", "MENU_OPTIONS", "MENU_CREDITS", "MENU_QUIT" };
     private static readonly string[] ButtonScenes =
     {
         "res://scenes/UI/CampaignSelect.tscn",
@@ -21,7 +21,7 @@ public partial class MainMenu : Control
         "" // Quit
     };
 
-    private readonly Button[] _menuButtons = new Button[ButtonLabels.Length];
+    private readonly Button[] _menuButtons = new Button[ButtonLabelKeys.Length];
 
     public override void _Ready()
     {
@@ -52,12 +52,12 @@ public partial class MainMenu : Control
         outerVBox.AddChild(titleBox);
 
         var title = new Label();
-        title.Text = "CORDITE WARS";
+        title.Text = Tr("GAME_TITLE");
         UITheme.StyleLabel(title, UITheme.FontSizeTitle, UITheme.Accent);
         titleBox.AddChild(title);
 
         var subtitle = new Label();
-        subtitle.Text = "\u2500\u2500\u2500  SIX FRONTS  \u2500\u2500\u2500";
+        subtitle.Text = "\u2500\u2500\u2500  " + Tr("GAME_SUBTITLE") + "  \u2500\u2500\u2500";
         UITheme.StyleLabel(subtitle, UITheme.FontSizeSubtitle, UITheme.TextSecondary);
         titleBox.AddChild(subtitle);
 
@@ -71,10 +71,10 @@ public partial class MainMenu : Control
         buttonBox.AddThemeConstantOverride("separation", 8);
         outerVBox.AddChild(buttonBox);
 
-        for (int i = 0; i < ButtonLabels.Length; i++)
+        for (int i = 0; i < ButtonLabelKeys.Length; i++)
         {
             var btn = new Button();
-            btn.Text = "\u25BA  " + ButtonLabels[i];
+            btn.Text = "\u25BA  " + Tr(ButtonLabelKeys[i]);
             btn.CustomMinimumSize = new Vector2(320, 0);
             btn.Alignment = HorizontalAlignment.Left;
             UITheme.StyleMenuButton(btn);
@@ -103,7 +103,7 @@ public partial class MainMenu : Control
         footer.AddChild(versionLabel);
 
         var copyright = new Label();
-        copyright.Text = "\u00A9 2026 Cordite Wars";
+        copyright.Text = Tr("FOOTER_COPYRIGHT");
         copyright.HorizontalAlignment = HorizontalAlignment.Right;
         UITheme.StyleLabel(copyright, UITheme.FontSizeSmall, UITheme.TextMuted);
         copyright.SizeFlagsHorizontal = SizeFlags.ExpandFill;
@@ -126,7 +126,7 @@ public partial class MainMenu : Control
 
     private void OnMenuButtonPressed(int index)
     {
-        if (index == ButtonLabels.Length - 1)
+        if (index == ButtonLabelKeys.Length - 1)
         {
             // Quit
             GetTree().Quit();

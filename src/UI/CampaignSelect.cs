@@ -8,20 +8,20 @@ namespace UnnamedRTS.UI;
 /// </summary>
 public partial class CampaignSelect : Control
 {
-    private static readonly string[] FactionDescriptions =
+    private static readonly string[] FactionDescriptionKeys =
     {
-        "The Valkyr Ascendancy must prove that air power alone can win a war.",
-        "Kragmore's endless hordes sweep across the battlefield in unstoppable waves.",
-        "Bastion fortifies every position, turning defense into an economic engine.",
-        "Arcloft's precision strikes and overwatch zones dominate the battlefield.",
-        "Ironmarch rolls forward with mechanized might and forward operating bases.",
-        "Stormrend channels raw destructive energy, growing stronger with every kill."
+        "FACTION_DESC_VALKYR",
+        "FACTION_DESC_KRAGMORE",
+        "FACTION_DESC_BASTION",
+        "FACTION_DESC_ARCLOFT",
+        "FACTION_DESC_IRONMARCH",
+        "FACTION_DESC_STORMREND"
     };
 
-    private static readonly string[] CampaignNames =
+    private static readonly string[] CampaignNameKeys =
     {
-        "Sovereign Skies", "Crimson Tide", "Iron Bastion",
-        "Silent Watch", "Steel March", "Storm's Fury"
+        "CAMPAIGN_SOVEREIGN_SKIES", "CAMPAIGN_CRIMSON_TIDE", "CAMPAIGN_IRON_BASTION",
+        "CAMPAIGN_SILENT_WATCH", "CAMPAIGN_STEEL_MARCH", "CAMPAIGN_STORMS_FURY"
     };
 
     private static readonly string[] CommanderNames =
@@ -71,7 +71,7 @@ public partial class CampaignSelect : Control
         outerVBox.AddChild(header);
 
         var backBtn = new Button();
-        backBtn.Text = "\u25C4 BACK";
+        backBtn.Text = Tr("OPTIONS_BACK");
         UITheme.StyleButton(backBtn);
         backBtn.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
         header.AddChild(backBtn);
@@ -81,7 +81,7 @@ public partial class CampaignSelect : Control
         header.AddChild(headerSpacer);
 
         var title = new Label();
-        title.Text = "SELECT CAMPAIGN";
+        title.Text = Tr("CAMPAIGN_SELECT_TITLE");
         UITheme.StyleLabel(title, UITheme.FontSizeHeading, UITheme.Accent);
         header.AddChild(title);
 
@@ -143,14 +143,14 @@ public partial class CampaignSelect : Control
         _detailPanel.AddChild(btnRow);
 
         _startBtn = new Button();
-        _startBtn.Text = "\u25B6 START CAMPAIGN";
+        _startBtn.Text = Tr("CAMPAIGN_START");
         _startBtn.CustomMinimumSize = new Vector2(200, 0);
         UITheme.StyleAccentButton(_startBtn);
         _startBtn.Pressed += OnStartPressed;
         btnRow.AddChild(_startBtn);
 
         _continueBtn = new Button();
-        _continueBtn.Text = "Continue Mission 1";
+        _continueBtn.Text = string.Format(Tr("CAMPAIGN_CONTINUE"), 1);
         _continueBtn.CustomMinimumSize = new Vector2(200, 0);
         UITheme.StyleButton(_continueBtn);
         _continueBtn.Pressed += OnContinuePressed;
@@ -228,11 +228,11 @@ public partial class CampaignSelect : Control
 
         // Update detail panel
         _detailPanel.Visible = true;
-        _campaignTitle.Text = $"CAMPAIGN: {CampaignNames[index]}";
-        _campaignMissions.Text = $"{MissionCounts[index]} Missions";
-        _campaignDesc.Text = $"\"{FactionDescriptions[index]}\"";
-        _campaignCommander.Text = $"Commander: {CommanderNames[index]}";
-        _continueBtn.Text = "Continue Mission 1"; // Would track real progress
+        _campaignTitle.Text = string.Format(Tr("CAMPAIGN_TITLE_FMT"), Tr(CampaignNameKeys[index]));
+        _campaignMissions.Text = string.Format(Tr("CAMPAIGN_MISSIONS_FMT"), MissionCounts[index]);
+        _campaignDesc.Text = $"\"{Tr(FactionDescriptionKeys[index])}\"";
+        _campaignCommander.Text = string.Format(Tr("CAMPAIGN_COMMANDER_FMT"), CommanderNames[index]);
+        _continueBtn.Text = string.Format(Tr("CAMPAIGN_CONTINUE"), 1); // Would track real progress
     }
 
     private void OnStartPressed()

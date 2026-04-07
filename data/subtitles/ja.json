@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "ja",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "司令官、着任。全ユニット、状況報告。",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "戦闘開始。基地を設営しコルダイト・ノードを確保せよ。",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "警告！基地が攻撃を受けています！",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "ユニット生産完了。配備準備完了。",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "建設完了。",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "コルダイト不足。資源ノードの確保を。",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "アップグレード研究完了。新機能オンライン。",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "全敵勢力を殲滅。勝利は我々のものだ！",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "基地が破壊されました。作戦失敗。",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "コルダイト・ノード枯渇。採掘車を再配置せよ。",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "敵を発見！敵部隊を探知。",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "増援が到着します。現位置を維持。",
+      "duration": 2.5
+    }
+  }
+}

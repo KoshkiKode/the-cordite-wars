@@ -64,7 +64,7 @@ The open-source game development community
         AddChild(header);
 
         var backBtn = new Button();
-        backBtn.Text = "\u25C4 BACK";
+        backBtn.Text = Tr("OPTIONS_BACK");
         UITheme.StyleButton(backBtn);
         backBtn.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
         header.AddChild(backBtn);
@@ -74,7 +74,7 @@ The open-source game development community
         header.AddChild(spacer);
 
         var title = new Label();
-        title.Text = "CREDITS";
+        title.Text = Tr("CREDITS_TITLE");
         UITheme.StyleLabel(title, UITheme.FontSizeHeading, UITheme.Accent);
         header.AddChild(title);
 
