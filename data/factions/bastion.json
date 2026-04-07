@@ -17,20 +17,19 @@
     "AvailableBuildingIds": [
         "bastion_command_center",
         "bastion_barracks",
-        "bastion_vehicle_bay",
+        "bastion_vehicle_factory",
         "bastion_refinery",
         "bastion_reactor",
-        "bastion_drone_hangar",
+        "bastion_airfield",
         "bastion_tech_lab",
-        "bastion_citadel_wall",
-        "bastion_bastion_turret",
-        "bastion_spire_array"
+        "bastion_supply_depot",
+        "bastion_command_hub"
     ],
     "TechTreeUnlocks": {
-        "redundant_systems": 2000,
-        "hardened_walls": 1500,
-        "overcharge_turrets": 1800,
-        "network_amplification": 2500
+        "bastion_redundant_systems": 2000,
+        "bastion_reinforced_turret_mounts": 1500,
+        "bastion_aegis_overcharge": 1800,
+        "bastion_network_amplifier": 2500
     },
     "AvailableUnitIds": [
         "bastion_aegis_generator",

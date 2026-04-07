@@ -16,21 +16,20 @@
     "FactionMechanicId": "sortie_system",
     "AvailableBuildingIds": [
         "valkyr_command_center",
-        "valkyr_airstrip",
+        "valkyr_airfield",
         "valkyr_barracks",
         "valkyr_refinery",
-        "valkyr_power_plant",
-        "valkyr_radar_spire",
+        "valkyr_reactor",
+        "valkyr_carrier_pad",
         "valkyr_tech_lab",
-        "valkyr_wind_wall",
-        "valkyr_skypiercer_turret",
-        "valkyr_downburst_turret"
+        "valkyr_supply_depot",
+        "valkyr_vehicle_factory"
     ],
     "TechTreeUnlocks": {
-        "advanced_avionics": 1500,
-        "precision_munitions": 2000,
-        "sortie_optimization": 1200,
-        "stealth_coating": 2500
+        "valkyr_afterburner_array": 1500,
+        "valkyr_air_to_ground_munitions": 2000,
+        "valkyr_extended_fuel_tanks": 1200,
+        "valkyr_emp_hardening": 2500
     },
     "AvailableUnitIds": [
         "valkyr_gale_trooper",

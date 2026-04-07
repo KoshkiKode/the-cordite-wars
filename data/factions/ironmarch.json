@@ -16,21 +16,20 @@
     "FactionMechanicId": "forward_operations",
     "AvailableBuildingIds": [
         "ironmarch_command_center",
-        "ironmarch_war_factory",
+        "ironmarch_vehicle_factory",
         "ironmarch_barracks",
         "ironmarch_refinery",
-        "ironmarch_power_plant",
-        "ironmarch_helipad",
+        "ironmarch_reactor",
+        "ironmarch_airfield",
         "ironmarch_tech_lab",
-        "ironmarch_fieldwork_wall",
-        "ironmarch_watchtower",
-        "ironmarch_wire_field"
+        "ironmarch_supply_depot",
+        "ironmarch_forward_assembly"
     ],
     "TechTreeUnlocks": {
-        "reinforced_fob": 2000,
-        "field_expedience": 1500,
-        "fortified_advance": 1800,
-        "heavy_rails": 2500
+        "ironmarch_reinforced_fob": 2000,
+        "ironmarch_fob_rapid_deployment": 1500,
+        "ironmarch_tactical_entrenching_kits": 1800,
+        "ironmarch_siege_tank_munitions": 2500
     },
     "AvailableUnitIds": [
         "ironmarch_basalt",

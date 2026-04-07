@@ -216,6 +216,17 @@ public partial class EventBus : Node
     public void EmitGameSaved(string slotName) => EmitSignal(SignalName.GameSaved, slotName);
     public void EmitGameLoaded(string slotName) => EmitSignal(SignalName.GameLoaded, slotName);
 
+    // ── Resource Emit Helpers ───────────────────────────────────────────
+
+    public void EmitResourceDepleted(Node resourceNode) =>
+        EmitSignal(SignalName.ResourceDepleted, resourceNode);
+
+    // ── UI Emit Helpers ─────────────────────────────────────────────────
+
+    public void EmitTooltipRequested(string text, Vector2 position) =>
+        EmitSignal(SignalName.TooltipRequested, text, position);
+    public void EmitTooltipDismissed() => EmitSignal(SignalName.TooltipDismissed);
+
     // ── Networking Emit Helpers ──────────────────────────────────────
 
     public void EmitDesyncDetected(ulong tick) => EmitSignal(SignalName.DesyncDetected, tick);

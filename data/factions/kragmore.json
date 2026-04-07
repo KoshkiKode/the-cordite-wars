@@ -16,21 +16,20 @@
     "FactionMechanicId": "horde_protocol",
     "AvailableBuildingIds": [
         "kragmore_command_center",
-        "kragmore_war_factory",
+        "kragmore_vehicle_factory",
         "kragmore_barracks",
         "kragmore_refinery",
-        "kragmore_power_plant",
-        "kragmore_helipad",
+        "kragmore_reactor",
+        "kragmore_airfield",
         "kragmore_tech_lab",
-        "kragmore_ironwall",
-        "kragmore_flak_nest",
-        "kragmore_bunker"
+        "kragmore_supply_depot",
+        "kragmore_war_forge"
     ],
     "TechTreeUnlocks": {
-        "heavy_plating": 1500,
-        "commissar_training": 2000,
-        "siege_doctrine": 1800,
-        "minefield_mastery": 1200
+        "kragmore_heavy_plate_kits": 1500,
+        "kragmore_commissar_training": 2000,
+        "kragmore_fortified_advance": 1800,
+        "kragmore_crush_override": 1200
     },
     "AvailableUnitIds": [
         "kragmore_anvil",

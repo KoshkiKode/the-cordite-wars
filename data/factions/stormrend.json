@@ -16,21 +16,20 @@
     "FactionMechanicId": "blitz_doctrine",
     "AvailableBuildingIds": [
         "stormrend_command_center",
-        "stormrend_war_factory",
+        "stormrend_vehicle_factory",
         "stormrend_barracks",
         "stormrend_refinery",
         "stormrend_reactor",
-        "stormrend_airstrip",
+        "stormrend_airfield",
         "stormrend_tech_lab",
-        "stormrend_chainlink_barrier",
-        "stormrend_snap_turret",
-        "stormrend_flicker_mine"
+        "stormrend_supply_depot",
+        "stormrend_storm_capacitor"
     ],
     "TechTreeUnlocks": {
-        "overdrive": 1500,
-        "momentum_cascade": 2000,
-        "blitz_training": 1200,
-        "storm_surge": 2500
+        "stormrend_momentum_overdrive": 1500,
+        "stormrend_stormbreak_cascade": 2000,
+        "stormrend_blitz_conditioning": 1200,
+        "stormrend_lightning_payload": 2500
     },
     "AvailableUnitIds": [
         "stormrend_bolt",

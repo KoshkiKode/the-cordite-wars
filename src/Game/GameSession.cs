@@ -386,6 +386,9 @@ public partial class GameSession : Node
                 node.SyncFromSimulation(updatedUnit.Movement.Position, updatedUnit.Movement.Facing, updatedUnit.Health);
             }
         }
+
+        // 4. Update fog of war / vision
+        UpdateFogOfWar(simUnits, currentTick);
     }
 
     /// <summary>
@@ -458,9 +461,6 @@ public partial class GameSession : Node
                 bus.EmitUnitDeath(destroyedId, (int)dead.Category, pos);
             }
         }
-
-        // 4. Update fog of war / vision
-        UpdateFogOfWar(simUnits, currentTick);
     }
 
     /// <summary>

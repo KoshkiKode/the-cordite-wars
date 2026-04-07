@@ -16,21 +16,20 @@
     "FactionMechanicId": "overwatch_protocol",
     "AvailableBuildingIds": [
         "arcloft_command_center",
-        "arcloft_airstrip",
+        "arcloft_airfield",
         "arcloft_barracks",
         "arcloft_refinery",
         "arcloft_reactor",
-        "arcloft_radar_dome",
+        "arcloft_overwatch_tower",
         "arcloft_tech_lab",
-        "arcloft_rampart_wall",
-        "arcloft_flak_citadel",
-        "arcloft_arc_turret"
+        "arcloft_supply_depot",
+        "arcloft_vehicle_factory"
     ],
     "TechTreeUnlocks": {
-        "expanded_overwatch": 1800,
-        "network_relay": 1500,
-        "interceptor_grid": 2000,
-        "sky_fortress_upgrade": 3000
+        "arcloft_expanded_overwatch": 1800,
+        "arcloft_awacs_net_integration": 1500,
+        "arcloft_quantum_detection_grid": 2000,
+        "arcloft_sky_fortress_protocol": 3000
     },
     "AvailableUnitIds": [
         "arcloft_aether_relay",
