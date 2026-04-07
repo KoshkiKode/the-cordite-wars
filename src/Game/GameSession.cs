@@ -366,26 +366,35 @@ public partial class GameSession : Node
         var bus = EventBus.Instance;
         if (bus == null) return;
 
+        // Skip if nothing happened this tick
+        if (tickResult.Attacks.Count == 0 && tickResult.DestroyedUnitIds.Count == 0)
+            return;
+
+        // Build O(1) lookup from unit ID → SimUnit index
+        // (avoids O(n²) linear scans per attack/death)
+        var unitLookup = new Dictionary<int, int>(simUnits.Count);
+        for (int i = 0; i < simUnits.Count; i++)
+        {
+            unitLookup[simUnits[i].UnitId] = i;
+        }
+
         // Weapon fire + impact sounds
         for (int i = 0; i < tickResult.Attacks.Count; i++)
         {
             AttackResult attack = tickResult.Attacks[i];
 
-            // Find attacker's weapon type from simUnits
+            // Find attacker's weapon type
             WeaponType weaponType = WeaponType.None;
             Vector3 attackerPos = Vector3.Zero;
-            for (int j = 0; j < simUnits.Count; j++)
+            if (unitLookup.TryGetValue(attack.AttackerId, out int attackerIdx))
             {
-                if (simUnits[j].UnitId == attack.AttackerId)
-                {
-                    attackerPos = simUnits[j].Movement.Position.ToVector3();
+                SimUnit attacker = simUnits[attackerIdx];
+                attackerPos = attacker.Movement.Position.ToVector3();
 
-                    if (simUnits[j].Weapons != null &&
-                        attack.WeaponIndex < simUnits[j].Weapons.Count)
-                    {
-                        weaponType = simUnits[j].Weapons[attack.WeaponIndex].Type;
-                    }
-                    break;
+                if (attacker.Weapons != null &&
+                    attack.WeaponIndex < attacker.Weapons.Count)
+                {
+                    weaponType = attacker.Weapons[attack.WeaponIndex].Type;
                 }
             }
 
@@ -411,18 +420,11 @@ public partial class GameSession : Node
             {
                 bus.EmitUnitDeath(destroyedId, (int)node.Category, node.GlobalPosition);
             }
-            else
+            else if (unitLookup.TryGetValue(destroyedId, out int deadIdx))
             {
-                // Fall back to sim data
-                for (int j = 0; j < simUnits.Count; j++)
-                {
-                    if (simUnits[j].UnitId == destroyedId)
-                    {
-                        Vector3 pos = simUnits[j].Movement.Position.ToVector3();
-                        bus.EmitUnitDeath(destroyedId, (int)simUnits[j].Category, pos);
-                        break;
-                    }
-                }
+                SimUnit dead = simUnits[deadIdx];
+                Vector3 pos = dead.Movement.Position.ToVector3();
+                bus.EmitUnitDeath(destroyedId, (int)dead.Category, pos);
             }
         }
     }

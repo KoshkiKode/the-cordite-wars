@@ -114,12 +114,12 @@ public partial class CombatAudioBridge : Node
             WeaponType.Bomb          => "weapon_cannon_siege",
             WeaponType.Mortar        => "weapon_cannon_light",
             WeaponType.Sniper        => "weapon_autocannon",
-            WeaponType.Flamethrower  => "weapon_plasma",
+            WeaponType.Flamethrower  => "weapon_plasma",   // No dedicated flamethrower sound; plasma is closest
             WeaponType.EMP           => "weapon_laser",
             WeaponType.GatlingGun    => "weapon_chaingun",
             WeaponType.SAM           => "weapon_sam_missile",
             WeaponType.Torpedo       => "weapon_torpedo",
-            WeaponType.ChemicalSpray => "weapon_plasma",
+            WeaponType.ChemicalSpray => "weapon_plasma",   // No dedicated chemical sound; plasma is closest
             WeaponType.None          => null,
             _                        => "weapon_machinegun"
         };
