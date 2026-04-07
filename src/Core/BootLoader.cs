@@ -1,5 +1,4 @@
 using Godot;
-using CorditeWars.Systems.Platform;
 using CorditeWars.UI;
 using CorditeWars.UI.Input;
 
@@ -35,12 +34,6 @@ public partial class BootLoader : Node
         _ = new KeybindManager();
         _ = new AccessibilitySettings();
         GD.Print("[Boot] Accessibility and keybind systems initialized.");
-
-        // Initialize Steam integration (no-ops gracefully when Steam is unavailable)
-        var steamManager = new SteamManager();
-        steamManager.Name = "SteamManager";
-        AddChild(steamManager);
-        GD.Print("[Boot] Steam integration initialized.");
 
         GD.Print("[Boot] All core systems initialized.");
         GD.Print("[Boot] Transitioning to splash screen...");
