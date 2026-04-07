@@ -232,7 +232,7 @@ public sealed partial class SteamManager : Node
 
             GD.Print($"[Steam] Loaded {_achievements.Count} achievement definitions.");
         }
-        catch (Exception ex)
+        catch (JsonException ex)
         {
             GD.PushWarning($"[Steam] Failed to parse achievements.json: {ex.Message}");
         }
