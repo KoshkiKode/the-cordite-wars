@@ -172,11 +172,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download macOS DMG
+      - name: Download macOS export
         uses: actions/download-artifact@v4
         with:
-          name: CorditeWars-macOS-DMG
-          path: dist/macos/
+          name: CorditeWars-macOS-Export
+          path: build/macos/
+
+      - name: Extract .app bundle from zip
+        run: |
+          mkdir -p build/macos/app
+          unzip -q build/macos/CorditeWars.zip -d build/macos/app
+          echo "Extracted macOS contents:"
+          ls -la build/macos/app/
 
       - name: Patch GOG build config
         env:

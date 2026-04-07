@@ -19,7 +19,7 @@
         "files": {
           "sources": [
             {
-              "path": "../../dist/macos"
+              "path": "../../build/macos/app"
             }
           ]
         }
