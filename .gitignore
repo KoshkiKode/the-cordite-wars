@@ -51,3 +51,6 @@ builds/
 # Temporary
 tmp/
 temp/
+
+# Test results
+TestResults/
