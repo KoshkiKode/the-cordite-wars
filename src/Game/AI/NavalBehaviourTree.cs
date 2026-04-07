@@ -1,12 +1,12 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Economy;
-using UnnamedRTS.Game.Units;
-using UnnamedRTS.Game.Buildings;
-using UnnamedRTS.Game.Assets;
+using CorditeWars.Core;
+using CorditeWars.Game.Economy;
+using CorditeWars.Game.Units;
+using CorditeWars.Game.Buildings;
+using CorditeWars.Game.Assets;
 
-namespace UnnamedRTS.Game.AI;
+namespace CorditeWars.Game.AI;
 
 /// <summary>
 /// Naval sub-controller for the Skirmish AI.  Evaluates whether the current

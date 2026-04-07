@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Godot;
 using CorditeWars.Core;
 using CorditeWars.Game.Assets;
+using CorditeWars.Systems.Pathfinding;
 
 namespace CorditeWars.Game.Units;
 
