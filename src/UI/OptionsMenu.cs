@@ -1,5 +1,6 @@
 using Godot;
 using UnnamedRTS.Systems.Graphics;
+using UnnamedRTS.Systems.Localization;
 
 namespace UnnamedRTS.UI;
 
@@ -46,6 +47,8 @@ public partial class OptionsMenu : Control
     private CheckBox _showHealthBars = null!;
     private OptionButton _minimapSize = null!;
     private CheckBox _autoSaveReplays = null!;
+    private OptionButton _language = null!;
+    private CheckBox _subtitles = null!;
 
     private static readonly string[] QualityNames = { "Potato", "Low", "Medium", "High", "Custom" };
     private static readonly string[] ResolutionLabels = { "1280x720", "1920x1080", "2560x1440", "3840x2160" };
@@ -85,7 +88,7 @@ public partial class OptionsMenu : Control
         outerVBox.AddChild(header);
 
         var backBtn = new Button();
-        backBtn.Text = "\u25C4 BACK";
+        backBtn.Text = Tr("OPTIONS_BACK");
         UITheme.StyleButton(backBtn);
         backBtn.Pressed += OnBackPressed;
         header.AddChild(backBtn);
@@ -95,7 +98,7 @@ public partial class OptionsMenu : Control
         header.AddChild(spacer);
 
         var title = new Label();
-        title.Text = "OPTIONS";
+        title.Text = Tr("OPTIONS_TITLE");
         UITheme.StyleLabel(title, UITheme.FontSizeHeading, UITheme.Accent);
         header.AddChild(title);
 
@@ -118,14 +121,14 @@ public partial class OptionsMenu : Control
         outerVBox.AddChild(btnRow);
 
         var applyBtn = new Button();
-        applyBtn.Text = "APPLY";
+        applyBtn.Text = Tr("OPTIONS_APPLY");
         applyBtn.CustomMinimumSize = new Vector2(160, 0);
         UITheme.StyleAccentButton(applyBtn);
         applyBtn.Pressed += OnApplyPressed;
         btnRow.AddChild(applyBtn);
 
         var resetBtn = new Button();
-        resetBtn.Text = "RESET TO DEFAULTS";
+        resetBtn.Text = Tr("OPTIONS_RESET");
         resetBtn.CustomMinimumSize = new Vector2(220, 0);
         UITheme.StyleButton(resetBtn);
         resetBtn.Pressed += OnResetPressed;
@@ -140,7 +143,7 @@ public partial class OptionsMenu : Control
     private Control BuildDisplayTab()
     {
         var scroll = new ScrollContainer();
-        scroll.Name = "Display";
+        scroll.Name = Tr("OPTIONS_TAB_DISPLAY");
         scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
 
         var vbox = new VBoxContainer();
@@ -241,7 +244,7 @@ public partial class OptionsMenu : Control
     private Control BuildAudioTab()
     {
         var scroll = new ScrollContainer();
-        scroll.Name = "Audio";
+        scroll.Name = Tr("OPTIONS_TAB_AUDIO");
         scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
 
         var vbox = new VBoxContainer();
@@ -267,7 +270,7 @@ public partial class OptionsMenu : Control
     private Control BuildControlsTab()
     {
         var scroll = new ScrollContainer();
-        scroll.Name = "Controls";
+        scroll.Name = Tr("OPTIONS_TAB_CONTROLS");
         scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
 
         var vbox = new VBoxContainer();
@@ -307,7 +310,7 @@ public partial class OptionsMenu : Control
     private Control BuildGameTab()
     {
         var scroll = new ScrollContainer();
-        scroll.Name = "Game";
+        scroll.Name = Tr("OPTIONS_TAB_GAME");
         scroll.SizeFlagsVertical = SizeFlags.ExpandFill;
 
         var vbox = new VBoxContainer();
@@ -315,19 +318,35 @@ public partial class OptionsMenu : Control
         vbox.AddThemeConstantOverride("separation", 12);
         scroll.AddChild(vbox);
 
+        // Language
+        _language = new OptionButton();
+        for (int i = 0; i < LocalizationManager.SupportedLocales.Length; i++)
+            _language.AddItem(LocalizationManager.SupportedLocales[i].DisplayName, i);
+        _language.Selected = LocalizationManager.GetLocaleIndex(
+            LocalizationManager.Instance?.GetCurrentLocale() ?? "en");
+        UITheme.StyleOptionButton(_language);
+        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_LANGUAGE"), _language));
+
+        // Subtitles
+        _subtitles = new CheckBox();
+        _subtitles.Text = Tr("OPTIONS_ENABLED");
+        _subtitles.ButtonPressed = LocalizationManager.Instance?.SubtitlesEnabled ?? true;
+        UITheme.StyleCheckBox(_subtitles);
+        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_SUBTITLES"), _subtitles));
+
         // Show FPS Counter
         _showFps = new CheckBox();
-        _showFps.Text = "Show";
+        _showFps.Text = Tr("OPTIONS_SHOW");
         _showFps.ButtonPressed = false;
         UITheme.StyleCheckBox(_showFps);
-        vbox.AddChild(MakeSettingRow("FPS Counter:", _showFps));
+        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_FPS_COUNTER"), _showFps));
 
         // Show Unit Health Bars
         _showHealthBars = new CheckBox();
-        _showHealthBars.Text = "Show";
+        _showHealthBars.Text = Tr("OPTIONS_SHOW");
         _showHealthBars.ButtonPressed = true;
         UITheme.StyleCheckBox(_showHealthBars);
-        vbox.AddChild(MakeSettingRow("Unit Health Bars:", _showHealthBars));
+        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_HEALTH_BARS"), _showHealthBars));
 
         // Mini-map Size
         _minimapSize = new OptionButton();
@@ -335,14 +354,14 @@ public partial class OptionsMenu : Control
             _minimapSize.AddItem(MinimapNames[i], i);
         _minimapSize.Selected = 1; // Medium
         UITheme.StyleOptionButton(_minimapSize);
-        vbox.AddChild(MakeSettingRow("Mini-map Size:", _minimapSize));
+        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_MINIMAP_SIZE"), _minimapSize));
 
         // Auto-save Replays
         _autoSaveReplays = new CheckBox();
-        _autoSaveReplays.Text = "Enabled";
+        _autoSaveReplays.Text = Tr("OPTIONS_ENABLED");
         _autoSaveReplays.ButtonPressed = true;
         UITheme.StyleCheckBox(_autoSaveReplays);
-        vbox.AddChild(MakeSettingRow("Auto-save Replays:", _autoSaveReplays));
+        vbox.AddChild(MakeSettingRow(Tr("OPTIONS_AUTO_SAVE_REPLAYS"), _autoSaveReplays));
 
         return scroll;
     }
@@ -470,6 +489,7 @@ public partial class OptionsMenu : Control
     {
         ApplyDisplaySettings();
         ApplyAudioSettings();
+        ApplyLocalizationSettings();
         SaveSettings();
         GD.Print("[OptionsMenu] Settings applied and saved.");
     }
@@ -504,11 +524,14 @@ public partial class OptionsMenu : Control
         _showHealthBars.ButtonPressed = true;
         _minimapSize.Selected = 1;
         _autoSaveReplays.ButtonPressed = true;
+        _language.Selected = 0; // English
+        _subtitles.ButtonPressed = true;
 
         _suppressPresetChange = false;
 
         ApplyDisplaySettings();
         ApplyAudioSettings();
+        ApplyLocalizationSettings();
         SaveSettings();
         GD.Print("[OptionsMenu] Settings reset to defaults.");
     }
@@ -575,6 +598,21 @@ public partial class OptionsMenu : Control
         }
     }
 
+    private void ApplyLocalizationSettings()
+    {
+        var lm = LocalizationManager.Instance;
+        if (lm == null) return;
+
+        int langIdx = _language.Selected;
+        if (langIdx >= 0 && langIdx < LocalizationManager.SupportedLocales.Length)
+        {
+            lm.SetLanguage(LocalizationManager.SupportedLocales[langIdx].Code);
+        }
+
+        lm.SetSubtitlesEnabled(_subtitles.ButtonPressed);
+        lm.SaveSettings();
+    }
+
     // ── Persistence ───────────────────────────────────────────────────
 
     private void SaveSettings()
@@ -608,6 +646,8 @@ public partial class OptionsMenu : Control
         cfg.SetValue("Game", "show_health_bars", _showHealthBars.ButtonPressed);
         cfg.SetValue("Game", "minimap_size", _minimapSize.Selected);
         cfg.SetValue("Game", "auto_save_replays", _autoSaveReplays.ButtonPressed);
+        cfg.SetValue("Game", "language", _language.Selected);
+        cfg.SetValue("Game", "subtitles", _subtitles.ButtonPressed);
 
         var err = cfg.Save(SettingsPath);
         if (err != Error.Ok)
@@ -648,6 +688,9 @@ public partial class OptionsMenu : Control
         _showHealthBars.ButtonPressed = (bool)cfg.GetValue("Game", "show_health_bars", true);
         _minimapSize.Selected = (int)cfg.GetValue("Game", "minimap_size", 1);
         _autoSaveReplays.ButtonPressed = (bool)cfg.GetValue("Game", "auto_save_replays", true);
+        _language.Selected = (int)cfg.GetValue("Game", "language",
+            LocalizationManager.GetLocaleIndex(LocalizationManager.Instance?.GetCurrentLocale() ?? "en"));
+        _subtitles.ButtonPressed = (bool)cfg.GetValue("Game", "subtitles", true);
 
         _suppressPresetChange = false;
     }

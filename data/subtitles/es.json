@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "es",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Comandante en cubierta. Todas las unidades, informen estado.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Partida iniciada. Establezca su base y asegure nodos de Cordita.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "¡Alerta! ¡Nuestra base está bajo ataque!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Producción de unidad completada. Lista para despliegue.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Construcción completada.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Cordita insuficiente. Asegure más nodos de recursos.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Investigación de mejora completada. Nuevas capacidades en línea.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "¡Todas las fuerzas enemigas eliminadas! ¡La victoria es nuestra!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Nuestra base ha sido destruida. Misión fallida.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Nodo de Cordita agotado. Reubique los recolectores.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "¡Contacto enemigo! Fuerzas hostiles detectadas.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Refuerzos en camino. Mantengan sus posiciones.",
+      "duration": 2.5
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "pt_BR",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Comandante no convés. Todas as unidades, reportar status.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Partida iniciada. Estabeleça sua base e assegure nós de Cordite.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Alerta! Nossa base está sob ataque!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Produção de unidade completa. Pronta para implantação.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Construção completa.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Cordite insuficiente. Assegure mais nós de recursos.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Pesquisa de melhoria completa. Novas capacidades online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Todas as forças inimigas eliminadas. A vitória é nossa!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Nossa base foi destruída. Missão fracassada.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Nó de Cordite esgotado. Reposicione os coletores.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Contato inimigo! Forças hostis detectadas.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Reforços a caminho. Mantenham suas posições.",
+      "duration": 2.5
+    }
+  }
+}

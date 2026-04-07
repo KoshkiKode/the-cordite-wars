@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "fr",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Commandant sur le pont. Toutes les unités, rapport de situation.",
+      "duration": 3.5
+    },
+    "vo_match_started": {
+      "text": "Match lancé. Établissez votre base et sécurisez les nœuds de Cordite.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Attention ! Notre base est attaquée !",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Production terminée. Unité prête au déploiement.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Construction terminée.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Cordite insuffisant. Sécurisez plus de nœuds de ressources.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Recherche d'amélioration terminée. Nouvelles capacités en ligne.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Toutes les forces ennemies éliminées. La victoire est nôtre !",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Notre base a été détruite. Mission échouée.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Nœud de Cordite épuisé. Déplacez les récolteurs.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Contact ennemi ! Forces hostiles détectées.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Renforts en approche. Maintenez vos positions.",
+      "duration": 2.5
+    }
+  }
+}

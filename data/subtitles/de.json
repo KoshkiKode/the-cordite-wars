@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "de",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Kommandant an Bord. Alle Einheiten, Status melden.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Kampf eingeleitet. Basis errichten und Cordite-Knoten sichern.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Warnung! Unsere Basis wird angegriffen!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Einheitenproduktion abgeschlossen. Bereit zum Einsatz.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Konstruktion abgeschlossen.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Unzureichend Cordite. Sichern Sie mehr Ressourcen.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Upgrade-Forschung abgeschlossen. Neue Fähigkeiten online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Alle feindlichen Kräfte eliminiert. Der Sieg gehört uns!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Unsere Basis wurde zerstört. Mission fehlgeschlagen.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Cordite-Knoten erschöpft. Erntefahrzeuge umleiten.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Feindkontakt! Feindliche Streitkräfte entdeckt.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Verstärkung unterwegs. Positionen halten.",
+      "duration": 2.5
+    }
+  }
+}

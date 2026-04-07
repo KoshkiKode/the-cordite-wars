@@ -31,6 +31,8 @@ config/version_build="alpha"
 GameManager="*res://src/Core/GameManager.cs"
 EventBus="*res://src/Core/EventBus.cs"
 AudioManager="*res://src/Systems/Audio/AudioManager.cs"
+LocalizationManager="*res://src/Systems/Localization/LocalizationManager.cs"
+SubtitleManager="*res://src/Systems/Localization/SubtitleManager.cs"
 
 [debug]
 

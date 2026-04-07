@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "it",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Comandante in plancia. Tutte le unità, rapporto.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Partita avviata. Stabilite la base e assicurate i nodi di Cordite.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Attenzione! La nostra base è sotto attacco!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Produzione completata. Unità pronta al dispiegamento.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Costruzione completata.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Cordite insufficiente. Assicurate più nodi risorse.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Ricerca potenziamento completata. Nuove capacità online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Tutte le forze nemiche eliminate. La vittoria è nostra!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "La nostra base è stata distrutta. Missione fallita.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Nodo di Cordite esaurito. Riposizionate i raccoglitori.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Contatto nemico! Forze ostili rilevate.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Rinforzi in arrivo. Mantenete le posizioni.",
+      "duration": 2.5
+    }
+  }
+}
