@@ -1,0 +1,169 @@
+{
+  "faction": "valkyr",
+  "name": "Sovereign Skies",
+  "commander": "Wing Commander Aelara",
+  "description": "Lead the Valkyr Ascendancy to prove that air power alone can win the Cordite Wars. Eight missions across escalating conflict, culminating in the Six Fronts.",
+  "missions": [
+    {
+      "id": "valkyr_01",
+      "number": 1,
+      "name": "First Sortie",
+      "briefing": "A Kragmore mining convoy has encroached on Valkyr territory. Commander Aelara orders a precision strike.",
+      "map": "dust_bowl",
+      "player_faction": "valkyr",
+      "enemy_factions": [
+        "kragmore"
+      ],
+      "objectives": [
+        "Destroy the Kragmore supply depot"
+      ],
+      "starting_cordite": 3000,
+      "ai_difficulty": 0,
+      "difficulty_label": "Easy",
+      "twist": ""
+    },
+    {
+      "id": "valkyr_02",
+      "number": 2,
+      "name": "Border War",
+      "briefing": "Kragmore has responded with armoured columns. Hold the frontier using only aerial assets.",
+      "map": "iron_ridge",
+      "player_faction": "valkyr",
+      "enemy_factions": [
+        "kragmore"
+      ],
+      "objectives": [
+        "Destroy all enemy armour",
+        "Hold the ridge for 10 minutes"
+      ],
+      "starting_cordite": 3500,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Kragmore will push from two directions simultaneously at the 5-minute mark."
+    },
+    {
+      "id": "valkyr_03",
+      "number": 3,
+      "name": "The Ironmarch Incursion",
+      "briefing": "Ironmarch engineers are fortifying positions on Valkyr-controlled land. Disrupt their logistics.",
+      "map": "crossroads",
+      "player_faction": "valkyr",
+      "enemy_factions": [
+        "kragmore",
+        "ironmarch"
+      ],
+      "objectives": [
+        "Destroy Ironmarch FOB trucks",
+        "Prevent enemy fortification of the crossroads"
+      ],
+      "starting_cordite": 4000,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Ironmarch FOB trucks must be destroyed before they establish bases."
+    },
+    {
+      "id": "valkyr_04",
+      "number": 4,
+      "name": "Storm Warning",
+      "briefing": "Stormrend has entered the war. Their lightning-fast raids are disrupting Valkyr supply lines.",
+      "map": "six_fronts",
+      "player_faction": "valkyr",
+      "enemy_factions": [
+        "stormrend",
+        "kragmore"
+      ],
+      "objectives": [
+        "Protect three supply nodes",
+        "Destroy Stormrend Razorwind squadrons"
+      ],
+      "starting_cordite": 4500,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Stormrend will raid supply nodes every 3 minutes."
+    },
+    {
+      "id": "valkyr_05",
+      "number": 5,
+      "name": "The Naval Threat",
+      "briefing": "Kragmore dreadnoughts are blockading Valkyr island outposts. The navy must be neutralised.",
+      "map": "archipelago",
+      "player_faction": "valkyr",
+      "enemy_factions": [
+        "kragmore",
+        "ironmarch"
+      ],
+      "objectives": [
+        "Destroy all Kragmore naval units",
+        "Capture the island airstrip"
+      ],
+      "starting_cordite": 5000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Valkyr air units can operate over water — use this advantage."
+    },
+    {
+      "id": "valkyr_06",
+      "number": 6,
+      "name": "Three-Front War",
+      "briefing": "Valkyr Command is now fighting Kragmore, Ironmarch, AND Stormrend simultaneously.",
+      "map": "iron_ridge",
+      "player_faction": "valkyr",
+      "enemy_factions": [
+        "kragmore",
+        "ironmarch",
+        "stormrend"
+      ],
+      "objectives": [
+        "Survive for 20 minutes",
+        "Destroy enemy HQ buildings"
+      ],
+      "starting_cordite": 5500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Enemy factions will periodically call truces to coordinate attacks on Valkyr."
+    },
+    {
+      "id": "valkyr_07",
+      "number": 7,
+      "name": "The Betrayal",
+      "briefing": "Intelligence reveals Arcloft has been selling targeting data to all factions. The Arcloft relay tower must be silenced.",
+      "map": "crossroads",
+      "player_faction": "valkyr",
+      "enemy_factions": [
+        "arcloft",
+        "kragmore"
+      ],
+      "objectives": [
+        "Destroy the Arcloft Aether Relay",
+        "Escape with at least 3 surviving aircraft"
+      ],
+      "starting_cordite": 4000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Resources are scarce — this is a precision strike, not a war of attrition."
+    },
+    {
+      "id": "valkyr_08",
+      "number": 8,
+      "name": "The Six Fronts",
+      "briefing": "All six factions converge on the Cordite Nexus. Valkyr must seize the skies above it and deny all others access.",
+      "map": "six_fronts",
+      "player_faction": "valkyr",
+      "enemy_factions": [
+        "kragmore",
+        "bastion",
+        "arcloft",
+        "ironmarch",
+        "stormrend"
+      ],
+      "objectives": [
+        "Control the Cordite Nexus airspace",
+        "Be the last faction standing in the air"
+      ],
+      "starting_cordite": 6000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "All other factions begin in full war with each other — but will unite against whoever controls the Nexus."
+    }
+  ]
+}

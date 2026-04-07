@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
 using System.Linq;
+using Steamworks;
 
 namespace CorditeWars.Systems.Platform;
 
@@ -240,64 +241,110 @@ public sealed partial class SteamManager : Node
 
     // ── Native shim layer ────────────────────────────────────────────
     //
-    // These private methods encapsulate all Steamworks.NET calls so the
-    // rest of the class stays clean.  When Steamworks.NET is integrated via
-    // a NuGet package reference or the GodotSteam addon, replace the bodies
-    // below with real API calls.
-    //
-    // Example replacement for TryInitSteam():
-    //   IsAvailable = SteamAPI.Init();
-    //   if (!IsAvailable) GD.PushWarning("[Steam] SteamAPI.Init() failed.");
-    //
-    // See: https://steamworks.github.io/  and  https://github.com/GodotSteam/GodotSteam
+    // All calls are wrapped in try/catch so the game runs cleanly on platforms
+    // where steam_api64.dll / libsteam_api.so is absent (CI, mobile, etc.).
 
     private void TryInitSteam()
     {
-        // Replace with: IsAvailable = SteamAPI.Init();
-        IsAvailable = false;
-        if (!IsAvailable)
-            GD.Print("[Steam] Steamworks API not available on this platform.");
+        try
+        {
+            IsAvailable = SteamAPI.Init();
+            if (!IsAvailable)
+                GD.Print("[Steam] SteamAPI.Init() returned false — Steam not running or steam_appid.txt missing.");
+            else
+                GD.Print($"[Steam] Initialized. AppId: {SteamUtils.GetAppID()}");
+        }
+        catch (Exception ex)
+        {
+            IsAvailable = false;
+            GD.Print($"[Steam] Steamworks unavailable on this platform: {ex.Message}");
+        }
     }
 
     private static void RunCallbacks()
     {
-        // Replace with: SteamAPI.RunCallbacks();
+        try
+        {
+            SteamAPI.RunCallbacks();
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] RunCallbacks error: {ex.Message}");
+        }
     }
 
     private static void ShutdownSteam()
     {
-        // Replace with: SteamAPI.Shutdown();
-        GD.Print("[Steam] Steamworks API shut down.");
+        try
+        {
+            SteamAPI.Shutdown();
+            GD.Print("[Steam] Steamworks API shut down.");
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] Shutdown error: {ex.Message}");
+        }
     }
 
     private static bool SetAchievementNative(string id)
     {
-        // Replace with: return SteamUserStats.SetAchievement(id);
-        return false;
+        try
+        {
+            return SteamUserStats.SetAchievement(id);
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] SetAchievement error: {ex.Message}");
+            return false;
+        }
     }
 
     private static void StoreStatsNative()
     {
-        // Replace with: SteamUserStats.StoreStats();
+        try
+        {
+            SteamUserStats.StoreStats();
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] StoreStats error: {ex.Message}");
+        }
     }
 
     private static void SetStatNative(string name, int value)
     {
-        // Replace with: SteamUserStats.SetStat(name, value);
-        _ = name;
-        _ = value;
+        try
+        {
+            SteamUserStats.SetStat(name, value);
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] SetStat error: {ex.Message}");
+        }
     }
 
     private static void SetRichPresenceNative(string key, string value)
     {
-        // Replace with: SteamFriends.SetRichPresence(key, value);
-        _ = key;
-        _ = value;
+        try
+        {
+            SteamFriends.SetRichPresence(key, value);
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] SetRichPresence error: {ex.Message}");
+        }
     }
 
     private static void ClearRichPresenceNative()
     {
-        // Replace with: SteamFriends.ClearRichPresence();
+        try
+        {
+            SteamFriends.ClearRichPresence();
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] ClearRichPresence error: {ex.Message}");
+        }
     }
 
     // ── Convenience helpers used by GameSession ──────────────────────

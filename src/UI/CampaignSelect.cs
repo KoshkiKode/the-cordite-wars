@@ -1,36 +1,21 @@
 using Godot;
+using System.Text.Json;
+using CorditeWars.Game.Campaign;
 
 namespace CorditeWars.UI;
 
 /// <summary>
 /// Campaign faction selection: 6 faction cards in 3x2 grid.
 /// Selecting a faction shows description panel below with Start/Continue buttons.
+/// Campaign data is loaded from <c>data/campaign/{faction}.json</c>.
 /// </summary>
 public partial class CampaignSelect : Control
 {
-    private static readonly string[] FactionDescriptionKeys =
-    {
-        "FACTION_DESC_VALKYR",
-        "FACTION_DESC_KRAGMORE",
-        "FACTION_DESC_BASTION",
-        "FACTION_DESC_ARCLOFT",
-        "FACTION_DESC_IRONMARCH",
-        "FACTION_DESC_STORMREND"
-    };
+    // ── Faction data loaded from JSON ─────────────────────────────────
 
-    private static readonly string[] CampaignNameKeys =
-    {
-        "CAMPAIGN_SOVEREIGN_SKIES", "CAMPAIGN_CRIMSON_TIDE", "CAMPAIGN_IRON_BASTION",
-        "CAMPAIGN_SILENT_WATCH", "CAMPAIGN_STEEL_MARCH", "CAMPAIGN_STORMS_FURY"
-    };
+    private readonly FactionCampaign?[] _campaigns = new FactionCampaign?[6];
 
-    private static readonly string[] CommanderNames =
-    {
-        "Wing Commander Aelara", "Warlord Grok", "Castellan Mira",
-        "Watcher Prime Idris", "Marshal Volkov", "Tempest Kael"
-    };
-
-    private static readonly int[] MissionCounts = { 8, 9, 7, 8, 8, 8 };
+    // ── UI state ──────────────────────────────────────────────────────
 
     private int _selectedFaction = -1;
     private Panel[] _factionCards = new Panel[6];
@@ -38,14 +23,55 @@ public partial class CampaignSelect : Control
     private Label _campaignDesc = null!;
     private Label _campaignCommander = null!;
     private Label _campaignMissions = null!;
+    private Label _campaignMissionList = null!;
     private Button _startBtn = null!;
     private Button _continueBtn = null!;
     private VBoxContainer _detailPanel = null!;
 
+    // ── Godot lifecycle ──────────────────────────────────────────────
+
     public override void _Ready()
     {
+        LoadCampaignData();
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        BuildUI();
+        SelectFaction(0);
+    }
 
+    // ── Data loading ──────────────────────────────────────────────────
+
+    private void LoadCampaignData()
+    {
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+
+        for (int i = 0; i < UITheme.FactionIds.Length; i++)
+        {
+            string path = $"res://data/campaign/{UITheme.FactionIds[i]}.json";
+            if (!FileAccess.FileExists(path)) continue;
+
+            using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
+            if (file is null) continue;
+
+            try
+            {
+                _campaigns[i] = JsonSerializer.Deserialize<FactionCampaign>(file.GetAsText(), options);
+            }
+            catch (JsonException ex)
+            {
+                GD.PushWarning($"[CampaignSelect] Failed to parse {path}: {ex.Message}");
+            }
+        }
+    }
+
+    // ── UI Construction ───────────────────────────────────────────────
+
+    private void BuildUI()
+    {
         // Background
         var bg = new ColorRect();
         bg.Color = UITheme.Background;
@@ -137,6 +163,12 @@ public partial class CampaignSelect : Control
         UITheme.StyleLabel(_campaignCommander, UITheme.FontSizeSmall, UITheme.TextMuted);
         infoLeft.AddChild(_campaignCommander);
 
+        // Mission list preview (first 3 missions)
+        _campaignMissionList = new Label();
+        _campaignMissionList.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        UITheme.StyleLabel(_campaignMissionList, UITheme.FontSizeSmall, UITheme.TextMuted);
+        infoLeft.AddChild(_campaignMissionList);
+
         // Buttons
         var btnRow = new HBoxContainer();
         btnRow.AddThemeConstantOverride("separation", 16);
@@ -155,9 +187,6 @@ public partial class CampaignSelect : Control
         UITheme.StyleButton(_continueBtn);
         _continueBtn.Pressed += OnContinuePressed;
         btnRow.AddChild(_continueBtn);
-
-        // Select first faction by default
-        SelectFaction(0);
     }
 
     private Panel BuildFactionCard(int index)
@@ -166,12 +195,6 @@ public partial class CampaignSelect : Control
         panel.CustomMinimumSize = new Vector2(200, 120);
         panel.AddThemeStyleboxOverride("panel", UITheme.MakeFactionCard(UITheme.GetFactionColor(index), false));
 
-        var vbox = new VBoxContainer();
-        vbox.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        vbox.AddThemeConstantOverride("separation", 4);
-        panel.AddChild(vbox);
-
-        // Margin inside
         var innerMargin = new MarginContainer();
         innerMargin.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         innerMargin.AddThemeConstantOverride("margin_left", 12);
@@ -190,20 +213,21 @@ public partial class CampaignSelect : Control
         UITheme.StyleLabel(nameLabel, UITheme.FontSizeLarge, UITheme.GetFactionColor(index));
         innerVBox.AddChild(nameLabel);
 
+        int missionCount = _campaigns[index]?.Missions.Count ?? 0;
         var missionLabel = new Label();
-        missionLabel.Text = $"({MissionCounts[index]} missions)";
+        missionLabel.Text = missionCount > 0 ? $"({missionCount} missions)" : "(coming soon)";
         missionLabel.HorizontalAlignment = HorizontalAlignment.Center;
         UITheme.StyleLabel(missionLabel, UITheme.FontSizeSmall, UITheme.TextSecondary);
         innerVBox.AddChild(missionLabel);
 
-        // Progress stars (placeholder — all empty for now)
+        // Progress stars (empty — progress tracking not yet implemented)
         var starsLabel = new Label();
         starsLabel.Text = "\u2606\u2606\u2606";
         starsLabel.HorizontalAlignment = HorizontalAlignment.Center;
         UITheme.StyleLabel(starsLabel, UITheme.FontSizeNormal, UITheme.TextMuted);
         innerVBox.AddChild(starsLabel);
 
-        // Make it clickable with a transparent button overlay
+        // Transparent click overlay
         var clickBtn = new Button();
         clickBtn.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         clickBtn.Flat = true;
@@ -215,25 +239,66 @@ public partial class CampaignSelect : Control
         return panel;
     }
 
+    // ── Selection ─────────────────────────────────────────────────────
+
     private void SelectFaction(int index)
     {
         _selectedFaction = index;
 
-        // Update card borders
         for (int i = 0; i < 6; i++)
         {
             _factionCards[i].AddThemeStyleboxOverride("panel",
                 UITheme.MakeFactionCard(UITheme.GetFactionColor(i), i == index));
         }
 
-        // Update detail panel
         _detailPanel.Visible = true;
-        _campaignTitle.Text = string.Format(Tr("CAMPAIGN_TITLE_FMT"), Tr(CampaignNameKeys[index]));
-        _campaignMissions.Text = string.Format(Tr("CAMPAIGN_MISSIONS_FMT"), MissionCounts[index]);
-        _campaignDesc.Text = $"\"{Tr(FactionDescriptionKeys[index])}\"";
-        _campaignCommander.Text = string.Format(Tr("CAMPAIGN_COMMANDER_FMT"), CommanderNames[index]);
-        _continueBtn.Text = string.Format(Tr("CAMPAIGN_CONTINUE"), 1); // Would track real progress
+
+        var campaign = _campaigns[index];
+        if (campaign is not null)
+        {
+            _campaignTitle.Text = campaign.CampaignName;
+            int count = campaign.Missions.Count;
+            _campaignMissions.Text = string.Format(Tr("CAMPAIGN_MISSIONS_FMT"), count);
+            _campaignDesc.Text = campaign.Description;
+            _campaignCommander.Text = string.Format(Tr("CAMPAIGN_COMMANDER_FMT"), campaign.Commander);
+
+            // Show first 3 mission names as preview
+            var preview = new System.Text.StringBuilder();
+            int shown = System.Math.Min(3, campaign.Missions.Count);
+            for (int m = 0; m < shown; m++)
+            {
+                var mission = campaign.Missions[m];
+                preview.Append($"M{mission.Number}: {mission.Name}");
+                if (m < shown - 1) preview.Append("  •  ");
+            }
+            if (campaign.Missions.Count > 3)
+                preview.Append($"  •  +{campaign.Missions.Count - 3} more...");
+            _campaignMissionList.Text = preview.ToString();
+        }
+        else
+        {
+            _campaignTitle.Text = UITheme.FactionNames[index];
+            _campaignMissions.Text = string.Empty;
+            _campaignDesc.Text = Tr(GetFactionDescKey(index));
+            _campaignCommander.Text = string.Empty;
+            _campaignMissionList.Text = string.Empty;
+        }
+
+        _continueBtn.Text = string.Format(Tr("CAMPAIGN_CONTINUE"), 1);
     }
+
+    private static string GetFactionDescKey(int index) => index switch
+    {
+        0 => "FACTION_DESC_VALKYR",
+        1 => "FACTION_DESC_KRAGMORE",
+        2 => "FACTION_DESC_BASTION",
+        3 => "FACTION_DESC_ARCLOFT",
+        4 => "FACTION_DESC_IRONMARCH",
+        5 => "FACTION_DESC_STORMREND",
+        _ => "GAME_TITLE"
+    };
+
+    // ── Button handlers ───────────────────────────────────────────────
 
     private void OnStartPressed()
     {

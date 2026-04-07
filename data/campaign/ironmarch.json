@@ -1,0 +1,174 @@
+{
+  "faction": "ironmarch",
+  "name": "Steel March",
+  "commander": "Marshal Volkov",
+  "description": "The Ironmarch Union advances behind walls of their own construction. Eight missions of engineering supremacy.",
+  "missions": [
+    {
+      "id": "ironmarch_01",
+      "number": 1,
+      "name": "Forward Deployment",
+      "briefing": "Establish a FOB in contested territory before any other faction can claim it.",
+      "map": "crossroads",
+      "player_faction": "ironmarch",
+      "enemy_factions": [
+        "stormrend"
+      ],
+      "objectives": [
+        "Deploy the FOB Truck",
+        "Build a forward base before turn 5",
+        "Destroy enemy scouts"
+      ],
+      "starting_cordite": 3000,
+      "ai_difficulty": 0,
+      "difficulty_label": "Easy",
+      "twist": ""
+    },
+    {
+      "id": "ironmarch_02",
+      "number": 2,
+      "name": "The Road to War",
+      "briefing": "Build a rapid road network to rush reinforcements to the front.",
+      "map": "iron_ridge",
+      "player_faction": "ironmarch",
+      "enemy_factions": [
+        "kragmore"
+      ],
+      "objectives": [
+        "Construct 3 Road sections",
+        "Deliver reinforcements to the front line",
+        "Break the Kragmore defensive line"
+      ],
+      "starting_cordite": 3500,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Kragmore will send Dozer units to destroy the roads — defend them."
+    },
+    {
+      "id": "ironmarch_03",
+      "number": 3,
+      "name": "Trench Warfare",
+      "briefing": "Valkyr air power is devastating Ironmarch advance units. Dig in and hold.",
+      "map": "dust_bowl",
+      "player_faction": "ironmarch",
+      "enemy_factions": [
+        "valkyr",
+        "bastion"
+      ],
+      "objectives": [
+        "Build 4 Fieldwork Walls",
+        "Hold the trench line for 12 minutes",
+        "Shoot down 6 Valkyr aircraft"
+      ],
+      "starting_cordite": 4000,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Bastion will probe from the south while Valkyr attacks from above."
+    },
+    {
+      "id": "ironmarch_04",
+      "number": 4,
+      "name": "The Siege Engine",
+      "briefing": "A Bastion city must fall. Deploy Juggernaut siege units and break the walls.",
+      "map": "iron_ridge",
+      "player_faction": "ironmarch",
+      "enemy_factions": [
+        "bastion",
+        "kragmore"
+      ],
+      "objectives": [
+        "Breach the Bastion outer wall",
+        "Destroy the Command Hub"
+      ],
+      "starting_cordite": 5000,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Kragmore will opportunistically attack Ironmarch's rear during the siege."
+    },
+    {
+      "id": "ironmarch_05",
+      "number": 5,
+      "name": "Sea Crossing",
+      "briefing": "Island resources require amphibious assault. Ironmarch must adapt.",
+      "map": "archipelago",
+      "player_faction": "ironmarch",
+      "enemy_factions": [
+        "bastion",
+        "valkyr"
+      ],
+      "objectives": [
+        "Land 5 combat units on the target island",
+        "Destroy the coastal fortress"
+      ],
+      "starting_cordite": 4500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Valkyr will strafe the landing zone — establish AA cover on the beach first."
+    },
+    {
+      "id": "ironmarch_06",
+      "number": 6,
+      "name": "Attrition",
+      "briefing": "Three factions converge. The supply lines must hold while the front advances.",
+      "map": "six_fronts",
+      "player_faction": "ironmarch",
+      "enemy_factions": [
+        "valkyr",
+        "kragmore",
+        "stormrend"
+      ],
+      "objectives": [
+        "Protect all Ironmarch supply lines",
+        "Advance to the central cordite node",
+        "Eliminate all enemy forward bases"
+      ],
+      "starting_cordite": 5500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Supply line trucks will be targeted — escort them at all times."
+    },
+    {
+      "id": "ironmarch_07",
+      "number": 7,
+      "name": "The Signal",
+      "briefing": "An Arcloft surveillance tower has been feeding Ironmarch positions to all enemies. Destroy it.",
+      "map": "crossroads",
+      "player_faction": "ironmarch",
+      "enemy_factions": [
+        "arcloft",
+        "stormrend"
+      ],
+      "objectives": [
+        "Destroy the Arcloft Aether Relay",
+        "Hold the communication blackout zone for 5 minutes"
+      ],
+      "starting_cordite": 4500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Without Arcloft surveillance, enemy factions will fight each other — exploit the chaos."
+    },
+    {
+      "id": "ironmarch_08",
+      "number": 8,
+      "name": "The Six Fronts",
+      "briefing": "The Ironmarch war machine has been built for one purpose: this moment. Take the Cordite Nexus.",
+      "map": "six_fronts",
+      "player_faction": "ironmarch",
+      "enemy_factions": [
+        "valkyr",
+        "kragmore",
+        "bastion",
+        "arcloft",
+        "stormrend"
+      ],
+      "objectives": [
+        "Establish a fortified perimeter around the Nexus",
+        "Destroy all enemy forces in the central zone"
+      ],
+      "starting_cordite": 6000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Ironmarch's walls can hold against multiple factions — use them to channel enemy attacks."
+    }
+  ]
+}

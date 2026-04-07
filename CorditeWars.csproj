@@ -11,4 +11,10 @@
   <ItemGroup>
     <Compile Remove="tests/**" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Steamworks.NET wraps the native steam_api64/libsteam_api native libs. -->
+    <!-- Compiles and runs safely when Steam is not installed; SteamManager gates all calls behind IsAvailable. -->
+    <PackageReference Include="Steamworks.NET" Version="20.2.0" />
+  </ItemGroup>
 </Project>
