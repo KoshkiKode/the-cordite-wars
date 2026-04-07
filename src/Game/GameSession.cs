@@ -15,6 +15,7 @@ using CorditeWars.Systems.Networking;
 using CorditeWars.Systems.Pathfinding;
 using CorditeWars.Systems.FogOfWar;
 using CorditeWars.Systems.Persistence;
+using CorditeWars.Systems.Platform;
 using CorditeWars.UI.HUD;
 using CorditeWars.UI.Input;
 
@@ -295,6 +296,15 @@ public partial class GameSession : Node
 
         CurrentMatchState = MatchState.Playing;
 
+        // Notify Steam of match start
+        if (SteamManager.Instance is { } steam && config.PlayerConfigs.Length > 0)
+        {
+            bool isMultiplayerSteam = config.PlayerConfigs.Length > 1 && !config.PlayerConfigs[1].IsAI;
+            bool hasAiOpponent     = config.PlayerConfigs.Length > 1 && config.PlayerConfigs[1].IsAI;
+            int  aiDiff            = hasAiOpponent ? config.PlayerConfigs[1].AIDifficulty : 0;
+            steam.OnMatchStarted(config.PlayerConfigs[0].FactionId, isMultiplayerSteam, hasAiOpponent, aiDiff);
+        }
+
         GD.Print("[GameSession] Match started successfully.");
     }
 
@@ -340,6 +350,19 @@ public partial class GameSession : Node
         // Shutdown multiplayer if active
         _lockstepManager?.Shutdown();
         _networkTransport?.Disconnect();
+
+        // Notify Steam: hard AI defeat achievement
+        if (SteamManager.Instance is { } steam && ActiveConfig is not null)
+        {
+            bool hasHardAI = ActiveConfig.PlayerConfigs.Length > 1
+                && ActiveConfig.PlayerConfigs[1].IsAI
+                && ActiveConfig.PlayerConfigs[1].AIDifficulty >= 2;
+            if (hasHardAI && winnerPlayerId == 1)
+                steam.OnHardAIDefeated();
+        }
+
+        // Signal through EventBus so listeners (Main.cs, VictoryScreen, etc.) can react
+        EventBus.Instance?.EmitMatchEnded();
 
         GD.Print($"[GameSession] Match ended — winner: {winnerPlayerId}, reason: {reason}");
     }

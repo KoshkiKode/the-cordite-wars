@@ -1,0 +1,173 @@
+{
+  "faction": "arcloft",
+  "name": "Silent Watch",
+  "commander": "Watcher Prime Idris",
+  "description": "The Arcloft Syndicate sees everything and is seen by none. Eight missions of surveillance, stealth, and precision strikes.",
+  "missions": [
+    {
+      "id": "arcloft_01",
+      "number": 1,
+      "name": "Eyes Open",
+      "briefing": "Establish a surveillance network across the contested zone before other factions realise what is happening.",
+      "map": "crossroads",
+      "player_faction": "arcloft",
+      "enemy_factions": [
+        "stormrend"
+      ],
+      "objectives": [
+        "Deploy 3 Aether Relay towers",
+        "Remain undetected for 8 minutes"
+      ],
+      "starting_cordite": 3000,
+      "ai_difficulty": 0,
+      "difficulty_label": "Easy",
+      "twist": ""
+    },
+    {
+      "id": "arcloft_02",
+      "number": 2,
+      "name": "Data Harvest",
+      "briefing": "Stormrend's communication infrastructure holds valuable intelligence. Extract it.",
+      "map": "dust_bowl",
+      "player_faction": "arcloft",
+      "enemy_factions": [
+        "stormrend"
+      ],
+      "objectives": [
+        "Capture the Stormrend signal tower",
+        "Extract the intelligence via Patch Drone"
+      ],
+      "starting_cordite": 3500,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Stormrend will detect the Patch Drone if it moves too slowly — keep it moving."
+    },
+    {
+      "id": "arcloft_03",
+      "number": 3,
+      "name": "The Ironmarch Files",
+      "briefing": "Ironmarch is building something secret. Arcloft reconnaissance reveals it must be destroyed.",
+      "map": "iron_ridge",
+      "player_faction": "arcloft",
+      "enemy_factions": [
+        "ironmarch",
+        "kragmore"
+      ],
+      "objectives": [
+        "Destroy the secret Ironmarch construction site",
+        "Escape before reinforcements arrive"
+      ],
+      "starting_cordite": 4000,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Ironmarch will call for Kragmore armour support if the attack takes longer than 8 minutes."
+    },
+    {
+      "id": "arcloft_04",
+      "number": 4,
+      "name": "Archipelago Silence",
+      "briefing": "Arcloft submarine units will cut naval communication cables between enemy island bases.",
+      "map": "archipelago",
+      "player_faction": "arcloft",
+      "enemy_factions": [
+        "kragmore",
+        "bastion"
+      ],
+      "objectives": [
+        "Deploy Phantom Submarines to cut 3 cable nodes",
+        "Avoid detection by enemy naval patrols"
+      ],
+      "starting_cordite": 4500,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Kragmore naval patrols will detect sonar pings — move submarines carefully between patrols."
+    },
+    {
+      "id": "arcloft_05",
+      "number": 5,
+      "name": "The Valkyr Gambit",
+      "briefing": "Valkyr is close to discovering Arcloft's network. A counter-intelligence operation must discredit them.",
+      "map": "crossroads",
+      "player_faction": "arcloft",
+      "enemy_factions": [
+        "valkyr",
+        "stormrend"
+      ],
+      "objectives": [
+        "Destroy 2 Valkyr Overwatch Drone towers",
+        "Plant false intelligence at the Valkyr HQ"
+      ],
+      "starting_cordite": 5000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Patch Drones can plant false intelligence but will be destroyed if detected."
+    },
+    {
+      "id": "arcloft_06",
+      "number": 6,
+      "name": "Eyes Everywhere",
+      "briefing": "Expand the Aether Relay network to cover all six faction territories simultaneously.",
+      "map": "six_fronts",
+      "player_faction": "arcloft",
+      "enemy_factions": [
+        "kragmore",
+        "bastion",
+        "valkyr"
+      ],
+      "objectives": [
+        "Establish relay coverage over all 6 spawn zones",
+        "Survive attacks from 3 factions for 15 minutes"
+      ],
+      "starting_cordite": 5500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Each faction will attempt to destroy Arcloft relays in their territory."
+    },
+    {
+      "id": "arcloft_07",
+      "number": 7,
+      "name": "Quantum Silence",
+      "briefing": "Activate the Quantum Detection Grid — which will blind all enemy surveillance permanently.",
+      "map": "iron_ridge",
+      "player_faction": "arcloft",
+      "enemy_factions": [
+        "valkyr",
+        "kragmore",
+        "bastion",
+        "ironmarch",
+        "stormrend"
+      ],
+      "objectives": [
+        "Build the Quantum Detection Grid",
+        "Survive until it activates (10 minutes)"
+      ],
+      "starting_cordite": 4000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "All factions will send forces to stop the Grid from activating — this is Arcloft's most dangerous operation."
+    },
+    {
+      "id": "arcloft_08",
+      "number": 8,
+      "name": "The Six Fronts",
+      "briefing": "Arcloft has seen everything. Now it is time to act. The Cordite Nexus must be seized — silently.",
+      "map": "six_fronts",
+      "player_faction": "arcloft",
+      "enemy_factions": [
+        "valkyr",
+        "kragmore",
+        "bastion",
+        "ironmarch",
+        "stormrend"
+      ],
+      "objectives": [
+        "Capture the Cordite Nexus without triggering a multi-faction coalition",
+        "Establish a Refinery before any other faction"
+      ],
+      "starting_cordite": 6000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "If Arcloft is seen capturing the Nexus by more than 2 factions simultaneously, all will attack."
+    }
+  ]
+}

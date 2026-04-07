@@ -1,0 +1,174 @@
+{
+  "faction": "stormrend",
+  "name": "Storm's Fury",
+  "commander": "Tempest Kael",
+  "description": "The Stormrend Accord strikes fast, disrupts everything, and vanishes before retaliation. Eight missions of lightning warfare.",
+  "missions": [
+    {
+      "id": "stormrend_01",
+      "number": 1,
+      "name": "First Lightning",
+      "briefing": "A Bastion patrol has spotted Stormrend raider teams. Strike before they can report back.",
+      "map": "dust_bowl",
+      "player_faction": "stormrend",
+      "enemy_factions": [
+        "bastion"
+      ],
+      "objectives": [
+        "Destroy the Bastion patrol",
+        "Remain undetected by the main base"
+      ],
+      "starting_cordite": 3000,
+      "ai_difficulty": 0,
+      "difficulty_label": "Easy",
+      "twist": ""
+    },
+    {
+      "id": "stormrend_02",
+      "number": 2,
+      "name": "Blitz Protocol",
+      "briefing": "Hit Ironmarch's forward logistics before they can dig in.",
+      "map": "crossroads",
+      "player_faction": "stormrend",
+      "enemy_factions": [
+        "ironmarch"
+      ],
+      "objectives": [
+        "Destroy all Ironmarch FOB Trucks",
+        "Hit and withdraw before the main Ironmarch force arrives"
+      ],
+      "starting_cordite": 3500,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Ironmarch Juggernauts will arrive at the 8-minute mark — be gone before then."
+    },
+    {
+      "id": "stormrend_03",
+      "number": 3,
+      "name": "Counter-Surveillance",
+      "briefing": "Arcloft drones track every Stormrend movement. Blind them.",
+      "map": "iron_ridge",
+      "player_faction": "stormrend",
+      "enemy_factions": [
+        "arcloft",
+        "ironmarch"
+      ],
+      "objectives": [
+        "Destroy 4 Arcloft Overwatch Drones",
+        "Disable the Aether Relay"
+      ],
+      "starting_cordite": 4000,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Arcloft will keep repositioning drones — track and destroy each one quickly."
+    },
+    {
+      "id": "stormrend_04",
+      "number": 4,
+      "name": "Storm the Beaches",
+      "briefing": "Stormrend raiders cross the sea to strike Bastion island fortresses.",
+      "map": "archipelago",
+      "player_faction": "stormrend",
+      "enemy_factions": [
+        "bastion",
+        "kragmore"
+      ],
+      "objectives": [
+        "Land Stormrend Riptide fast-attack craft",
+        "Destroy the island harbour",
+        "Withdraw before Kragmore naval reinforcements arrive"
+      ],
+      "starting_cordite": 4500,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Kragmore dreadnoughts arrive in 10 minutes — the mission must be complete by then."
+    },
+    {
+      "id": "stormrend_05",
+      "number": 5,
+      "name": "Surge and Fade",
+      "briefing": "Kragmore heavy columns are slow. Lead them into a kill zone and destroy them.",
+      "map": "iron_ridge",
+      "player_faction": "stormrend",
+      "enemy_factions": [
+        "kragmore",
+        "bastion"
+      ],
+      "objectives": [
+        "Destroy 3 Kragmore armour columns",
+        "Bait the columns into the canyon ambush",
+        "Keep losses below 30 units"
+      ],
+      "starting_cordite": 5000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Bastion will fortify the canyon exit — destroy their fortifications before leading Kragmore in."
+    },
+    {
+      "id": "stormrend_06",
+      "number": 6,
+      "name": "The Three-Way",
+      "briefing": "Three factions fight for the same resource deposit. Stormrend will take what they need and leave the others fighting over scraps.",
+      "map": "six_fronts",
+      "player_faction": "stormrend",
+      "enemy_factions": [
+        "ironmarch",
+        "arcloft",
+        "valkyr"
+      ],
+      "objectives": [
+        "Seize 3 Cordite nodes",
+        "Avoid triggering a coalition against Stormrend"
+      ],
+      "starting_cordite": 5000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Stormrend's speed is its survival — never stop moving."
+    },
+    {
+      "id": "stormrend_07",
+      "number": 7,
+      "name": "Tempest Rising",
+      "briefing": "Stormrend Thunderjaw walkers are ready for their first major deployment. Use them to break a fortified Bastion stronghold.",
+      "map": "iron_ridge",
+      "player_faction": "stormrend",
+      "enemy_factions": [
+        "bastion",
+        "ironmarch"
+      ],
+      "objectives": [
+        "Field 3 Thunderjaw walkers",
+        "Breach the Bastion citadel wall",
+        "Destroy the Command Hub"
+      ],
+      "starting_cordite": 5500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Thunderjaws are powerful but draw massive enemy fire — escort them with fast support units."
+    },
+    {
+      "id": "stormrend_08",
+      "number": 8,
+      "name": "The Six Fronts",
+      "briefing": "The Cordite Nexus will be taken by the fastest commander in the war. Tempest Kael leads Stormrend to total victory.",
+      "map": "six_fronts",
+      "player_faction": "stormrend",
+      "enemy_factions": [
+        "valkyr",
+        "kragmore",
+        "bastion",
+        "arcloft",
+        "ironmarch"
+      ],
+      "objectives": [
+        "Be first to destroy the Nexus defence turrets",
+        "Establish a Refinery on the Nexus before any other faction",
+        "Hold for 5 minutes"
+      ],
+      "starting_cordite": 6000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Speed is everything — Stormrend must reach the Nexus before enemies can block the approach."
+    }
+  ]
+}

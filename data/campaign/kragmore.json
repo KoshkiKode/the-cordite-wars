@@ -1,0 +1,190 @@
+{
+  "faction": "kragmore",
+  "name": "Crimson Tide",
+  "commander": "Warlord Grok",
+  "description": "The Kragmore Clans fight with industrial might and sheer numbers. Nine missions of grinding, relentless conquest.",
+  "missions": [
+    {
+      "id": "kragmore_01",
+      "number": 1,
+      "name": "The First Hammer",
+      "briefing": "A rival clan controls a rich Cordite deposit. Crush them.",
+      "map": "dust_bowl",
+      "player_faction": "kragmore",
+      "enemy_factions": [
+        "bastion"
+      ],
+      "objectives": [
+        "Destroy the enemy base"
+      ],
+      "starting_cordite": 3000,
+      "ai_difficulty": 0,
+      "difficulty_label": "Easy",
+      "twist": ""
+    },
+    {
+      "id": "kragmore_02",
+      "number": 2,
+      "name": "Iron Advance",
+      "briefing": "Bastion border fortifications block the advance. Bring them down.",
+      "map": "iron_ridge",
+      "player_faction": "kragmore",
+      "enemy_factions": [
+        "bastion"
+      ],
+      "objectives": [
+        "Breach the Bastion fortification line",
+        "Capture the ridge"
+      ],
+      "starting_cordite": 3500,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Bastion has pre-built defence networks — use artillery to break them before advancing."
+    },
+    {
+      "id": "kragmore_03",
+      "number": 3,
+      "name": "Sky Resistance",
+      "briefing": "Valkyr air support is protecting Bastion positions. The sky must be cleared.",
+      "map": "crossroads",
+      "player_faction": "kragmore",
+      "enemy_factions": [
+        "valkyr",
+        "bastion"
+      ],
+      "objectives": [
+        "Destroy all Valkyr aircraft",
+        "Capture the Cordite extraction site"
+      ],
+      "starting_cordite": 4000,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Anti-air units are essential — build flak nests early."
+    },
+    {
+      "id": "kragmore_04",
+      "number": 4,
+      "name": "The Sea Route",
+      "briefing": "Naval routes offer a surprise flank around Bastion defences.",
+      "map": "archipelago",
+      "player_faction": "kragmore",
+      "enemy_factions": [
+        "bastion",
+        "valkyr"
+      ],
+      "objectives": [
+        "Land forces on the southern peninsula",
+        "Destroy the coastal Bastion citadel"
+      ],
+      "starting_cordite": 4500,
+      "ai_difficulty": 1,
+      "difficulty_label": "Normal",
+      "twist": "Landing craft are vulnerable to air attack — escort them."
+    },
+    {
+      "id": "kragmore_05",
+      "number": 5,
+      "name": "Ironmarch Rival",
+      "briefing": "Ironmarch is competing for the same resource deposits. They must be driven out.",
+      "map": "dust_bowl",
+      "player_faction": "kragmore",
+      "enemy_factions": [
+        "ironmarch",
+        "bastion"
+      ],
+      "objectives": [
+        "Destroy all Ironmarch FOB positions",
+        "Secure all Cordite nodes"
+      ],
+      "starting_cordite": 5000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Ironmarch will attempt to dig in — attack before they establish supply lines."
+    },
+    {
+      "id": "kragmore_06",
+      "number": 6,
+      "name": "The Long Siege",
+      "briefing": "A massive Bastion citadel-city must fall. This will take patience and heavy ordnance.",
+      "map": "iron_ridge",
+      "player_faction": "kragmore",
+      "enemy_factions": [
+        "bastion",
+        "valkyr",
+        "ironmarch"
+      ],
+      "objectives": [
+        "Breach the outer walls",
+        "Destroy the Command Hub",
+        "Eliminate all defenders"
+      ],
+      "starting_cordite": 5500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Bastion will call for reinforcements from Valkyr and Ironmarch allies."
+    },
+    {
+      "id": "kragmore_07",
+      "number": 7,
+      "name": "Stormrend Ambush",
+      "briefing": "Stormrend has ambushed a Kragmore supply convoy. The ambushers must be hunted down.",
+      "map": "crossroads",
+      "player_faction": "kragmore",
+      "enemy_factions": [
+        "stormrend",
+        "arcloft"
+      ],
+      "objectives": [
+        "Protect the remaining convoy units",
+        "Destroy all Stormrend ambush forces"
+      ],
+      "starting_cordite": 3500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Stormrend units are fast and mobile — Kragmore's heavy armour must cut off escape routes."
+    },
+    {
+      "id": "kragmore_08",
+      "number": 8,
+      "name": "The Arcloft Network",
+      "briefing": "Arcloft's surveillance grid has exposed Kragmore movements to all enemies. Destroy it.",
+      "map": "six_fronts",
+      "player_faction": "kragmore",
+      "enemy_factions": [
+        "arcloft",
+        "stormrend"
+      ],
+      "objectives": [
+        "Destroy all Arcloft Aether Relays",
+        "Secure the intelligence cache"
+      ],
+      "starting_cordite": 5000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Arcloft will detect and counter-attack any force that approaches the relays."
+    },
+    {
+      "id": "kragmore_09",
+      "number": 9,
+      "name": "The Six Fronts",
+      "briefing": "The Cordite Nexus — the largest deposit ever found. Kragmore tanks will crush any who stand in the way.",
+      "map": "six_fronts",
+      "player_faction": "kragmore",
+      "enemy_factions": [
+        "valkyr",
+        "bastion",
+        "arcloft",
+        "ironmarch",
+        "stormrend"
+      ],
+      "objectives": [
+        "Be first to establish a Refinery on the Cordite Nexus",
+        "Hold the Nexus for 10 minutes"
+      ],
+      "starting_cordite": 6000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "All factions converge. Kragmore's edge is sheer firepower — use it."
+    }
+  ]
+}
