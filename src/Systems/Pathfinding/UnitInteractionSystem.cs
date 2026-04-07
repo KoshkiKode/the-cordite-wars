@@ -122,6 +122,9 @@ public struct SimUnit
 
     /// <summary>Broad unit classification (Infantry, Tank, Helicopter, etc.).</summary>
     public UnitCategory Category;
+
+    /// <summary>Vision range in grid cells. Used by the fog-of-war system.</summary>
+    public FixedPoint SightRange;
 }
 
 /// <summary>
@@ -783,9 +786,10 @@ public class UnitInteractionSystem
         }
 
         // 8c. Update fog of war / vision
-        // TODO: Call VisionSystem.UpdateVision(units, terrain) when implemented.
-        // VisionSystem will use unit positions and sight ranges to update
-        // the fog of war grid for each player.
+        // Vision updates are handled by GameSession after ProcessTick returns,
+        // using VisionSystem.UpdateVision() on each player's FogGrid.
+        // This keeps FogGrid[] ownership in GameSession while maintaining
+        // deterministic tick ordering (vision runs after cleanup every tick).
 
         // 8d. Build and return TickResult
         // Deduplicate destroyed IDs (a unit could appear multiple times if

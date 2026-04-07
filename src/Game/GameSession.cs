@@ -12,6 +12,7 @@ using UnnamedRTS.Game.Units;
 using UnnamedRTS.Game.World;
 using UnnamedRTS.Systems.Networking;
 using UnnamedRTS.Systems.Pathfinding;
+using UnnamedRTS.Systems.FogOfWar;
 using UnnamedRTS.Systems.Persistence;
 using UnnamedRTS.UI.HUD;
 using UnnamedRTS.UI.Input;
@@ -69,6 +70,13 @@ public partial class GameSession : Node
     private FormationManager? _formationManager;
     private CombatResolver? _combatResolver;
     private UnitInteractionSystem? _unitInteractionSystem;
+
+    // ── Fog of War / Vision ─────────────────────────────────────────
+
+    private VisionSystem? _visionSystem;
+    private FogGrid[]? _playerFogs;
+    private FogSnapshot[]? _playerFogSnapshots;
+    private readonly List<VisionComponent> _visionComponents = new();
 
     // ── Camera ──────────────────────────────────────────────────────
 
@@ -193,6 +201,27 @@ public partial class GameSession : Node
             _techTreeManager.AddPlayer(pc.PlayerId, pc.FactionId);
         }
 
+        // g2. Initialize fog of war (after terrain and players are set up)
+        if (config.FogOfWar && _terrainGrid != null)
+        {
+            _visionSystem = new VisionSystem();
+            _playerFogs = new FogGrid[config.PlayerConfigs.Length];
+            _playerFogSnapshots = new FogSnapshot[config.PlayerConfigs.Length];
+
+            for (int i = 0; i < config.PlayerConfigs.Length; i++)
+            {
+                _playerFogs[i] = new FogGrid(
+                    _terrainGrid.Width,
+                    _terrainGrid.Height,
+                    config.PlayerConfigs[i].PlayerId,
+                    FogMode.Skirmish);
+                _playerFogSnapshots[i] = new FogSnapshot();
+            }
+
+            GD.Print($"[GameSession] Fog of war initialized for {config.PlayerConfigs.Length} players " +
+                     $"({_terrainGrid.Width}x{_terrainGrid.Height} grid).");
+        }
+
         // h. Place starting buildings (HQ per player at starting positions)
         PlaceStartingBuildings(config);
 
@@ -308,6 +337,7 @@ public partial class GameSession : Node
             var unit = new SimUnit
             {
                 UnitId = node.UnitId,
+                PlayerId = node.PlayerId,
                 
                 Movement = new MovementState
                 {
@@ -316,7 +346,9 @@ public partial class GameSession : Node
                 },
                 // Wait: PlayerId, MaxHealth, Profile, etc. are needed.
                 // We'll map them from UnitNode.
-                Health = node.Health
+                Health = node.Health,
+                SightRange = node.SightRange,
+                Category = node.Category
             };
             
             // Note: Since UnitNode3D lacks some fields directly (like PlayerId instead of FactionId, MaxHealth, Profile),
@@ -348,6 +380,76 @@ public partial class GameSession : Node
         {
             // GD.Print("PEW PEW!");
         }
+
+        // 4. Update fog of war / vision
+        UpdateFogOfWar(simUnits, currentTick);
+    }
+
+    /// <summary>
+    /// Updates fog of war for all players using current unit positions.
+    /// Called at the end of each simulation tick, after combat and cleanup.
+    /// </summary>
+    private void UpdateFogOfWar(List<SimUnit> simUnits, ulong currentTick)
+    {
+        if (_visionSystem == null || _playerFogs == null || _terrainGrid == null)
+            return;
+
+        // Build VisionComponent list from surviving SimUnits
+        _visionComponents.Clear();
+        for (int i = 0; i < simUnits.Count; i++)
+        {
+            SimUnit su = simUnits[i];
+            if (!su.IsAlive) continue;
+
+            bool isAir = su.Category == UnitCategory.Helicopter ||
+                         su.Category == UnitCategory.Jet;
+
+            _visionComponents.Add(new VisionComponent
+            {
+                UnitId = su.UnitId,
+                PlayerId = su.PlayerId,
+                Position = su.Movement.Position,
+                SightRange = su.SightRange,
+                Height = _terrainGrid.GetHeight(su.Movement.Position),
+                IsAirUnit = isAir
+            });
+        }
+
+        // Update vision for each player's fog grid
+        for (int p = 0; p < _playerFogs.Length; p++)
+        {
+            _visionSystem.UpdateVision(_playerFogs[p], _terrainGrid, _visionComponents);
+        }
+    }
+
+    /// <summary>
+    /// Returns the fog grid for the given player, or null if fog of war is disabled.
+    /// </summary>
+    public FogGrid? GetPlayerFog(int playerId)
+    {
+        if (_playerFogs == null) return null;
+
+        for (int i = 0; i < _playerFogs.Length; i++)
+        {
+            if (_playerFogs[i].PlayerId == playerId)
+                return _playerFogs[i];
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Returns the fog snapshot for the given player, or null if fog of war is disabled.
+    /// </summary>
+    public FogSnapshot? GetPlayerFogSnapshot(int playerId)
+    {
+        if (_playerFogSnapshots == null) return null;
+
+        for (int i = 0; i < _playerFogSnapshots.Length; i++)
+        {
+            if (_playerFogs != null && _playerFogs[i].PlayerId == playerId)
+                return _playerFogSnapshots[i];
+        }
+        return null;
     }
 
     /// <summary>
@@ -1095,6 +1197,10 @@ public partial class GameSession : Node
         _buildingPlacer = null;
         _gameHUD = null;
         _skirmishAIs.Clear();
+        _visionSystem = null;
+        _playerFogs = null;
+        _playerFogSnapshots = null;
+        _visionComponents.Clear();
 
         CurrentMatchState = MatchState.Setup;
     }
