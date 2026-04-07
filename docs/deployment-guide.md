@@ -35,8 +35,10 @@ This guide covers deploying your game to all major platforms and distribution ch
 #### Prerequisites
 
 1. **Steamworks account** — create at https://partner.steamgames.com/ ($100 one-time fee)
-2. **App ID** — assigned by Valve after app creation; replace `YOUR_STEAM_APP_ID` in
-   `steam/app-build.vdf` and the `steam_appid.txt` file in the repo root.
+2. **App ID** — assigned by Valve after app creation.  You must update **three** places:
+   - `steam_appid.txt` in the repo root (currently `480` — the Valve "Space War" test app)
+   - `steam/app-build.vdf` — replace `YOUR_STEAM_APP_ID`
+   - GitHub secret `STEAM_APP_ID` (see table below)
 3. **Depot IDs** — Valve assigns one depot per platform; update
    `steam/windows-depot.vdf`, `steam/linux-depot.vdf`, `steam/macos-depot.vdf`.
 

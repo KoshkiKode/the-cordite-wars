@@ -56,6 +56,13 @@ file sealed class AchievementFile
 /// notarisation runners, Android, iOS).  All public methods are safe to call
 /// even when Steam is unavailable — they simply no-op and return <c>false</c>.
 /// </para>
+///
+/// <para>
+/// <b>⚠ Pre-release action required</b>: <c>steam_appid.txt</c> currently
+/// contains <c>480</c> (the Valve "Space War" test app).  Replace it with the
+/// real Steamworks App ID before shipping, and update the depot IDs in
+/// <c>steam/app-build.vdf</c> and the individual depot VDF files.
+/// </para>
 /// </summary>
 public sealed partial class SteamManager : Node
 {
@@ -68,11 +75,18 @@ public sealed partial class SteamManager : Node
     /// <summary>True only when the Steamworks API initialised successfully.</summary>
     public bool IsAvailable { get; private set; }
 
+    /// <summary>True while the Steam overlay is open (e.g. Shift+Tab).</summary>
+    public bool IsOverlayActive { get; private set; }
+
     private readonly Dictionary<string, AchievementDefinition> _achievements = new();
 
     // Stat counters persisted each time they change
     private int _totalMatchesPlayed;
     private int _totalUnitsDestroyed;
+
+    // Steam callbacks — kept alive for the lifetime of this node
+    private Callback<UserStatsReceived_t>?    _userStatsReceivedCallback;
+    private Callback<GameOverlayActivated_t>? _overlayActivatedCallback;
 
     // ── Godot lifecycle ──────────────────────────────────────────────
 
@@ -92,6 +106,11 @@ public sealed partial class SteamManager : Node
 
     public override void _ExitTree()
     {
+        _userStatsReceivedCallback?.Dispose();
+        _userStatsReceivedCallback = null;
+        _overlayActivatedCallback?.Dispose();
+        _overlayActivatedCallback = null;
+
         if (IsAvailable)
             ShutdownSteam();
 
@@ -250,15 +269,77 @@ public sealed partial class SteamManager : Node
         {
             IsAvailable = SteamAPI.Init();
             if (!IsAvailable)
+            {
                 GD.Print("[Steam] SteamAPI.Init() returned false — Steam not running or steam_appid.txt missing.");
-            else
-                GD.Print($"[Steam] Initialized. AppId: {SteamUtils.GetAppID()}");
+                return;
+            }
+
+            GD.Print($"[Steam] Initialized. AppId: {SteamUtils.GetAppID()}");
+
+            // Register persistent callbacks before requesting stats so the
+            // UserStatsReceived_t handler fires as soon as Steam responds.
+            RegisterCallbacks();
+            RequestCurrentStatsNative();
         }
         catch (Exception ex)
         {
             IsAvailable = false;
             GD.Print($"[Steam] Steamworks unavailable on this platform: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Registers persistent broadcast callbacks.  Must be called once, after
+    /// <see cref="SteamAPI.Init"/> succeeds, and before the first
+    /// <see cref="SteamAPI.RunCallbacks"/> tick.
+    /// </summary>
+    private void RegisterCallbacks()
+    {
+        try
+        {
+            _userStatsReceivedCallback = Callback<UserStatsReceived_t>.Create(OnUserStatsReceived);
+            _overlayActivatedCallback  = Callback<GameOverlayActivated_t>.Create(OnGameOverlayActivated);
+            GD.Print("[Steam] Callbacks registered.");
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] Failed to register callbacks: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Fires when Steam has delivered the current stats and achievement
+    /// state to the client.  We restore the in-memory counters here so
+    /// subsequent stat increments start from the correct baseline.
+    /// </summary>
+    private void OnUserStatsReceived(UserStatsReceived_t result)
+    {
+        if (result.m_eResult != EResult.k_EResultOK)
+        {
+            GD.PushWarning($"[Steam] UserStatsReceived failed: {result.m_eResult}");
+            return;
+        }
+
+        try
+        {
+            SteamUserStats.GetStat("MATCHES_PLAYED",  out _totalMatchesPlayed);
+            SteamUserStats.GetStat("UNITS_DESTROYED", out _totalUnitsDestroyed);
+            GD.Print($"[Steam] Stats loaded — Matches: {_totalMatchesPlayed}, Units destroyed: {_totalUnitsDestroyed}");
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] Failed to load stats from Steam: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Fires whenever the Steam overlay is opened or closed (e.g. Shift+Tab).
+    /// Callers can read <see cref="IsOverlayActive"/> to pause input handling.
+    /// </summary>
+    private void OnGameOverlayActivated(GameOverlayActivated_t result)
+    {
+        IsOverlayActive = result.m_bActive != 0;
+        GD.Print($"[Steam] Overlay {(IsOverlayActive ? "opened" : "closed")}.");
     }
 
     private static void RunCallbacks()
@@ -347,6 +428,19 @@ public sealed partial class SteamManager : Node
         }
     }
 
+    private static void RequestCurrentStatsNative()
+    {
+        try
+        {
+            bool ok = SteamUserStats.RequestCurrentStats();
+            GD.Print($"[Steam] RequestCurrentStats sent: {ok}");
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] RequestCurrentStats error: {ex.Message}");
+        }
+    }
+
     // ── Convenience helpers used by GameSession ──────────────────────
 
     /// <summary>
@@ -387,7 +481,10 @@ public sealed partial class SteamManager : Node
         };
 
         if (!string.IsNullOrEmpty(factionAchievement))
+        {
             UnlockAchievement(factionAchievement);
+            CheckWinAllFactions();
+        }
 
         if (isMultiplayer)
             UnlockAchievement("WIN_MULTIPLAYER");
@@ -399,6 +496,37 @@ public sealed partial class SteamManager : Node
             UnlockAchievement("MATCH_UNDER_10_MIN");
 
         ClearRichPresence();
+    }
+
+    /// <summary>
+    /// Unlocks <c>WIN_ALL_FACTIONS</c> once the player has won at least one
+    /// match with each of the six factions.  Uses the per-faction achievements
+    /// as the source of truth so no extra stat is needed.
+    /// </summary>
+    private void CheckWinAllFactions()
+    {
+        if (!IsAvailable) return;
+
+        try
+        {
+            string[] perFactionIds =
+            {
+                "WIN_AS_ARCLOFT", "WIN_AS_VALKYR", "WIN_AS_KRAGMORE",
+                "WIN_AS_BASTION", "WIN_AS_IRONMARCH", "WIN_AS_STORMREND"
+            };
+
+            foreach (string id in perFactionIds)
+            {
+                if (!SteamUserStats.GetAchievement(id, out bool achieved) || !achieved)
+                    return;
+            }
+
+            UnlockAchievement("WIN_ALL_FACTIONS");
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[Steam] CheckWinAllFactions error: {ex.Message}");
+        }
     }
 
     /// <summary>
