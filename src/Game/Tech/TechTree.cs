@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Game.Buildings;
-using UnnamedRTS.Game.Economy;
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
+using CorditeWars.Game.Buildings;
+using CorditeWars.Game.Economy;
 
-namespace UnnamedRTS.Game.Tech;
+namespace CorditeWars.Game.Tech;
 
 /// <summary>
 /// Per-player tech state: tracks constructed buildings, completed upgrades,

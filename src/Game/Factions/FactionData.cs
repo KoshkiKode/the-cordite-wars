@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Game.Factions;
+namespace CorditeWars.Game.Factions;
 
 /// <summary>
 /// High-level play-style archetype for a faction.

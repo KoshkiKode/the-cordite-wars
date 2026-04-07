@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Game.Economy;
+namespace CorditeWars.Game.Economy;
 
 /// <summary>
 /// Static per-faction economic modifiers. All simulation values use FixedPoint.

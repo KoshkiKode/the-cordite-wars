@@ -1,12 +1,12 @@
 using Godot;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Game.Factions;
-using UnnamedRTS.Game.Tech;
-using UnnamedRTS.Game.World;
-using UnnamedRTS.Systems.Audio;
-using UnnamedRTS.Systems.Graphics;
+using CorditeWars.Game.Assets;
+using CorditeWars.Game.Factions;
+using CorditeWars.Game.Tech;
+using CorditeWars.Game.World;
+using CorditeWars.Systems.Audio;
+using CorditeWars.Systems.Graphics;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Progress bar loading screen. Loads all registries in sequence,

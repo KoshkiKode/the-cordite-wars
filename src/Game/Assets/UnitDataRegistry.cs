@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Factions;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Factions;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.Game.Assets;
+namespace CorditeWars.Game.Assets;
 
 /// <summary>
 /// Registry that loads all unit JSON files from <c>data/units/</c> and provides

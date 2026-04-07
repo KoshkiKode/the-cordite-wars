@@ -1,6 +1,8 @@
 using Godot;
+using UnnamedRTS.UI;
+using UnnamedRTS.UI.Input;
 
-namespace UnnamedRTS.Core;
+namespace CorditeWars.Core;
 
 /// <summary>
 /// Boot scene script. Runs once at application start.
@@ -27,6 +29,11 @@ public partial class BootLoader : Node
             GetTree().Quit(1);
             return;
         }
+
+        // Initialize accessibility & keybind systems (settings loaded from disk)
+        _ = new KeybindManager();
+        _ = new AccessibilitySettings();
+        GD.Print("[Boot] Accessibility and keybind systems initialized.");
 
         GD.Print("[Boot] All core systems initialized.");
         GD.Print("[Boot] Transitioning to splash screen...");

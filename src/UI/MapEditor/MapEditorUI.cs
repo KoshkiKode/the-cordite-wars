@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Game.World;
+using CorditeWars.Game.World;
 
-namespace UnnamedRTS.UI.MapEditor;
+namespace CorditeWars.UI.MapEditor;
 
 /// <summary>
 /// UI overlay for the map editor. Provides:

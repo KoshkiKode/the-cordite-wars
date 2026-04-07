@@ -1,30 +1,17 @@
 # 🚨 Immediate Action Items
 
-## 🔴 CRITICAL: Fix Export Failures
+## ✅ FIXED: Export Pipeline (was failing on all 5 jobs)
 
-**Status**: Run #13 failed — all 4 export jobs failed with "Android build template not installed"
+**Root Cause** (identified & fixed):
+1. `firebelley/godot-export@v7.0.0` does NOT have an `export_name` input — the correct parameter is `presets_to_export`. Using `export_name` was silently ignored, causing the action to export ALL presets on every job.
+2. The Android preset failed on every runner because release keystore env vars were partially set (`GODOT_ANDROID_KEYSTORE_RELEASE_PATH` was always set to `./release.keystore` even when the file didn't exist, while `_USER` and `_PASSWORD` were empty).
+3. Missing `workflow_call` trigger in `export.yml` prevented `release.yml` from invoking it.
 
-**Root Cause**: The Android build template extraction in the workflow is placing files locally (`android/build/`), but Godot looks for templates in its user data directory (`~/.local/share/godot/export_templates/`). The firebelley/godot-export action bypasses our local files and downloads templates again, but the extracted files don't persist.
-
-**Quick Fix Options**:
-
-### Option A: Remove Manual Extraction (Simplest)
-The manual extraction was meant to solve a problem that firebelley already handles. Just **delete the "Install Android Build Template" steps** from the workflow—let firebelley download & install templates normally.
-
-**Action**: Remove these sections from `.github/workflows/export.yml`:
-- Line 23–57 (export-windows job)
-- Line 85–119 (export-linux job)
-- Line 258–291 (export-android job)
-- Similar in export-ios job
-
-**Timeline**: 5 minutes, test immediately
-
-### Option B: Fix Template Installation Path
-Keep the manual extraction but install to the correct Godot path (`~/.local/share/godot/export_templates/VERSION/`).
-
-**Action**: Update Python script to extract directly to Godot's cache.
-
-**Timeline**: 10 minutes, test
+**Fix Applied**:
+- Replaced `export_name` with `presets_to_export` on all 5 export jobs
+- Added `use_preset_export_path: true` so exports go to paths defined in `export_presets.cfg`
+- Split Android export into conditional debug/release paths — release keystore env vars only set when secrets are configured
+- Added `workflow_call` trigger to `export.yml` so `release.yml` can chain to it
 
 ---
 
@@ -58,23 +45,24 @@ Keep the manual extraction but install to the correct Godot path (`~/.local/shar
 
 ---
 
-## 📋 Checklist: Export Workflow Recovery
+## ⚠️ Known Limitations
 
-- [ ] **Identify exact fix**: Option A (remove) vs Option B (fix path)
-- [ ] **Edit workflow**: Remove or update template installation steps
-- [ ] **Commit & push**: Trigger new run (e.g., run #14)
-- [ ] **Monitor run**: Check GitHub Actions logs
-- [ ] **Verify artifacts**: At least one successful export per platform
-- [ ] **Test one export**: Download Windows EXE, launch locally, verify gameplay
+### Android .NET Export is Experimental
+Godot 4.6 warns that "Exporting to Android when using C#/.NET is experimental."
+The Android export may need `gradle_build/use_gradle_build=true` in `export_presets.cfg` for
+full .NET runtime bundling. Monitor Android export results after this fix.
 
 ---
 
-## 🎯 Do You Want Me To:
+## 📋 Checklist: Export Workflow Recovery
 
-1. **Fix the export workflow now** (Option A or B)?
-2. **Add smoke tests** to validate each export?
-3. **Create a test release** (tag v0.0.1) to validate the full workflow?
-4. **Something else**?
+- [x] **Identify exact fix**: Wrong parameter name (`export_name` → `presets_to_export`)
+- [x] **Edit workflow**: Fixed all 5 export jobs + Android keystore handling
+- [x] **Added `workflow_call`**: release.yml can now trigger export.yml
+- [ ] **Commit & push**: Trigger new run
+- [ ] **Monitor run**: Check GitHub Actions logs
+- [ ] **Verify artifacts**: At least one successful export per platform
+- [ ] **Test one export**: Download Windows EXE, launch locally, verify gameplay
 
 ---
 

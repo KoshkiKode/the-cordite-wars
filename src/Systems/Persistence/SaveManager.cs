@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Systems.Persistence;
+namespace CorditeWars.Systems.Persistence;
 
 /// <summary>
 /// Custom JSON converter that serializes FixedPoint as its raw int value (lossless).

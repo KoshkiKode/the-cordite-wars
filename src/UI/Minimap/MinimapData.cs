@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Systems.Pathfinding;
-using UnnamedRTS.Systems.FogOfWar;
+using CorditeWars.Core;
+using CorditeWars.Systems.Pathfinding;
+using CorditeWars.Systems.FogOfWar;
 
-namespace UnnamedRTS.UI.Minimap;
+namespace CorditeWars.UI.Minimap;
 
 /// <summary>
 /// Blip categories rendered on the minimap entity overlay.

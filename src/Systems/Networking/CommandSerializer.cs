@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Systems.Networking;
+namespace CorditeWars.Systems.Networking;
 
 /// <summary>
 /// Binary serialization for GameCommand subclasses and checksum packets.

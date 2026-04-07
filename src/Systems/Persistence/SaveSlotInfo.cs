@@ -1,4 +1,4 @@
-namespace UnnamedRTS.Systems.Persistence;
+namespace CorditeWars.Systems.Persistence;
 
 /// <summary>
 /// Metadata for a save slot displayed in the load-game UI.

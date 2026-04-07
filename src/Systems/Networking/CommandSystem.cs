@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Systems.Networking;
+namespace CorditeWars.Systems.Networking;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COMMAND SYSTEM — Deterministic command queue for lockstep networking

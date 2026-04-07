@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Buildings;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Buildings;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.Game.Economy;
+namespace CorditeWars.Game.Economy;
 
 /// <summary>
 /// Per-player resource state: Cordite, Voltaic Charge, and supply.

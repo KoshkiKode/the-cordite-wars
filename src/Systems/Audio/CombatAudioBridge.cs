@@ -1,8 +1,8 @@
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.Systems.Audio;
+namespace CorditeWars.Systems.Audio;
 
 /// <summary>
 /// Listens to combat events on the <see cref="EventBus"/> and plays

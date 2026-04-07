@@ -1,12 +1,12 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Game.Economy;
-using UnnamedRTS.Game.Tech;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
+using CorditeWars.Game.Economy;
+using CorditeWars.Game.Tech;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.Game.Buildings;
+namespace CorditeWars.Game.Buildings;
 
 /// <summary>
 /// Per-building production queue. Max 5 units. Ticks progress deterministically

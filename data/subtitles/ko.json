@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "ko",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "사령관 착임. 전 유닛, 상태 보고.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "전투 개시. 기지를 건설하고 코다이트 노드를 확보하십시오.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "경고! 아군 기지가 공격받고 있습니다!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "유닛 생산 완료. 배치 준비 완료.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "건설 완료.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "코다이트 부족. 자원 노드를 추가 확보하십시오.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "업그레이드 연구 완료. 새로운 기능 활성화.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "모든 적군 제거. 승리입니다!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "아군 기지가 파괴되었습니다. 작전 실패.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "코다이트 노드 고갈. 수확기를 재배치하십시오.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "적 발견! 적 부대 탐지.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "증원 도착 중. 위치를 사수하십시오.",
+      "duration": 2.5
+    }
+  }
+}

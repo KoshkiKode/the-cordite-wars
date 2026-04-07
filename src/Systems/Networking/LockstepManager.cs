@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Systems.Networking;
+namespace CorditeWars.Systems.Networking;
 
 /// <summary>
 /// Core lockstep protocol coordinator. Manages command synchronization,

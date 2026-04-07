@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.UI;
+namespace CorditeWars.UI;
 
 /// <summary>
 /// Boot splash: "CORDITE WARS / SIX FRONTS" logo fade-in, hold, fade-out.
@@ -45,14 +45,14 @@ public partial class SplashScreen : Control
 
         // Title: CORDITE WARS
         var title = new Label();
-        title.Text = "CORDITE WARS";
+        title.Text = Tr("GAME_TITLE");
         title.HorizontalAlignment = HorizontalAlignment.Center;
         UITheme.StyleLabel(title, UITheme.FontSizeTitle, UITheme.Accent);
         center.AddChild(title);
 
         // Decorative separator
         var sep = new Label();
-        sep.Text = "\u2500\u2500\u2500  SIX FRONTS  \u2500\u2500\u2500";
+        sep.Text = "\u2500\u2500\u2500  " + Tr("GAME_SUBTITLE") + "  \u2500\u2500\u2500";
         sep.HorizontalAlignment = HorizontalAlignment.Center;
         UITheme.StyleLabel(sep, UITheme.FontSizeSubtitle, UITheme.TextSecondary);
         center.AddChild(sep);

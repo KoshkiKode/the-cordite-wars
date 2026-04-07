@@ -1,7 +1,7 @@
 using Godot;
-using UnnamedRTS.Systems.Graphics;
+using CorditeWars.Systems.Graphics;
 
-namespace UnnamedRTS.Game.VFX;
+namespace CorditeWars.Game.VFX;
 
 /// <summary>
 /// Creates programmatic particle effects using GpuParticles3D + ParticleProcessMaterial.

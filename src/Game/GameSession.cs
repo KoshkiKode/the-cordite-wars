@@ -1,24 +1,24 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.AI;
-using UnnamedRTS.Game.Assets;
-using UnnamedRTS.Game.Buildings;
-using UnnamedRTS.Game.Camera;
-using UnnamedRTS.Game.Economy;
-using UnnamedRTS.Game.Tech;
-using UnnamedRTS.Game.Units;
-using UnnamedRTS.Game.World;
-using UnnamedRTS.Systems.Audio;
-using UnnamedRTS.Systems.Networking;
-using UnnamedRTS.Systems.Pathfinding;
-using UnnamedRTS.Systems.FogOfWar;
-using UnnamedRTS.Systems.Persistence;
-using UnnamedRTS.UI.HUD;
-using UnnamedRTS.UI.Input;
+using CorditeWars.Core;
+using CorditeWars.Game.AI;
+using CorditeWars.Game.Assets;
+using CorditeWars.Game.Buildings;
+using CorditeWars.Game.Camera;
+using CorditeWars.Game.Economy;
+using CorditeWars.Game.Tech;
+using CorditeWars.Game.Units;
+using CorditeWars.Game.World;
+using CorditeWars.Systems.Audio;
+using CorditeWars.Systems.Networking;
+using CorditeWars.Systems.Pathfinding;
+using CorditeWars.Systems.FogOfWar;
+using CorditeWars.Systems.Persistence;
+using CorditeWars.UI.HUD;
+using CorditeWars.UI.Input;
 
-namespace UnnamedRTS.Game;
+namespace CorditeWars.Game;
 
 /// <summary>
 /// Match state for tracking the session lifecycle.
@@ -142,8 +142,19 @@ public partial class GameSession : Node
 
         // a. Load the map
         LoadRegistries();
-        ActiveMap = _mapLoader.GetMap(config.MapId);
-        EventBus.Instance?.EmitMapLoaded(config.MapId);
+        if (config.MapGeneration is not null)
+        {
+            var generator = new MapGenerator();
+            var generated = generator.Generate(config.MapGeneration);
+            _mapLoader.RegisterMap(generated);
+            ActiveMap = generated;
+            GD.Print($"[GameSession] Using generated map '{generated.Id}'.");
+        }
+        else
+        {
+            ActiveMap = _mapLoader.GetMap(config.MapId);
+        }
+        EventBus.Instance?.EmitMapLoaded(ActiveMap.Id);
 
         // b. Create EconomyManager
         _economyManager = new EconomyManager();

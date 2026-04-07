@@ -1,11 +1,11 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Economy;
-using UnnamedRTS.Game.World;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Game.Economy;
+using CorditeWars.Game.World;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Game.Buildings;
+namespace CorditeWars.Game.Buildings;
 
 /// <summary>
 /// Ghost preview and placement validation for building construction.

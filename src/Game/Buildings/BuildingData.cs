@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.Game.Buildings;
+namespace CorditeWars.Game.Buildings;
 
 /// <summary>
 /// Broad building classification. Drives build-menu grouping,

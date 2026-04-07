@@ -4,6 +4,7 @@ on:
   push:
     branches: ["main"]
   workflow_dispatch:
+  workflow_call:
 
 env:
   GODOT_VERSION: "4.6.2-stable"
@@ -53,7 +54,7 @@ jobs:
           check_file src/Systems/Audio/AudioManager.cs
 
           # C# project
-          check_file UnnamedRTS.csproj
+          check_file CorditeWars.csproj
 
           # Platform packaging assets
           check_file versions/windows/inno-setup.iss
@@ -116,7 +117,8 @@ jobs:
           relative_project_path: ./
           archive_output: false
           export_debug: false
-          export_name: Windows Desktop
+          use_preset_export_path: true
+          presets_to_export: "Windows Desktop"
 
       - name: Verify Windows export
         run: |
@@ -239,7 +241,8 @@ jobs:
           relative_project_path: ./
           archive_output: false
           export_debug: false
-          export_name: Linux/X11
+          use_preset_export_path: true
+          presets_to_export: "Linux/X11"
 
       - name: Verify Linux export
         run: |
@@ -327,13 +330,16 @@ jobs:
             -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
 
       - name: Prepare release keystore
+        id: release_keystore
         env:
           ANDROID_RELEASE_KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
         run: |
           if [ -n "$ANDROID_RELEASE_KEYSTORE_B64" ]; then
             echo "$ANDROID_RELEASE_KEYSTORE_B64" | base64 --decode > release.keystore
+            echo "has_release_keystore=true" >> "$GITHUB_OUTPUT"
             echo "Release keystore ready — APK will be release-signed."
           else
+            echo "has_release_keystore=false" >> "$GITHUB_OUTPUT"
             echo "No release keystore secret set — APK will use debug signing."
           fi
 
@@ -344,7 +350,8 @@ jobs:
             "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" \
             > ~/.config/godot/editor_settings-4.tres
 
-      - name: Export Android
+      - name: Export Android (debug-signed)
+        if: steps.release_keystore.outputs.has_release_keystore != 'true'
         uses: firebelley/godot-export@v7.0.0
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
@@ -352,7 +359,24 @@ jobs:
           relative_project_path: ./
           archive_output: false
           export_debug: false
-          export_name: Android
+          use_preset_export_path: true
+          presets_to_export: "Android"
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ./debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+
+      - name: Export Android (release-signed)
+        if: steps.release_keystore.outputs.has_release_keystore == 'true'
+        uses: firebelley/godot-export@v7.0.0
+        with:
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
+          relative_project_path: ./
+          archive_output: false
+          export_debug: false
+          use_preset_export_path: true
+          presets_to_export: "Android"
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ./debug.keystore
           GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
@@ -403,7 +427,8 @@ jobs:
           relative_project_path: ./
           archive_output: false
           export_debug: false
-          export_name: iOS
+          use_preset_export_path: true
+          presets_to_export: "iOS"
 
       - name: Verify iOS export
         run: |
@@ -457,7 +482,8 @@ jobs:
           relative_project_path: ./
           archive_output: false
           export_debug: false
-          export_name: macOS
+          use_preset_export_path: true
+          presets_to_export: "macOS"
 
       - name: Verify macOS export
         run: |

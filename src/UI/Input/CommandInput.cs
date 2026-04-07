@@ -1,10 +1,10 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Units;
-using UnnamedRTS.Systems.Networking;
+using CorditeWars.Core;
+using CorditeWars.Game.Units;
+using CorditeWars.Systems.Networking;
 
-namespace UnnamedRTS.UI.Input;
+namespace CorditeWars.UI.Input;
 
 /// <summary>
 /// Handles right-click commands, hotkeys, and shift-queue orders.
@@ -83,36 +83,39 @@ public partial class CommandInput : Node
 
     private void HandleKeyInput(InputEventKey keyEvent)
     {
-        switch (keyEvent.Keycode)
+        var km = KeybindManager.Instance;
+        if (km is null) return;
+
+        Key key = keyEvent.Keycode;
+
+        if (km.IsAction(key, KeybindManager.GameAction.AttackMove))
         {
-            case Key.A:
-                _attackMoveMode = true;
-                _patrolMode = false;
-                break;
-
-            case Key.S:
-                IssueStopCommand();
-                break;
-
-            case Key.H:
-                IssueHoldCommand();
-                break;
-
-            case Key.P:
-                _patrolMode = true;
-                _attackMoveMode = false;
-                // First waypoint is current position — next click sets destination
-                if (_selectionManager!.SelectedCount > 0)
-                {
-                    var units = _selectionManager.GetSelectedUnits();
-                    _patrolStart = units[0].SimPosition;
-                }
-                break;
-
-            case Key.Escape:
-                _attackMoveMode = false;
-                _patrolMode = false;
-                break;
+            _attackMoveMode = true;
+            _patrolMode = false;
+        }
+        else if (km.IsAction(key, KeybindManager.GameAction.Stop))
+        {
+            IssueStopCommand();
+        }
+        else if (km.IsAction(key, KeybindManager.GameAction.HoldPosition))
+        {
+            IssueHoldCommand();
+        }
+        else if (km.IsAction(key, KeybindManager.GameAction.Patrol))
+        {
+            _patrolMode = true;
+            _attackMoveMode = false;
+            // First waypoint is current position — next click sets destination
+            if (_selectionManager!.SelectedCount > 0)
+            {
+                var units = _selectionManager.GetSelectedUnits();
+                _patrolStart = units[0].SimPosition;
+            }
+        }
+        else if (km.IsAction(key, KeybindManager.GameAction.CancelMode))
+        {
+            _attackMoveMode = false;
+            _patrolMode = false;
         }
     }
 

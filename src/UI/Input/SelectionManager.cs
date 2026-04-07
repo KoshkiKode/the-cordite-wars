@@ -1,10 +1,10 @@
 using Godot;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Camera;
-using UnnamedRTS.Game.Units;
+using CorditeWars.Core;
+using CorditeWars.Game.Camera;
+using CorditeWars.Game.Units;
 
-namespace UnnamedRTS.UI.Input;
+namespace CorditeWars.UI.Input;
 
 /// <summary>
 /// Handles all unit selection mechanics: click, box select, shift-add,
@@ -114,8 +114,11 @@ public partial class SelectionManager : Node
     {
         if (!keyEvent.Pressed) return;
 
-        // Control groups: Ctrl+1-9 to assign, 1-9 to recall
-        int groupIndex = GetGroupIndexFromKey(keyEvent.Keycode);
+        var km = KeybindManager.Instance;
+        if (km is null) return;
+
+        // Control groups: Ctrl+key to assign, key alone to recall
+        int groupIndex = km.GetControlGroupIndex(keyEvent.Keycode);
         if (groupIndex >= 0)
         {
             if (keyEvent.CtrlPressed)
@@ -360,15 +363,6 @@ public partial class SelectionManager : Node
     }
 
     // ── Helpers ──────────────────────────────────────────────────────
-
-    private int GetGroupIndexFromKey(Key keycode)
-    {
-        if (keycode >= Key.Key1 && keycode <= Key.Key9)
-            return (int)(keycode - Key.Key1);
-        if (keycode == Key.Key0)
-            return 9;
-        return -1;
-    }
 
     private string GetLocalFactionId()
     {

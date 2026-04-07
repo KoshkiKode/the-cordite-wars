@@ -1,8 +1,8 @@
 using System;
 using Godot;
-using UnnamedRTS.Systems.Graphics;
+using CorditeWars.Systems.Graphics;
 
-namespace UnnamedRTS.Systems.Platform;
+namespace CorditeWars.Systems.Platform;
 
 /// <summary>
 /// Detects the current platform and exposes helper queries.

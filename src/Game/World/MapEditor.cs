@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Factions;
-using UnnamedRTS.Systems.Pathfinding;
+using CorditeWars.Core;
+using CorditeWars.Game.Factions;
+using CorditeWars.Systems.Pathfinding;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAP EDITOR — Full in-engine editor for creating and editing maps

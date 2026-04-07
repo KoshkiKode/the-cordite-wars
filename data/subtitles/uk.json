@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "uk",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Командир на містку. Усі підрозділи, доповісти статус.",
+      "duration": 3.5
+    },
+    "vo_match_started": {
+      "text": "Бій розпочато. Розгорніть базу та захопіть вузли Кордиту.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Увага! Наша база під атакою!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Виробництво завершено. Юніт готовий до розгортання.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Будівництво завершено.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Недостатньо Кордиту. Захопіть більше вузлів ресурсів.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Дослідження покращення завершено. Нові можливості доступні.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Усі ворожі сили знищено. Перемога наша!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Нашу базу знищено. Місію провалено.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Вузол Кордиту вичерпано. Перенаправте збирачів.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Контакт з ворогом! Виявлено ворожі сили.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Підкріплення прибуває. Утримуйте позиції.",
+      "duration": 2.5
+    }
+  }
+}

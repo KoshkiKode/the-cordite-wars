@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Systems.Pathfinding;
+namespace CorditeWars.Systems.Pathfinding;
 
 /// <summary>
 /// A* pathfinding implementation for the RTS simulation layer.

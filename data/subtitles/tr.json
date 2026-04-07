@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "tr",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Komutan köprüde. Tüm birimler, durum raporu.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Maç başladı. Üssünüzü kurun ve Kordite düğümlerini güvenceye alın.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Uyarı! Üssümüz saldırı altında!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Birim üretimi tamamlandı. Konuşlanmaya hazır.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "İnşaat tamamlandı.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Yetersiz Kordite. Daha fazla kaynak düğümü güvenceye alın.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Yükseltme araştırması tamamlandı. Yeni yetenekler çevrimiçi.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Tüm düşman kuvvetleri bertaraf edildi. Zafer bizim!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Üssümüz yok edildi. Görev başarısız.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Kordite düğümü tükendi. Hasatçıları yeniden konuşlandırın.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Düşman teması! Düşman kuvvetleri tespit edildi.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Takviyeler yolda. Pozisyonlarınızı koruyun.",
+      "duration": 2.5
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "locale": "zh_CN",
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "指挥官就位。所有单位，报告状态。",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "战斗开始。建立基地并确保火药素节点安全。",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "警告！我方基地正遭受攻击！",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "单位生产完成。准备部署。",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "建造完成。",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "火药素不足。确保更多资源节点。",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "升级研究完成。新功能已上线。",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "所有敌军已被消灭。胜利属于我们！",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "我方基地已被摧毁。任务失败。",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "火药素节点已耗尽。重新部署采集器。",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "发现敌军！检测到敌方力量。",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "增援即将到达。坚守阵地。",
+      "duration": 2.5
+    }
+  }
+}

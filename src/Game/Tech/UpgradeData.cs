@@ -1,6 +1,6 @@
-using UnnamedRTS.Core;
+using CorditeWars.Core;
 
-namespace UnnamedRTS.Game.Tech;
+namespace CorditeWars.Game.Tech;
 
 /// <summary>
 /// A single stat modification applied when an upgrade completes.

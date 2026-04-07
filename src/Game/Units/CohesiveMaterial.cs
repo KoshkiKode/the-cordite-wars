@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UnnamedRTS.Game.Units;
+namespace CorditeWars.Game.Units;
 
 /// <summary>
 /// C# port of the GDScript CohesiveMaterialFactory.

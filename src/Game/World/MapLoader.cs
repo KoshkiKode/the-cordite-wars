@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Factions;
+using CorditeWars.Core;
+using CorditeWars.Game.Factions;
 
-namespace UnnamedRTS.Game.World;
+namespace CorditeWars.Game.World;
 
 /// <summary>
 /// Loads all map JSON files from a directory into a deterministic SortedList lookup.
@@ -120,6 +120,26 @@ public sealed class MapLoader
 
     /// <summary>Returns the number of loaded maps.</summary>
     public int MapCount => _maps.Count;
+
+    /// <summary>
+    /// Registers a dynamically generated (or otherwise non-file-based) map.
+    /// If a map with the same ID already exists it is replaced.
+    /// </summary>
+    public void RegisterMap(MapData map)
+    {
+        if (map is null) throw new ArgumentNullException(nameof(map));
+
+        if (_maps.ContainsKey(map.Id))
+        {
+            _maps[map.Id] = map;
+            GD.Print($"[MapLoader] Replaced map '{map.Id}'.");
+        }
+        else
+        {
+            _maps.Add(map.Id, map);
+            GD.Print($"[MapLoader] Registered map '{map.Id}'.");
+        }
+    }
 
     // ── Private Helpers ─────────────────────────────────────────────
 

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
-using UnnamedRTS.Core;
-using UnnamedRTS.Game.Factions;
+using CorditeWars.Core;
+using CorditeWars.Game.Factions;
 
-namespace UnnamedRTS.Game.Assets;
+namespace CorditeWars.Game.Assets;
 
 /// <summary>
 /// Registry that loads all faction JSON files from <c>data/factions/</c> and provides
