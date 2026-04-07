@@ -142,8 +142,19 @@ public partial class GameSession : Node
 
         // a. Load the map
         LoadRegistries();
-        ActiveMap = _mapLoader.GetMap(config.MapId);
-        EventBus.Instance?.EmitMapLoaded(config.MapId);
+        if (config.MapGeneration is not null)
+        {
+            var generator = new MapGenerator();
+            var generated = generator.Generate(config.MapGeneration);
+            _mapLoader.RegisterMap(generated);
+            ActiveMap = generated;
+            GD.Print($"[GameSession] Using generated map '{generated.Id}'.");
+        }
+        else
+        {
+            ActiveMap = _mapLoader.GetMap(config.MapId);
+        }
+        EventBus.Instance?.EmitMapLoaded(ActiveMap.Id);
 
         // b. Create EconomyManager
         _economyManager = new EconomyManager();

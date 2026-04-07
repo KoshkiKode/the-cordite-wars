@@ -1,3 +1,5 @@
+using UnnamedRTS.Game.World;
+
 namespace UnnamedRTS.Game;
 
 /// <summary>
@@ -23,4 +25,11 @@ public sealed class MatchConfig
     public int GameSpeed { get; init; } = 1;
     public bool FogOfWar { get; init; } = true;
     public int StartingCordite { get; init; } = 5000;
+
+    /// <summary>
+    /// When set, the match will use a procedurally generated map instead
+    /// of loading one from disk. <see cref="MapId"/> is ignored if this is
+    /// non-null — the generator produces an ID automatically.
+    /// </summary>
+    public MapGenConfig? MapGeneration { get; init; }
 }

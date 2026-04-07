@@ -12,8 +12,13 @@ public partial class SkirmishLobby : Control
     private static readonly string[] DifficultyNames = { "Easy", "Medium", "Hard" };
     private static readonly string[] StartingCorditeOptions = { "3000", "5000", "10000" };
     private static readonly string[] GameSpeedNames = { "Slow", "Normal", "Fast" };
+    private static readonly string[] BiomeNames =
+    {
+        "temperate", "desert", "rocky", "coastal", "archipelago", "volcanic"
+    };
 
     private const int MaxSlots = 6;
+    private const string RandomMapId = "__random__";
 
     private OptionButton _mapSelector = null!;
     private Label _mapInfoLabel = null!;
@@ -23,6 +28,8 @@ public partial class SkirmishLobby : Control
     private CheckBox _fogOfWar = null!;
     private Button _startBtn = null!;
     private Button _addAiBtn = null!;
+    private OptionButton _biomeSelector = null!;
+    private HBoxContainer _biomeRow = null!;
 
     // Player slot controls
     private OptionButton[] _slotFaction = new OptionButton[MaxSlots];
@@ -101,6 +108,25 @@ public partial class SkirmishLobby : Control
         _mapInfoLabel = new Label();
         UITheme.StyleLabel(_mapInfoLabel, UITheme.FontSizeSmall, UITheme.TextSecondary);
         mapRow.AddChild(_mapInfoLabel);
+
+        // Biome selector row (visible only when "Random Map" is selected)
+        _biomeRow = new HBoxContainer();
+        _biomeRow.AddThemeConstantOverride("separation", 16);
+        _biomeRow.Visible = false;
+        outerVBox.AddChild(_biomeRow);
+
+        var biomeLabel = new Label();
+        biomeLabel.Text = "BIOME:";
+        UITheme.StyleLabel(biomeLabel, UITheme.FontSizeNormal, UITheme.TextPrimary);
+        _biomeRow.AddChild(biomeLabel);
+
+        _biomeSelector = new OptionButton();
+        _biomeSelector.CustomMinimumSize = new Vector2(180, 0);
+        for (int b = 0; b < BiomeNames.Length; b++)
+            _biomeSelector.AddItem(BiomeNames[b].ToUpperInvariant(), b);
+        _biomeSelector.Selected = 0;
+        UITheme.StyleOptionButton(_biomeSelector);
+        _biomeRow.AddChild(_biomeSelector);
 
         // Separator
         var sep1 = new HSeparator();
@@ -232,26 +258,30 @@ public partial class SkirmishLobby : Control
 
     private void LoadMaps()
     {
-        // Try to load from MapLoader
+        // "Random Map" is always the first entry
+        _mapSelector.AddItem("\u2728 Random Map", 0);
+
+        var idList = new System.Collections.Generic.List<string>();
+        idList.Add(RandomMapId);
+
+        // Try to load hand-crafted maps from MapLoader
         try
         {
             var loader = new MapLoader();
             loader.LoadAllMaps("res://data/maps");
             var ids = loader.GetMapIds();
-            _mapIds = new string[ids.Count];
-            for (int i = 0; i < ids.Count; i++)
-                _mapIds[i] = ids[i];
 
-            for (int i = 0; i < _mapIds.Length; i++)
+            for (int i = 0; i < ids.Count; i++)
             {
-                if (loader.HasMap(_mapIds[i]))
+                idList.Add(ids[i]);
+                if (loader.HasMap(ids[i]))
                 {
-                    var map = loader.GetMap(_mapIds[i]);
-                    _mapSelector.AddItem(map.DisplayName, i);
+                    var map = loader.GetMap(ids[i]);
+                    _mapSelector.AddItem(map.DisplayName, idList.Count - 1);
                 }
                 else
                 {
-                    _mapSelector.AddItem(_mapIds[i], i);
+                    _mapSelector.AddItem(ids[i], idList.Count - 1);
                 }
             }
         }
@@ -260,13 +290,15 @@ public partial class SkirmishLobby : Control
             GD.PushWarning("[SkirmishLobby] Could not load maps.");
         }
 
-        // Add fallback if no maps found
-        if (_mapSelector.ItemCount == 0)
+        _mapIds = idList.ToArray();
+
+        // Add fallback if only random (no hand-crafted maps found)
+        if (_mapSelector.ItemCount <= 1)
         {
-            _mapSelector.AddItem("Crossroads", 0);
-            _mapSelector.AddItem("Six Fronts", 1);
-            _mapSelector.AddItem("Coral Atoll", 2);
-            _mapIds = new[] { "crossroads", "six_fronts", "coral_atoll" };
+            _mapSelector.AddItem("Crossroads", 1);
+            _mapSelector.AddItem("Six Fronts", 2);
+            _mapSelector.AddItem("Coral Atoll", 3);
+            _mapIds = new[] { RandomMapId, "crossroads", "six_fronts", "coral_atoll" };
         }
 
         _mapSelector.Selected = 0;
@@ -279,9 +311,26 @@ public partial class SkirmishLobby : Control
         RefreshSlotVisibility();
     }
 
+    private bool IsRandomMapSelected()
+    {
+        int idx = _mapSelector.Selected;
+        return idx >= 0 && idx < _mapIds.Length && _mapIds[idx] == RandomMapId;
+    }
+
     private void UpdateMapInfo()
     {
-        // Try to get map details
+        bool isRandom = IsRandomMapSelected();
+        _biomeRow.Visible = isRandom;
+
+        if (isRandom)
+        {
+            _maxPlayersForMap = 6;
+            string biome = BiomeNames[_biomeSelector.Selected];
+            _mapInfoLabel.Text = $"200x200 | Max 6 players | {biome} (generated)";
+            return;
+        }
+
+        // Try to get map details for hand-crafted maps
         try
         {
             var loader = new MapLoader();
@@ -373,14 +422,38 @@ public partial class SkirmishLobby : Control
             _ => 5000
         };
 
+        var matchSeed = (ulong)System.DateTime.Now.Ticks;
+
+        UnnamedRTS.Game.World.MapGenConfig? mapGen = null;
+        string mapId;
+
+        if (IsRandomMapSelected())
+        {
+            string biome = BiomeNames[_biomeSelector.Selected];
+            mapGen = new UnnamedRTS.Game.World.MapGenConfig
+            {
+                Width = 200,
+                Height = 200,
+                PlayerCount = _playerCount,
+                Biome = biome,
+                Seed = matchSeed,
+            };
+            mapId = $"generated_{matchSeed}";
+        }
+        else
+        {
+            mapId = _mapIds[_mapSelector.Selected];
+        }
+
         var config = new UnnamedRTS.Game.MatchConfig
         {
-            MapId = _mapIds[_mapSelector.Selected],
-            MatchSeed = (ulong)System.DateTime.Now.Ticks,
+            MapId = mapId,
+            MatchSeed = matchSeed,
             GameSpeed = 1,
             FogOfWar = _fogOfWar.ButtonPressed,
             StartingCordite = startingCordite,
-            PlayerConfigs = playerConfigs.ToArray()
+            PlayerConfigs = playerConfigs.ToArray(),
+            MapGeneration = mapGen,
         };
 
         UnnamedRTS.Game.Main.PendingConfig = config;

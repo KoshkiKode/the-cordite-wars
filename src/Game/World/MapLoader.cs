@@ -121,6 +121,26 @@ public sealed class MapLoader
     /// <summary>Returns the number of loaded maps.</summary>
     public int MapCount => _maps.Count;
 
+    /// <summary>
+    /// Registers a dynamically generated (or otherwise non-file-based) map.
+    /// If a map with the same ID already exists it is replaced.
+    /// </summary>
+    public void RegisterMap(MapData map)
+    {
+        if (map is null) throw new ArgumentNullException(nameof(map));
+
+        if (_maps.ContainsKey(map.Id))
+        {
+            _maps[map.Id] = map;
+            GD.Print($"[MapLoader] Replaced map '{map.Id}'.");
+        }
+        else
+        {
+            _maps.Add(map.Id, map);
+            GD.Print($"[MapLoader] Registered map '{map.Id}'.");
+        }
+    }
+
     // ── Private Helpers ─────────────────────────────────────────────
 
     private static string ReadGodotFile(string path)
