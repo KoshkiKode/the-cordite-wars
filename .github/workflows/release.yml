@@ -81,10 +81,6 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/}
           echo "# 🎮 Cordite Wars: Six Fronts $VERSION" > release_notes.md
           echo "" >> release_notes.md
-          if echo "$VERSION" | grep -qE '(alpha|beta|rc)'; then
-            echo "> ⚠️ This is a **pre-release** build intended for testing. Expect rough edges." >> release_notes.md
-            echo "" >> release_notes.md
-          fi
           echo "Multi-platform release featuring:" >> release_notes.md
           echo "- 🪟 **Windows** (.exe + .msi installer)" >> release_notes.md
           echo "- 🐧 **Linux** (binary + snap)" >> release_notes.md
@@ -113,7 +109,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           body_path: release_notes.md
-          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
           files: |
             release_artifacts/*
             checksums.txt

@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.0.1-alpha] - 2026-04-07
-
 ### Added
 - Multi-platform export infrastructure (Windows, Linux, macOS, Android, iOS)
 - Semantic versioning automation across all platform exports
@@ -16,13 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automated GitHub Releases workflow
 - Comprehensive deployment and store submission guides
 - Platform-specific testing and QA documentation
-- Six playable factions: Arcloft, Veydrith, and four more with distinct unit rosters
-- Live minimap with terrain, unit icons, and cordite node markers
-- Deterministic multiplayer with lockstep simulation
-- Naval unit system (ships, shipyards, water-body terrain)
-- Fog of War system
-- Skirmish mode with AI opponents and random map generation
-- Full localization system supporting 25 languages
 
 ### Changed
 - Updated CI/CD pipeline for multi-platform exports
