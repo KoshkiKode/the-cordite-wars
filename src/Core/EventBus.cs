@@ -115,6 +115,11 @@ public partial class EventBus : Node
     [Signal] public delegate void TooltipRequestedEventHandler(string text, Vector2 position);
     [Signal] public delegate void TooltipDismissedEventHandler();
 
+    // ── Accessibility Events ─────────────────────────────────────────
+
+    [Signal] public delegate void KeybindsChangedEventHandler();
+    [Signal] public delegate void HighContrastChangedEventHandler(int contrastMode);
+
     public override void _Ready()
     {
         Instance = this;
@@ -237,4 +242,10 @@ public partial class EventBus : Node
     public void EmitLobbyUpdated() => EmitSignal(SignalName.LobbyUpdated);
     public void EmitMatchCountdown(int secondsRemaining) =>
         EmitSignal(SignalName.MatchCountdown, secondsRemaining);
+
+    // ── Accessibility Emit Helpers ──────────────────────────────────
+
+    public void EmitKeybindsChanged() => EmitSignal(SignalName.KeybindsChanged);
+    public void EmitHighContrastChanged(int contrastMode) =>
+        EmitSignal(SignalName.HighContrastChanged, contrastMode);
 }

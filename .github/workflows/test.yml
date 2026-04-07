@@ -1,0 +1,46 @@
+name: "Run Tests"
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Unit & Data Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore tests/CorditeWars.Tests/CorditeWars.Tests.csproj
+
+      - name: Build tests
+        run: dotnet build tests/CorditeWars.Tests/CorditeWars.Tests.csproj --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test tests/CorditeWars.Tests/CorditeWars.Tests.csproj --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: tests/CorditeWars.Tests/TestResults/test-results.trx
+          retention-days: 30

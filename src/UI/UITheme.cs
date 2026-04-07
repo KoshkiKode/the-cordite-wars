@@ -8,20 +8,46 @@ namespace UnnamedRTS.UI;
 /// </summary>
 public static class UITheme
 {
-    // ── Color Palette ────────────────────────────────────────────────────
-    public static readonly Color Background      = new("#0D0D12");
-    public static readonly Color Surface         = new("#1A1A24");
-    public static readonly Color SurfaceHover    = new("#252535");
-    public static readonly Color Border          = new("#2A2A3A");
-    public static readonly Color BorderHighlight = new("#3A5A7A");
-    public static readonly Color TextPrimary     = new("#E0E0E8");
-    public static readonly Color TextSecondary   = new("#8888A0");
-    public static readonly Color TextMuted       = new("#555570");
-    public static readonly Color Accent          = new("#4A9ECC");
-    public static readonly Color AccentHover     = new("#5BB8E8");
-    public static readonly Color AccentWarm      = new("#CC8844");
-    public static readonly Color ErrorColor      = new("#CC4444");
-    public static readonly Color SuccessColor    = new("#44AA44");
+    // ── Color Palette (mutable for accessibility contrast modes) ────────
+    public static Color Background      = new("#0D0D12");
+    public static Color Surface         = new("#1A1A24");
+    public static Color SurfaceHover    = new("#252535");
+    public static Color Border          = new("#2A2A3A");
+    public static Color BorderHighlight = new("#3A5A7A");
+    public static Color TextPrimary     = new("#E0E0E8");
+    public static Color TextSecondary   = new("#8888A0");
+    public static Color TextMuted       = new("#555570");
+    public static Color Accent          = new("#4A9ECC");
+    public static Color AccentHover     = new("#5BB8E8");
+    public static Color AccentWarm      = new("#CC8844");
+    public static Color ErrorColor      = new("#CC4444");
+    public static Color SuccessColor    = new("#44AA44");
+
+    /// <summary>
+    /// Replace the entire UI color palette. Called by <see cref="AccessibilitySettings"/>
+    /// when contrast mode changes.
+    /// </summary>
+    public static void SetPalette(
+        Color background, Color surface, Color surfaceHover,
+        Color border, Color borderHighlight,
+        Color textPrimary, Color textSecondary, Color textMuted,
+        Color accent, Color accentHover, Color accentWarm,
+        Color errorColor, Color successColor)
+    {
+        Background      = background;
+        Surface         = surface;
+        SurfaceHover    = surfaceHover;
+        Border          = border;
+        BorderHighlight = borderHighlight;
+        TextPrimary     = textPrimary;
+        TextSecondary   = textSecondary;
+        TextMuted       = textMuted;
+        Accent          = accent;
+        AccentHover     = accentHover;
+        AccentWarm      = accentWarm;
+        ErrorColor      = errorColor;
+        SuccessColor    = successColor;
+    }
 
     // ── Faction Colors ───────────────────────────────────────────────────
     public static readonly Color FactionValkyr    = new("#2196F3");
