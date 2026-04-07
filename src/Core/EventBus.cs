@@ -29,6 +29,17 @@ public partial class EventBus : Node
     [Signal] public delegate void UnitDeselectedEventHandler(Node unit);
     [Signal] public delegate void SelectionClearedEventHandler();
 
+    // ── Combat Events ───────────────────────────────────────────────
+
+    /// <summary>Fired when a weapon discharges. weaponType is the WeaponType enum cast to int.</summary>
+    [Signal] public delegate void AttackFiredEventHandler(int attackerId, int weaponType, Vector3 position);
+
+    /// <summary>Fired when a shot impacts (hit or miss). isHit indicates accuracy result.</summary>
+    [Signal] public delegate void AttackImpactEventHandler(int targetId, bool isHit, bool hasAoe, Vector3 position);
+
+    /// <summary>Fired when a unit is destroyed in combat.</summary>
+    [Signal] public delegate void UnitDeathEventHandler(int unitId, int unitCategory, Vector3 position);
+
     // ── Command Events ───────────────────────────────────────────────
 
     [Signal] public delegate void MoveCommandIssuedEventHandler(Vector3 target);
@@ -128,6 +139,15 @@ public partial class EventBus : Node
         EmitSignal(SignalName.MoveCommandIssued, target);
     public void EmitAttackCommandIssued(Node target) =>
         EmitSignal(SignalName.AttackCommandIssued, target);
+
+    // ── Combat Emit Helpers ─────────────────────────────────────────
+
+    public void EmitAttackFired(int attackerId, int weaponType, Vector3 position) =>
+        EmitSignal(SignalName.AttackFired, attackerId, weaponType, position);
+    public void EmitAttackImpact(int targetId, bool isHit, bool hasAoe, Vector3 position) =>
+        EmitSignal(SignalName.AttackImpact, targetId, isHit, hasAoe, position);
+    public void EmitUnitDeath(int unitId, int unitCategory, Vector3 position) =>
+        EmitSignal(SignalName.UnitDeath, unitId, unitCategory, position);
     public void EmitBuildCommandIssued(string buildingId, Vector3 position) =>
         EmitSignal(SignalName.BuildCommandIssued, buildingId, position);
 
