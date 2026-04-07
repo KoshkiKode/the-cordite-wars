@@ -1,8 +1,10 @@
 using Godot;
 using CorditeWars.Game.Assets;
 using CorditeWars.Game.Buildings;
+using CorditeWars.Game.Camera;
 using CorditeWars.Game.Economy;
 using CorditeWars.Game.Units;
+using CorditeWars.Systems.Pathfinding;
 using CorditeWars.UI.Input;
 
 namespace CorditeWars.UI.HUD;
@@ -46,7 +48,7 @@ public partial class GameHUD : CanvasLayer
         _resourceBar.Initialize(localPlayerId, economyManager);
         AddChild(_resourceBar);
 
-        // Minimap — bottom-left
+        // Minimap — bottom-left (terrain wired via SetupMinimapData after map loads)
         _minimapPanel = new MinimapPanel();
         _minimapPanel.Initialize();
         AddChild(_minimapPanel);
@@ -69,6 +71,21 @@ public partial class GameHUD : CanvasLayer
         // Box select overlay
         _boxSelectOverlay = new BoxSelectOverlay(selectionManager);
         AddChild(_boxSelectOverlay);
+    }
+
+    /// <summary>
+    /// Wires the minimap to live terrain and game data.
+    /// Call once after the map TerrainGrid is ready (i.e. after GameSession.StartMatch).
+    /// </summary>
+    public void SetupMinimapData(
+        TerrainGrid terrain,
+        int gridWidth,
+        int gridHeight,
+        UnitSpawner unitSpawner,
+        BuildingPlacer buildingPlacer,
+        RTSCamera camera)
+    {
+        _minimapPanel?.SetupLiveData(terrain, gridWidth, gridHeight, unitSpawner, buildingPlacer, camera);
     }
 }
 

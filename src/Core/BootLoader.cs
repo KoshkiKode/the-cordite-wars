@@ -15,7 +15,7 @@ public partial class BootLoader : Node
     {
         GD.Print("╔════════════════════════════════════════╗");
         GD.Print("║   Cordite Wars: Six Fronts — v0.1.0    ║");
-        GD.Print("║   Godot 4.4 + C# | Forward Plus       ║");
+        GD.Print("║   Godot 4.6 + C# | Forward Plus       ║");
         GD.Print("╚════════════════════════════════════════╝");
         GD.Print("");
 

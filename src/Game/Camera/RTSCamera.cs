@@ -194,6 +194,12 @@ public partial class RTSCamera : Camera3D
         LookAt(_focusPoint, Vector3.Up);
     }
 
+    /// <summary>Current camera look-at center in world space (X/Z).</summary>
+    public Vector3 FocusPoint => _focusPoint;
+
+    /// <summary>Current zoom distance (world units).</summary>
+    public float CurrentZoom => _currentZoom;
+
     /// <summary>
     /// Moves the camera focus to the given world position.
     /// </summary>

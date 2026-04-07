@@ -159,7 +159,18 @@ public partial class GameSession : Node
         }
         else
         {
-            ActiveMap = _mapLoader.GetMap(config.MapId);
+            // Guard: if the map isn't loaded (e.g. ID typo or load error), fall back to first available
+            string mapId = config.MapId;
+            if (!_mapLoader.HasMap(mapId))
+            {
+                var available = _mapLoader.GetMapIds();
+                if (available.Count > 0)
+                {
+                    mapId = available[0];
+                    GD.PushWarning($"[GameSession] Map '{config.MapId}' not found — falling back to '{mapId}'.");
+                }
+            }
+            ActiveMap = _mapLoader.GetMap(mapId);
         }
         EventBus.Instance?.EmitMapLoaded(ActiveMap.Id);
 
@@ -270,6 +281,12 @@ public partial class GameSession : Node
 
         // k2. Set up gameplay systems (Selection, Commands, Building, HUD, AI)
         SetupGameplaySystems(config);
+
+        // k3. Wire minimap to live terrain/camera data now that all systems are ready
+        SetupMinimapData();
+
+        // k4. Spawn visual cordite node markers on the map
+        SpawnCorditeNodeMarkers();
 
         // l. Wire up GameManager
         _gameManager = GetNodeOrNull<GameManager>("/root/GameManager");
@@ -840,6 +857,12 @@ public partial class GameSession : Node
 
         // Set up gameplay systems (Selection, Commands, Building, HUD, AI)
         SetupGameplaySystems(config);
+
+        // Wire minimap to live terrain/camera data
+        SetupMinimapData();
+
+        // Spawn visual cordite node markers
+        SpawnCorditeNodeMarkers();
 
         // Wire up GameManager and set tick
         _gameManager = GetNodeOrNull<GameManager>("/root/GameManager");
@@ -1423,6 +1446,26 @@ public partial class GameSession : Node
             int refineryId = pc.PlayerId * 1000; // Unique ID per player's starting refinery
             _harvesterSystem?.RegisterRefinery(refineryId, pc.PlayerId, hqPos);
 
+            // Spawn a visual HQ building node so the base is visible on screen
+            string hqBuildingId = $"{pc.FactionId}_command_center";
+            if (_buildingRegistry is not null && _buildingRegistry.HasBuilding(hqBuildingId))
+            {
+                BuildingData hqData = _buildingRegistry.GetBuilding(hqBuildingId);
+                int buildingId = -(pc.PlayerId * 100); // Negative IDs for pre-placed HQ buildings
+                var hqNode = new BuildingInstance();
+                hqNode.Initialize(buildingId, hqBuildingId, hqData, pc.PlayerId,
+                    startPos.X, startPos.Y);
+                // Mark fully constructed so it doesn't animate in during the game start
+                hqNode.RestoreState(hqData.MaxHealth, true, hqData.BuildTime);
+                AddChild(hqNode);
+
+                // Occupy the footprint in the grid so units path around the HQ
+                _occupancyGrid?.OccupyFootprint(
+                    startPos.X, startPos.Y,
+                    hqData.FootprintWidth, hqData.FootprintHeight,
+                    OccupancyType.Building, buildingId, pc.PlayerId);
+            }
+
             GD.Print($"[GameSession] Placed HQ for player {pc.PlayerId} at ({startPos.X}, {startPos.Y}).");
         }
     }
@@ -1517,10 +1560,24 @@ public partial class GameSession : Node
         _camera.Name = "RTSCamera";
         AddChild(_camera);
 
-        // Focus camera on the first player's starting position
-        if (ActiveMap is not null && ActiveMap.StartingPositions.Length > 0)
+        // Focus camera on the human player's starting position (first non-AI slot).
+        // Map starting positions use 0-based PlayerId; player configs use 1-based PlayerId.
+        // We use the index-based fallback: config slot 0 → map starting position index 0.
+        if (ActiveMap is not null && ActiveMap.StartingPositions.Length > 0 && ActiveConfig is not null)
         {
-            StartingPosition sp = ActiveMap.StartingPositions[0];
+            // Find first human player slot
+            int humanSlotIndex = 0;
+            for (int i = 0; i < ActiveConfig.PlayerConfigs.Length; i++)
+            {
+                if (!ActiveConfig.PlayerConfigs[i].IsAI)
+                {
+                    humanSlotIndex = i;
+                    break;
+                }
+            }
+            // Use the map starting position at the same index (0-based), clamped to available slots
+            int spIndex = Math.Min(humanSlotIndex, ActiveMap.StartingPositions.Length - 1);
+            StartingPosition sp = ActiveMap.StartingPositions[spIndex];
             _camera.SetFocusPoint(new Vector3(sp.X, 0f, sp.Y));
         }
     }
@@ -1566,6 +1623,65 @@ public partial class GameSession : Node
             AddChild(_propPlacer);
             _propPlacer.PlaceAll(ActiveMap, terrainManifest, _terrainRenderer, _occupancyGrid);
         }
+    }
+
+    /// <summary>
+    /// Wires the minimap panel to live terrain and game data.
+    /// Called after SetupGameplaySystems so the HUD and camera are ready.
+    /// </summary>
+    private void SetupMinimapData()
+    {
+        if (_gameHUD is null || _terrainGrid is null || _camera is null ||
+            _unitSpawner is null || _buildingPlacer is null || ActiveMap is null) return;
+
+        _gameHUD.SetupMinimapData(
+            _terrainGrid,
+            ActiveMap.Width,
+            ActiveMap.Height,
+            _unitSpawner,
+            _buildingPlacer,
+            _camera);
+
+        GD.Print("[GameSession] Minimap wired to live terrain data.");
+    }
+
+    /// <summary>
+    /// Places a small glowing sphere marker at each Cordite node position
+    /// so players can see resources on the map.
+    /// </summary>
+    private void SpawnCorditeNodeMarkers()
+    {
+        if (ActiveMap is null) return;
+
+        var parentNode = new Node3D();
+        parentNode.Name = "CorditeMarkers";
+        AddChild(parentNode);
+
+        for (int i = 0; i < ActiveMap.CorditeNodes.Length; i++)
+        {
+            CorditeNodeData cn = ActiveMap.CorditeNodes[i];
+
+            var marker = new MeshInstance3D();
+            marker.Name = $"CorditeNode_{i}";
+            marker.GlobalPosition = new Vector3(cn.X, 0.3f, cn.Y);
+
+            var sphere = new SphereMesh();
+            sphere.Radius = 0.6f;
+            sphere.Height = 1.2f;
+            marker.Mesh = sphere;
+
+            // Bright golden-yellow material to stand out as a resource node
+            var markerMat = new StandardMaterial3D();
+            markerMat.AlbedoColor = new Color(0.9f, 0.85f, 0.1f);
+            markerMat.EmissionEnabled = true;
+            markerMat.Emission = new Color(0.6f, 0.55f, 0.05f);
+            markerMat.EmissionEnergyMultiplier = 1.5f;
+            marker.MaterialOverride = markerMat;
+
+            parentNode.AddChild(marker);
+        }
+
+        GD.Print($"[GameSession] Spawned {ActiveMap.CorditeNodes.Length} Cordite node markers.");
     }
 
     /// <summary>
@@ -1616,19 +1732,53 @@ public partial class GameSession : Node
     private string FindHarvesterTypeId(string factionId)
     {
         var factionUnits = _unitDataRegistry.GetFactionUnits(factionId);
-        for (int i = 0; i < factionUnits.Count; i++)
-        {
-            string id = factionUnits[i].Id;
-            if (id.Contains("harvester", StringComparison.OrdinalIgnoreCase))
-                return id;
-        }
 
-        // Fallback: search all units for a generic harvester
+        // 1. Explicit "harvester" in the unit ID (forward-compat when dedicated harvester units are added)
+        for (int i = 0; i < factionUnits.Count; i++)
+            if (factionUnits[i].Id.Contains("harvester", StringComparison.OrdinalIgnoreCase))
+                return factionUnits[i].Id;
+
+        // Cross-faction generic harvester unit
         if (_unitDataRegistry.HasUnit("harvester"))
             return "harvester";
 
-        return string.Empty;
+        // 2. Support category, non-air (engineer / worker archetype — best proxy for a harvester)
+        for (int i = 0; i < factionUnits.Count; i++)
+        {
+            var u = factionUnits[i];
+            if (u.Category == UnitCategory.Support && IsGroundMovementClass(u.MovementClassId))
+                return u.Id;
+        }
+
+        // 3. Cheapest LightVehicle — visible on ground, fast, clearly a scout/worker
+        UnitData? cheapestLight = null;
+        for (int i = 0; i < factionUnits.Count; i++)
+        {
+            var u = factionUnits[i];
+            if (u.Category == UnitCategory.LightVehicle &&
+                (cheapestLight == null || u.Cost < cheapestLight.Cost))
+                cheapestLight = u;
+        }
+        if (cheapestLight != null) return cheapestLight.Id;
+
+        // 4. Any non-air, non-naval ground unit
+        for (int i = 0; i < factionUnits.Count; i++)
+        {
+            var u = factionUnits[i];
+            if (IsGroundMovementClass(u.MovementClassId))
+                return u.Id;
+        }
+
+        // 5. Absolute fallback: any faction unit
+        return factionUnits.Count > 0 ? factionUnits[0].Id : string.Empty;
     }
+
+    /// <summary>
+    /// Returns true when the given MovementClassId belongs to a ground/surface unit
+    /// (not a helicopter, jet, or naval vessel).
+    /// </summary>
+    private static bool IsGroundMovementClass(string movementClassId) =>
+        movementClassId != "Helicopter" && movementClassId != "Jet" && movementClassId != "Naval";
 
     /// <summary>
     /// Tears down all child nodes and managers from a previous match.

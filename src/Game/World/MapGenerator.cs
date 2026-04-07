@@ -215,7 +215,7 @@ public sealed class MapGenerator
 
                 nodes.Add(new CorditeNodeData
                 {
-                    NodeId = nextId.ToString(),
+                    NodeId = nextId,
                     X = (int)Math.Round(nx),
                     Y = (int)Math.Round(ny),
                     Amount = amount,
@@ -231,7 +231,7 @@ public sealed class MapGenerator
             double offset = c == 0 ? -6 : 6;
             nodes.Add(new CorditeNodeData
             {
-                NodeId = nextId.ToString(),
+                NodeId = nextId,
                 X = (int)Math.Round(cx + offset),
                 Y = (int)Math.Round(cy + (rng.NextInt(10) - 5)),
                 Amount = 12000,

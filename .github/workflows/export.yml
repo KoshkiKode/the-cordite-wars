@@ -183,11 +183,13 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" versions\windows\inno-setup.iss
-          if (-not (Test-Path "dist\windows\CorditeWars_Setup_0.1.0.exe")) {
-            throw "Inno Setup did not produce CorditeWars_Setup_0.1.0.exe"
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
+            /DMyAppVersion=${{ env.APP_VERSION }} `
+            versions\windows\inno-setup.iss
+          if (-not (Test-Path "dist\windows\CorditeWars_Setup_${{ env.APP_VERSION }}.exe")) {
+            throw "Inno Setup did not produce CorditeWars_Setup_${{ env.APP_VERSION }}.exe"
           }
-          Write-Host "EXE installer: dist\windows\CorditeWars_Setup_0.1.0.exe"
+          Write-Host "EXE installer: dist\windows\CorditeWars_Setup_${{ env.APP_VERSION }}.exe"
 
       - name: Install WiX Toolset v4
         shell: powershell
@@ -216,7 +218,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Windows-Setup-EXE
-          path: dist/windows/CorditeWars_Setup_0.1.0.exe
+          path: dist/windows/CorditeWars_Setup_${{ env.APP_VERSION }}.exe
 
       - name: Upload MSI installer artifact
         uses: actions/upload-artifact@v4
@@ -694,9 +696,14 @@ jobs:
       - name: Create DMG
         run: |
           DMG_PATH="dist/macos/CorditeWars_${{ env.APP_VERSION }}.dmg"
+          # Stage the .app in a clean directory so hdiutil places the bundle
+          # (not its internals) at the root of the DMG volume.
+          STAGING_DIR="dist/macos/staging"
+          mkdir -p "$STAGING_DIR"
+          cp -R "$APP_PATH" "$STAGING_DIR/"
           hdiutil create \
             -volname "Cordite Wars" \
-            -srcfolder "$APP_PATH" \
+            -srcfolder "$STAGING_DIR" \
             -ov \
             -format UDZO \
             "$DMG_PATH"
