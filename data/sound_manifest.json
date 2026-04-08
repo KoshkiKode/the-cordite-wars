@@ -369,17 +369,21 @@
     "movement": {
       "footstep_grass": {
         "Files": [
-          "assets/audio/sfx/combat/footstep_grass_000.ogg",
-          "assets/audio/sfx/combat/footstep_grass_001.ogg",
-          "assets/audio/sfx/combat/footstep_grass_002.ogg",
-          "assets/audio/sfx/combat/footstep_grass_003.ogg",
-          "assets/audio/sfx/combat/footstep_grass_004.ogg"
+          "assets/audio/sfx/ambient/nature/Footstep/FootstepGrass01.wav",
+          "assets/audio/sfx/ambient/nature/Footstep/FootstepGrass02.wav",
+          "assets/audio/sfx/ambient/nature/Footstep/FootstepGrass03.wav",
+          "assets/audio/sfx/ambient/nature/Footstep/FootstepGrass04.wav",
+          "assets/audio/sfx/ambient/nature/Footstep/FootstepGrass05.wav",
+          "assets/audio/sfx/ambient/nature/Footstep/FootstepGrass06.wav",
+          "assets/audio/sfx/ambient/nature/Footstep/FootstepGrass07.wav",
+          "assets/audio/sfx/ambient/nature/Footstep/FootstepGrass08.wav",
+          "assets/audio/sfx/ambient/nature/Footstep/FootstepGrass09.wav"
         ],
         "Volume": 0.5,
-        "PitchVariation": 0.2,
-        "MaxDistance": 20.0,
+        "PitchVariation": 0.1,
+        "MaxDistance": 30.0,
         "Priority": 3,
-        "Cooldown": 0.3
+        "Cooldown": 0.1
       },
       "footstep_dirt": {
         "Files": [
@@ -602,25 +606,22 @@
       },
       "ambient_rain_light": {
         "Files": [
-          "assets/audio/sfx/combat/impactSoft_medium_000.ogg",
-          "assets/audio/sfx/combat/impactSoft_medium_001.ogg",
-          "assets/audio/sfx/combat/impactSoft_medium_002.ogg"
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureNightRainy.wav"
         ],
-        "Volume": 0.25,
-        "PitchVariation": 0.3,
-        "MaxDistance": 500.0,
+        "Volume": 0.35,
+        "PitchVariation": 0.0,
+        "MaxDistance": 1000.0,
         "Priority": 1,
         "Cooldown": 0.0
       },
       "ambient_rain_heavy": {
         "Files": [
-          "assets/audio/sfx/combat/impactSoft_heavy_000.ogg",
-          "assets/audio/sfx/combat/impactSoft_heavy_001.ogg",
-          "assets/audio/sfx/combat/impactSoft_heavy_002.ogg"
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureStormRainThunder.wav",
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureStormRainThunder02.wav"
         ],
-        "Volume": 0.35,
-        "PitchVariation": 0.2,
-        "MaxDistance": 500.0,
+        "Volume": 0.5,
+        "PitchVariation": 0.0,
+        "MaxDistance": 1000.0,
         "Priority": 1,
         "Cooldown": 0.0
       },
@@ -646,12 +647,13 @@
       },
       "ambient_river_flowing": {
         "Files": [
-          "assets/audio/sfx/combat/impactSoft_medium_000.ogg",
-          "assets/audio/sfx/combat/impactSoft_medium_001.ogg"
+          "assets/audio/sfx/ambient/nature/Stream/Stream01.wav",
+          "assets/audio/sfx/ambient/nature/Stream/StreamAndBirds02.wav",
+          "assets/audio/sfx/ambient/nature/Stream/StreamAndBirds03.wav"
         ],
-        "Volume": 0.3,
-        "PitchVariation": 0.1,
-        "MaxDistance": 100.0,
+        "Volume": 0.4,
+        "PitchVariation": 0.0,
+        "MaxDistance": 150.0,
         "Priority": 1,
         "Cooldown": 0.0
       },
@@ -681,15 +683,14 @@
       },
       "ambient_birds_chirping": {
         "Files": [
-          "assets/audio/sfx/combat/computerNoise_000.ogg",
-          "assets/audio/sfx/combat/computerNoise_001.ogg",
-          "assets/audio/sfx/combat/computerNoise_002.ogg"
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureBirdsWater01.wav",
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureOutside.wav"
         ],
-        "Volume": 0.25,
-        "PitchVariation": 0.3,
-        "MaxDistance": 80.0,
+        "Volume": 0.3,
+        "PitchVariation": 0.0,
+        "MaxDistance": 500.0,
         "Priority": 1,
-        "Cooldown": 1.0
+        "Cooldown": 0.0
       },
       "ambient_birds_alarmed": {
         "Files": [
@@ -765,6 +766,65 @@
         "MaxDistance": 200.0,
         "Priority": 1,
         "Cooldown": 0.0
+      },
+      "ambient_nature_day": {
+        "Files": [
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureBirdsWater01.wav",
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureOutside.wav"
+        ],
+        "Volume": 0.35,
+        "PitchVariation": 0.0,
+        "MaxDistance": 1000.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_nature_night_rain": {
+        "Files": [
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureNightRainy.wav"
+        ],
+        "Volume": 0.4,
+        "PitchVariation": 0.0,
+        "MaxDistance": 1000.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_storm": {
+        "Files": [
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureStormRainThunder.wav",
+          "assets/audio/sfx/ambient/nature/Ambient/AmbientNatureStormRainThunder02.wav"
+        ],
+        "Volume": 0.55,
+        "PitchVariation": 0.0,
+        "MaxDistance": 1000.0,
+        "Priority": 2,
+        "Cooldown": 0.0
+      },
+      "ambient_water_stream": {
+        "Files": [
+          "assets/audio/sfx/ambient/nature/Stream/Stream01.wav",
+          "assets/audio/sfx/ambient/nature/Stream/StreamAndBirds02.wav",
+          "assets/audio/sfx/ambient/nature/Stream/StreamAndBirds03.wav"
+        ],
+        "Volume": 0.35,
+        "PitchVariation": 0.0,
+        "MaxDistance": 120.0,
+        "Priority": 1,
+        "Cooldown": 0.0
+      },
+      "ambient_foliage_rustle": {
+        "Files": [
+          "assets/audio/sfx/ambient/nature/Foliage/Foliage01.wav",
+          "assets/audio/sfx/ambient/nature/Foliage/Foliage02.wav",
+          "assets/audio/sfx/ambient/nature/Foliage/Foliage03.wav",
+          "assets/audio/sfx/ambient/nature/Foliage/Foliage04.wav",
+          "assets/audio/sfx/ambient/nature/Foliage/Foliage05.wav",
+          "assets/audio/sfx/ambient/nature/Foliage/Foliage06.wav"
+        ],
+        "Volume": 0.2,
+        "PitchVariation": 0.15,
+        "MaxDistance": 40.0,
+        "Priority": 1,
+        "Cooldown": 0.3
       }
     },
     "construction": {
@@ -1104,9 +1164,11 @@
     "voice": {
       "voice_move_acknowledge": {
         "Files": [
-          "assets/audio/sfx/ui/click1.ogg",
-          "assets/audio/sfx/ui/click2.ogg",
-          "assets/audio/sfx/ui/click3.ogg"
+          "assets/audio/sfx/voice/war_go_go_go.ogg",
+          "assets/audio/sfx/voice/war_cover_me.ogg",
+          "assets/audio/sfx/voice/war_watch_my_back.ogg",
+          "assets/audio/sfx/voice/go.ogg",
+          "assets/audio/sfx/voice/ready.ogg"
         ],
         "Volume": 0.8,
         "PitchVariation": 0.02,
@@ -1116,9 +1178,10 @@
       },
       "voice_attack_acknowledge": {
         "Files": [
-          "assets/audio/sfx/ui/click1.ogg",
-          "assets/audio/sfx/ui/click2.ogg",
-          "assets/audio/sfx/ui/click3.ogg"
+          "assets/audio/sfx/voice/war_fire_in_the_hole.ogg",
+          "assets/audio/sfx/voice/war_target_engaged.ogg",
+          "assets/audio/sfx/voice/war_suppressing_fire.ogg",
+          "assets/audio/sfx/voice/war_rpg.ogg"
         ],
         "Volume": 0.8,
         "PitchVariation": 0.02,
@@ -1128,20 +1191,22 @@
       },
       "voice_select_acknowledge": {
         "Files": [
-          "assets/audio/sfx/ui/select_001.ogg",
-          "assets/audio/sfx/ui/select_002.ogg",
-          "assets/audio/sfx/ui/select_003.ogg"
+          "assets/audio/sfx/voice/ready.ogg",
+          "assets/audio/sfx/voice/go.ogg",
+          "assets/audio/sfx/voice/hold.ogg",
+          "assets/audio/sfx/voice/war_watch_my_back.ogg"
         ],
         "Volume": 0.75,
-        "PitchVariation": 0.03,
+        "PitchVariation": 0.02,
         "MaxDistance": 0.0,
         "Priority": 8,
         "Cooldown": 0.4
       },
       "voice_under_attack": {
         "Files": [
-          "assets/audio/sfx/ui/error_001.ogg",
-          "assets/audio/sfx/ui/error_002.ogg"
+          "assets/audio/sfx/voice/war_look_out.ogg",
+          "assets/audio/sfx/voice/war_get_down.ogg",
+          "assets/audio/sfx/voice/war_call_for_backup.ogg"
         ],
         "Volume": 0.9,
         "PitchVariation": 0.02,
@@ -1151,14 +1216,183 @@
       },
       "voice_base_under_attack": {
         "Files": [
-          "assets/audio/sfx/ui/error_003.ogg",
-          "assets/audio/sfx/ui/error_004.ogg"
+          "assets/audio/sfx/voice/war_call_for_backup.ogg",
+          "assets/audio/sfx/voice/war_medic.ogg",
+          "assets/audio/sfx/voice/war_look_out.ogg"
         ],
         "Volume": 0.95,
         "PitchVariation": 0.02,
         "MaxDistance": 0.0,
         "Priority": 10,
         "Cooldown": 5.0
+      },
+      "voice_mission_complete": {
+        "Files": [
+          "assets/audio/sfx/voice/mission_completed.ogg",
+          "assets/audio/sfx/voice/objective_achieved.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 2.0
+      },
+      "voice_mission_failed": {
+        "Files": [
+          "assets/audio/sfx/voice/mission_failed.ogg",
+          "assets/audio/sfx/voice/game_over.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 2.0
+      },
+      "voice_unit_destroyed": {
+        "Files": [
+          "assets/audio/sfx/voice/war_target_destroyed.ogg"
+        ],
+        "Volume": 0.8,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 8,
+        "Cooldown": 1.0
+      },
+      "voice_enemy_spotted": {
+        "Files": [
+          "assets/audio/sfx/voice/war_sniper.ogg",
+          "assets/audio/sfx/voice/war_look_out.ogg",
+          "assets/audio/sfx/voice/war_rpg.ogg"
+        ],
+        "Volume": 0.85,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 9,
+        "Cooldown": 2.0
+      },
+      "voice_medic_needed": {
+        "Files": [
+          "assets/audio/sfx/voice/war_medic.ogg"
+        ],
+        "Volume": 0.85,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 9,
+        "Cooldown": 3.0
+      },
+      "voice_reloading": {
+        "Files": [
+          "assets/audio/sfx/voice/war_reloading.ogg"
+        ],
+        "Volume": 0.75,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 7,
+        "Cooldown": 1.0
+      },
+      "voice_suppressing_fire": {
+        "Files": [
+          "assets/audio/sfx/voice/war_suppressing_fire.ogg",
+          "assets/audio/sfx/voice/war_cover_me.ogg"
+        ],
+        "Volume": 0.85,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 9,
+        "Cooldown": 2.0
+      },
+      "voice_hurry_up": {
+        "Files": [
+          "assets/audio/sfx/voice/hurry_up.ogg"
+        ],
+        "Volume": 0.8,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 8,
+        "Cooldown": 2.0
+      },
+      "voice_hold_position": {
+        "Files": [
+          "assets/audio/sfx/voice/hold.ogg",
+          "assets/audio/sfx/voice/war_hold.ogg"
+        ],
+        "Volume": 0.8,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 9,
+        "Cooldown": 2.0
+      },
+      "voice_sniper_spotted": {
+        "Files": [
+          "assets/audio/sfx/voice/war_sniper.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 3.0
+      },
+      "voice_rpg_incoming": {
+        "Files": [
+          "assets/audio/sfx/voice/war_rpg.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 3.0
+      },
+      "voice_fire_in_the_hole": {
+        "Files": [
+          "assets/audio/sfx/voice/war_fire_in_the_hole.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 2.0
+      },
+      "voice_get_down": {
+        "Files": [
+          "assets/audio/sfx/voice/war_get_down.ogg"
+        ],
+        "Volume": 0.85,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 9,
+        "Cooldown": 2.0
+      },
+      "voice_call_for_backup": {
+        "Files": [
+          "assets/audio/sfx/voice/war_call_for_backup.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.02,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 4.0
+      },
+      "voice_victory": {
+        "Files": [
+          "assets/audio/sfx/voice/congratulations.ogg",
+          "assets/audio/sfx/voice/you_win.ogg"
+        ],
+        "Volume": 0.9,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 2.0
+      },
+      "voice_defeat": {
+        "Files": [
+          "assets/audio/sfx/voice/you_lose.ogg",
+          "assets/audio/sfx/voice/game_over.ogg"
+        ],
+        "Volume": 0.85,
+        "PitchVariation": 0.0,
+        "MaxDistance": 0.0,
+        "Priority": 10,
+        "Cooldown": 2.0
       }
     },
     "music": {
