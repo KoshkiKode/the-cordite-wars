@@ -5,6 +5,7 @@ on:
 
 env:
   GODOT_VERSION: "4.6.2-stable"
+  APP_VERSION: "0.1.0"
 
 jobs:
   build-all-platforms:
@@ -21,102 +22,177 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download All Artifacts
+      # ── Download each platform artifact into its own raw directory ──────────
+
+      - name: Download Android APK
         uses: actions/download-artifact@v4
         with:
-          path: artifacts/
+          name: CorditeWars-Android
+          path: artifacts/android-raw
 
-      - name: Generate Checksums
-        run: |
-          python3 - <<'EOF'
-          import hashlib
-          import json
-          from pathlib import Path
-          from datetime import datetime
-          
-          artifacts_dir = Path("artifacts")
-          checksums = {}
-          
-          for file_path in sorted(artifacts_dir.rglob("*")):
-              if not file_path.is_file():
-                  continue
-              
-              rel_path = file_path.relative_to(artifacts_dir)
-              sha256 = hashlib.sha256()
-              with open(file_path, "rb") as f:
-                  for chunk in iter(lambda: f.read(8192), b""):
-                      sha256.update(chunk)
-              
-              checksums[str(rel_path)] = sha256.hexdigest()
-          
-          # Write checksums
-          with open("checksums.txt", "w") as f:
-              for path, hash in sorted(checksums.items()):
-                  f.write(f"{hash}  {path}\n")
-          
-          with open("checksums.json", "w") as f:
-              json.dump({
-                  "generated": datetime.utcnow().isoformat() + "Z",
-                  "algorithm": "sha256",
-                  "artifacts": [
-                      {"file": p, "checksum": c}
-                      for p, c in sorted(checksums.items())
-                  ]
-              }, f, indent=2)
-          
-          print("✓ Generated checksums")
-          EOF
+      - name: Download Windows EXE installer
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows-Setup-EXE
+          path: artifacts/windows-raw
 
-      - name: Flatten Artifacts
-        run: |
-          mkdir -p release_artifacts
-          for dir in artifacts/*/; do
-              cp -r "$dir"* release_artifacts/ 2>/dev/null || true
-          done
-          cp checksums.* release_artifacts/
-          ls -lah release_artifacts/
+      - name: Download Windows MSI installer
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows-MSI
+          path: artifacts/windows-raw
 
-      - name: Create Release Notes
+      - name: Download Linux binary
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux
+          path: artifacts/linux-raw
+
+      - name: Download Linux Snap
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux-Snap
+          path: artifacts/linux-snap-raw
+
+      - name: Download macOS DMG
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-macOS-DMG
+          path: artifacts/macos-raw
+
+      - name: Download iOS/iPadOS Handoff
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-iOS-iPadOS-Handoff
+          path: artifacts/ios-raw
+
+      # ── Arrange files into the target folder hierarchy ──────────────────────
+      #
+      #   stage/
+      #     android/          ← CorditeWars.apk
+      #     windows/          ← .exe + .msi installers
+      #     linux/            ← binary + .snap
+      #     apple/
+      #       macos/          ← .dmg
+      #       ios/            ← Xcode project (iOS)
+      #       ipados/         ← Xcode project (iPadOS — same binary as iOS)
+
+      - name: Organise release tree
         run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          echo "# 🎮 Cordite Wars: Six Fronts $VERSION" > release_notes.md
-          echo "" >> release_notes.md
-          echo "Multi-platform release featuring:" >> release_notes.md
-          echo "- 🪟 **Windows** (.exe + .msi installer)" >> release_notes.md
-          echo "- 🐧 **Linux** (binary + snap)" >> release_notes.md
-          echo "- 🤖 **Android** (.apk sideload + .aab for Google Play)" >> release_notes.md
-          echo "- 🍎 **macOS** (.app + .dmg)" >> release_notes.md
-          echo "- 📱 **iOS/iPadOS** (Xcode project handoff for App Store)" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "## Store Distribution" >> release_notes.md
-          echo "- 🎮 **Steam** — auto-deployed via \`deploy-steam\` workflow" >> release_notes.md
-          echo "- 🛒 **GOG** — auto-deployed via \`deploy-gog\` workflow" >> release_notes.md
-          echo "- 🤖 **Google Play** — auto-deployed via \`deploy-google-play\` workflow" >> release_notes.md
-          echo "- 📱 **App Store** — auto-deployed via \`deploy-app-store\` workflow" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "## Installation" >> release_notes.md
-          echo "See [Deployment Guide](docs/deployment-guide.md) for platform-specific instructions." >> release_notes.md
-          echo "" >> release_notes.md
-          echo "## Verification" >> release_notes.md
-          echo "All artifacts are SHA256 checksummed. Verify with:" >> release_notes.md
-          echo "\`\`\`bash" >> release_notes.md
-          echo "sha256sum -c checksums.txt" >> release_notes.md
-          echo "\`\`\`" >> release_notes.md
-          echo "" >> release_notes.md
-          echo "See [CHANGELOG.md](CHANGELOG.md) for detailed changes." >> release_notes.md
+          set -euo pipefail
+
+          # android/
+          mkdir -p stage/android
+          cp artifacts/android-raw/CorditeWars.apk stage/android/
+
+          # windows/
+          mkdir -p stage/windows
+          cp artifacts/windows-raw/*.exe stage/windows/ 2>/dev/null || true
+          cp artifacts/windows-raw/*.msi stage/windows/ 2>/dev/null || true
+
+          # linux/  (binary + runtime data + snap)
+          mkdir -p stage/linux
+          cp artifacts/linux-raw/CorditeWars.x86_64 stage/linux/ 2>/dev/null || true
+          cp artifacts/linux-raw/CorditeWars.pck    stage/linux/ 2>/dev/null || true
+          cp artifacts/linux-raw/*.dll               stage/linux/ 2>/dev/null || true
+          if [ -d artifacts/linux-raw/GodotSharp ]; then
+            cp -r artifacts/linux-raw/GodotSharp stage/linux/
+          fi
+          cp artifacts/linux-snap-raw/*.snap stage/linux/ 2>/dev/null || true
+
+          # apple/macos/
+          mkdir -p stage/apple/macos
+          cp artifacts/macos-raw/*.dmg stage/apple/macos/ 2>/dev/null || true
+
+          # apple/ios/ and apple/ipados/ (same Xcode project — universal for both)
+          mkdir -p stage/apple/ios stage/apple/ipados
+          cp -r artifacts/ios-raw/. stage/apple/ios/
+          cp -r artifacts/ios-raw/. stage/apple/ipados/
+
+          echo "--- Release tree ---"
+          find stage -type f | sort
+
+      # ── Create one ZIP per top-level folder ─────────────────────────────────
+
+      - name: Create platform ZIP archives
+        run: |
+          set -euo pipefail
+          mkdir -p zips
+          cd stage
+          zip -r ../zips/android.zip      android/
+          zip -r ../zips/windows.zip      windows/
+          zip -r ../zips/linux.zip        linux/
+          zip -r ../zips/apple-macos.zip  apple/macos/
+          zip -r ../zips/apple-ios.zip    apple/ios/
+          zip -r ../zips/apple-ipados.zip apple/ipados/
+          cd ..
+          echo "--- ZIP archives ---"
+          ls -lah zips/
+
+      # ── SHA-256 checksums for all release ZIPs ───────────────────────────────
+
+      - name: Generate checksums
+        run: |
+          cd zips
+          sha256sum *.zip > checksums.txt
+          echo "--- Checksums ---"
+          cat checksums.txt
+
+      # ── Release notes ────────────────────────────────────────────────────────
+
+      - name: Create release notes
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+          cat > release_notes.md << 'NOTES'
+          # 🎮 Cordite Wars: Six Fronts
+
+          Each ZIP unpacks to a named folder containing the install files for that platform.
+
+          | Download | Contents |
+          |---|---|
+          | `android.zip` | `android/CorditeWars.apk` — sideload APK |
+          | `windows.zip` | `windows/CorditeWars_Setup_$APP_VERSION.exe` + `CorditeWars_$APP_VERSION.msi` |
+          | `linux.zip` | `linux/CorditeWars.x86_64` (binary) + `linux/*.snap` (Snap package) |
+          | `apple-macos.zip` | `apple/macos/CorditeWars_$APP_VERSION.dmg` |
+          | `apple-ios.zip` | `apple/ios/` — Xcode project for App Store (iOS) |
+          | `apple-ipados.zip` | `apple/ipados/` — Xcode project for App Store (iPadOS) |
+
+          ## Store distribution
+
+          - 🎮 **Steam** — auto-deployed via `deploy-steam` workflow
+          - 🛒 **GOG** — auto-deployed via `deploy-gog` workflow
+          - 🤖 **Google Play** — auto-deployed via `deploy-google-play` workflow
+          - 📱 **App Store** — auto-deployed via `deploy-app-store` workflow
+
+          ## Verify checksums
+
+          ```bash
+          sha256sum -c checksums.txt
+          ```
+
+          See [CHANGELOG.md](CHANGELOG.md) for detailed changes.
+          NOTES
+          # Substitute the version placeholder
+          sed -i "s/\$APP_VERSION/${{ env.APP_VERSION }}/g" release_notes.md
+
+      # ── Publish ──────────────────────────────────────────────────────────────
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           body_path: release_notes.md
           files: |
-            release_artifacts/*
-            checksums.txt
-            checksums.json
+            zips/android.zip
+            zips/windows.zip
+            zips/linux.zip
+            zips/apple-macos.zip
+            zips/apple-ios.zip
+            zips/apple-ipados.zip
+            zips/checksums.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Notify Release
+      - name: Summary
         run: |
           echo "✓ Released ${{ github.ref_name }}"
-          echo "  Download: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+          echo "  https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
