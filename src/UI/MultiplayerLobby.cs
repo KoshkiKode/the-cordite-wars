@@ -266,7 +266,7 @@ public partial class MultiplayerLobby : Control
         // Build game row
         var row = new HBoxContainer();
         row.AddThemeConstantOverride("separation", 16);
-        row.Name = $"Game_{hostAddress}";
+        row.Name = $"Game_{AddressToNodeKey(hostAddress)}";
 
         var panel = new Panel();
         panel.AddThemeStyleboxOverride("panel", UITheme.MakePanel());
@@ -307,7 +307,7 @@ public partial class MultiplayerLobby : Control
 
     private void OnGameLost(string hostAddress)
     {
-        var node = _gameListBox.GetNodeOrNull($"Game_{hostAddress}");
+        var node = _gameListBox.GetNodeOrNull($"Game_{AddressToNodeKey(hostAddress)}");
         node?.QueueFree();
 
         // Show "no games" if empty
@@ -532,6 +532,18 @@ public partial class MultiplayerLobby : Control
             _lobbyManager.SetMap(MapIds[idx]);
         }
     }
+
+    /// <summary>Matches any character that is not a safe Godot node-name character.</summary>
+    private static readonly System.Text.RegularExpressions.Regex UnsafeNodeNameChars =
+        new(@"[^a-zA-Z0-9_]", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>
+    /// Converts a host address (which may contain colons in IPv6 notation) into a
+    /// safe node-name key. Colons and other characters that are illegal in Godot
+    /// NodePaths are replaced with underscores.
+    /// </summary>
+    private static string AddressToNodeKey(string address)
+        => UnsafeNodeNameChars.Replace(address, "_");
 
     public override void _ExitTree()
     {
