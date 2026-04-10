@@ -22,7 +22,8 @@
       "starting_cordite": 3000,
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
-      "twist": ""
+      "twist": "",
+      "win_condition": "kill_all_units"
     },
     {
       "id": "ironmarch_02",
@@ -42,7 +43,8 @@
       "starting_cordite": 3500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Kragmore will send Dozer units to destroy the roads — defend them."
+      "twist": "Kragmore will send Dozer units to destroy the roads \u2014 defend them.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "ironmarch_03",
@@ -63,7 +65,8 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Bastion will probe from the south while Valkyr attacks from above."
+      "twist": "Bastion will probe from the south while Valkyr attacks from above.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "ironmarch_04",
@@ -83,7 +86,8 @@
       "starting_cordite": 5000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Kragmore will opportunistically attack Ironmarch's rear during the siege."
+      "twist": "Kragmore will opportunistically attack Ironmarch's rear during the siege.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "ironmarch_05",
@@ -103,7 +107,8 @@
       "starting_cordite": 4500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Valkyr will strafe the landing zone — establish AA cover on the beach first."
+      "twist": "Valkyr will strafe the landing zone \u2014 establish AA cover on the beach first.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "ironmarch_06",
@@ -125,7 +130,8 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Supply line trucks will be targeted — escort them at all times."
+      "twist": "Supply line trucks will be targeted \u2014 escort them at all times.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "ironmarch_07",
@@ -145,7 +151,8 @@
       "starting_cordite": 4500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Without Arcloft surveillance, enemy factions will fight each other — exploit the chaos."
+      "twist": "Without Arcloft surveillance, enemy factions will fight each other \u2014 exploit the chaos.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "ironmarch_08",
@@ -168,7 +175,8 @@
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Ironmarch's walls can hold against multiple factions — use them to channel enemy attacks."
+      "twist": "Ironmarch's walls can hold against multiple factions \u2014 use them to channel enemy attacks.",
+      "win_condition": "destroy_hq"
     }
   ]
 }

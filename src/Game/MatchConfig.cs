@@ -1,3 +1,4 @@
+using CorditeWars.Game.Campaign;
 using CorditeWars.Game.World;
 
 namespace CorditeWars.Game;
@@ -25,6 +26,13 @@ public sealed class MatchConfig
     public int GameSpeed { get; init; } = 1;
     public bool FogOfWar { get; init; } = true;
     public int StartingCordite { get; init; } = 5000;
+
+    /// <summary>
+    /// Victory condition for the match.
+    /// Defaults to <see cref="WinCondition.DestroyHQ"/> (standard skirmish).
+    /// Campaign missions may override this to <see cref="WinCondition.KillAllUnits"/>.
+    /// </summary>
+    public WinCondition WinCondition { get; init; } = WinCondition.DestroyHQ;
 
     /// <summary>
     /// When set, a map is generated procedurally using this config instead of

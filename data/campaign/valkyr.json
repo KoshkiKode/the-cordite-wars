@@ -20,7 +20,8 @@
       "starting_cordite": 3000,
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
-      "twist": ""
+      "twist": "",
+      "win_condition": "kill_all_units"
     },
     {
       "id": "valkyr_02",
@@ -39,7 +40,8 @@
       "starting_cordite": 3500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Kragmore will push from two directions simultaneously at the 5-minute mark."
+      "twist": "Kragmore will push from two directions simultaneously at the 5-minute mark.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "valkyr_03",
@@ -59,7 +61,8 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Ironmarch FOB trucks must be destroyed before they establish bases."
+      "twist": "Ironmarch FOB trucks must be destroyed before they establish bases.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "valkyr_04",
@@ -79,7 +82,8 @@
       "starting_cordite": 4500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Stormrend will raid supply nodes every 3 minutes."
+      "twist": "Stormrend will raid supply nodes every 3 minutes.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "valkyr_05",
@@ -99,7 +103,8 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Valkyr air units can operate over water — use this advantage."
+      "twist": "Valkyr air units can operate over water \u2014 use this advantage.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "valkyr_06",
@@ -120,7 +125,8 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Enemy factions will periodically call truces to coordinate attacks on Valkyr."
+      "twist": "Enemy factions will periodically call truces to coordinate attacks on Valkyr.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "valkyr_07",
@@ -140,7 +146,8 @@
       "starting_cordite": 4000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Resources are scarce — this is a precision strike, not a war of attrition."
+      "twist": "Resources are scarce \u2014 this is a precision strike, not a war of attrition.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "valkyr_08",
@@ -163,7 +170,8 @@
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "All other factions begin in full war with each other — but will unite against whoever controls the Nexus."
+      "twist": "All other factions begin in full war with each other \u2014 but will unite against whoever controls the Nexus.",
+      "win_condition": "destroy_hq"
     }
   ]
 }

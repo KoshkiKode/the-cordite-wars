@@ -4,6 +4,18 @@ using System.Text.Json.Serialization;
 namespace CorditeWars.Game.Campaign;
 
 /// <summary>
+/// Victory condition variants for a match or campaign mission.
+/// </summary>
+public enum WinCondition
+{
+    /// <summary>Default: destroy all enemy Command Centres (HQ buildings).</summary>
+    DestroyHQ,
+
+    /// <summary>Eliminate all enemy mobile units (no buildings required).</summary>
+    KillAllUnits
+}
+
+/// <summary>
 /// A single campaign mission definition, loaded from <c>data/campaign/{faction}.json</c>.
 /// </summary>
 public sealed class CampaignMission
@@ -21,6 +33,20 @@ public sealed class CampaignMission
     [JsonPropertyName("difficulty_label")] public string DifficultyLabel { get; set; } = "Normal";
     [JsonPropertyName("twist")]            public string Twist          { get; set; } = string.Empty;
     [JsonPropertyName("unlocks_mission")]  public int?   UnlocksMission { get; set; }
+
+    /// <summary>
+    /// Serialised win-condition identifier.
+    /// <c>"destroy_hq"</c> (default) or <c>"kill_all_units"</c>.
+    /// </summary>
+    [JsonPropertyName("win_condition")] public string WinConditionId { get; set; } = "destroy_hq";
+
+    /// <summary>Resolved <see cref="WinCondition"/> from <see cref="WinConditionId"/>.</summary>
+    [JsonIgnore]
+    public WinCondition WinCondition => WinConditionId switch
+    {
+        "kill_all_units" => WinCondition.KillAllUnits,
+        _                => WinCondition.DestroyHQ
+    };
 }
 
 /// <summary>

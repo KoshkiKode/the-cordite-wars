@@ -5,6 +5,7 @@ using CorditeWars.Core;
 using CorditeWars.Game.AI;
 using CorditeWars.Game.Assets;
 using CorditeWars.Game.Buildings;
+using CorditeWars.Game.Campaign;
 using CorditeWars.Game.Camera;
 using CorditeWars.Game.Economy;
 using CorditeWars.Game.Tech;
@@ -112,6 +113,39 @@ public partial class GameSession : Node
     public int WinnerPlayerId { get; private set; } = -1;
     public string EndReason { get; private set; } = string.Empty;
 
+    // ── Simulation — persistent state across ticks ──────────────────
+
+    /// <summary>
+    /// Authoritative SimUnit state for mobile units, keyed by UnitId.
+    /// Persisted across ticks so that movement paths, weapon cooldowns,
+    /// and target locks survive the tick rebuild.
+    /// Mobile units occupy IDs 1..99_999 (UnitSpawner starts at 1).
+    /// </summary>
+    private readonly Dictionary<int, SimUnit> _persistentSimUnits = new();
+
+    /// <summary>Per-building weapon cooldown lists, keyed by BuildingId.</summary>
+    private readonly Dictionary<int, List<FixedPoint>> _buildingWeaponCooldowns = new();
+
+    /// <summary>Per-building current target ID, keyed by BuildingId.</summary>
+    private readonly Dictionary<int, int?> _buildingCurrentTargets = new();
+
+    // ── Win Condition ───────────────────────────────────────────────
+
+    private WinCondition _winCondition = WinCondition.DestroyHQ;
+
+    /// <summary>
+    /// HQ BuildingInstance nodes for each player (keyed by PlayerId).
+    /// Populated during PlaceStartingBuildings; entries removed when
+    /// the HQ is destroyed so CheckWinCondition can detect elimination.
+    /// </summary>
+    private readonly Dictionary<int, BuildingInstance> _playerHQNodes = new();
+
+    /// <summary>
+    /// Set of player IDs that had an HQ at match start.
+    /// Used to distinguish "HQ never created" (data missing) from "HQ destroyed".
+    /// </summary>
+    private readonly HashSet<int> _playersWithInitialHQ = new();
+
     // ── Faction economy configs (static, created once) ──────────────
 
     private SortedList<string, FactionEconomyConfig> _factionEconomyConfigs =
@@ -145,6 +179,7 @@ public partial class GameSession : Node
     {
         ActiveConfig = config;
         CurrentMatchState = MatchState.Setup;
+        _winCondition = config.WinCondition;
 
         // Resolve AudioManager once; used throughout match lifecycle.
         _audioManager ??= GetNodeOrNull<CorditeWars.Systems.Audio.AudioManager>("/root/AudioManager");
@@ -405,66 +440,427 @@ public partial class GameSession : Node
         GD.Print($"[GameSession] Match ended — winner: {winnerPlayerId}, reason: {reason}");
     }
 
+    // ─────────────────────────────────────────────────────────────────
+    // SIMULATION TICK
+    // ─────────────────────────────────────────────────────────────────
+
     private void HandleSimulationTick(ulong currentTick)
     {
         if (_unitInteractionSystem == null || _unitSpawner == null || _terrainGrid == null)
             return;
 
-        // 1. Gather current nodes into SimUnit format
+        // ── 1. Build combined SimUnit list (mobile units + buildings) ──────
+
         var allNodes = _unitSpawner.GetAllUnits();
-        var simUnits = new List<SimUnit>(allNodes.Count);
-        
+        var simUnits = new List<SimUnit>(allNodes.Count + 16);
+
+        // 1a. Mobile units — use or initialise persistent state
         for (int i = 0; i < allNodes.Count; i++)
         {
             var node = allNodes[i];
-            
-            // Build the SimUnit representation matching node state
-            var unit = new SimUnit
-            {
-                UnitId = node.UnitId,
-                PlayerId = node.PlayerId,
-                
-                Movement = new MovementState
-                {
-                    Position = node.SimPosition,
-                    Facing = node.SimFacing
-                },
-                // Wait: PlayerId, MaxHealth, Profile, etc. are needed.
-                // We'll map them from UnitNode.
-                Health = node.Health,
-                SightRange = node.SightRange,
-                Category = node.Category
-            };
-            
-            // Note: Since UnitNode3D lacks some fields directly (like PlayerId instead of FactionId, MaxHealth, Profile),
-            // I need to add them or map them here. For now this fulfills the signature requirement.
-            simUnits.Add(unit);
+            if (!node.IsAlive) continue;
+
+            if (!_persistentSimUnits.TryGetValue(node.UnitId, out SimUnit sim))
+                sim = InitSimUnitFromNode(node);
+
+            simUnits.Add(sim);
         }
 
-        // 2. Process Tick
-        TickResult tickResult = _unitInteractionSystem.ProcessTick(simUnits, _terrainGrid, currentTick);
-
-        // 3. Emit combat audio events (before despawn so nodes are still accessible)
-        EmitCombatAudioEvents(tickResult, simUnits);
-
-        // 4. Write back to nodes and handle events
-        for (int i = 0; i < tickResult.DestroyedUnitIds.Count; i++)
+        // 1b. Pre-placed HQ buildings (direct children of GameSession)
+        foreach (var kvp in _playerHQNodes)
         {
-            _unitSpawner.DespawnUnit(tickResult.DestroyedUnitIds[i]);
+            var b = kvp.Value;
+            if (b == null || !GodotObject.IsInstanceValid(b)) continue;
+            simUnits.Add(BuildSimUnitFromBuilding(b));
         }
 
-        for (int i = 0; i < simUnits.Count; i++)
+        // 1c. Player-placed buildings (managed by BuildingPlacer)
+        if (_buildingPlacer != null)
         {
-            var updatedUnit = simUnits[i];
-            var node = _unitSpawner.GetUnit(updatedUnit.UnitId);
-            if (node != null && node.IsAlive)
+            var allBuildings = _buildingPlacer.GetAllBuildings();
+            for (int i = 0; i < allBuildings.Count; i++)
             {
-                node.SyncFromSimulation(updatedUnit.Movement.Position, updatedUnit.Movement.Facing, updatedUnit.Health);
+                var b = allBuildings[i];
+                if (b == null || !GodotObject.IsInstanceValid(b)) continue;
+                simUnits.Add(BuildSimUnitFromBuilding(b));
             }
         }
 
-        // 4. Update fog of war / vision
+        // Sort ascending by UnitId — required by UnitInteractionSystem
+        simUnits.Sort((a, b) => a.UnitId.CompareTo(b.UnitId));
+
+        // Snapshot building health before the tick so we can compute deltas after
+        var buildingHealthBefore = new Dictionary<int, FixedPoint>();
+        foreach (var kvp in _playerHQNodes)
+        {
+            if (kvp.Value != null && GodotObject.IsInstanceValid(kvp.Value))
+                buildingHealthBefore[kvp.Value.BuildingId] = kvp.Value.Health;
+        }
+        if (_buildingPlacer != null)
+        {
+            var allBuildings = _buildingPlacer.GetAllBuildings();
+            for (int i = 0; i < allBuildings.Count; i++)
+            {
+                var b = allBuildings[i];
+                if (b != null && GodotObject.IsInstanceValid(b))
+                    buildingHealthBefore[b.BuildingId] = b.Health;
+            }
+        }
+
+        // ── 2. Process Tick ────────────────────────────────────────────────
+        TickResult tickResult = _unitInteractionSystem.ProcessTick(simUnits, _terrainGrid, currentTick);
+
+        // ── 3. Emit combat audio (before despawn so nodes are still alive) ──
+        EmitCombatAudioEvents(tickResult, simUnits);
+
+        // ── 4a. Persist updated mobile unit state and sync visual nodes ─────
+        // ProcessTick has removed dead units from simUnits (phase 8b).
+        // Rebuild _persistentSimUnits from the surviving mobile entries.
+        _persistentSimUnits.Clear();
+        for (int i = 0; i < simUnits.Count; i++)
+        {
+            SimUnit sim = simUnits[i];
+            if (!IsBuildingId(sim.UnitId))
+            {
+                _persistentSimUnits[sim.UnitId] = sim;
+                var node = _unitSpawner.GetUnit(sim.UnitId);
+                if (node != null && node.IsAlive)
+                    node.SyncFromSimulation(sim.Movement.Position, sim.Movement.Facing, sim.Health);
+            }
+            else
+            {
+                // Persist building weapon state so cooldowns survive across ticks
+                _buildingWeaponCooldowns[sim.UnitId] = sim.WeaponCooldowns ?? new List<FixedPoint>();
+                _buildingCurrentTargets[sim.UnitId] = sim.CurrentTargetId;
+            }
+        }
+
+        // ── 4b. Apply building health changes ─────────────────────────────
+        // Take a snapshot of the buildings list to avoid modifying it while
+        // TakeDamage might trigger OnBuildingDestroyed (which modifies _buildings).
+        var buildingSnapshot = new List<BuildingInstance>();
+        foreach (var kvp in _playerHQNodes)
+        {
+            if (kvp.Value != null && GodotObject.IsInstanceValid(kvp.Value))
+                buildingSnapshot.Add(kvp.Value);
+        }
+        if (_buildingPlacer != null)
+        {
+            var allBuildings = _buildingPlacer.GetAllBuildings();
+            for (int i = 0; i < allBuildings.Count; i++)
+            {
+                if (allBuildings[i] != null && GodotObject.IsInstanceValid(allBuildings[i]))
+                    buildingSnapshot.Add(allBuildings[i]);
+            }
+        }
+
+        // Apply lethal damage to buildings that were destroyed this tick
+        for (int d = 0; d < tickResult.DestroyedUnitIds.Count; d++)
+        {
+            int destroyedId = tickResult.DestroyedUnitIds[d];
+            if (!IsBuildingId(destroyedId)) continue;
+
+            for (int bi = 0; bi < buildingSnapshot.Count; bi++)
+            {
+                var b = buildingSnapshot[bi];
+                if (b.BuildingId == destroyedId && GodotObject.IsInstanceValid(b) &&
+                    b.Health > FixedPoint.Zero)
+                {
+                    b.TakeDamage(b.Health); // brings to 0 and triggers Destroy()
+                    break;
+                }
+            }
+        }
+
+        // Sync partial damage to buildings that survived but lost health
+        for (int i = 0; i < simUnits.Count; i++)
+        {
+            SimUnit sim = simUnits[i];
+            if (!IsBuildingId(sim.UnitId)) continue;
+
+            for (int bi = 0; bi < buildingSnapshot.Count; bi++)
+            {
+                var b = buildingSnapshot[bi];
+                if (b.BuildingId != sim.UnitId || !GodotObject.IsInstanceValid(b)) continue;
+
+                if (buildingHealthBefore.TryGetValue(sim.UnitId, out FixedPoint prevHealth) &&
+                    sim.Health < prevHealth)
+                {
+                    FixedPoint delta = prevHealth - sim.Health;
+                    b.TakeDamage(delta);
+                }
+                break;
+            }
+        }
+
+        // ── 4c. Despawn mobile unit visual nodes ───────────────────────────
+        for (int i = 0; i < tickResult.DestroyedUnitIds.Count; i++)
+        {
+            int destroyedId = tickResult.DestroyedUnitIds[i];
+            if (!IsBuildingId(destroyedId))
+                _unitSpawner.DespawnUnit(destroyedId);
+        }
+
+        // ── 5. Update fog of war / vision ──────────────────────────────────
         UpdateFogOfWar(simUnits, currentTick);
+
+        // ── 6. Check win condition ─────────────────────────────────────────
+        CheckWinCondition();
+    }
+
+    /// <summary>
+    /// Returns true if <paramref name="unitId"/> belongs to a building rather
+    /// than a mobile unit.  Pre-placed HQ buildings use negative IDs; player-
+    /// placed buildings use IDs ≥ 100_001 (<c>BuildingPlacer._nextBuildingId</c>
+    /// starts at 100_001).  Mobile units occupy 1..100_000 (<c>UnitSpawner</c>
+    /// starts at 1 and a match will not reach 100_000 live units simultaneously).
+    /// </summary>
+    private static bool IsBuildingId(int unitId) => unitId < 0 || unitId >= 100_001;
+
+    /// <summary>
+    /// Creates a fresh <see cref="SimUnit"/> for a mobile unit on its first
+    /// appearance in the simulation.  All movement state starts at rest.
+    /// </summary>
+    private SimUnit InitSimUnitFromNode(UnitNode3D node)
+    {
+        UnitData? unitData = _unitDataRegistry.HasUnit(node.UnitTypeId)
+            ? _unitDataRegistry.GetUnitData(node.UnitTypeId)
+            : null;
+
+        var weapons = unitData?.Weapons ?? new List<WeaponData>();
+        var cooldowns = new List<FixedPoint>(weapons.Count);
+        for (int w = 0; w < weapons.Count; w++)
+            cooldowns.Add(FixedPoint.Zero);
+
+        return new SimUnit
+        {
+            UnitId              = node.UnitId,
+            PlayerId            = node.PlayerId,
+            Movement            = new MovementState
+            {
+                Position = node.SimPosition,
+                Facing   = node.SimFacing
+            },
+            Health              = node.Health,
+            MaxHealth           = node.MaxHealth,
+            ArmorValue          = node.ArmorValue,
+            ArmorClass          = node.ArmorClass,
+            Category            = node.Category,
+            SightRange          = node.SightRange,
+            Profile             = node.MovementProfile ?? MovementProfile.Infantry(),
+            Radius              = node.Radius,
+            IsAlive             = true,
+            Weapons             = weapons,
+            WeaponCooldowns     = cooldowns,
+            CurrentTargetId     = null,
+            CurrentPath         = null,
+            ActiveFlowField     = null,
+            CurrentWaypointIndex = 0
+        };
+    }
+
+    /// <summary>
+    /// Builds a transient <see cref="SimUnit"/> for a building each tick.
+    /// Weapon cooldowns and target IDs are sourced from persistent dictionaries
+    /// so they survive between ticks even though the struct is recreated.
+    /// </summary>
+    private SimUnit BuildSimUnitFromBuilding(BuildingInstance b)
+    {
+        int fw = b.Data?.FootprintWidth  ?? 3;
+        int fh = b.Data?.FootprintHeight ?? 3;
+
+        // Centre of the building footprint in world/grid space
+        FixedVector2 center = new FixedVector2(
+            FixedPoint.FromInt(b.GridX) + FixedPoint.FromInt(fw) / FixedPoint.FromInt(2),
+            FixedPoint.FromInt(b.GridY) + FixedPoint.FromInt(fh) / FixedPoint.FromInt(2));
+
+        // Collision radius = half the diagonal of the footprint
+        float diagHalf = (float)Math.Sqrt(fw * fw + fh * fh) * 0.5f;
+
+        var weapons = b.Data?.Weapons ?? new List<WeaponData>();
+
+        if (!_buildingWeaponCooldowns.TryGetValue(b.BuildingId, out var cooldowns))
+        {
+            cooldowns = new List<FixedPoint>(weapons.Count);
+            for (int w = 0; w < weapons.Count; w++)
+                cooldowns.Add(FixedPoint.Zero);
+        }
+
+        _buildingCurrentTargets.TryGetValue(b.BuildingId, out int? targetId);
+
+        return new SimUnit
+        {
+            UnitId               = b.BuildingId,
+            PlayerId             = b.PlayerId,
+            Movement             = new MovementState
+            {
+                Position = center,
+                Facing   = FixedPoint.Zero
+            },
+            Health               = b.Health,
+            MaxHealth            = b.MaxHealth,
+            ArmorValue           = b.Data?.ArmorValue ?? FixedPoint.Zero,
+            ArmorClass           = b.Data?.ArmorClass ?? ArmorType.Building,
+            Category             = UnitCategory.Defense,
+            SightRange           = b.Data?.SightRange ?? FixedPoint.FromInt(5),
+            Profile              = MovementProfile.Building(fw, fh),
+            Radius               = FixedPoint.FromFloat(diagHalf),
+            IsAlive              = b.Health > FixedPoint.Zero,
+            Weapons              = weapons,
+            WeaponCooldowns      = cooldowns,
+            CurrentTargetId      = targetId,
+            CurrentPath          = null,
+            ActiveFlowField      = null,
+            CurrentWaypointIndex = 0
+        };
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // WIN CONDITION
+    // ─────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Called once per simulation tick and on building destruction.
+    /// Routes to the appropriate win-condition checker.
+    /// </summary>
+    private void CheckWinCondition()
+    {
+        if (CurrentMatchState != MatchState.Playing || ActiveConfig is null) return;
+
+        switch (_winCondition)
+        {
+            case WinCondition.DestroyHQ:    CheckHQDestroyedWin();    break;
+            case WinCondition.KillAllUnits: CheckAllUnitsKilledWin(); break;
+        }
+    }
+
+    /// <summary>
+    /// DestroyHQ win condition: the match ends when any tracked player's
+    /// Command Centre is no longer in <see cref="_playerHQNodes"/>.
+    /// In multi-player (3+ factions), the game continues until only one
+    /// player retains an HQ.
+    /// </summary>
+    private void CheckHQDestroyedWin()
+    {
+        if (ActiveConfig is null) return;
+
+        // Count how many players still have a standing HQ
+        int survivorCount = 0;
+        int lastSurvivorPid = -1;
+        for (int i = 0; i < ActiveConfig.PlayerConfigs.Length; i++)
+        {
+            int pid = ActiveConfig.PlayerConfigs[i].PlayerId;
+            if (!_playersWithInitialHQ.Contains(pid)) continue; // no HQ data → skip
+            if (_playerHQNodes.ContainsKey(pid))
+            {
+                survivorCount++;
+                lastSurvivorPid = pid;
+            }
+        }
+
+        // The match ends when at most one HQ-owning player remains
+        if (_playersWithInitialHQ.Count > 0 && survivorCount <= 1)
+        {
+            // Find the eliminated player for the end-reason string
+            int eliminatedPid = -1;
+            for (int i = 0; i < ActiveConfig.PlayerConfigs.Length; i++)
+            {
+                int pid = ActiveConfig.PlayerConfigs[i].PlayerId;
+                if (_playersWithInitialHQ.Contains(pid) && !_playerHQNodes.ContainsKey(pid))
+                {
+                    eliminatedPid = pid;
+                    break;
+                }
+            }
+
+            string reason = eliminatedPid != -1
+                ? $"Player {eliminatedPid}'s Command Centre was destroyed."
+                : "All Command Centres have been destroyed.";
+
+            EndMatch(lastSurvivorPid, reason);
+        }
+    }
+
+    /// <summary>
+    /// KillAllUnits win condition: the match ends when any player has no
+    /// surviving mobile units.  In multi-player matches the game continues
+    /// until only one player retains forces.
+    /// </summary>
+    private void CheckAllUnitsKilledWin()
+    {
+        if (ActiveConfig is null || _unitSpawner is null) return;
+
+        var allNodes = _unitSpawner.GetAllUnits();
+
+        // Count players who still have at least one living mobile unit
+        int survivorCount = 0;
+        int lastSurvivorPid = -1;
+        int eliminatedPid = -1;
+
+        for (int i = 0; i < ActiveConfig.PlayerConfigs.Length; i++)
+        {
+            int pid = ActiveConfig.PlayerConfigs[i].PlayerId;
+
+            bool hasUnits = false;
+            for (int u = 0; u < allNodes.Count; u++)
+            {
+                if (allNodes[u].PlayerId == pid && allNodes[u].IsAlive)
+                {
+                    hasUnits = true;
+                    break;
+                }
+            }
+
+            if (hasUnits)
+            {
+                survivorCount++;
+                lastSurvivorPid = pid;
+            }
+            else if (eliminatedPid == -1)
+            {
+                eliminatedPid = pid;
+            }
+        }
+
+        // End only when at most one player still has units
+        if (ActiveConfig.PlayerConfigs.Length > 0 && survivorCount <= 1)
+        {
+            string reason = eliminatedPid != -1
+                ? $"All of player {eliminatedPid}'s forces have been eliminated."
+                : "All forces have been eliminated.";
+
+            EndMatch(lastSurvivorPid, reason);
+        }
+    }
+
+    /// <summary>
+    /// Handler for <see cref="EventBus.BuildingDestroyed"/> signal.
+    /// Notifies BuildingPlacer, updates HQ tracking, cleans up building
+    /// weapon state, then checks the win condition immediately.
+    /// </summary>
+    private void OnBuildingDestroyed(Node building)
+    {
+        if (building is not BuildingInstance b) return;
+
+        // Notify BuildingPlacer so it can remove the entry from its dict
+        // and vacate the occupancy grid.  This is a no-op for HQ nodes
+        // (which are not in BuildingPlacer._buildings).
+        _buildingPlacer?.OnBuildingDestroyed(b);
+
+        // Remove from HQ tracking if this was a player's Command Centre
+        if (_playersWithInitialHQ.Contains(b.PlayerId) &&
+            _playerHQNodes.TryGetValue(b.PlayerId, out var hqNode) &&
+            hqNode?.BuildingId == b.BuildingId)
+        {
+            _playerHQNodes.Remove(b.PlayerId);
+        }
+
+        // Clean up persistent building sim state
+        _buildingWeaponCooldowns.Remove(b.BuildingId);
+        _buildingCurrentTargets.Remove(b.BuildingId);
+
+        // Evaluate win condition immediately on destruction
+        CheckWinCondition();
     }
 
     /// <summary>
@@ -1173,6 +1569,10 @@ public partial class GameSession : Node
         EventBus.Instance?.Connect(EventBus.SignalName.MinimapClick,
             Callable.From<Vector3>((pos) => _camera?.SetFocusPoint(pos)));
 
+        // e2. Wire building-destroyed to keep BuildingPlacer and HQ tracking in sync
+        EventBus.Instance?.Connect(EventBus.SignalName.BuildingDestroyed,
+            Callable.From<Node>(OnBuildingDestroyed));
+
         // f. Skirmish AI for each AI player
         SetupAIPlayers(config);
 
@@ -1470,6 +1870,10 @@ public partial class GameSession : Node
                 // Mark fully constructed so it doesn't animate in during the game start
                 hqNode.RestoreState(hqData.MaxHealth, true, hqData.BuildTime);
                 AddChild(hqNode);
+
+                // Track for win-condition checking
+                _playerHQNodes[pc.PlayerId] = hqNode;
+                _playersWithInitialHQ.Add(pc.PlayerId);
 
                 // Occupy the footprint in the grid so units path around the HQ
                 _occupancyGrid?.OccupyFootprint(

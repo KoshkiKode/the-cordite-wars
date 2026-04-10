@@ -20,7 +20,8 @@
       "starting_cordite": 3000,
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
-      "twist": ""
+      "twist": "",
+      "win_condition": "kill_all_units"
     },
     {
       "id": "kragmore_02",
@@ -39,7 +40,8 @@
       "starting_cordite": 3500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Bastion has pre-built defence networks — use artillery to break them before advancing."
+      "twist": "Bastion has pre-built defence networks \u2014 use artillery to break them before advancing.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "kragmore_03",
@@ -59,7 +61,8 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Anti-air units are essential — build flak nests early."
+      "twist": "Anti-air units are essential \u2014 build flak nests early.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "kragmore_04",
@@ -79,7 +82,8 @@
       "starting_cordite": 4500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Landing craft are vulnerable to air attack — escort them."
+      "twist": "Landing craft are vulnerable to air attack \u2014 escort them.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "kragmore_05",
@@ -99,7 +103,8 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Ironmarch will attempt to dig in — attack before they establish supply lines."
+      "twist": "Ironmarch will attempt to dig in \u2014 attack before they establish supply lines.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "kragmore_06",
@@ -121,7 +126,8 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Bastion will call for reinforcements from Valkyr and Ironmarch allies."
+      "twist": "Bastion will call for reinforcements from Valkyr and Ironmarch allies.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "kragmore_07",
@@ -141,7 +147,8 @@
       "starting_cordite": 3500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Stormrend units are fast and mobile — Kragmore's heavy armour must cut off escape routes."
+      "twist": "Stormrend units are fast and mobile \u2014 Kragmore's heavy armour must cut off escape routes.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "kragmore_08",
@@ -161,13 +168,14 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Arcloft will detect and counter-attack any force that approaches the relays."
+      "twist": "Arcloft will detect and counter-attack any force that approaches the relays.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "kragmore_09",
       "number": 9,
       "name": "The Six Fronts",
-      "briefing": "The Cordite Nexus — the largest deposit ever found. Kragmore tanks will crush any who stand in the way.",
+      "briefing": "The Cordite Nexus \u2014 the largest deposit ever found. Kragmore tanks will crush any who stand in the way.",
       "map": "six_fronts",
       "player_faction": "kragmore",
       "enemy_factions": [
@@ -184,7 +192,8 @@
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "All factions converge. Kragmore's edge is sheer firepower — use it."
+      "twist": "All factions converge. Kragmore's edge is sheer firepower \u2014 use it.",
+      "win_condition": "destroy_hq"
     }
   ]
 }

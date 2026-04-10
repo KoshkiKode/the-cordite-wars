@@ -753,4 +753,38 @@ public sealed class MovementProfile
             impassableTerrain:    impassable
         );
     }
+
+    /// <summary>
+    /// <b>Building</b> — a static structure with no movement capability.
+    ///
+    /// <list type="bullet">
+    ///   <item>Zero speed — buildings never move.</item>
+    ///   <item>Ground domain — for terrain collision purposes only.</item>
+    ///   <item>Footprint dimensions supplied by the caller (from <see cref="BuildingData"/>).</item>
+    ///   <item>Used to populate <see cref="SimUnit.Profile"/> for buildings
+    ///         entering the simulation tick so that Phase 2 (occupancy) marks
+    ///         the correct grid cells.</item>
+    /// </list>
+    /// </summary>
+    public static MovementProfile Building(int footprintWidth = 3, int footprintHeight = 3)
+    {
+        return new MovementProfile(
+            domain:               MovementDomain.Ground,
+            movementClass:        MovementClass.HeavyVehicle, // closest archetype; irrelevant for static buildings
+            maxSpeed:             FixedPoint.Zero,
+            acceleration:         FixedPoint.Zero,
+            deceleration:         FixedPoint.Zero,
+            turnRate:             FixedPoint.Zero,
+            maxSlopeAngle:        FixedPoint.Zero,
+            mass:                 FPi(999),
+            suspensionStiffness:  FixedPoint.Zero,
+            groundClearance:      FixedPoint.Zero,
+            gravityMultiplier:    FixedPoint.One,
+            crushStrength:        FixedPoint.Zero,
+            footprintWidth:       footprintWidth,
+            footprintHeight:      footprintHeight,
+            terrainSpeedModifiers: new Dictionary<TerrainType, FixedPoint>(),
+            impassableTerrain:    new HashSet<TerrainType>()
+        );
+    }
 }

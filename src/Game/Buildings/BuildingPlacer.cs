@@ -39,9 +39,12 @@ public partial class BuildingPlacer : Node
     // Build radius from nearest HQ/FOB
     private const float MaxBuildRadius = 50f;
 
-    // Track placed buildings
+    // Track placed buildings.
+    // IDs start at 100_001 to avoid collisions with mobile unit IDs (which
+    // start at 1 in UnitSpawner).  Pre-placed HQ buildings use negative IDs
+    // and are managed directly by GameSession, not stored here.
     private readonly SortedList<int, BuildingInstance> _buildings = new();
-    private int _nextBuildingId = 1;
+    private int _nextBuildingId = 100_001;
 
     // HQ positions per player for build radius check
     private readonly SortedList<int, List<FixedVector2>> _hqPositions = new();
