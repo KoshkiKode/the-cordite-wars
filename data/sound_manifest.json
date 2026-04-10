@@ -1397,7 +1397,10 @@
     "music": {
       "music_menu": {
         "Files": [
-          "assets/audio/sfx/ui/Preview.ogg"
+          "assets/audio/music/jingles_PIZZI00.ogg",
+          "assets/audio/music/jingles_PIZZI01.ogg",
+          "assets/audio/music/jingles_PIZZI02.ogg",
+          "assets/audio/music/jingles_PIZZI03.ogg"
         ],
         "Volume": 0.6,
         "PitchVariation": 0.0,
@@ -1407,7 +1410,9 @@
       },
       "music_loading": {
         "Files": [
-          "assets/audio/sfx/ui/Preview.ogg"
+          "assets/audio/music/jingles_PIZZI04.ogg",
+          "assets/audio/music/jingles_PIZZI05.ogg",
+          "assets/audio/music/jingles_PIZZI06.ogg"
         ],
         "Volume": 0.5,
         "PitchVariation": 0.0,
@@ -1417,7 +1422,11 @@
       },
       "music_battle_calm": {
         "Files": [
-          "assets/audio/sfx/ui/Preview.ogg"
+          "assets/audio/music/jingles_SAX00.ogg",
+          "assets/audio/music/jingles_SAX01.ogg",
+          "assets/audio/music/jingles_SAX02.ogg",
+          "assets/audio/music/jingles_NES00.ogg",
+          "assets/audio/music/jingles_NES01.ogg"
         ],
         "Volume": 0.55,
         "PitchVariation": 0.0,
@@ -1427,7 +1436,11 @@
       },
       "music_battle_intense": {
         "Files": [
-          "assets/audio/sfx/ui/Preview.ogg"
+          "assets/audio/music/jingles_HIT00.ogg",
+          "assets/audio/music/jingles_HIT01.ogg",
+          "assets/audio/music/jingles_HIT02.ogg",
+          "assets/audio/music/jingles_STEEL00.ogg",
+          "assets/audio/music/jingles_STEEL01.ogg"
         ],
         "Volume": 0.65,
         "PitchVariation": 0.0,
@@ -1437,7 +1450,9 @@
       },
       "music_victory": {
         "Files": [
-          "assets/audio/sfx/ui/Preview.ogg"
+          "assets/audio/music/jingles_STEEL02.ogg",
+          "assets/audio/music/jingles_STEEL03.ogg",
+          "assets/audio/music/jingles_SAX03.ogg"
         ],
         "Volume": 0.7,
         "PitchVariation": 0.0,
@@ -1447,7 +1462,9 @@
       },
       "music_defeat": {
         "Files": [
-          "assets/audio/sfx/ui/Preview.ogg"
+          "assets/audio/music/jingles_NES02.ogg",
+          "assets/audio/music/jingles_NES03.ogg",
+          "assets/audio/music/jingles_PIZZI07.ogg"
         ],
         "Volume": 0.6,
         "PitchVariation": 0.0,

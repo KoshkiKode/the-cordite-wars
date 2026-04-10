@@ -76,6 +76,8 @@ public partial class GameSession : Node
     // ── Audio ───────────────────────────────────────────────────────
 
     private CombatAudioBridge? _combatAudioBridge;
+    private CorditeWars.Systems.Audio.AudioManager? _audioManager;
+
     // ── Fog of War / Vision ─────────────────────────────────────────
 
     private VisionSystem? _visionSystem;
@@ -143,6 +145,9 @@ public partial class GameSession : Node
     {
         ActiveConfig = config;
         CurrentMatchState = MatchState.Setup;
+
+        // Resolve AudioManager once; used throughout match lifecycle.
+        _audioManager ??= GetNodeOrNull<CorditeWars.Systems.Audio.AudioManager>("/root/AudioManager");
 
         GD.Print($"[GameSession] Starting match — map: {config.MapId}, " +
                  $"players: {config.PlayerConfigs.Length}, seed: {config.MatchSeed}");
@@ -322,6 +327,10 @@ public partial class GameSession : Node
 
         CurrentMatchState = MatchState.Playing;
 
+        // Play match-start stinger and start battle music
+        _audioManager?.PlayUiSoundById("ui_match_start");
+        _audioManager?.PlayMusicById("music_battle_calm");
+
         // Notify Steam of match start
         if (SteamManager.Instance is { } steam && config.PlayerConfigs.Length > 0)
         {
@@ -376,6 +385,9 @@ public partial class GameSession : Node
         // Shutdown multiplayer if active
         _lockstepManager?.Shutdown();
         _networkTransport?.Disconnect();
+
+        // Stop battle music — VictoryScreen will start victory/defeat music
+        _audioManager?.StopMusic();
 
         // Notify Steam: hard AI defeat achievement
         if (SteamManager.Instance is { } steam && ActiveConfig is not null)

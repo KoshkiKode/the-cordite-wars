@@ -1,5 +1,6 @@
 using Godot;
 using CorditeWars.Game.World;
+using CorditeWars.Systems.Audio;
 
 namespace CorditeWars.UI;
 
@@ -35,8 +36,11 @@ public partial class SkirmishLobby : Control
     private string[] _mapIds = System.Array.Empty<string>();
     private int _maxPlayersForMap = 6;
 
+    private AudioManager? _audioManager;
+
     public override void _Ready()
     {
+        _audioManager = GetNodeOrNull<AudioManager>("/root/AudioManager");
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
         // Background
@@ -66,7 +70,11 @@ public partial class SkirmishLobby : Control
         var backBtn = new Button();
         backBtn.Text = "\u25C4 BACK";
         UITheme.StyleButton(backBtn);
-        backBtn.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+        backBtn.Pressed += () =>
+        {
+            _audioManager?.PlayUiSoundById("ui_cancel");
+            GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+        };
         header.AddChild(backBtn);
 
         var headerSpacer = new Control();
@@ -313,6 +321,7 @@ public partial class SkirmishLobby : Control
 
     private void OnAddAiPressed()
     {
+        _audioManager?.PlayUiSoundById("ui_click");
         if (_playerCount < _maxPlayersForMap && _playerCount < MaxSlots)
         {
             _playerCount++;
@@ -340,9 +349,12 @@ public partial class SkirmishLobby : Control
 
         if (_mapSelector.Selected < 0 || _mapSelector.Selected >= _mapIds.Length)
         {
+            _audioManager?.PlayUiSoundById("ui_error");
             GD.PushWarning("[SkirmishLobby] No valid map selected.");
             return;
         }
+
+        _audioManager?.PlayUiSoundById("ui_confirm");
         
         var playerConfigs = new System.Collections.Generic.List<CorditeWars.Game.PlayerConfig>();
         for (int i = 0; i < _playerCount; i++)

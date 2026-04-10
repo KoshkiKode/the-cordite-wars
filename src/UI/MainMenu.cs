@@ -1,4 +1,5 @@
 using Godot;
+using CorditeWars.Systems.Audio;
 
 namespace CorditeWars.UI;
 
@@ -22,9 +23,12 @@ public partial class MainMenu : Control
     };
 
     private readonly Button[] _menuButtons = new Button[ButtonLabelKeys.Length];
+    private AudioManager? _audioManager;
 
     public override void _Ready()
     {
+        _audioManager = GetNodeOrNull<AudioManager>("/root/AudioManager");
+
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
         // Background
@@ -84,7 +88,8 @@ public partial class MainMenu : Control
             btn.Modulate = new Color(1, 1, 1, 0);
 
             int index = i;
-            btn.Pressed += () => OnMenuButtonPressed(index);
+            btn.Pressed       += () => OnMenuButtonPressed(index);
+            btn.MouseEntered  += () => OnButtonHover();
             _menuButtons[i] = btn;
         }
 
@@ -109,7 +114,8 @@ public partial class MainMenu : Control
         copyright.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         footer.AddChild(copyright);
 
-        // Play staggered fade-in
+        // Start menu music and staggered fade-in
+        _audioManager?.PlayMusicById("music_menu");
         PlayFadeIn();
     }
 
@@ -126,6 +132,8 @@ public partial class MainMenu : Control
 
     private void OnMenuButtonPressed(int index)
     {
+        _audioManager?.PlayUiSoundById("ui_click");
+
         if (index == ButtonLabelKeys.Length - 1)
         {
             // Quit
@@ -138,5 +146,10 @@ public partial class MainMenu : Control
         {
             GetTree().ChangeSceneToFile(scene);
         }
+    }
+
+    private void OnButtonHover()
+    {
+        _audioManager?.PlayUiSoundById("ui_hover");
     }
 }

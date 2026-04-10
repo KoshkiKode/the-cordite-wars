@@ -1,6 +1,7 @@
 using Godot;
 using CorditeWars.Core;
 using CorditeWars.Game;
+using CorditeWars.Systems.Audio;
 using CorditeWars.Systems.Networking;
 
 namespace CorditeWars.UI;
@@ -44,8 +45,11 @@ public partial class MultiplayerLobby : Control
     private bool _isReady;
     private bool _isSearching;
 
+    private AudioManager? _audioManager;
+
     public override void _Ready()
     {
+        _audioManager = GetNodeOrNull<AudioManager>("/root/AudioManager");
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
         // Background
@@ -225,6 +229,7 @@ public partial class MultiplayerLobby : Control
 
     private void OnHostPressed()
     {
+        _audioManager?.PlayUiSoundById("ui_confirm");
         _isHost = true;
         _lobbyManager = new LobbyManager();
         AddChild(_lobbyManager);
@@ -243,6 +248,7 @@ public partial class MultiplayerLobby : Control
 
     private void OnFindPressed()
     {
+        _audioManager?.PlayUiSoundById("ui_click");
         if (_isSearching)
         {
             _discovery?.StopListening();
@@ -298,7 +304,11 @@ public partial class MultiplayerLobby : Control
         UITheme.StyleAccentButton(joinBtn);
         string addr = hostAddress;
         int port = gamePort;
-        joinBtn.Pressed += () => OnJoinGame(addr, port);
+        joinBtn.Pressed += () =>
+        {
+            _audioManager?.PlayUiSoundById("ui_confirm");
+            OnJoinGame(addr, port);
+        };
         innerRow.AddChild(joinBtn);
 
         row.AddChild(panel);
@@ -406,6 +416,7 @@ public partial class MultiplayerLobby : Control
 
     private void OnReadyToggle()
     {
+        _audioManager?.PlayUiSoundById("ui_click");
         _isReady = !_isReady;
         _readyBtn.Text = _isReady ? "UNREADY" : "READY";
         _lobbyManager?.RequestSetReady(_isReady);
@@ -429,6 +440,7 @@ public partial class MultiplayerLobby : Control
 
     private void OnLeaveLobby()
     {
+        _audioManager?.PlayUiSoundById("ui_cancel");
         _discovery?.StopBroadcasting();
         _discovery?.StopListening();
         Multiplayer.MultiplayerPeer = null;

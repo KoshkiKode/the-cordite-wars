@@ -1,6 +1,7 @@
 using Godot;
 using System.Text.Json;
 using CorditeWars.Game.Campaign;
+using CorditeWars.Systems.Audio;
 
 namespace CorditeWars.UI;
 
@@ -28,10 +29,13 @@ public partial class CampaignSelect : Control
     private Button _continueBtn = null!;
     private VBoxContainer _detailPanel = null!;
 
+    private AudioManager? _audioManager;
+
     // ── Godot lifecycle ──────────────────────────────────────────────
 
     public override void _Ready()
     {
+        _audioManager = GetNodeOrNull<AudioManager>("/root/AudioManager");
         LoadCampaignData();
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         BuildUI();
@@ -99,7 +103,11 @@ public partial class CampaignSelect : Control
         var backBtn = new Button();
         backBtn.Text = Tr("OPTIONS_BACK");
         UITheme.StyleButton(backBtn);
-        backBtn.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+        backBtn.Pressed += () =>
+        {
+            _audioManager?.PlayUiSoundById("ui_cancel");
+            GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+        };
         header.AddChild(backBtn);
 
         var headerSpacer = new Control();
@@ -233,7 +241,11 @@ public partial class CampaignSelect : Control
         clickBtn.Flat = true;
         clickBtn.MouseDefaultCursorShape = CursorShape.PointingHand;
         int idx = index;
-        clickBtn.Pressed += () => SelectFaction(idx);
+        clickBtn.Pressed += () =>
+        {
+            _audioManager?.PlayUiSoundById("ui_click");
+            SelectFaction(idx);
+        };
         panel.AddChild(clickBtn);
 
         return panel;
@@ -303,6 +315,7 @@ public partial class CampaignSelect : Control
     private void OnStartPressed()
     {
         if (_selectedFaction < 0) return;
+        _audioManager?.PlayUiSoundById("ui_confirm");
         GD.Print($"[CampaignSelect] Starting campaign: {UITheme.FactionNames[_selectedFaction]}");
         ShowComingSoonDialog();
     }
@@ -310,6 +323,7 @@ public partial class CampaignSelect : Control
     private void OnContinuePressed()
     {
         if (_selectedFaction < 0) return;
+        _audioManager?.PlayUiSoundById("ui_confirm");
         GD.Print($"[CampaignSelect] Continuing campaign: {UITheme.FactionNames[_selectedFaction]}");
         ShowComingSoonDialog();
     }

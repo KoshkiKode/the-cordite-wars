@@ -1,4 +1,5 @@
 using Godot;
+using CorditeWars.Systems.Audio;
 
 namespace CorditeWars.UI;
 
@@ -43,9 +44,11 @@ The open-source game development community
     private Label _creditsLabel = null!;
     private float _scrollOffset;
     private bool _fastScroll;
+    private AudioManager? _audioManager;
 
     public override void _Ready()
     {
+        _audioManager = GetNodeOrNull<AudioManager>("/root/AudioManager");
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
         // Background
@@ -66,7 +69,11 @@ The open-source game development community
         var backBtn = new Button();
         backBtn.Text = Tr("OPTIONS_BACK");
         UITheme.StyleButton(backBtn);
-        backBtn.Pressed += () => GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+        backBtn.Pressed += () =>
+        {
+            _audioManager?.PlayUiSoundById("ui_cancel");
+            GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+        };
         header.AddChild(backBtn);
 
         var spacer = new Control();
