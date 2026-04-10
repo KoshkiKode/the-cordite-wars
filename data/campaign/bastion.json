@@ -8,27 +8,28 @@
       "id": "bastion_01",
       "number": 1,
       "name": "First Wall",
-      "briefing": "Kragmore raiders are testing Bastion defences along the eastern border.",
+      "briefing": "Kragmore raiders are testing Bastion defences along the eastern border. Deploy Patrol Rovers ahead of the fortification line — their motion sensors detect stealthed Mole Rat sappers before they can reach the walls.",
       "map": "iron_ridge",
       "player_faction": "bastion",
       "enemy_factions": [
         "kragmore"
       ],
       "objectives": [
+        "Deploy 2 Patrol Rovers to establish a detection perimeter",
         "Repel the Kragmore attack",
         "Keep HQ above 50% health"
       ],
       "starting_cordite": 3000,
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
-      "twist": "",
+      "twist": "Kragmore Mole Rat sappers are stealthy — without Patrol Rovers on the perimeter, they will reach the walls unseen.",
       "win_condition": "kill_all_units"
     },
     {
       "id": "bastion_02",
       "number": 2,
       "name": "Fortress Protocol",
-      "briefing": "Build an impenetrable network of walls and turrets before the next Kragmore assault.",
+      "briefing": "Build an impenetrable network of walls and turrets before the next Kragmore assault. Watcher towers complete the sensor layer — together with Patrol Rovers, they form the Fortification Network that makes approaching Bastion positions nearly impossible.",
       "map": "crossroads",
       "player_faction": "bastion",
       "enemy_factions": [
@@ -36,20 +37,21 @@
       ],
       "objectives": [
         "Build 5 Bastion Turrets",
+        "Build 3 Watcher towers to form a detection ring",
         "Survive for 15 minutes",
         "Destroy all enemy forces"
       ],
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Kragmore will bring siege artillery \u2014 position walls to absorb the bombardment.",
+      "twist": "Kragmore will bring siege artillery and Mole Rat sappers — position Watcher towers to spot stealth infiltrators before they reach the inner walls.",
       "win_condition": "destroy_hq"
     },
     {
       "id": "bastion_03",
       "number": 3,
       "name": "The Aerial Siege",
-      "briefing": "Valkyr aircraft are bombing Bastion positions. Anti-air is critical.",
+      "briefing": "Valkyr aircraft are bombing Bastion positions. Anti-air is critical. Valkyr Windrunner spotters are stealth infantry relaying targeting data — Patrol Rovers can detect them. Destroying the Windrunners will blind the Valkyr strike packages.",
       "map": "dust_bowl",
       "player_faction": "bastion",
       "enemy_factions": [
@@ -57,20 +59,21 @@
         "kragmore"
       ],
       "objectives": [
+        "Deploy Patrol Rovers to hunt Valkyr Windrunner stealth spotters",
         "Shoot down 10 Valkyr aircraft",
         "Hold all resource nodes"
       ],
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Valkyr will attack in waves \u2014 prepare flak defences in multiple sectors.",
+      "twist": "Valkyr will attack in waves guided by stationary Windrunner spotters. Patrol Rovers detect them — once a Windrunner opens fire it briefly loses stealth, so position Rovers to catch them in the act.",
       "win_condition": "destroy_hq"
     },
     {
       "id": "bastion_04",
       "number": 4,
       "name": "Counter-Strike",
-      "briefing": "Castellan Mira orders a rare offensive operation \u2014 capture the enemy supply hub.",
+      "briefing": "Castellan Mira orders a rare offensive operation — capture the enemy supply hub. Ironmarch Signal Trucks will detect Bastion forces the moment they enter sensor range. Locate and destroy the Signal Trucks before advancing.",
       "map": "dust_bowl",
       "player_faction": "bastion",
       "enemy_factions": [
@@ -78,20 +81,21 @@
         "ironmarch"
       ],
       "objectives": [
+        "Destroy the Ironmarch Signal Trucks to eliminate detection coverage",
         "Capture the enemy supply depot",
         "Return to defended perimeter"
       ],
       "starting_cordite": 4500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Bastion units are slow \u2014 plan the strike route carefully to avoid being flanked.",
+      "twist": "Bastion units are slow — plan the route carefully. With Ironmarch Signal Trucks active, the enemy will know your exact position at all times. Destroying them is not optional.",
       "win_condition": "destroy_hq"
     },
     {
       "id": "bastion_05",
       "number": 5,
       "name": "Naval Blockade",
-      "briefing": "Kragmore warships are blockading Bastion island colonies. Break through.",
+      "briefing": "Kragmore warships are blockading Bastion island colonies. Break through. Deploy Depth Ward stealth submarines to infiltrate the blockade line undetected, then use their detection abilities to expose any lurking Stormrend Riptide Subs.",
       "map": "archipelago",
       "player_faction": "bastion",
       "enemy_factions": [
@@ -99,20 +103,43 @@
         "stormrend"
       ],
       "objectives": [
+        "Use Depth Ward submarines to infiltrate the Kragmore blockade line",
         "Destroy the naval blockade",
+        "Detect and eliminate any Stormrend Riptide Subs in the shipping lanes",
         "Escort supply ships to port"
       ],
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Stormrend will harry the supply ships from the flank \u2014 split forces carefully.",
+      "twist": "Stormrend Riptide Subs are invisible to Bastion's surface ships — only the Depth Ward's built-in sonar can reveal them. Keep a Depth Ward ahead of each supply ship convoy.",
       "win_condition": "destroy_hq"
     },
     {
       "id": "bastion_06",
       "number": 6,
+      "name": "Ghost in the Network",
+      "briefing": "Arcloft has deployed Phantom Submarines and Vigilant jets to monitor all Bastion shipping lanes — feeding position data to every enemy faction. The Fortification Network must be extended beneath the waves. Deploy Depth Ward submarines and surface Corvettes to expose and eliminate the Arcloft surveillance network.",
+      "map": "archipelago",
+      "player_faction": "bastion",
+      "enemy_factions": [
+        "arcloft"
+      ],
+      "objectives": [
+        "Deploy 4 Patrol Rovers along the coastal detection perimeter",
+        "Use Corvettes to detect and destroy 3 Arcloft Phantom Submarines",
+        "Destroy the Arcloft Aether Relay on the central island"
+      ],
+      "starting_cordite": 5000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Arcloft Phantom Subs can activate their overwatch stealth ping — briefly surfacing to reveal all Bastion positions. When the ping is active the sub loses stealth momentarily: that is the only window to destroy it. Have Corvettes ready to fire on sight.",
+      "win_condition": "destroy_hq"
+    },
+    {
+      "id": "bastion_07",
+      "number": 7,
       "name": "The Coalition",
-      "briefing": "Three factions press in from all sides. The Bastion will hold.",
+      "briefing": "Three factions press in from all sides. The Bastion will hold. Watcher towers and Patrol Rovers must cover every approach — Kragmore Mole Rats, Stormrend Flicker Mines, and Valkyr Windrunners will each attempt stealth infiltration.",
       "map": "iron_ridge",
       "player_faction": "bastion",
       "enemy_factions": [
@@ -121,20 +148,21 @@
         "stormrend"
       ],
       "objectives": [
+        "Build a Watcher tower on each of the 3 approach corridors",
         "Survive 25 minutes",
         "Eliminate all enemy commanders"
       ],
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Enemy factions will attempt to break through different sections of the wall simultaneously.",
+      "twist": "Enemy factions will attempt to break through different wall sections simultaneously, using stealth units to mask their true point of attack. Watcher towers on every corridor — not just the main gate — are essential.",
       "win_condition": "destroy_hq"
     },
     {
-      "id": "bastion_07",
-      "number": 7,
+      "id": "bastion_08",
+      "number": 8,
       "name": "The Six Fronts",
-      "briefing": "The Bastion Republic has maintained control of its sector. Now comes the final battle for the Cordite Nexus.",
+      "briefing": "The Bastion Republic has maintained control of its sector. Now comes the final battle for the Cordite Nexus. A Denial Field stealth perimeter — invisible to enemy scouts — surrounds the forward position, while Patrol Rovers and Watcher towers make the inner perimeter impenetrable.",
       "map": "six_fronts",
       "player_faction": "bastion",
       "enemy_factions": [
@@ -145,13 +173,15 @@
         "stormrend"
       ],
       "objectives": [
+        "Lay Denial Field stealth emplacements around the Nexus perimeter",
+        "Build Watcher towers on all 5 enemy approach routes",
         "Fortify a defensive perimeter around the Nexus",
         "Hold the Nexus for 15 minutes against all attackers"
       ],
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Bastion's strength is in defence \u2014 let the others weaken each other before making your move.",
+      "twist": "Every faction brings stealth assets — Arcloft Phantom Subs, Kragmore Mole Rats, Stormrend Flicker Mines, Valkyr Windrunners. Bastion's strength is in defence — let the others weaken each other before making your move.",
       "win_condition": "destroy_hq"
     }
   ]
