@@ -1,0 +1,1130 @@
+{
+  "Id": "ash_wastes",
+  "DisplayName": "Ash Wastes",
+  "Description": "Ancient volcanic badlands scorched by centuries of eruptions. Lava channels carve the terrain into isolated plateaus, forcing armies through narrow kill-zones. Whoever holds the central caldera controls the flow of battle.",
+  "Author": "Cordite Wars Team",
+  "MaxPlayers": 4,
+  "Width": 192,
+  "Height": 192,
+  "Biome": "volcanic",
+  "StartingPositions": [
+    {
+      "PlayerId": 0,
+      "X": 149,
+      "Y": 149,
+      "Facing": 3.927
+    },
+    {
+      "PlayerId": 1,
+      "X": 43,
+      "Y": 149,
+      "Facing": 5.498
+    },
+    {
+      "PlayerId": 2,
+      "X": 43,
+      "Y": 43,
+      "Facing": 0.785
+    },
+    {
+      "PlayerId": 3,
+      "X": 149,
+      "Y": 43,
+      "Facing": 2.356
+    }
+  ],
+  "CorditeNodes": [
+    {
+      "NodeId": 0,
+      "X": 139.733512,
+      "Y": 145.240719,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 1,
+      "X": 139.807612,
+      "Y": 139.807612,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 2,
+      "X": 141.481438,
+      "Y": 130.467023,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 3,
+      "X": 46.007425,
+      "Y": 141.586809,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 4,
+      "X": 54.313708,
+      "Y": 137.686292,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 5,
+      "X": 62.459625,
+      "Y": 141.105509,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 6,
+      "X": 52.266488,
+      "Y": 46.759281,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 7,
+      "X": 54.313708,
+      "Y": 54.313708,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 8,
+      "X": 49.766706,
+      "Y": 59.679679,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 9,
+      "X": 145.616647,
+      "Y": 51.339839,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 10,
+      "X": 139.807612,
+      "Y": 52.192388,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 11,
+      "X": 131.393672,
+      "Y": 50.142634,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 12,
+      "X": 90.0,
+      "Y": 92.0,
+      "Amount": 12000
+    },
+    {
+      "NodeId": 13,
+      "X": 102.0,
+      "Y": 92.0,
+      "Amount": 12000
+    }
+  ],
+  "TerrainFeatures": [
+    {
+      "Type": "path",
+      "Points": [
+        [
+          149,
+          149
+        ],
+        [
+          96,
+          135
+        ],
+        [
+          43,
+          149
+        ],
+        [
+          56,
+          96
+        ],
+        [
+          43,
+          43
+        ],
+        [
+          96,
+          56
+        ],
+        [
+          149,
+          43
+        ],
+        [
+          135,
+          96
+        ],
+        [
+          149,
+          149
+        ]
+      ]
+    }
+  ],
+  "Props": [
+    {
+      "ModelId": "rock_smallA",
+      "X": 47.129219,
+      "Y": 84.839546,
+      "Rotation": 316.51365,
+      "Scale": 0.806554
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 178.71916,
+      "Y": 134.625638,
+      "Rotation": 272.926338,
+      "Scale": 0.887791
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 109.715228,
+      "Y": 21.951912,
+      "Rotation": 85.303929,
+      "Scale": 1.19378
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 187.320616,
+      "Y": 112.79689,
+      "Rotation": 351.524175,
+      "Scale": 0.861096
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 76.758114,
+      "Y": 130.708041,
+      "Rotation": 313.193084,
+      "Scale": 0.954334
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 33.019129,
+      "Y": 9.127072,
+      "Rotation": 27.381521,
+      "Scale": 1.012417
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 28.914651,
+      "Y": 14.171814,
+      "Rotation": 223.104468,
+      "Scale": 1.097342
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 63.973003,
+      "Y": 158.935296,
+      "Rotation": 233.561365,
+      "Scale": 0.893646
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 107.451144,
+      "Y": 129.813175,
+      "Rotation": 51.869468,
+      "Scale": 1.157953
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 64.408006,
+      "Y": 55.30945,
+      "Rotation": 267.705484,
+      "Scale": 1.103666
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 97.867443,
+      "Y": 121.951175,
+      "Rotation": 134.808789,
+      "Scale": 0.868927
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 183.752402,
+      "Y": 61.418255,
+      "Rotation": 343.474068,
+      "Scale": 1.18766
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 121.826009,
+      "Y": 19.044951,
+      "Rotation": 207.531721,
+      "Scale": 0.90048
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 98.104242,
+      "Y": 167.081516,
+      "Rotation": 154.183664,
+      "Scale": 0.813174
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 162.393766,
+      "Y": 59.863779,
+      "Rotation": 8.383086,
+      "Scale": 0.809722
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 18.061512,
+      "Y": 22.398866,
+      "Rotation": 6.468665,
+      "Scale": 1.110814
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 45.643096,
+      "Y": 17.592858,
+      "Rotation": 106.069344,
+      "Scale": 1.175829
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 90.969881,
+      "Y": 37.893118,
+      "Rotation": 352.649162,
+      "Scale": 0.914565
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 83.300449,
+      "Y": 54.67582,
+      "Rotation": 59.430039,
+      "Scale": 1.08936
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 138.120513,
+      "Y": 130.691288,
+      "Rotation": 119.742455,
+      "Scale": 1.00787
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 8.244384,
+      "Y": 77.720418,
+      "Rotation": 46.948356,
+      "Scale": 0.94013
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 126.771874,
+      "Y": 178.798319,
+      "Rotation": 329.139632,
+      "Scale": 1.040984
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 176.188047,
+      "Y": 7.437489,
+      "Rotation": 345.9332,
+      "Scale": 0.909943
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 48.169959,
+      "Y": 118.987963,
+      "Rotation": 35.799364,
+      "Scale": 1.091457
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 79.66608,
+      "Y": 186.686849,
+      "Rotation": 205.58958,
+      "Scale": 0.868233
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 87.38736,
+      "Y": 159.924483,
+      "Rotation": 95.057441,
+      "Scale": 1.131878
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 55.591284,
+      "Y": 79.978227,
+      "Rotation": 213.416974,
+      "Scale": 0.874603
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 19.750374,
+      "Y": 14.852817,
+      "Rotation": 164.574263,
+      "Scale": 1.115073
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 36.447998,
+      "Y": 168.175001,
+      "Rotation": 99.302734,
+      "Scale": 1.150877
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 144.569666,
+      "Y": 101.444095,
+      "Rotation": 207.939707,
+      "Scale": 1.013945
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 29.210586,
+      "Y": 179.553088,
+      "Rotation": 7.425218,
+      "Scale": 0.901011
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 26.934446,
+      "Y": 171.235651,
+      "Rotation": 107.367907,
+      "Scale": 1.09906
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 82.512408,
+      "Y": 77.053403,
+      "Rotation": 308.616073,
+      "Scale": 1.000748
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 148.714341,
+      "Y": 111.466667,
+      "Rotation": 313.119627,
+      "Scale": 0.879598
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 57.558464,
+      "Y": 120.268426,
+      "Rotation": 151.428677,
+      "Scale": 0.934813
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 33.538282,
+      "Y": 98.465957,
+      "Rotation": 187.297817,
+      "Scale": 0.889244
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 139.307247,
+      "Y": 96.553421,
+      "Rotation": 112.684711,
+      "Scale": 1.114094
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 113.072005,
+      "Y": 146.888666,
+      "Rotation": 1.978022,
+      "Scale": 0.813308
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 109.686222,
+      "Y": 86.081467,
+      "Rotation": 313.491791,
+      "Scale": 1.01234
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 25.526183,
+      "Y": 46.806545,
+      "Rotation": 351.612246,
+      "Scale": 0.924867
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 148.87745,
+      "Y": 75.712548,
+      "Rotation": 6.655269,
+      "Scale": 1.185795
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 166.501504,
+      "Y": 149.445145,
+      "Rotation": 133.189011,
+      "Scale": 1.040268
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 184.122159,
+      "Y": 174.331093,
+      "Rotation": 334.380197,
+      "Scale": 0.993376
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 5.001756,
+      "Y": 85.723067,
+      "Rotation": 168.705966,
+      "Scale": 1.030668
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 183.310914,
+      "Y": 119.387246,
+      "Rotation": 305.030818,
+      "Scale": 0.990379
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 105.584316,
+      "Y": 14.776505,
+      "Rotation": 191.324232,
+      "Scale": 0.838293
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 104.034458,
+      "Y": 126.913363,
+      "Rotation": 213.423385,
+      "Scale": 0.865052
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 170.926274,
+      "Y": 89.839319,
+      "Rotation": 133.288238,
+      "Scale": 1.156098
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 125.279676,
+      "Y": 136.745037,
+      "Rotation": 291.968878,
+      "Scale": 1.082393
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 52.765055,
+      "Y": 137.345416,
+      "Rotation": 71.806558,
+      "Scale": 0.852616
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 150.491647,
+      "Y": 99.587276,
+      "Rotation": 249.644077,
+      "Scale": 0.970385
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 117.464013,
+      "Y": 41.181994,
+      "Rotation": 240.698442,
+      "Scale": 1.015834
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 159.620551,
+      "Y": 68.695797,
+      "Rotation": 227.132385,
+      "Scale": 1.146497
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 164.726767,
+      "Y": 22.740774,
+      "Rotation": 97.477548,
+      "Scale": 1.151764
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 51.170324,
+      "Y": 27.841611,
+      "Rotation": 61.609082,
+      "Scale": 1.064847
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 103.810124,
+      "Y": 73.347759,
+      "Rotation": 107.497922,
+      "Scale": 1.02301
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 153.268785,
+      "Y": 13.916484,
+      "Rotation": 296.715832,
+      "Scale": 1.055619
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 170.15569,
+      "Y": 33.48772,
+      "Rotation": 23.365153,
+      "Scale": 0.982809
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 76.50983,
+      "Y": 56.580846,
+      "Rotation": 26.448703,
+      "Scale": 1.137977
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 102.405376,
+      "Y": 75.830264,
+      "Rotation": 324.773571,
+      "Scale": 0.886523
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 110.602511,
+      "Y": 156.42887,
+      "Rotation": 27.779422,
+      "Scale": 1.008703
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 79.23575,
+      "Y": 142.903684,
+      "Rotation": 285.809364,
+      "Scale": 0.92092
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 126.84768,
+      "Y": 136.80643,
+      "Rotation": 239.7682,
+      "Scale": 0.864845
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 107.286405,
+      "Y": 88.093345,
+      "Rotation": 87.289823,
+      "Scale": 1.018222
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 83.090657,
+      "Y": 132.702158,
+      "Rotation": 248.731841,
+      "Scale": 1.071392
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 115.955725,
+      "Y": 188.194204,
+      "Rotation": 232.303282,
+      "Scale": 1.132219
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 125.64527,
+      "Y": 120.274127,
+      "Rotation": 124.800588,
+      "Scale": 0.811352
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 63.904064,
+      "Y": 120.12807,
+      "Rotation": 295.018497,
+      "Scale": 1.000246
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 103.886181,
+      "Y": 120.77569,
+      "Rotation": 259.361136,
+      "Scale": 1.192269
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 100.415404,
+      "Y": 76.341783,
+      "Rotation": 154.85884,
+      "Scale": 0.808546
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 84.923447,
+      "Y": 17.42079,
+      "Rotation": 293.964484,
+      "Scale": 0.849434
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 179.162252,
+      "Y": 68.675918,
+      "Rotation": 334.819485,
+      "Scale": 1.176166
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 18.1957,
+      "Y": 185.744174,
+      "Rotation": 294.32573,
+      "Scale": 1.095628
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 11.465651,
+      "Y": 174.486402,
+      "Rotation": 239.587473,
+      "Scale": 0.97705
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 2.995481,
+      "Y": 26.480029,
+      "Rotation": 292.168099,
+      "Scale": 0.886523
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 110.70472,
+      "Y": 98.501487,
+      "Rotation": 249.735943,
+      "Scale": 1.073504
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 6.259861,
+      "Y": 163.050551,
+      "Rotation": 282.540253,
+      "Scale": 0.983763
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 19.337745,
+      "Y": 174.837415,
+      "Rotation": 53.465182,
+      "Scale": 0.915061
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 154.320373,
+      "Y": 77.789322,
+      "Rotation": 324.844441,
+      "Scale": 0.895975
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 62.673867,
+      "Y": 7.185078,
+      "Rotation": 60.258562,
+      "Scale": 1.094077
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 40.68052,
+      "Y": 12.475302,
+      "Rotation": 208.566435,
+      "Scale": 1.059789
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 47.212759,
+      "Y": 94.818598,
+      "Rotation": 56.222169,
+      "Scale": 1.15575
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 118.585803,
+      "Y": 7.360981,
+      "Rotation": 57.075484,
+      "Scale": 1.00557
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 107.059452,
+      "Y": 81.818587,
+      "Rotation": 148.739413,
+      "Scale": 1.023551
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 178.338274,
+      "Y": 118.876676,
+      "Rotation": 74.824822,
+      "Scale": 0.919496
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 57.369513,
+      "Y": 48.424219,
+      "Rotation": 359.901505,
+      "Scale": 1.011861
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 105.585867,
+      "Y": 50.785977,
+      "Rotation": 272.535022,
+      "Scale": 0.806123
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 104.767138,
+      "Y": 179.039806,
+      "Rotation": 179.685646,
+      "Scale": 1.035879
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 86.62028,
+      "Y": 140.655101,
+      "Rotation": 136.356878,
+      "Scale": 1.060308
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 3.032115,
+      "Y": 133.077154,
+      "Rotation": 239.30223,
+      "Scale": 1.146827
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 186.285042,
+      "Y": 5.64918,
+      "Rotation": 133.834491,
+      "Scale": 0.82194
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 19.160804,
+      "Y": 71.284372,
+      "Rotation": 143.954538,
+      "Scale": 1.125759
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 4.290753,
+      "Y": 173.494686,
+      "Rotation": 248.735169,
+      "Scale": 0.990361
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 134.439615,
+      "Y": 84.565399,
+      "Rotation": 99.883902,
+      "Scale": 0.820778
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 32.888203,
+      "Y": 113.712582,
+      "Rotation": 309.983485,
+      "Scale": 1.002986
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 131.90689,
+      "Y": 165.485043,
+      "Rotation": 29.509041,
+      "Scale": 0.880012
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 114.693368,
+      "Y": 116.53679,
+      "Rotation": 78.22318,
+      "Scale": 0.844844
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 123.033852,
+      "Y": 110.161916,
+      "Rotation": 226.279875,
+      "Scale": 1.118215
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 117.748837,
+      "Y": 77.531016,
+      "Rotation": 356.035076,
+      "Scale": 0.800002
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 134.276696,
+      "Y": 54.099541,
+      "Rotation": 174.331567,
+      "Scale": 1.001694
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 175.846028,
+      "Y": 122.494418,
+      "Rotation": 293.368517,
+      "Scale": 0.867798
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 139.239906,
+      "Y": 135.02059,
+      "Rotation": 250.081279,
+      "Scale": 0.928841
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 66.342991,
+      "Y": 179.94492,
+      "Rotation": 214.121099,
+      "Scale": 0.8186
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 27.601996,
+      "Y": 140.202064,
+      "Rotation": 117.842501,
+      "Scale": 1.064513
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 181.437116,
+      "Y": 134.649554,
+      "Rotation": 178.821749,
+      "Scale": 1.046096
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 175.59423,
+      "Y": 119.060558,
+      "Rotation": 180.253486,
+      "Scale": 1.106236
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 11.337404,
+      "Y": 133.712088,
+      "Rotation": 328.60893,
+      "Scale": 0.977071
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 184.877206,
+      "Y": 44.550422,
+      "Rotation": 192.499889,
+      "Scale": 1.004558
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 124.07203,
+      "Y": 136.184608,
+      "Rotation": 189.922014,
+      "Scale": 1.044906
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 3.724597,
+      "Y": 160.979128,
+      "Rotation": 148.156378,
+      "Scale": 1.065044
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 135.060804,
+      "Y": 166.872214,
+      "Rotation": 107.361074,
+      "Scale": 1.025886
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 32.092962,
+      "Y": 101.519257,
+      "Rotation": 259.605692,
+      "Scale": 0.914114
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 142.357361,
+      "Y": 94.085908,
+      "Rotation": 35.611868,
+      "Scale": 1.097765
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 58.135067,
+      "Y": 115.743116,
+      "Rotation": 298.471017,
+      "Scale": 1.180627
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 106.541582,
+      "Y": 87.024022,
+      "Rotation": 249.582994,
+      "Scale": 1.175003
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 97.890804,
+      "Y": 112.610746,
+      "Rotation": 174.826653,
+      "Scale": 1.036666
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 99.5358,
+      "Y": 7.187367,
+      "Rotation": 133.30125,
+      "Scale": 1.127885
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 19.92989,
+      "Y": 176.82807,
+      "Rotation": 121.659671,
+      "Scale": 0.875198
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 102.655016,
+      "Y": 117.414654,
+      "Rotation": 224.350838,
+      "Scale": 0.837898
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 6.949673,
+      "Y": 68.713438,
+      "Rotation": 235.160473,
+      "Scale": 0.997674
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 24.6477,
+      "Y": 141.721933,
+      "Rotation": 91.980768,
+      "Scale": 1.108933
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 73.628615,
+      "Y": 25.818234,
+      "Rotation": 108.226856,
+      "Scale": 0.892853
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 172.172563,
+      "Y": 10.801315,
+      "Rotation": 54.091931,
+      "Scale": 1.116661
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 111.709637,
+      "Y": 139.612316,
+      "Rotation": 161.996895,
+      "Scale": 0.80008
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 64.466593,
+      "Y": 6.96523,
+      "Rotation": 76.982248,
+      "Scale": 0.977744
+    }
+  ],
+  "Structures": [
+    {
+      "ModelId": "rock_largeA",
+      "X": 76.0,
+      "Y": 93.0,
+      "Rotation": 103.134236,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 79.0,
+      "Y": 97.0,
+      "Rotation": 242.863154,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 100.0,
+      "Y": 119.0,
+      "Rotation": 77.518123,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 111.0,
+      "Y": 94.0,
+      "Rotation": 345.969616,
+      "Scale": 1.0
+    }
+  ],
+  "ElevationZones": [
+    {
+      "Type": "valley",
+      "CenterX": 111,
+      "CenterY": 99,
+      "Radius": 55,
+      "Height": -1.44219
+    },
+    {
+      "Type": "hill",
+      "CenterX": 64,
+      "CenterY": 60,
+      "Radius": 56,
+      "Height": 2.815507
+    },
+    {
+      "Type": "hill",
+      "CenterX": 80,
+      "CenterY": 64,
+      "Radius": 51,
+      "Height": 2.476384
+    },
+    {
+      "Type": "hill",
+      "CenterX": 127,
+      "CenterY": 54,
+      "Radius": 55,
+      "Height": 2.587783
+    },
+    {
+      "Type": "hill",
+      "CenterX": 68,
+      "CenterY": 139,
+      "Radius": 25,
+      "Height": 1.905692
+    },
+    {
+      "Type": "hill",
+      "CenterX": 68,
+      "CenterY": 159,
+      "Radius": 46,
+      "Height": 3.498565
+    },
+    {
+      "Type": "hill",
+      "CenterX": 52,
+      "CenterY": 149,
+      "Radius": 56,
+      "Height": 0.957227
+    },
+    {
+      "Type": "valley",
+      "CenterX": 71,
+      "CenterY": 32,
+      "Radius": 47,
+      "Height": -1.194795
+    }
+  ]
+}

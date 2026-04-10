@@ -1,0 +1,1888 @@
+{
+  "Id": "tidal_flats",
+  "DisplayName": "Tidal Flats",
+  "Description": "A sprawling coastal theatre where jungle meets the sea. Six factions contest a chain of inlets and sandbanks. Naval supremacy and rapid coastal strikes decide victory as much as ground control.",
+  "Author": "Cordite Wars Team",
+  "MaxPlayers": 6,
+  "Width": 256,
+  "Height": 256,
+  "Biome": "coastal",
+  "StartingPositions": [
+    {
+      "PlayerId": 0,
+      "X": 199,
+      "Y": 199,
+      "Facing": 3.927
+    },
+    {
+      "PlayerId": 1,
+      "X": 102,
+      "Y": 224,
+      "Facing": 4.977
+    },
+    {
+      "PlayerId": 2,
+      "X": 32,
+      "Y": 154,
+      "Facing": 6.019
+    },
+    {
+      "PlayerId": 3,
+      "X": 57,
+      "Y": 57,
+      "Facing": 0.785
+    },
+    {
+      "PlayerId": 4,
+      "X": 154,
+      "Y": 32,
+      "Facing": 1.835
+    },
+    {
+      "PlayerId": 5,
+      "X": 224,
+      "Y": 102,
+      "Facing": 2.877
+    }
+  ],
+  "CorditeNodes": [
+    {
+      "NodeId": 0,
+      "X": 188.806863,
+      "Y": 194.864791,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 1,
+      "X": 187.686292,
+      "Y": 187.686292,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 2,
+      "X": 191.481438,
+      "Y": 180.467023,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 3,
+      "X": 100.51393,
+      "Y": 213.100844,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 4,
+      "X": 106.182648,
+      "Y": 208.556378,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 5,
+      "X": 113.099816,
+      "Y": 209.829817,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 6,
+      "X": 39.872324,
+      "Y": 147.833435,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 7,
+      "X": 45.513169,
+      "Y": 150.340183,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 8,
+      "X": 50.825815,
+      "Y": 156.566848,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 9,
+      "X": 66.266488,
+      "Y": 60.759281,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 10,
+      "X": 68.313708,
+      "Y": 68.313708,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 11,
+      "X": 63.766706,
+      "Y": 73.679679,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 12,
+      "X": 155.48607,
+      "Y": 42.899156,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 13,
+      "X": 149.817352,
+      "Y": 47.443622,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 14,
+      "X": 141.050215,
+      "Y": 48.53188,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 15,
+      "X": 216.914909,
+      "Y": 107.549908,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 16,
+      "X": 210.486831,
+      "Y": 105.659817,
+      "Amount": 7000
+    },
+    {
+      "NodeId": 17,
+      "X": 206.165018,
+      "Y": 99.568249,
+      "Amount": 6000
+    },
+    {
+      "NodeId": 18,
+      "X": 122.0,
+      "Y": 129.0,
+      "Amount": 12000
+    },
+    {
+      "NodeId": 19,
+      "X": 134.0,
+      "Y": 130.0,
+      "Amount": 12000
+    }
+  ],
+  "TerrainFeatures": [
+    {
+      "Type": "river",
+      "Points": [
+        [
+          112,
+          0
+        ],
+        [
+          107,
+          21
+        ],
+        [
+          124,
+          42
+        ],
+        [
+          130,
+          64
+        ],
+        [
+          108,
+          85
+        ],
+        [
+          116,
+          106
+        ],
+        [
+          109,
+          128
+        ],
+        [
+          122,
+          149
+        ],
+        [
+          102,
+          170
+        ],
+        [
+          97,
+          192
+        ],
+        [
+          80,
+          213
+        ],
+        [
+          100,
+          234
+        ],
+        [
+          82,
+          256
+        ]
+      ]
+    },
+    {
+      "Type": "path",
+      "Points": [
+        [
+          199,
+          199
+        ],
+        [
+          144,
+          190
+        ],
+        [
+          102,
+          224
+        ],
+        [
+          82,
+          173
+        ],
+        [
+          32,
+          154
+        ],
+        [
+          65,
+          110
+        ],
+        [
+          57,
+          57
+        ],
+        [
+          110,
+          65
+        ],
+        [
+          154,
+          32
+        ],
+        [
+          173,
+          82
+        ],
+        [
+          224,
+          102
+        ],
+        [
+          190,
+          144
+        ],
+        [
+          199,
+          199
+        ]
+      ]
+    }
+  ],
+  "Props": [
+    {
+      "ModelId": "tree_small",
+      "X": 55.020225,
+      "Y": 152.213744,
+      "Rotation": 79.308438,
+      "Scale": 0.851106
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 197.931865,
+      "Y": 64.033793,
+      "Rotation": 153.796704,
+      "Scale": 1.198239
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 34.641707,
+      "Y": 67.063513,
+      "Rotation": 238.975835,
+      "Scale": 1.02349
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 131.762347,
+      "Y": 22.567406,
+      "Rotation": 178.774209,
+      "Scale": 0.874751
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 10.736699,
+      "Y": 23.382673,
+      "Rotation": 339.829998,
+      "Scale": 1.012422
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 161.150332,
+      "Y": 45.247243,
+      "Rotation": 153.091418,
+      "Scale": 1.03053
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 39.083669,
+      "Y": 231.871987,
+      "Rotation": 303.43333,
+      "Scale": 0.844192
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 39.281708,
+      "Y": 72.633718,
+      "Rotation": 315.94557,
+      "Scale": 1.11304
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 38.023615,
+      "Y": 248.141963,
+      "Rotation": 37.244316,
+      "Scale": 1.068268
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 94.670044,
+      "Y": 131.486647,
+      "Rotation": 296.179618,
+      "Scale": 0.858351
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 147.490066,
+      "Y": 76.972196,
+      "Rotation": 209.174721,
+      "Scale": 0.890654
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 86.469246,
+      "Y": 178.190704,
+      "Rotation": 341.586294,
+      "Scale": 0.893952
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 92.442188,
+      "Y": 100.586353,
+      "Rotation": 313.907519,
+      "Scale": 1.01823
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 178.029955,
+      "Y": 252.952924,
+      "Rotation": 234.86539,
+      "Scale": 1.102329
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 182.39373,
+      "Y": 5.909705,
+      "Rotation": 91.074072,
+      "Scale": 0.887055
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 121.53117,
+      "Y": 160.435037,
+      "Rotation": 234.066191,
+      "Scale": 1.002398
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 131.86279,
+      "Y": 12.697293,
+      "Rotation": 94.144299,
+      "Scale": 0.891682
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 30.115616,
+      "Y": 104.904212,
+      "Rotation": 78.008966,
+      "Scale": 0.949086
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 139.749249,
+      "Y": 79.040255,
+      "Rotation": 285.175443,
+      "Scale": 0.917524
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 126.600084,
+      "Y": 203.913307,
+      "Rotation": 240.003477,
+      "Scale": 0.875115
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 123.733011,
+      "Y": 33.575397,
+      "Rotation": 125.647458,
+      "Scale": 0.89416
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 4.914698,
+      "Y": 118.809933,
+      "Rotation": 323.890016,
+      "Scale": 0.93832
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 6.676695,
+      "Y": 74.446956,
+      "Rotation": 209.695624,
+      "Scale": 1.010204
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 19.00528,
+      "Y": 98.217733,
+      "Rotation": 276.314809,
+      "Scale": 1.120904
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 52.797142,
+      "Y": 14.79084,
+      "Rotation": 179.0413,
+      "Scale": 0.816357
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 123.301099,
+      "Y": 252.983006,
+      "Rotation": 265.220308,
+      "Scale": 1.068899
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 235.761368,
+      "Y": 201.983326,
+      "Rotation": 312.66546,
+      "Scale": 0.824286
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 60.538968,
+      "Y": 249.769419,
+      "Rotation": 59.782095,
+      "Scale": 0.892701
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 130.111945,
+      "Y": 173.350723,
+      "Rotation": 177.596675,
+      "Scale": 1.099985
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 42.349082,
+      "Y": 171.463418,
+      "Rotation": 18.295025,
+      "Scale": 0.983378
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 148.656608,
+      "Y": 158.388032,
+      "Rotation": 223.789272,
+      "Scale": 1.197433
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 82.298992,
+      "Y": 6.468601,
+      "Rotation": 130.818204,
+      "Scale": 0.81177
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 118.663513,
+      "Y": 93.642246,
+      "Rotation": 307.432608,
+      "Scale": 0.918286
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 32.256131,
+      "Y": 70.118356,
+      "Rotation": 244.830184,
+      "Scale": 0.93835
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 109.640045,
+      "Y": 51.939587,
+      "Rotation": 243.06463,
+      "Scale": 0.860104
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 102.398223,
+      "Y": 60.298434,
+      "Rotation": 201.603875,
+      "Scale": 1.180155
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 122.70792,
+      "Y": 225.446146,
+      "Rotation": 244.325936,
+      "Scale": 1.139003
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 162.977866,
+      "Y": 138.949373,
+      "Rotation": 140.682504,
+      "Scale": 1.013502
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 84.212754,
+      "Y": 170.359848,
+      "Rotation": 306.577089,
+      "Scale": 0.910765
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 187.582257,
+      "Y": 120.204897,
+      "Rotation": 98.971937,
+      "Scale": 0.904987
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 103.251539,
+      "Y": 30.001862,
+      "Rotation": 192.204189,
+      "Scale": 0.917013
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 228.381585,
+      "Y": 31.729528,
+      "Rotation": 314.663582,
+      "Scale": 1.047501
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 21.769084,
+      "Y": 98.000659,
+      "Rotation": 97.673206,
+      "Scale": 1.055467
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 26.674564,
+      "Y": 227.489025,
+      "Rotation": 99.323706,
+      "Scale": 1.131789
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 195.142935,
+      "Y": 122.451594,
+      "Rotation": 107.106327,
+      "Scale": 1.06937
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 149.698189,
+      "Y": 131.97633,
+      "Rotation": 226.087415,
+      "Scale": 0.897224
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 57.061359,
+      "Y": 38.426981,
+      "Rotation": 160.064625,
+      "Scale": 1.193746
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 247.031614,
+      "Y": 72.028309,
+      "Rotation": 219.541798,
+      "Scale": 1.132693
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 32.479588,
+      "Y": 83.246064,
+      "Rotation": 45.974544,
+      "Scale": 0.973636
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 139.531503,
+      "Y": 20.791031,
+      "Rotation": 163.341648,
+      "Scale": 0.820937
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 152.322893,
+      "Y": 237.855268,
+      "Rotation": 213.481913,
+      "Scale": 1.107036
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 107.475,
+      "Y": 108.776515,
+      "Rotation": 48.994088,
+      "Scale": 1.067251
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 191.972655,
+      "Y": 245.852849,
+      "Rotation": 333.405294,
+      "Scale": 0.884754
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 80.175234,
+      "Y": 37.776925,
+      "Rotation": 160.517864,
+      "Scale": 1.070587
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 159.038215,
+      "Y": 79.062382,
+      "Rotation": 219.459902,
+      "Scale": 1.148948
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 34.273124,
+      "Y": 62.081112,
+      "Rotation": 163.77696,
+      "Scale": 0.983616
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 53.412063,
+      "Y": 113.293278,
+      "Rotation": 132.055241,
+      "Scale": 0.801918
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 218.502816,
+      "Y": 243.467231,
+      "Rotation": 13.437609,
+      "Scale": 1.151206
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 252.105997,
+      "Y": 58.964562,
+      "Rotation": 111.038805,
+      "Scale": 0.857028
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 216.897017,
+      "Y": 54.259628,
+      "Rotation": 11.249574,
+      "Scale": 1.194732
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 8.406285,
+      "Y": 206.516385,
+      "Rotation": 250.654898,
+      "Scale": 0.82106
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 252.024647,
+      "Y": 62.359949,
+      "Rotation": 51.264134,
+      "Scale": 1.196148
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 62.09482,
+      "Y": 23.670528,
+      "Rotation": 128.009214,
+      "Scale": 1.172065
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 191.692581,
+      "Y": 9.099105,
+      "Rotation": 37.690838,
+      "Scale": 1.124256
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 86.102026,
+      "Y": 88.336299,
+      "Rotation": 246.058324,
+      "Scale": 0.824636
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 18.603928,
+      "Y": 167.516773,
+      "Rotation": 230.936273,
+      "Scale": 1.151731
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 110.348188,
+      "Y": 84.405828,
+      "Rotation": 227.697171,
+      "Scale": 1.009765
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 191.134211,
+      "Y": 74.321894,
+      "Rotation": 164.708065,
+      "Scale": 1.010114
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 30.933601,
+      "Y": 232.562005,
+      "Rotation": 230.824512,
+      "Scale": 0.809843
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 183.95411,
+      "Y": 159.676346,
+      "Rotation": 279.15494,
+      "Scale": 1.197719
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 37.649042,
+      "Y": 190.98662,
+      "Rotation": 77.556584,
+      "Scale": 0.954057
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 98.458632,
+      "Y": 168.291347,
+      "Rotation": 333.53982,
+      "Scale": 1.081161
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 85.465527,
+      "Y": 90.163728,
+      "Rotation": 212.751296,
+      "Scale": 1.195407
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 23.324285,
+      "Y": 214.087026,
+      "Rotation": 161.705005,
+      "Scale": 0.808622
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 84.297664,
+      "Y": 172.405916,
+      "Rotation": 64.758943,
+      "Scale": 1.166245
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 24.952213,
+      "Y": 249.631703,
+      "Rotation": 114.974116,
+      "Scale": 1.134928
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 126.463897,
+      "Y": 236.997728,
+      "Rotation": 6.55779,
+      "Scale": 1.133206
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 37.904275,
+      "Y": 189.428655,
+      "Rotation": 58.889443,
+      "Scale": 0.830865
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 179.443418,
+      "Y": 49.858416,
+      "Rotation": 129.98309,
+      "Scale": 1.0782
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 153.200755,
+      "Y": 126.875281,
+      "Rotation": 93.905062,
+      "Scale": 0.824284
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 38.594776,
+      "Y": 52.758243,
+      "Rotation": 110.636907,
+      "Scale": 0.837779
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 104.454151,
+      "Y": 172.439177,
+      "Rotation": 8.960589,
+      "Scale": 1.0863
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 194.310786,
+      "Y": 126.973784,
+      "Rotation": 23.257779,
+      "Scale": 0.89441
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 77.763453,
+      "Y": 114.377544,
+      "Rotation": 242.737871,
+      "Scale": 1.119322
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 148.67401,
+      "Y": 72.945917,
+      "Rotation": 34.956494,
+      "Scale": 1.10335
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 105.784421,
+      "Y": 140.047909,
+      "Rotation": 338.471306,
+      "Scale": 1.080083
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 230.398703,
+      "Y": 74.97975,
+      "Rotation": 330.583559,
+      "Scale": 1.07751
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 215.922879,
+      "Y": 133.27243,
+      "Rotation": 139.694416,
+      "Scale": 0.801318
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 239.916336,
+      "Y": 215.432854,
+      "Rotation": 171.55034,
+      "Scale": 1.100728
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 12.671117,
+      "Y": 224.807361,
+      "Rotation": 43.55487,
+      "Scale": 0.96588
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 231.977064,
+      "Y": 3.514349,
+      "Rotation": 1.562317,
+      "Scale": 1.137602
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 53.317797,
+      "Y": 214.319282,
+      "Rotation": 311.697872,
+      "Scale": 0.982513
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 23.298818,
+      "Y": 185.834429,
+      "Rotation": 8.16338,
+      "Scale": 1.063533
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 128.46035,
+      "Y": 5.873637,
+      "Rotation": 98.430985,
+      "Scale": 0.98112
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 231.510434,
+      "Y": 8.753649,
+      "Rotation": 19.998092,
+      "Scale": 1.190844
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 189.268354,
+      "Y": 43.95092,
+      "Rotation": 111.579923,
+      "Scale": 1.040302
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 126.050366,
+      "Y": 144.215005,
+      "Rotation": 56.729527,
+      "Scale": 0.890446
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 102.452479,
+      "Y": 185.642933,
+      "Rotation": 353.456931,
+      "Scale": 0.819896
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 103.250094,
+      "Y": 96.863942,
+      "Rotation": 196.245187,
+      "Scale": 1.067825
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 39.028579,
+      "Y": 9.820671,
+      "Rotation": 33.19787,
+      "Scale": 0.84555
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 104.201315,
+      "Y": 156.832699,
+      "Rotation": 48.535191,
+      "Scale": 0.987727
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 170.110981,
+      "Y": 88.233085,
+      "Rotation": 83.296671,
+      "Scale": 0.813964
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 128.509411,
+      "Y": 35.715979,
+      "Rotation": 164.875296,
+      "Scale": 1.181333
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 204.216221,
+      "Y": 37.274388,
+      "Rotation": 286.633424,
+      "Scale": 0.849401
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 218.942942,
+      "Y": 200.812176,
+      "Rotation": 91.80565,
+      "Scale": 0.867053
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 194.20409,
+      "Y": 176.231644,
+      "Rotation": 80.219076,
+      "Scale": 0.892868
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 97.142311,
+      "Y": 183.693424,
+      "Rotation": 208.127714,
+      "Scale": 1.062396
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 172.389205,
+      "Y": 39.008887,
+      "Rotation": 121.145656,
+      "Scale": 1.067071
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 71.290802,
+      "Y": 71.225599,
+      "Rotation": 24.098338,
+      "Scale": 0.926547
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 178.114848,
+      "Y": 237.030472,
+      "Rotation": 83.159412,
+      "Scale": 1.112593
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 57.516968,
+      "Y": 224.266282,
+      "Rotation": 190.364971,
+      "Scale": 0.847854
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 234.724438,
+      "Y": 21.515302,
+      "Rotation": 351.852085,
+      "Scale": 1.107108
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 251.502401,
+      "Y": 47.753428,
+      "Rotation": 211.143163,
+      "Scale": 1.179744
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 222.754846,
+      "Y": 174.426611,
+      "Rotation": 30.814296,
+      "Scale": 1.103737
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 178.269559,
+      "Y": 84.080765,
+      "Rotation": 241.57031,
+      "Scale": 0.97786
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 139.565906,
+      "Y": 23.803803,
+      "Rotation": 269.108089,
+      "Scale": 1.122029
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 180.409544,
+      "Y": 242.34955,
+      "Rotation": 315.938223,
+      "Scale": 1.132869
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 165.731583,
+      "Y": 215.45454,
+      "Rotation": 133.751693,
+      "Scale": 0.83108
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 135.43486,
+      "Y": 61.588584,
+      "Rotation": 267.00657,
+      "Scale": 1.162244
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 136.492728,
+      "Y": 77.077028,
+      "Rotation": 200.170021,
+      "Scale": 0.949919
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 113.118786,
+      "Y": 91.276389,
+      "Rotation": 278.030514,
+      "Scale": 0.93011
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 223.03949,
+      "Y": 33.401633,
+      "Rotation": 251.750246,
+      "Scale": 0.90344
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 134.641718,
+      "Y": 90.757135,
+      "Rotation": 272.335114,
+      "Scale": 0.845116
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 173.736427,
+      "Y": 119.332309,
+      "Rotation": 303.984989,
+      "Scale": 0.828895
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 60.211557,
+      "Y": 128.6439,
+      "Rotation": 41.598835,
+      "Scale": 0.828166
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 98.292971,
+      "Y": 8.755469,
+      "Rotation": 234.521242,
+      "Scale": 0.983451
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 174.078753,
+      "Y": 134.625783,
+      "Rotation": 355.844461,
+      "Scale": 1.158043
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 129.725049,
+      "Y": 153.583844,
+      "Rotation": 180.333212,
+      "Scale": 1.118247
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 32.754943,
+      "Y": 64.205249,
+      "Rotation": 241.119816,
+      "Scale": 1.084402
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 140.575657,
+      "Y": 12.408842,
+      "Rotation": 137.906974,
+      "Scale": 1.179424
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 91.124943,
+      "Y": 13.185152,
+      "Rotation": 38.822173,
+      "Scale": 0.971826
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 4.042677,
+      "Y": 230.469316,
+      "Rotation": 169.880506,
+      "Scale": 1.070261
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 5.66741,
+      "Y": 54.151028,
+      "Rotation": 331.064775,
+      "Scale": 1.027135
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 12.716573,
+      "Y": 38.877401,
+      "Rotation": 24.422884,
+      "Scale": 1.046292
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 73.64418,
+      "Y": 121.067492,
+      "Rotation": 105.849945,
+      "Scale": 0.923897
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 246.612467,
+      "Y": 252.323991,
+      "Rotation": 185.417951,
+      "Scale": 0.984933
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 58.474953,
+      "Y": 9.304297,
+      "Rotation": 32.98795,
+      "Scale": 0.974841
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 17.630967,
+      "Y": 205.92878,
+      "Rotation": 107.53902,
+      "Scale": 1.086878
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 27.521085,
+      "Y": 78.912677,
+      "Rotation": 26.586169,
+      "Scale": 0.896797
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 199.954529,
+      "Y": 154.156677,
+      "Rotation": 214.396844,
+      "Scale": 1.190234
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 62.864444,
+      "Y": 196.730926,
+      "Rotation": 121.895075,
+      "Scale": 1.092645
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 16.412854,
+      "Y": 249.938028,
+      "Rotation": 349.339429,
+      "Scale": 1.084036
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 104.814654,
+      "Y": 4.644677,
+      "Rotation": 152.63183,
+      "Scale": 0.854373
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 218.076716,
+      "Y": 199.066332,
+      "Rotation": 229.605147,
+      "Scale": 1.040502
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 81.895074,
+      "Y": 30.395007,
+      "Rotation": 80.221442,
+      "Scale": 1.178746
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 114.930629,
+      "Y": 134.415038,
+      "Rotation": 124.092876,
+      "Scale": 1.065017
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 120.456934,
+      "Y": 163.492059,
+      "Rotation": 104.328701,
+      "Scale": 0.871591
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 13.953496,
+      "Y": 134.882232,
+      "Rotation": 215.448865,
+      "Scale": 1.125199
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 134.954056,
+      "Y": 216.25779,
+      "Rotation": 63.031853,
+      "Scale": 1.194556
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 187.769562,
+      "Y": 240.779176,
+      "Rotation": 241.161213,
+      "Scale": 0.908543
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 112.517743,
+      "Y": 129.979266,
+      "Rotation": 348.351092,
+      "Scale": 0.939848
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 4.62461,
+      "Y": 78.117068,
+      "Rotation": 85.385922,
+      "Scale": 1.056984
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 7.133709,
+      "Y": 208.043868,
+      "Rotation": 58.350839,
+      "Scale": 0.94911
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 241.837903,
+      "Y": 132.566119,
+      "Rotation": 142.694444,
+      "Scale": 1.066606
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 210.189211,
+      "Y": 234.81783,
+      "Rotation": 287.158157,
+      "Scale": 1.079393
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 217.49194,
+      "Y": 19.686173,
+      "Rotation": 95.022543,
+      "Scale": 0.980295
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 183.54531,
+      "Y": 225.861237,
+      "Rotation": 57.985239,
+      "Scale": 0.924266
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 34.886053,
+      "Y": 21.72601,
+      "Rotation": 318.423255,
+      "Scale": 1.086179
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 32.993507,
+      "Y": 251.850187,
+      "Rotation": 286.915404,
+      "Scale": 1.044043
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 211.505202,
+      "Y": 182.075385,
+      "Rotation": 122.50752,
+      "Scale": 1.021281
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 170.540208,
+      "Y": 206.690736,
+      "Rotation": 263.695302,
+      "Scale": 1.152416
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 44.92613,
+      "Y": 123.590554,
+      "Rotation": 75.827635,
+      "Scale": 0.955427
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 13.140841,
+      "Y": 35.909897,
+      "Rotation": 182.704769,
+      "Scale": 0.951496
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 116.538363,
+      "Y": 55.062615,
+      "Rotation": 279.889308,
+      "Scale": 0.988454
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 163.484539,
+      "Y": 57.949654,
+      "Rotation": 275.711528,
+      "Scale": 1.036674
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 14.806385,
+      "Y": 94.22937,
+      "Rotation": 341.696371,
+      "Scale": 1.045976
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 64.307618,
+      "Y": 171.900067,
+      "Rotation": 77.36933,
+      "Scale": 0.971479
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 64.946251,
+      "Y": 238.98879,
+      "Rotation": 162.054006,
+      "Scale": 1.182736
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 32.052183,
+      "Y": 201.196403,
+      "Rotation": 307.081043,
+      "Scale": 0.910658
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 81.443718,
+      "Y": 66.211331,
+      "Rotation": 298.662137,
+      "Scale": 0.91426
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 19.395462,
+      "Y": 126.844791,
+      "Rotation": 88.65276,
+      "Scale": 1.135041
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 163.059636,
+      "Y": 44.387003,
+      "Rotation": 346.086194,
+      "Scale": 0.848834
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 140.724552,
+      "Y": 180.128498,
+      "Rotation": 137.240976,
+      "Scale": 1.16314
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 221.784321,
+      "Y": 80.517159,
+      "Rotation": 235.282027,
+      "Scale": 1.091312
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 123.45445,
+      "Y": 219.81492,
+      "Rotation": 196.818561,
+      "Scale": 1.067776
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 35.170424,
+      "Y": 62.708423,
+      "Rotation": 243.036761,
+      "Scale": 1.178658
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 19.264882,
+      "Y": 68.743645,
+      "Rotation": 55.135194,
+      "Scale": 0.936715
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 20.381567,
+      "Y": 51.442142,
+      "Rotation": 146.516065,
+      "Scale": 1.020021
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 156.921883,
+      "Y": 67.392362,
+      "Rotation": 134.29803,
+      "Scale": 1.131742
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 189.946463,
+      "Y": 176.346728,
+      "Rotation": 55.32348,
+      "Scale": 1.199375
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 235.484497,
+      "Y": 112.608343,
+      "Rotation": 209.222149,
+      "Scale": 0.886764
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 204.905801,
+      "Y": 30.789969,
+      "Rotation": 31.587671,
+      "Scale": 1.089363
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 178.808559,
+      "Y": 8.089758,
+      "Rotation": 84.992171,
+      "Scale": 1.041865
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 64.709741,
+      "Y": 192.108443,
+      "Rotation": 117.20278,
+      "Scale": 0.921306
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 151.314412,
+      "Y": 126.407215,
+      "Rotation": 32.182661,
+      "Scale": 0.868011
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 204.649909,
+      "Y": 184.986095,
+      "Rotation": 239.690775,
+      "Scale": 1.077534
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 28.414005,
+      "Y": 25.107251,
+      "Rotation": 148.021929,
+      "Scale": 0.856806
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 155.567058,
+      "Y": 127.167276,
+      "Rotation": 0.972931,
+      "Scale": 0.927955
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 208.70474,
+      "Y": 231.043976,
+      "Rotation": 221.070652,
+      "Scale": 0.835563
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 11.937041,
+      "Y": 85.023339,
+      "Rotation": 47.632792,
+      "Scale": 0.99518
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 205.940382,
+      "Y": 143.963159,
+      "Rotation": 216.15434,
+      "Scale": 1.181974
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 17.408352,
+      "Y": 192.745102,
+      "Rotation": 40.844655,
+      "Scale": 1.100433
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 169.027662,
+      "Y": 253.227137,
+      "Rotation": 46.305397,
+      "Scale": 1.023927
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 100.774208,
+      "Y": 125.139574,
+      "Rotation": 84.655694,
+      "Scale": 0.961169
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 157.570358,
+      "Y": 250.206449,
+      "Rotation": 202.441258,
+      "Scale": 0.988369
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 139.75896,
+      "Y": 104.60286,
+      "Rotation": 75.064439,
+      "Scale": 0.885716
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 242.663045,
+      "Y": 144.091503,
+      "Rotation": 331.961988,
+      "Scale": 1.020943
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 191.151001,
+      "Y": 113.605931,
+      "Rotation": 288.19418,
+      "Scale": 1.162286
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 105.667554,
+      "Y": 161.978512,
+      "Rotation": 333.169502,
+      "Scale": 1.15799
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 194.253073,
+      "Y": 160.903494,
+      "Rotation": 68.060335,
+      "Scale": 0.869012
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 227.369188,
+      "Y": 210.137852,
+      "Rotation": 75.178208,
+      "Scale": 0.911795
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 145.189458,
+      "Y": 141.888592,
+      "Rotation": 14.167792,
+      "Scale": 1.164312
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 34.228709,
+      "Y": 184.905873,
+      "Rotation": 219.71551,
+      "Scale": 1.058033
+    },
+    {
+      "ModelId": "tree_thin",
+      "X": 163.84916,
+      "Y": 137.192395,
+      "Rotation": 106.239751,
+      "Scale": 1.149404
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 145.995118,
+      "Y": 208.865368,
+      "Rotation": 38.399129,
+      "Scale": 1.05279
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 40.479751,
+      "Y": 192.829384,
+      "Rotation": 32.638502,
+      "Scale": 1.1282
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 108.610063,
+      "Y": 145.405703,
+      "Rotation": 274.821133,
+      "Scale": 1.192284
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 39.249218,
+      "Y": 243.885248,
+      "Rotation": 138.375319,
+      "Scale": 0.800441
+    },
+    {
+      "ModelId": "tree_fat",
+      "X": 135.695022,
+      "Y": 145.59596,
+      "Rotation": 149.90629,
+      "Scale": 0.911364
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 202.002454,
+      "Y": 158.711553,
+      "Rotation": 2.267163,
+      "Scale": 1.041612
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 85.986992,
+      "Y": 228.731985,
+      "Rotation": 83.9779,
+      "Scale": 0.941312
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 106.274455,
+      "Y": 103.92607,
+      "Rotation": 54.793092,
+      "Scale": 0.96001
+    },
+    {
+      "ModelId": "tree_default",
+      "X": 220.321145,
+      "Y": 132.904061,
+      "Rotation": 2.796439,
+      "Scale": 1.185532
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 39.908198,
+      "Y": 169.710793,
+      "Rotation": 88.302754,
+      "Scale": 1.056282
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 72.650399,
+      "Y": 5.15925,
+      "Rotation": 63.126151,
+      "Scale": 0.966437
+    },
+    {
+      "ModelId": "tree_small",
+      "X": 134.302992,
+      "Y": 159.940256,
+      "Rotation": 92.023514,
+      "Scale": 1.188848
+    },
+    {
+      "ModelId": "tree_simple",
+      "X": 80.087327,
+      "Y": 198.820673,
+      "Rotation": 49.59684,
+      "Scale": 0.886689
+    }
+  ],
+  "Structures": [
+    {
+      "ModelId": "rock_largeB",
+      "X": 119.0,
+      "Y": 108.0,
+      "Rotation": 130.617831,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 147.0,
+      "Y": 102.0,
+      "Rotation": 208.556512,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 101.0,
+      "Y": 146.0,
+      "Rotation": 114.585643,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 149.0,
+      "Y": 140.0,
+      "Rotation": 138.116852,
+      "Scale": 1.0
+    }
+  ],
+  "ElevationZones": [
+    {
+      "Type": "hill",
+      "CenterX": 55,
+      "CenterY": 132,
+      "Radius": 50,
+      "Height": 0.892469
+    },
+    {
+      "Type": "hill",
+      "CenterX": 98,
+      "CenterY": 166,
+      "Radius": 74,
+      "Height": 1.504029
+    },
+    {
+      "Type": "hill",
+      "CenterX": 138,
+      "CenterY": 207,
+      "Radius": 79,
+      "Height": 1.617073
+    },
+    {
+      "Type": "hill",
+      "CenterX": 164,
+      "CenterY": 155,
+      "Radius": 67,
+      "Height": 1.656962
+    },
+    {
+      "Type": "valley",
+      "CenterX": 203,
+      "CenterY": 47,
+      "Radius": 45,
+      "Height": -0.417581
+    },
+    {
+      "Type": "hill",
+      "CenterX": 94,
+      "CenterY": 160,
+      "Radius": 66,
+      "Height": 1.111354
+    },
+    {
+      "Type": "valley",
+      "CenterX": 59,
+      "CenterY": 117,
+      "Radius": 74,
+      "Height": -0.860339
+    }
+  ]
+}
