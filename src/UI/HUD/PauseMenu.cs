@@ -1,6 +1,7 @@
 using Godot;
 using CorditeWars.Core;
 using CorditeWars.Game;
+using CorditeWars.Systems.Audio;
 using CorditeWars.Systems.Persistence;
 
 namespace CorditeWars.UI.HUD;
@@ -15,6 +16,7 @@ public partial class PauseMenu : CanvasLayer
 
     private readonly GameSession _session;
     private readonly SaveManager _saveManager = new();
+    private AudioManager? _audioManager;
 
     // ── Children ─────────────────────────────────────────────────────
 
@@ -34,6 +36,7 @@ public partial class PauseMenu : CanvasLayer
 
     public override void _Ready()
     {
+        _audioManager = GetNodeOrNull<AudioManager>("/root/AudioManager");
         Layer = 30;
         Visible = false;
 
@@ -315,16 +318,26 @@ public partial class PauseMenu : CanvasLayer
 
     private void OnResumePressed()
     {
+        _audioManager?.PlayUiSoundById("ui_confirm");
         _session.ResumeMatch();
         Hide();
     }
 
-    private void OnSavePressed() => ShowSave();
+    private void OnSavePressed()
+    {
+        _audioManager?.PlayUiSoundById("ui_click");
+        ShowSave();
+    }
 
-    private void OnLoadPressed() => ShowLoad();
+    private void OnLoadPressed()
+    {
+        _audioManager?.PlayUiSoundById("ui_click");
+        ShowLoad();
+    }
 
     private void OnQuitPressed()
     {
+        _audioManager?.PlayUiSoundById("ui_cancel");
         // Quit directly to main menu without confirmation dialog
         _session.EndMatch(-1, "Player quit to menu.");
         SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/MainMenu.tscn");
@@ -337,6 +350,7 @@ public partial class PauseMenu : CanvasLayer
         bool ok = _session.SaveCurrentState(slotName);
         if (_statusLabel is not null)
             _statusLabel.Text = ok ? Tr("SAVE_SUCCESS") : Tr("SAVE_FAILED");
+        _audioManager?.PlayUiSoundById(ok ? "ui_confirm" : "ui_error");
     }
 
     private void DoLoad(string slotName)

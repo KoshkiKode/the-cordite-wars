@@ -31,24 +31,23 @@ public partial class VictoryScreen : CanvasLayer
     // ── State ────────────────────────────────────────────────────────
 
     private MatchResult? _result;
+    private AudioManager? _audioManager;
 
     // ── Godot lifecycle ──────────────────────────────────────────────
 
     public override void _Ready()
     {
+        _audioManager = GetNodeOrNull<AudioManager>("/root/AudioManager");
         _result = PendingResult;
         PendingResult = null;
 
         Layer = 50;
         BuildUI();
 
-        // Play victory or defeat music
-        var audioMgr = GetNodeOrNull<AudioManager>("/root/AudioManager");
-        if (audioMgr != null)
-        {
-            string musicId = (_result?.Won ?? false) ? "music_victory" : "music_defeat";
-            audioMgr.PlayMusicById(musicId);
-        }
+        // Play victory or defeat music + UI stinger
+        bool won = _result?.Won ?? false;
+        _audioManager?.PlayMusicById(won ? "music_victory" : "music_defeat");
+        _audioManager?.PlayUiSoundById(won ? "ui_match_victory" : "ui_match_defeat");
 
         // Report result to Steam
         if (_result is not null && SteamManager.Instance is { } steam)
@@ -179,11 +178,13 @@ public partial class VictoryScreen : CanvasLayer
 
     private void GoToMainMenu()
     {
+        _audioManager?.PlayUiSoundById("ui_cancel");
         SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/MainMenu.tscn");
     }
 
     private void GoToSkirmishLobby()
     {
+        _audioManager?.PlayUiSoundById("ui_confirm");
         SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/SkirmishLobby.tscn");
     }
 

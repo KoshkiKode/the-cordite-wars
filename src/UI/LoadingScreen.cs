@@ -235,6 +235,8 @@ public partial class LoadingScreen : Control
                 try
                 {
                     SoundRegistry.Instance.Load("res://data/sound_manifest.json");
+                    // Start loading music now that the registry is available
+                    GetNodeOrNull<AudioManager>("/root/AudioManager")?.PlayMusicById("music_loading");
                 }
                 catch
                 {

@@ -1,4 +1,5 @@
 using Godot;
+using CorditeWars.Systems.Audio;
 using CorditeWars.Systems.Graphics;
 
 namespace CorditeWars.UI;
@@ -11,6 +12,8 @@ namespace CorditeWars.UI;
 public partial class OptionsMenu : Control
 {
     private const string SettingsPath = "user://settings.cfg";
+
+    private AudioManager? _audioManager;
 
     // ── Display controls ──────────────────────────────────────────────
     private OptionButton _qualityPreset = null!;
@@ -30,6 +33,8 @@ public partial class OptionsMenu : Control
     private Label _musicVolumeLabel = null!;
     private HSlider _sfxVolume = null!;
     private Label _sfxVolumeLabel = null!;
+    private HSlider _uiVolume = null!;
+    private Label _uiVolumeLabel = null!;
 
     // ── Controls controls ─────────────────────────────────────────────
     private HSlider _panSpeed = null!;
@@ -58,6 +63,8 @@ public partial class OptionsMenu : Control
 
     public override void _Ready()
     {
+        _audioManager = GetNodeOrNull<AudioManager>("/root/AudioManager");
+
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
 
         // Background
@@ -260,6 +267,10 @@ public partial class OptionsMenu : Control
         // SFX Volume
         _sfxVolume = MakeVolumeSlider(out _sfxVolumeLabel, 1.0f);
         vbox.AddChild(MakeSettingRow("SFX Volume:", MakeSliderRow(_sfxVolume, _sfxVolumeLabel)));
+
+        // UI Volume
+        _uiVolume = MakeVolumeSlider(out _uiVolumeLabel, 1.0f);
+        vbox.AddChild(MakeSettingRow("UI Volume:", MakeSliderRow(_uiVolume, _uiVolumeLabel)));
 
         return scroll;
     }
@@ -468,6 +479,7 @@ public partial class OptionsMenu : Control
 
     private void OnApplyPressed()
     {
+        _audioManager?.PlayUiSoundById("ui_confirm");
         ApplyDisplaySettings();
         ApplyAudioSettings();
         SaveSettings();
@@ -476,6 +488,7 @@ public partial class OptionsMenu : Control
 
     private void OnResetPressed()
     {
+        _audioManager?.PlayUiSoundById("ui_click");
         _suppressPresetChange = true;
 
         // Display defaults
@@ -491,6 +504,7 @@ public partial class OptionsMenu : Control
         _masterVolume.Value = 1.0f;
         _musicVolume.Value = 0.7f;
         _sfxVolume.Value = 1.0f;
+        _uiVolume.Value = 1.0f;
 
         // Controls defaults
         _panSpeed.Value = 0.5f;
@@ -515,6 +529,7 @@ public partial class OptionsMenu : Control
 
     private void OnBackPressed()
     {
+        _audioManager?.PlayUiSoundById("ui_cancel");
         GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
     }
 
@@ -563,16 +578,12 @@ public partial class OptionsMenu : Control
 
     private void ApplyAudioSettings()
     {
-        var audio = GetNodeOrNull<Node>("/root/AudioManager");
-        if (audio == null) return;
+        if (_audioManager == null) return;
 
-        // Call via reflection-free approach — cast to AudioManager
-        if (audio is Systems.Audio.AudioManager am)
-        {
-            am.SetMasterVolume((float)_masterVolume.Value);
-            am.SetMusicVolume((float)_musicVolume.Value);
-            am.SetSfxVolume((float)_sfxVolume.Value);
-        }
+        _audioManager.SetMasterVolume((float)_masterVolume.Value);
+        _audioManager.SetMusicVolume((float)_musicVolume.Value);
+        _audioManager.SetSfxVolume((float)_sfxVolume.Value);
+        _audioManager.SetUiVolume((float)_uiVolume.Value);
     }
 
     // ── Persistence ───────────────────────────────────────────────────
@@ -595,6 +606,7 @@ public partial class OptionsMenu : Control
         cfg.SetValue("Audio", "master_volume", (float)_masterVolume.Value);
         cfg.SetValue("Audio", "music_volume", (float)_musicVolume.Value);
         cfg.SetValue("Audio", "sfx_volume", (float)_sfxVolume.Value);
+        cfg.SetValue("Audio", "ui_volume", (float)_uiVolume.Value);
 
         // Controls
         cfg.SetValue("Controls", "pan_speed", (float)_panSpeed.Value);
@@ -635,6 +647,7 @@ public partial class OptionsMenu : Control
         _masterVolume.Value = (float)cfg.GetValue("Audio", "master_volume", 1.0f);
         _musicVolume.Value = (float)cfg.GetValue("Audio", "music_volume", 0.7f);
         _sfxVolume.Value = (float)cfg.GetValue("Audio", "sfx_volume", 1.0f);
+        _uiVolume.Value = (float)cfg.GetValue("Audio", "ui_volume", 1.0f);
 
         // Controls
         _panSpeed.Value = (float)cfg.GetValue("Controls", "pan_speed", 0.5f);
