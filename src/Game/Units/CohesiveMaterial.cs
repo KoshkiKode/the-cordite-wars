@@ -12,6 +12,11 @@ public static class CohesiveMaterial
 {
     private const string ShaderPath = "res://assets/shaders/cohesive_flat.gdshader";
 
+    /// <summary>Weight of the original surface color in the faction-base-color blend (0–1).</summary>
+    internal const float BaseColorWeight = 0.6f;
+    /// <summary>Weight of the faction base color in the blend (0–1).</summary>
+    internal const float FactionColorWeight = 0.4f;
+
     private static Shader? _cachedShader;
 
     /// <summary>
@@ -28,9 +33,9 @@ public static class CohesiveMaterial
 
         // Blend faction base color into the surface base color for model identity
         Color blendedBase = new Color(
-            baseColor.R * 0.6f + factionBaseColor.R * 0.4f,
-            baseColor.G * 0.6f + factionBaseColor.G * 0.4f,
-            baseColor.B * 0.6f + factionBaseColor.B * 0.4f,
+            baseColor.R * BaseColorWeight + factionBaseColor.R * FactionColorWeight,
+            baseColor.G * BaseColorWeight + factionBaseColor.G * FactionColorWeight,
+            baseColor.B * BaseColorWeight + factionBaseColor.B * FactionColorWeight,
             baseColor.A);
 
         mat.SetShaderParameter("base_color", blendedBase);

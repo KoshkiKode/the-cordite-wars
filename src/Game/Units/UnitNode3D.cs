@@ -203,11 +203,11 @@ public partial class UnitNode3D : Node3D
         box.Size = new Vector3(_collisionRadius * 2, 1.0f, _collisionRadius * 2);
         meshInstance.Mesh = box;
 
-        // Blend faction base color with team color for visual identity
+        // Blend faction base color with team color using the same ratio as CohesiveMaterial
         var blended = new Color(
-            (factionBaseColor.R + teamColor.R) * 0.5f,
-            (factionBaseColor.G + teamColor.G) * 0.5f,
-            (factionBaseColor.B + teamColor.B) * 0.5f,
+            (teamColor.R * CohesiveMaterial.BaseColorWeight + factionBaseColor.R * CohesiveMaterial.FactionColorWeight),
+            (teamColor.G * CohesiveMaterial.BaseColorWeight + factionBaseColor.G * CohesiveMaterial.FactionColorWeight),
+            (teamColor.B * CohesiveMaterial.BaseColorWeight + factionBaseColor.B * CohesiveMaterial.FactionColorWeight),
             1.0f);
 
         var mat = new StandardMaterial3D();
