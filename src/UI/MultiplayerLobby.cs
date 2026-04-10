@@ -38,8 +38,8 @@ public partial class MultiplayerLobby : Control
     private Button _leaveLobbyBtn = null!;
     private Label _lobbyStatusLabel = null!;
 
-    private static readonly string[] MapIds = ["crossroads", "six_fronts", "coral_atoll", "archipelago", "dust_bowl"];
-    private static readonly string[] MapDisplayNames = ["Crossroads", "Six Fronts", "Coral Atoll", "Archipelago", "Dust Bowl"];
+    private static readonly string[] MapIds = ["crossroads", "six_fronts", "coral_atoll", "archipelago", "dust_bowl", "iron_ridge"];
+    private static readonly string[] MapDisplayNames = ["Crossroads", "Six Fronts", "Coral Atoll", "Archipelago", "Dust Bowl", "Iron Ridge"];
 
     private bool _isHost;
     private bool _isReady;

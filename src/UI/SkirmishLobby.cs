@@ -274,7 +274,10 @@ public partial class SkirmishLobby : Control
             _mapSelector.AddItem("Crossroads", 0);
             _mapSelector.AddItem("Six Fronts", 1);
             _mapSelector.AddItem("Archipelago", 2);
-            _mapIds = new[] { "crossroads", "six_fronts", "archipelago" };
+            _mapSelector.AddItem("Coral Atoll", 3);
+            _mapSelector.AddItem("Dust Bowl", 4);
+            _mapSelector.AddItem("Iron Ridge", 5);
+            _mapIds = new[] { "crossroads", "six_fronts", "archipelago", "coral_atoll", "dust_bowl", "iron_ridge" };
         }
 
         _mapSelector.Selected = 0;
