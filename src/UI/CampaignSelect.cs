@@ -260,26 +260,36 @@ public partial class CampaignSelect : Control
     // ── Progress helpers ──────────────────────────────────────────────
 
     /// <summary>
-    /// Writes filled/empty stars into <paramref name="label"/> based on how
-    /// many missions the player has completed in the faction's campaign.
-    /// Shows up to 5 stars; each star represents ~20% of total missions.
+    /// Writes filled/empty stars into <paramref name="label"/> based on the
+    /// player's total stars earned across the faction's campaign.
+    /// Each filled star represents one star earned; shows up to 5.
+    /// Total stars = sum of best-star-run for each completed mission.
     /// </summary>
     private static void UpdateStarsLabel(Label label, int factionIndex)
     {
         string factionId = UITheme.FactionIds[factionIndex];
         var progress = CampaignProgressManager.Load();
         var faction = progress.Factions.TryGetValue(factionId, out var fp) ? fp : null;
-        int completed = faction?.CompletedMissions.Count ?? 0;
+
+        // Sum all per-mission star ratings, capped at MaxStars for display
+        int totalStars = 0;
+        if (faction is not null)
+        {
+            foreach (var kvp in faction.MissionStars)
+                totalStars += kvp.Value;
+        }
 
         // Show up to 5 stars
         const int MaxStars = 5;
+        int filled = System.Math.Min(totalStars, MaxStars);
+
         var sb = new System.Text.StringBuilder(MaxStars);
         for (int i = 0; i < MaxStars; i++)
-            sb.Append(i < completed ? '\u2605' : '\u2606'); // ★ or ☆
+            sb.Append(i < filled ? '\u2605' : '\u2606'); // ★ or ☆
         label.Text = sb.ToString();
 
         // Tint: gold when any progress, muted when none
-        Color col = completed > 0 ? UITheme.Accent : UITheme.TextMuted;
+        Color col = filled > 0 ? UITheme.Accent : UITheme.TextMuted;
         label.AddThemeColorOverride("font_color", col);
     }
 

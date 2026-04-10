@@ -143,8 +143,8 @@ public sealed class ReplayManager
         EnsureDirectory();
         PruneOldReplays();
 
-        // Timestamp-based filename: replay_20260410T2100_crossroads.json
-        string ts = DateTime.UtcNow.ToString("yyyyMMddTHHmm");
+        // Timestamp-based filename: replay_20260410T210045_crossroads.json
+        string ts = DateTime.UtcNow.ToString("yyyyMMddTHHmmss");
         string fileName = $"replay_{ts}_{data.MapId}.json";
         string filePath = $"{ReplayDirectory}/{fileName}";
 
