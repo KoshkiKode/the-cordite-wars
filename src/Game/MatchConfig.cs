@@ -4,6 +4,32 @@ using CorditeWars.Game.World;
 namespace CorditeWars.Game;
 
 /// <summary>
+/// Campaign-specific context attached to a <see cref="MatchConfig"/> when the
+/// match originates from a campaign mission. Absent for skirmish / multiplayer.
+/// </summary>
+public sealed class CampaignMatchContext
+{
+    /// <summary>Faction the human player is running (e.g. "arcloft").</summary>
+    public string FactionId { get; init; } = string.Empty;
+
+    /// <summary>Unique mission identifier (e.g. "arcloft_03").</summary>
+    public string MissionId { get; init; } = string.Empty;
+
+    /// <summary>1-based mission number within the faction's campaign.</summary>
+    public int MissionNumber { get; init; }
+
+    /// <summary>Human-readable mission name shown in the objectives panel.</summary>
+    public string MissionName { get; init; } = string.Empty;
+
+    /// <summary>
+    /// List of objective strings shown in the HUD and pause menu.
+    /// These are flavour / informational — the actual win condition is driven
+    /// by <see cref="MatchConfig.WinCondition"/>.
+    /// </summary>
+    public string[] Objectives { get; init; } = [];
+}
+
+/// <summary>
 /// Configuration for a single player slot in a match.
 /// </summary>
 public sealed class PlayerConfig
@@ -39,4 +65,11 @@ public sealed class MatchConfig
     /// loading a static map identified by <see cref="MapId"/>.
     /// </summary>
     public MapGenConfig? MapGeneration { get; init; }
+
+    /// <summary>
+    /// When set, this match is a campaign mission.
+    /// <see cref="Main"/> uses this to save progress and display objectives.
+    /// Null for skirmish and multiplayer matches.
+    /// </summary>
+    public CampaignMatchContext? Campaign { get; init; }
 }

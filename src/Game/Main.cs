@@ -2,6 +2,7 @@ using Godot;
 using CorditeWars.Core;
 using CorditeWars.UI;
 using CorditeWars.UI.HUD;
+using CorditeWars.Systems.Persistence;
 using System;
 
 namespace CorditeWars.Game;
@@ -85,9 +86,32 @@ public partial class Main : Node3D
         int localPlayerId = 1; // always player 1 for local/skirmish
         bool won = _session.WinnerPlayerId == localPlayerId;
         string factionId = GetLocalPlayerFaction();
-        bool isNavalMap = _session.ActiveMap?.Id == "archipelago";
+        bool isNavalMap = _session.ActiveMap?.Id is "archipelago" or "coral_atoll";
         bool isMultiplayer = IsMultiplayerMatch();
         int aiDifficulty = GetAiDifficulty();
+
+        // ── Campaign progress ─────────────────────────────────────────
+        var campaignCtx = _session.ActiveConfig?.Campaign;
+        if (won && campaignCtx is not null)
+        {
+            // Award 1–3 stars based on completion speed relative to mission number.
+            // Baseline: ~5 min per mission; fast = <0.6× baseline; slow = >2× baseline.
+            double baselineSeconds = campaignCtx.MissionNumber * 300.0;
+            int stars;
+            if (duration < baselineSeconds * 0.6)
+                stars = 3;
+            else if (duration < baselineSeconds * 2.0)
+                stars = 2;
+            else
+                stars = 1;
+
+            CampaignProgressManager.RecordMissionComplete(
+                campaignCtx.FactionId,
+                campaignCtx.MissionId,
+                stars);
+
+            GD.Print($"[Main] Campaign mission complete: {campaignCtx.MissionId} ({stars}★ in {duration:F0}s)");
+        }
 
         VictoryScreen.ShowInScene(this, new VictoryScreen.MatchResult
         {

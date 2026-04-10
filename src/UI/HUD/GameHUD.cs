@@ -1,4 +1,5 @@
 using Godot;
+using CorditeWars.Game;
 using CorditeWars.Game.Assets;
 using CorditeWars.Game.Buildings;
 using CorditeWars.Game.Camera;
@@ -13,6 +14,8 @@ namespace CorditeWars.UI.HUD;
 /// Master HUD container. Lays out ResourceBar (top), MinimapPanel (bottom-left),
 /// UnitInfoPanel (bottom-center), CommandCard (bottom-right),
 /// ProductionQueueDisplay (above command card), and box-select overlay.
+/// When a campaign context is present, also shows
+/// <see cref="MissionObjectivesPanel"/> in the top-right corner.
 /// </summary>
 public partial class GameHUD : CanvasLayer
 {
@@ -23,6 +26,7 @@ public partial class GameHUD : CanvasLayer
     private UnitInfoPanel? _unitInfoPanel;
     private CommandCard? _commandCard;
     private ProductionQueueDisplay? _productionQueueDisplay;
+    private MissionObjectivesPanel? _missionObjectivesPanel;
 
     // Box select overlay
     private SelectionManager? _selectionManager;
@@ -37,7 +41,8 @@ public partial class GameHUD : CanvasLayer
         BuildingPlacer buildingPlacer,
         UnitSpawner unitSpawner,
         UnitDataRegistry unitDataRegistry,
-        BuildingRegistry buildingRegistry)
+        BuildingRegistry buildingRegistry,
+        CampaignMatchContext? campaignContext = null)
     {
         _selectionManager = selectionManager;
         Name = "GameHUD";
@@ -71,6 +76,11 @@ public partial class GameHUD : CanvasLayer
         // Box select overlay
         _boxSelectOverlay = new BoxSelectOverlay(selectionManager);
         AddChild(_boxSelectOverlay);
+
+        // Mission objectives panel — top-right, campaign missions only
+        _missionObjectivesPanel = new MissionObjectivesPanel();
+        _missionObjectivesPanel.Initialize(campaignContext);
+        AddChild(_missionObjectivesPanel);
     }
 
     /// <summary>

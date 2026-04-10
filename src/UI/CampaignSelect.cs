@@ -4,6 +4,7 @@ using System.Text.Json;
 using CorditeWars.Game;
 using CorditeWars.Game.Campaign;
 using CorditeWars.Systems.Audio;
+using CorditeWars.Systems.Persistence;
 
 namespace CorditeWars.UI;
 
@@ -11,6 +12,8 @@ namespace CorditeWars.UI;
 /// Campaign faction selection: 6 faction cards in 3x2 grid.
 /// Selecting a faction shows description panel below with Start/Continue buttons.
 /// Campaign data is loaded from <c>data/campaign/{faction}.json</c>.
+/// Progress (completed missions, stars) is loaded from
+/// <c>user://campaign_progress.json</c> via <see cref="CampaignProgressManager"/>.
 /// </summary>
 public partial class CampaignSelect : Control
 {
@@ -230,11 +233,12 @@ public partial class CampaignSelect : Control
         UITheme.StyleLabel(missionLabel, UITheme.FontSizeSmall, UITheme.TextSecondary);
         innerVBox.AddChild(missionLabel);
 
-        // Progress stars (empty — progress tracking not yet implemented)
+        // Progress stars — filled based on completed missions
         var starsLabel = new Label();
-        starsLabel.Text = "\u2606\u2606\u2606";
+        starsLabel.Name = $"StarsLabel_{index}";
         starsLabel.HorizontalAlignment = HorizontalAlignment.Center;
-        UITheme.StyleLabel(starsLabel, UITheme.FontSizeNormal, UITheme.TextMuted);
+        UpdateStarsLabel(starsLabel, index);
+        UITheme.StyleLabel(starsLabel, UITheme.FontSizeNormal, UITheme.Accent);
         innerVBox.AddChild(starsLabel);
 
         // Transparent click overlay
@@ -251,6 +255,65 @@ public partial class CampaignSelect : Control
         panel.AddChild(clickBtn);
 
         return panel;
+    }
+
+    // ── Progress helpers ──────────────────────────────────────────────
+
+    /// <summary>
+    /// Writes filled/empty stars into <paramref name="label"/> based on the
+    /// player's total stars earned across the faction's campaign.
+    /// Each filled star represents one star earned; shows up to 5.
+    /// Total stars = sum of best-star-run for each completed mission.
+    /// </summary>
+    private static void UpdateStarsLabel(Label label, int factionIndex)
+    {
+        string factionId = UITheme.FactionIds[factionIndex];
+        var progress = CampaignProgressManager.Load();
+        var faction = progress.Factions.TryGetValue(factionId, out var fp) ? fp : null;
+
+        // Sum all per-mission star ratings, capped at MaxStars for display
+        int totalStars = 0;
+        if (faction is not null)
+        {
+            foreach (var kvp in faction.MissionStars)
+                totalStars += kvp.Value;
+        }
+
+        // Show up to 5 stars
+        const int MaxStars = 5;
+        int filled = System.Math.Min(totalStars, MaxStars);
+
+        var sb = new System.Text.StringBuilder(MaxStars);
+        for (int i = 0; i < MaxStars; i++)
+            sb.Append(i < filled ? '\u2605' : '\u2606'); // ★ or ☆
+        label.Text = sb.ToString();
+
+        // Tint: gold when any progress, muted when none
+        Color col = filled > 0 ? UITheme.Accent : UITheme.TextMuted;
+        label.AddThemeColorOverride("font_color", col);
+    }
+
+    /// <summary>
+    /// Returns the first uncompleted mission in <paramref name="campaign"/>,
+    /// or the last mission if all are completed (allows replaying the finale).
+    /// Returns the first mission if no progress exists.
+    /// </summary>
+    private static CampaignMission GetContinueMission(FactionCampaign campaign)
+    {
+        var progress = CampaignProgressManager.Load();
+        var faction = progress.Factions.TryGetValue(campaign.FactionId, out var fp) ? fp : null;
+
+        if (faction is null || faction.CompletedMissions.Count == 0)
+            return campaign.Missions[0];
+
+        foreach (var mission in campaign.Missions)
+        {
+            if (!faction.IsCompleted(mission.Id))
+                return mission;
+        }
+
+        // All completed — let them replay the final mission
+        return campaign.Missions[^1];
     }
 
     // ── Selection ─────────────────────────────────────────────────────
@@ -298,7 +361,15 @@ public partial class CampaignSelect : Control
             _campaignMissionList.Text = string.Empty;
         }
 
-        _continueBtn.Text = string.Format(Tr("CAMPAIGN_CONTINUE"), 1);
+        // Show the mission number the Continue button will resume on
+        var selectedCampaign = _campaigns[index];
+        int continueNumber = 1;
+        if (selectedCampaign is not null && selectedCampaign.Missions.Count > 0)
+        {
+            var continueMission = GetContinueMission(selectedCampaign);
+            continueNumber = continueMission.Number;
+        }
+        _continueBtn.Text = string.Format(Tr("CAMPAIGN_CONTINUE"), continueNumber);
     }
 
     private static string GetFactionDescKey(int index) => index switch
@@ -342,9 +413,8 @@ public partial class CampaignSelect : Control
             return;
         }
 
-        // TODO: load saved campaign progress and resume from last completed mission.
-        // For now, always launch from mission 1 as a playable fallback.
-        LaunchMission(campaign, campaign.Missions[0]);
+        var mission = GetContinueMission(campaign);
+        LaunchMission(campaign, mission);
     }
 
     /// <summary>
@@ -385,7 +455,15 @@ public partial class CampaignSelect : Control
             FogOfWar         = true,
             StartingCordite  = mission.StartingCordite,
             WinCondition     = mission.WinCondition,
-            PlayerConfigs    = playerConfigs.ToArray()
+            PlayerConfigs    = playerConfigs.ToArray(),
+            Campaign         = new CampaignMatchContext
+            {
+                FactionId     = campaign.FactionId,
+                MissionId     = mission.Id,
+                MissionNumber = mission.Number,
+                MissionName   = mission.Name,
+                Objectives    = mission.Objectives.ToArray()
+            }
         };
 
         GD.Print($"[CampaignSelect] Launching mission '{mission.Name}' " +

@@ -57,6 +57,7 @@ public partial class GameSession : Node
     private UnitSpawner? _unitSpawner;
     private HarvesterSystem? _harvesterSystem;
     private SaveManager? _saveManager;
+    private ReplayManager? _replayManager;
 
     // ── Networking (multiplayer only) ────────────────────────────────
 
@@ -298,6 +299,26 @@ public partial class GameSession : Node
         _saveManager = new SaveManager();
         AddChild(_saveManager);
 
+        // f2. Create ReplayManager and begin recording
+        _replayManager = new ReplayManager();
+        var replayPlayers = new ReplayPlayerInfo[config.PlayerConfigs.Length];
+        for (int i = 0; i < config.PlayerConfigs.Length; i++)
+        {
+            var pc = config.PlayerConfigs[i];
+            replayPlayers[i] = new ReplayPlayerInfo
+            {
+                PlayerId   = pc.PlayerId,
+                FactionId  = pc.FactionId,
+                PlayerName = pc.PlayerName,
+                IsAI       = pc.IsAI
+            };
+        }
+        _replayManager.BeginRecording(
+            config.MapId,
+            config.MatchSeed,
+            replayPlayers,
+            config.Campaign?.MissionId);
+
         // g. Set up players
         for (int i = 0; i < config.PlayerConfigs.Length; i++)
         {
@@ -434,6 +455,8 @@ public partial class GameSession : Node
         WinnerPlayerId = winnerPlayerId;
         EndReason = reason;
 
+        ulong finalTick = _gameManager?.CurrentTick ?? 0;
+
         if (_gameManager is not null)
         {
             _gameManager.OnSimulationTick -= HandleSimulationTick;
@@ -446,6 +469,10 @@ public partial class GameSession : Node
 
         // Stop battle music — VictoryScreen will start victory/defeat music
         _audioManager?.StopMusic();
+
+        // Finalize and save replay (respects the auto-save setting)
+        bool autoSaveReplays = LoadAutoSaveReplaySetting();
+        _replayManager?.FinalizeAndSave(finalTick, winnerPlayerId, autoSaveReplays);
 
         // Notify Steam: hard AI defeat achievement
         if (SteamManager.Instance is { } steam && ActiveConfig is not null)
@@ -461,6 +488,21 @@ public partial class GameSession : Node
         EventBus.Instance?.EmitMatchEnded();
 
         GD.Print($"[GameSession] Match ended — winner: {winnerPlayerId}, reason: {reason}");
+    }
+
+    /// <summary>
+    /// Reads the auto-save-replays setting from user://settings.cfg.
+    /// Defaults to true if the file or key is absent.
+    /// </summary>
+    private static bool LoadAutoSaveReplaySetting()
+    {
+        const string Path = "user://settings.cfg";
+        if (!FileAccess.FileExists(Path)) return true;
+
+        var cfg = new ConfigFile();
+        if (cfg.Load(Path) != Error.Ok) return true;
+
+        return (bool)cfg.GetValue("Game", "auto_save_replays", Variant.CreateFrom(true));
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -1602,7 +1644,8 @@ public partial class GameSession : Node
             _buildingPlacer,
             _unitSpawner,
             _unitDataRegistry,
-            _buildingRegistry);
+            _buildingRegistry,
+            config.Campaign);
         AddChild(_gameHUD);
 
         // e. Wire minimap click-to-move to camera
@@ -1612,6 +1655,21 @@ public partial class GameSession : Node
         // e2. Wire building-destroyed to keep BuildingPlacer and HQ tracking in sync
         EventBus.Instance?.Connect(EventBus.SignalName.BuildingDestroyed,
             Callable.From<Node>(OnBuildingDestroyed));
+
+        // e3. Wire command events to ReplayManager so human commands are recorded
+        if (_replayManager is not null)
+        {
+            var capturedReplay = _replayManager;
+            EventBus.Instance?.Connect(EventBus.SignalName.MoveCommandIssued,
+                Callable.From<Vector3>((target) =>
+                {
+                    ulong tick = _gameManager?.CurrentTick ?? 0;
+                    var ids = _selectionManager?.GetSelectedUnitIds();
+                    capturedReplay.RecordCommand(tick, localPlayerId, "Move",
+                        target.X, target.Z,
+                        ids?.ToArray() ?? []);
+                }));
+        }
 
         // f. Skirmish AI for each AI player
         SetupAIPlayers(config);
@@ -2257,6 +2315,7 @@ public partial class GameSession : Node
         _unitSpawner = null;
         _harvesterSystem = null;
         _saveManager = null;
+        _replayManager = null;
         _lockstepManager = null;
         _networkTransport = null;
         _camera = null;

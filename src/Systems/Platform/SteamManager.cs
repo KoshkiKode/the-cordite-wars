@@ -274,7 +274,22 @@ public sealed partial class SteamManager : Node
                 return;
             }
 
-            GD.Print($"[Steam] Initialized. AppId: {SteamUtils.GetAppID()}");
+            uint appId = (uint)SteamUtils.GetAppID();
+            GD.Print($"[Steam] Initialized. AppId: {appId}");
+
+            // ⚠ Safety guard: catch releases that still use the Valve "Space War"
+            // test App ID (480). Shipping with AppId 480 means achievements, stats,
+            // and Cloud saves will be written to a public Valve test product — not
+            // your game. Replace steam_appid.txt and the depot VDF files with the
+            // real App ID before distributing any external build.
+            if (appId == 480)
+            {
+                GD.PushError(
+                    "[Steam] FATAL: Steam App ID is 480 (Valve 'Space War' test app). " +
+                    "Replace steam_appid.txt with the real Cordite Wars App ID before " +
+                    "distributing any external or beta build. " +
+                    "See the ⚠ note in SteamManager.cs for details.");
+            }
 
             // Register persistent callbacks before requesting stats so the
             // UserStatsReceived_t handler fires as soon as Steam responds.

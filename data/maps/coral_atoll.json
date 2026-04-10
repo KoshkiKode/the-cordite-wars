@@ -1,0 +1,115 @@
+{
+  "Id": "coral_atoll",
+  "DisplayName": "Coral Atoll",
+  "Description": "A tropical atoll built on centuries of coral growth. A shimmering central lagoon splits land access, forcing all advances through narrow coastal corridors and across shallow reefs. Naval supremacy here is not a luxury — it is a prerequisite for victory.",
+  "Author": "Cordite Wars Team",
+  "MaxPlayers": 4,
+  "Width": 220,
+  "Height": 220,
+  "Biome": "tropical",
+  "StartingPositions": [
+    {
+      "PlayerId": 0,
+      "X": 28,
+      "Y": 28,
+      "Facing": 0.785
+    },
+    {
+      "PlayerId": 1,
+      "X": 192,
+      "Y": 28,
+      "Facing": 2.356
+    },
+    {
+      "PlayerId": 2,
+      "X": 192,
+      "Y": 192,
+      "Facing": 3.927
+    },
+    {
+      "PlayerId": 3,
+      "X": 28,
+      "Y": 192,
+      "Facing": 5.498
+    }
+  ],
+  "CorditeNodes": [
+    { "NodeId": 0,  "X": 36,  "Y": 36,  "Amount": 10000 },
+    { "NodeId": 1,  "X": 50,  "Y": 28,  "Amount": 8000 },
+    { "NodeId": 2,  "X": 184, "Y": 36,  "Amount": 10000 },
+    { "NodeId": 3,  "X": 170, "Y": 28,  "Amount": 8000 },
+    { "NodeId": 4,  "X": 184, "Y": 184, "Amount": 10000 },
+    { "NodeId": 5,  "X": 170, "Y": 192, "Amount": 8000 },
+    { "NodeId": 6,  "X": 36,  "Y": 184, "Amount": 10000 },
+    { "NodeId": 7,  "X": 50,  "Y": 192, "Amount": 8000 },
+    { "NodeId": 8,  "X": 110, "Y": 48,  "Amount": 12000 },
+    { "NodeId": 9,  "X": 110, "Y": 172, "Amount": 12000 },
+    { "NodeId": 10, "X": 48,  "Y": 110, "Amount": 12000 },
+    { "NodeId": 11, "X": 172, "Y": 110, "Amount": 12000 }
+  ],
+  "TerrainFeatures": [
+    {
+      "Type": "water_body",
+      "Points": [
+        [ 72, 72 ],
+        [ 148, 148 ]
+      ]
+    },
+    {
+      "Type": "sea_edge",
+      "Points": [
+        [ 0, 0 ],
+        [ 220, 18 ]
+      ]
+    },
+    {
+      "Type": "sea_edge",
+      "Points": [
+        [ 0, 202 ],
+        [ 220, 220 ]
+      ]
+    },
+    {
+      "Type": "sea_edge",
+      "Points": [
+        [ 0, 0 ],
+        [ 18, 220 ]
+      ]
+    },
+    {
+      "Type": "sea_edge",
+      "Points": [
+        [ 202, 0 ],
+        [ 220, 220 ]
+      ]
+    },
+    {
+      "Type": "river",
+      "Points": [
+        [ 72, 110 ],
+        [ 0,  110 ]
+      ]
+    },
+    {
+      "Type": "river",
+      "Points": [
+        [ 148, 110 ],
+        [ 220, 110 ]
+      ]
+    },
+    {
+      "Type": "river",
+      "Points": [
+        [ 110, 72 ],
+        [ 110, 0  ]
+      ]
+    },
+    {
+      "Type": "river",
+      "Points": [
+        [ 110, 148 ],
+        [ 110, 220 ]
+      ]
+    }
+  ]
+}
