@@ -741,7 +741,7 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 6. Headless smoke test — launch the Linux export, let it run for 60 physics
-  #    frames (~2 s at 30 Hz), then assert a clean exit.  Catches crashes at
+  #    frames (2 s at 30 Hz), then assert a clean exit.  Catches crashes at
   #    startup (missing autoload, bad scene ref, C# assembly load failure, etc.)
   #    before any artifact is published.
   # ─────────────────────────────────────────────────────────────────────────────
@@ -769,7 +769,7 @@ jobs:
           echo "--- Linux export contents ---"
           ls -la smoke/
 
-          # Run the game for 60 physics frames (~2 s at 30 Hz), then exit.
+          # Run the game for 60 physics frames (2 s at 30 Hz), then exit.
           # xvfb-run provides a virtual display so the rendering driver can
           # initialise without a real monitor.  Exit code 0 means the engine
           # started, ran its main loop, and shut down cleanly.

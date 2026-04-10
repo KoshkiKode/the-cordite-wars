@@ -33,7 +33,7 @@
 A `smoke-test-linux` job is now part of `export.yml`. It:
 - Runs after `export-linux` completes
 - Downloads the Linux export artifact
-- Runs the game with `xvfb-run` + `--quit-after 60` (60 physics frames ≈ 2 s at 30 Hz)
+- Runs the game with `xvfb-run` + `--quit-after 60` (60 physics frames = 2 s at 30 Hz)
 - Asserts exit code 0 — any crash, missing autoload, or broken boot scene fails the build
 
 This prevents broken exports from being uploaded as release artifacts.
