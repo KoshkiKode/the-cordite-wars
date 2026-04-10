@@ -44,6 +44,24 @@ public sealed class FactionData
     /// <summary>Player color slot index (0–7).</summary>
     public int ColorIndex { get; init; }
 
+    /// <summary>
+    /// Faction primary color as a hex string (e.g., "#2196F3").
+    /// Used as the base tint on faction unit models and UI elements.
+    /// </summary>
+    public string PrimaryColor { get; init; } = "#FFFFFF";
+
+    /// <summary>
+    /// Faction secondary/shadow color as a hex string.
+    /// Used for panel borders, darker model accents, and UI highlights.
+    /// </summary>
+    public string SecondaryColor { get; init; } = "#AAAAAA";
+
+    /// <summary>
+    /// Faction accent/highlight color as a hex string.
+    /// Used for emissive details, UI accent elements, and bright model trim.
+    /// </summary>
+    public string AccentColor { get; init; } = "#FFFFFF";
+
     // ── Economic Modifiers ───────────────────────────────────────────
 
     /// <summary>Multiplier on harvester speed (1.0 = normal).</summary>

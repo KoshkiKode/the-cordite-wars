@@ -15,6 +15,12 @@ public sealed class AssetEntry
 {
     public string ModelPath { get; init; } = string.Empty;
     public FixedPoint CollisionRadius { get; init; }
+    /// <summary>
+    /// Height of the 3D collision cylinder for ground units (metres).
+    /// Air units use a sphere whose radius equals <see cref="CollisionRadius"/> and ignore this value.
+    /// Defaults to 1.0 if not specified in the manifest.
+    /// </summary>
+    public FixedPoint CollisionHeight { get; init; } = FixedPoint.One;
     public int FootprintWidth { get; init; } = 1;
     public int FootprintHeight { get; init; } = 1;
     public FixedPoint Mass { get; init; }

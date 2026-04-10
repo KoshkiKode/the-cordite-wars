@@ -17,6 +17,7 @@ public partial class UnitSpawner : Node
     private readonly AssetRegistry _assetRegistry;
     private readonly UnitDataRegistry _unitDataRegistry;
     private readonly SortedList<string, Color> _factionColors;
+    private readonly SortedList<string, Color> _factionBaseColors;
     private TerrainGrid? _terrainGrid;
 
     private int _nextUnitId = 1;
@@ -26,11 +27,13 @@ public partial class UnitSpawner : Node
     public UnitSpawner(
         AssetRegistry assetRegistry,
         UnitDataRegistry unitDataRegistry,
-        SortedList<string, Color> factionColors)
+        SortedList<string, Color> factionColors,
+        SortedList<string, Color> factionBaseColors)
     {
         _assetRegistry = assetRegistry;
         _unitDataRegistry = unitDataRegistry;
         _factionColors = factionColors;
+        _factionBaseColors = factionBaseColors;
     }
 
     public override void _Ready()
@@ -81,6 +84,12 @@ public partial class UnitSpawner : Node
             teamColor = color;
         }
 
+        Color factionBaseColor = Colors.White;
+        if (_factionBaseColors.TryGetValue(factionId, out Color baseColor))
+        {
+            factionBaseColor = baseColor;
+        }
+
         // For naval units, relocate the spawn position to the nearest water cell
         // if the requested position is not already on Water/DeepWater.
         if (data.MovementClassId == "Naval" && _terrainGrid != null)
@@ -91,7 +100,7 @@ public partial class UnitSpawner : Node
         int unitId = _nextUnitId++;
 
         var unitNode = new UnitNode3D();
-        unitNode.Initialize(unitId, unitTypeId, data, asset, teamColor, playerId);
+        unitNode.Initialize(unitId, unitTypeId, data, asset, teamColor, factionBaseColor, playerId);
         unitNode.SyncFromSimulation(position, facing, data.MaxHealth);
 
         if (_unitsParent is not null)

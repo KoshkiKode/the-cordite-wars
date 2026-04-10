@@ -10,18 +10,19 @@ namespace CorditeWars.Game.Units;
 public partial class SelectionCircle : MeshInstance3D
 {
     private const int RingSegments = 32;
-    private const float RingThickness = 0.05f;
+    private const float RingThickness = 0.09f;
     private const float YOffset = 0.05f;
 
     private StandardMaterial3D? _material;
 
     /// <summary>
     /// Creates the ring mesh matching the given collision radius.
+    /// The ring starts invisible and uses <paramref name="factionColor"/> as its base color.
     /// </summary>
-    public void Initialize(float radius)
+    public void Initialize(float radius, Color factionColor)
     {
         _material = new StandardMaterial3D();
-        _material.AlbedoColor = new Color(0.0f, 1.0f, 0.0f, 0.8f);
+        _material.AlbedoColor = new Color(factionColor.R, factionColor.G, factionColor.B, 0.85f);
         _material.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
         _material.ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded;
         _material.CullMode = BaseMaterial3D.CullModeEnum.Disabled;

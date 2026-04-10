@@ -12,8 +12,6 @@ namespace CorditeWars.Game.Units;
 /// </summary>
 public partial class UnitNode3D : Node3D
 {
-    private const float GroundUnitCollisionHeight = 1.0f;
-    private const float VehicleCollisionHeight = 1.5f;
     private const float AirUnitHoverHeight = 5.0f;
 
     // ── Simulation State (FixedPoint) ────────────────────────────────
@@ -36,6 +34,12 @@ public partial class UnitNode3D : Node3D
     public FixedPoint SightRange { get; private set; }
     public MovementProfile? MovementProfile { get; private set; }
 
+    /// <summary>True if this unit type has inherent stealth capability.</summary>
+    public bool IsStealthUnit { get; private set; }
+
+    /// <summary>True if this unit can detect stealthed enemies within its sight range.</summary>
+    public bool IsDetector { get; private set; }
+
     // ── Child Nodes ──────────────────────────────────────────────────
     private Node3D? _meshRoot;
     private Area3D? _collisionArea;
@@ -53,6 +57,7 @@ public partial class UnitNode3D : Node3D
         UnitData data,
         AssetEntry asset,
         Color teamColor,
+        Color factionBaseColor,
         int playerId)
     {
         UnitId = unitId;
@@ -67,9 +72,12 @@ public partial class UnitNode3D : Node3D
         Category = data.Category;
         SightRange = data.SightRange;
         MovementProfile = data.GetMovementProfile();
+        IsStealthUnit = data.IsStealthed;
+        IsDetector = data.IsDetector;
 
         _isAirUnit = asset.Domain == "Air";
         _collisionRadius = asset.CollisionRadius.ToFloat();
+        float collisionHeight = asset.CollisionHeight.ToFloat();
 
         Name = $"Unit_{unitId}_{unitTypeId}";
 
@@ -78,7 +86,7 @@ public partial class UnitNode3D : Node3D
         _meshRoot.Name = "MeshRoot";
         AddChild(_meshRoot);
 
-        LoadModel(asset, teamColor);
+        LoadModel(asset, teamColor, factionBaseColor);
 
         // ── CollisionArea: for selection/click detection ─────────────
         _collisionArea = new Area3D();
@@ -100,19 +108,17 @@ public partial class UnitNode3D : Node3D
         {
             var cylinder = new CylinderShape3D();
             cylinder.Radius = _collisionRadius;
-            cylinder.Height = IsVehicleCategory(data.Category)
-                ? VehicleCollisionHeight
-                : GroundUnitCollisionHeight;
+            cylinder.Height = collisionHeight;
             collisionShape.Shape = cylinder;
         }
 
         _collisionArea.AddChild(collisionShape);
 
-        // ── SelectionCircle: visual ring matching collision radius ───
+        // ── SelectionCircle: visual ring in faction primary color ─────
         _selectionCircle = new SelectionCircle();
         _selectionCircle.Name = "SelectionCircle";
         AddChild(_selectionCircle);
-        _selectionCircle.Initialize(_collisionRadius);
+        _selectionCircle.Initialize(_collisionRadius, teamColor);
     }
 
     /// <summary>
@@ -162,7 +168,94 @@ public partial class UnitNode3D : Node3D
         tween.TweenCallback(Callable.From(() => QueueFree()));
     }
 
-    private void LoadModel(AssetEntry asset, Color teamColor)
+    /// <summary>
+    /// Updates the visual appearance of this unit to reflect its stealth state.
+    /// <list type="bullet">
+    ///   <item>
+    ///     <b>Own unit stealthed</b> — semi-transparent (40 % opacity) so the
+    ///     owner can still see and control the unit while it is hidden from enemies.
+    ///   </item>
+    ///   <item>
+    ///     <b>Enemy unit stealthed</b> — completely hidden (<c>Visible = false</c>).
+    ///     The unit reappears when detected or when it fires.
+    ///   </item>
+    ///   <item>
+    ///     <b>Not stealthed</b> — fully opaque and visible.
+    ///   </item>
+    /// </list>
+    /// </summary>
+    /// <param name="stealthed">Whether the unit is currently in stealth.</param>
+    /// <param name="isOwnUnit">True if this unit belongs to the local player.</param>
+    public void SetStealthed(bool stealthed, bool isOwnUnit)
+    {
+        if (!stealthed)
+        {
+            Visible = true;
+            SetMeshAlpha(1.0f);
+            return;
+        }
+
+        if (isOwnUnit)
+        {
+            // Owner can see their own stealthed unit as a ghost
+            Visible = true;
+            SetMeshAlpha(0.4f);
+        }
+        else
+        {
+            // Hide enemy stealthed units entirely
+            Visible = false;
+        }
+    }
+
+    /// <summary>
+    /// Sets the alpha (opacity) on all surface override materials in the mesh
+    /// hierarchy. Used to render own stealthed units as a ghost.
+    /// </summary>
+    private void SetMeshAlpha(float alpha)
+    {
+        if (_meshRoot is null) return;
+        ApplyAlphaToNode(_meshRoot, alpha);
+    }
+
+    private static void ApplyAlphaToNode(Node node, float alpha)
+    {
+        if (node is MeshInstance3D mi)
+        {
+            int surfaceCount = mi.Mesh?.GetSurfaceCount() ?? 0;
+            for (int s = 0; s < surfaceCount; s++)
+            {
+                Material? mat = mi.GetSurfaceOverrideMaterial(s);
+                if (mat is ShaderMaterial shaderMat)
+                {
+                    // The cohesive_flat shader reads ALPHA from base_color.a
+                    Variant existing = shaderMat.GetShaderParameter("base_color");
+                    if (existing.VariantType == Variant.Type.Color)
+                    {
+                        Color c = existing.AsColor();
+                        shaderMat.SetShaderParameter("base_color", new Color(c.R, c.G, c.B, alpha));
+                    }
+                }
+                else if (mat is BaseMaterial3D baseMat)
+                {
+                    baseMat.AlbedoColor = new Color(
+                        baseMat.AlbedoColor.R,
+                        baseMat.AlbedoColor.G,
+                        baseMat.AlbedoColor.B,
+                        alpha);
+                    baseMat.Transparency = alpha < 1.0f
+                        ? BaseMaterial3D.TransparencyEnum.Alpha
+                        : BaseMaterial3D.TransparencyEnum.Disabled;
+                }
+            }
+        }
+
+        int childCount = node.GetChildCount();
+        for (int i = 0; i < childCount; i++)
+            ApplyAlphaToNode(node.GetChild(i), alpha);
+    }
+
+    private void LoadModel(AssetEntry asset, Color teamColor, Color factionBaseColor)
     {
         if (_meshRoot is null)
             return;
@@ -172,7 +265,7 @@ public partial class UnitNode3D : Node3D
         if (packedScene is null)
         {
             GD.PushWarning($"[UnitNode3D] Could not load model at '{modelPath}' for unit '{UnitTypeId}'.");
-            CreateFallbackMesh(teamColor);
+            CreateFallbackMesh(teamColor, factionBaseColor);
             return;
         }
 
@@ -190,35 +283,51 @@ public partial class UnitNode3D : Node3D
             instance.RotateY(Mathf.DegToRad(rotDeg));
         }
 
-        // Apply cohesive shader material with team color
-        CohesiveMaterial.ApplyToScene(instance, teamColor);
+        // Use faction primary color as rim/glow color so units read as distinctly faction-colored
+        // from the typical top-down RTS camera angle.
+        // team_color_strength is higher for small units (infantry) which are harder to read.
+        float teamColorStrength = GetTeamColorStrength(Category);
+        CohesiveMaterial.ApplyToScene(instance, teamColor, factionBaseColor, teamColor, teamColorStrength);
     }
 
-    private void CreateFallbackMesh(Color teamColor)
+    /// <summary>
+    /// Returns the team-color tint strength for a given unit category.
+    /// Small units (infantry) get the highest value so they remain clearly
+    /// faction-colored at typical RTS top-down viewing distances.
+    /// </summary>
+    private static float GetTeamColorStrength(UnitCategory category) => category switch
+    {
+        UnitCategory.Infantry   => 0.50f,   // small; needs strong tint to read at distance
+        UnitCategory.Support    => 0.42f,   // support/utility infantry-scale
+        UnitCategory.Special    => 0.42f,
+        UnitCategory.Defense    => 0.38f,   // static emplacements — medium prominence
+        UnitCategory.LightVehicle => 0.35f,
+        UnitCategory.APC        => 0.32f,
+        UnitCategory.Helicopter => 0.32f,
+        UnitCategory.Jet        => 0.30f,
+        _ => 0.28f  // HeavyVehicle, Tank, Artillery — large, already readable
+    };
+
+    private void CreateFallbackMesh(Color teamColor, Color factionBaseColor)
     {
         if (_meshRoot is null)
             return;
 
-        // Simple colored box as fallback when model can't load
+        // Colored box blending team and faction base colors as fallback
         var meshInstance = new MeshInstance3D();
         var box = new BoxMesh();
         box.Size = new Vector3(_collisionRadius * 2, 1.0f, _collisionRadius * 2);
         meshInstance.Mesh = box;
 
+        // Blend faction base color with team color using the shared BlendWithFaction helper
+        Color blended = CohesiveMaterial.BlendWithFaction(teamColor, factionBaseColor);
+        blended.A = 1.0f;
+
         var mat = new StandardMaterial3D();
-        mat.AlbedoColor = teamColor;
+        mat.AlbedoColor = blended;
         meshInstance.MaterialOverride = mat;
 
         meshInstance.Position = new Vector3(0.0f, 0.5f, 0.0f);
         _meshRoot.AddChild(meshInstance);
-    }
-
-    private static bool IsVehicleCategory(UnitCategory category)
-    {
-        return category == UnitCategory.LightVehicle
-            || category == UnitCategory.HeavyVehicle
-            || category == UnitCategory.Tank
-            || category == UnitCategory.APC
-            || category == UnitCategory.Artillery;
     }
 }

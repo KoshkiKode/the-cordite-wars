@@ -22,6 +22,8 @@ public partial class DebugTestScene : Node3D
 
     // Faction ID → team color
     private static readonly SortedList<string, Color> FactionColors = BuildFactionColors();
+    // Faction ID → base color for model tinting
+    private static readonly SortedList<string, Color> FactionBaseColors = BuildFactionBaseColors();
 
     // 3 sample units per faction (sorted alphabetically by faction ID)
     private static readonly string[][] FactionSamples = new string[][]
@@ -74,7 +76,7 @@ public partial class DebugTestScene : Node3D
         AddChild(camera);
 
         // 6. Create UnitSpawner
-        _spawner = new UnitSpawner(_assetRegistry, _unitDataRegistry, FactionColors);
+        _spawner = new UnitSpawner(_assetRegistry, _unitDataRegistry, FactionColors, FactionBaseColors);
         _spawner.Name = "UnitSpawner";
         AddChild(_spawner);
 
@@ -171,12 +173,24 @@ public partial class DebugTestScene : Node3D
     private static SortedList<string, Color> BuildFactionColors()
     {
         var colors = new SortedList<string, Color>();
-        colors.Add("arcloft", new Color(0.0f, 0.737f, 0.831f, 1.0f));    // Cyan #00BCD4
-        colors.Add("bastion", new Color(1.0f, 0.757f, 0.027f, 1.0f));    // Gold #FFC107
-        colors.Add("ironmarch", new Color(0.298f, 0.686f, 0.314f, 1.0f)); // Green #4CAF50
-        colors.Add("kragmore", new Color(0.957f, 0.263f, 0.212f, 1.0f)); // Red #F44336
-        colors.Add("stormrend", new Color(0.612f, 0.153f, 0.69f, 1.0f)); // Purple #9C27B0
-        colors.Add("valkyr", new Color(0.129f, 0.588f, 0.953f, 1.0f));   // Blue #2196F3
+        colors.Add("arcloft",   CorditeWars.UI.UITheme.FactionArcloft);
+        colors.Add("bastion",   CorditeWars.UI.UITheme.FactionBastion);
+        colors.Add("ironmarch", CorditeWars.UI.UITheme.FactionIronmarch);
+        colors.Add("kragmore",  CorditeWars.UI.UITheme.FactionKragmore);
+        colors.Add("stormrend", CorditeWars.UI.UITheme.FactionStormrend);
+        colors.Add("valkyr",    CorditeWars.UI.UITheme.FactionValkyr);
+        return colors;
+    }
+
+    private static SortedList<string, Color> BuildFactionBaseColors()
+    {
+        var colors = new SortedList<string, Color>();
+        colors.Add("arcloft",   CorditeWars.UI.UITheme.FactionArcloftSecondary);
+        colors.Add("bastion",   CorditeWars.UI.UITheme.FactionBastionSecondary);
+        colors.Add("ironmarch", CorditeWars.UI.UITheme.FactionIronmarchSecondary);
+        colors.Add("kragmore",  CorditeWars.UI.UITheme.FactionKragmoreSecondary);
+        colors.Add("stormrend", CorditeWars.UI.UITheme.FactionStormrendSecondary);
+        colors.Add("valkyr",    CorditeWars.UI.UITheme.FactionValkyrSecondary);
         return colors;
     }
 }

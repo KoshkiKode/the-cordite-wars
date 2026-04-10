@@ -125,6 +125,36 @@ public struct SimUnit
 
     /// <summary>Vision range in grid cells. Used by the fog-of-war system.</summary>
     public FixedPoint SightRange;
+
+    // ── Stealth ──────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Template flag: this unit has inherent stealth capability (loaded from
+    /// <c>UnitData.IsStealthed</c>). Does not change at runtime.
+    /// </summary>
+    public bool IsStealthUnit;
+
+    /// <summary>
+    /// Template flag: this unit can detect stealthed enemies within its
+    /// normal sight range (loaded from <c>UnitData.IsDetector</c>).
+    /// Does not change at runtime.
+    /// </summary>
+    public bool IsDetector;
+
+    /// <summary>
+    /// Ticks remaining during which this unit is temporarily revealed after
+    /// having fired a weapon. Counts down to 0 each tick, at which point the
+    /// unit re-enters stealth (if <see cref="IsStealthUnit"/> is true and no
+    /// detector is nearby).
+    /// </summary>
+    public int StealthRevealTicks;
+
+    /// <summary>
+    /// Resolved each tick by <c>ResolveStealthStates</c>. True when this unit
+    /// is effectively hidden from enemies: it has stealth capability, has not
+    /// fired recently, and no enemy detector is within detection range.
+    /// </summary>
+    public bool IsCurrentlyStealthed;
 }
 
 /// <summary>
@@ -179,6 +209,12 @@ public class UnitInteractionSystem
 
     /// <summary>Maximum number of path requests to process per tick.</summary>
     private readonly int _maxPathsPerTick;
+
+    /// <summary>
+    /// Number of ticks a stealthed unit remains temporarily revealed after it
+    /// fires a weapon. At the default 10-tick/s sim rate this equals 1.5 seconds.
+    /// </summary>
+    private const int StealthRevealDuration = 15;
 
     /// <summary>Awareness radius multiplier for steering neighbor queries.</summary>
     private static readonly FixedPoint NeighborQueryRadius = FixedPoint.FromInt(8);
@@ -609,6 +645,11 @@ public class UnitInteractionSystem
         // Processing order: ascending UnitId.
         // ══════════════════════════════════════════════════════════════════
 
+        // Phase 7 pre-step — resolve stealth states for all units.
+        // Must run before building _combatInfos so that stealthed units are
+        // correctly excluded from target acquisition this tick.
+        ResolveStealthStates(units);
+
         // Build combat info list for target acquisition
         _combatInfos.Clear();
         for (int i = 0; i < units.Count; i++)
@@ -631,7 +672,7 @@ public class UnitInteractionSystem
                 ArmorClass = unit.ArmorClass,
                 IsAir = isAirUnit,
                 IsBuilding = isBuilding,
-                IsStealthed = false, // TODO: integrate stealth system
+                IsStealthed = unit.IsCurrentlyStealthed,
                 Radius = unit.Radius
             });
         }
@@ -704,6 +745,14 @@ public class UnitInteractionSystem
                             _spatialHash, _combatInfos);
 
                         _attackResults.Add(result);
+
+                        // Stealth: firing temporarily breaks stealth so enemies can
+                        // briefly see and return fire against this unit.
+                        if (unit.IsStealthUnit && unit.IsCurrentlyStealthed)
+                        {
+                            unit.IsCurrentlyStealthed = false;
+                            unit.StealthRevealTicks = StealthRevealDuration;
+                        }
 
                         // Reset weapon cooldown
                         // Cooldown = SimTickRate / RateOfFire (ticks between shots)
@@ -898,6 +947,105 @@ public class UnitInteractionSystem
             }
         }
         return null;
+    }
+
+    /// <summary>
+    /// Resolves the stealth state for every unit in the list.
+    /// Called once per tick, before building <see cref="_combatInfos"/>, so that
+    /// the resulting <see cref="SimUnit.IsCurrentlyStealthed"/> values are used
+    /// for target acquisition and rendering synchronisation.
+    ///
+    /// Rules:
+    /// <list type="bullet">
+    ///   <item>
+    ///     A stealth-capable unit (<see cref="SimUnit.IsStealthUnit"/> = true)
+    ///     is effectively hidden when BOTH:
+    ///     <list type="bullet">
+    ///       <item>Its <see cref="SimUnit.StealthRevealTicks"/> countdown has
+    ///             reached zero (i.e. it has not fired recently), AND</item>
+    ///       <item>No enemy unit with <see cref="SimUnit.IsDetector"/> = true
+    ///             is within that detector's <see cref="SimUnit.SightRange"/> of it.</item>
+    ///     </list>
+    ///   </item>
+    ///   <item>
+    ///     Non-stealth units are always <c>IsCurrentlyStealthed = false</c>.
+    ///   </item>
+    ///   <item>
+    ///     <see cref="SimUnit.StealthRevealTicks"/> is decremented by 1 each
+    ///     call (down to 0). It is set to <see cref="StealthRevealDuration"/>
+    ///     by the combat phase whenever a stealth unit fires a weapon.
+    ///   </item>
+    /// </list>
+    /// </summary>
+    private static void ResolveStealthStates(List<SimUnit> units)
+    {
+        // Step 1 — Decrement reveal timers
+        for (int i = 0; i < units.Count; i++)
+        {
+            if (!units[i].IsAlive) continue;
+            if (units[i].StealthRevealTicks <= 0) continue;
+
+            SimUnit u = units[i];
+            u.StealthRevealTicks--;
+            units[i] = u;
+        }
+
+        // Step 2 — Resolve IsCurrentlyStealthed for each stealth-capable unit.
+        //           Non-stealth units are trivially false and don't need touching.
+        for (int i = 0; i < units.Count; i++)
+        {
+            if (!units[i].IsAlive) continue;
+            if (!units[i].IsStealthUnit)
+            {
+                if (units[i].IsCurrentlyStealthed)
+                {
+                    SimUnit u = units[i];
+                    u.IsCurrentlyStealthed = false;
+                    units[i] = u;
+                }
+                continue;
+            }
+
+            SimUnit stealthUnit = units[i];
+
+            // Revealed by recent attack?
+            if (stealthUnit.StealthRevealTicks > 0)
+            {
+                stealthUnit.IsCurrentlyStealthed = false;
+                units[i] = stealthUnit;
+                continue;
+            }
+
+            // Check whether any enemy detector can see this unit
+            bool detectedByEnemy = false;
+            FixedPoint stealthPosX = stealthUnit.Movement.Position.X;
+            FixedPoint stealthPosY = stealthUnit.Movement.Position.Y;
+
+            for (int j = 0; j < units.Count; j++)
+            {
+                if (!units[j].IsAlive) continue;
+                if (!units[j].IsDetector) continue;
+                if (units[j].PlayerId == stealthUnit.PlayerId) continue; // same team
+
+                SimUnit detector = units[j];
+                FixedPoint sightRange = detector.SightRange;
+
+                // Use squared distance to avoid sqrt
+                FixedPoint dx = detector.Movement.Position.X - stealthPosX;
+                FixedPoint dy = detector.Movement.Position.Y - stealthPosY;
+                FixedPoint distSq = dx * dx + dy * dy;
+                FixedPoint rangeSq = sightRange * sightRange;
+
+                if (distSq <= rangeSq)
+                {
+                    detectedByEnemy = true;
+                    break;
+                }
+            }
+
+            stealthUnit.IsCurrentlyStealthed = !detectedByEnemy;
+            units[i] = stealthUnit;
+        }
     }
 
     /// <summary>

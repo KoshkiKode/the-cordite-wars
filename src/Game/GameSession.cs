@@ -113,6 +113,13 @@ public partial class GameSession : Node
     public int WinnerPlayerId { get; private set; } = -1;
     public string EndReason { get; private set; } = string.Empty;
 
+    /// <summary>
+    /// The local (human) player's ID. Used to determine stealth visual treatment:
+    /// own stealthed units are rendered as ghosts; enemy stealthed units are hidden.
+    /// Set during <c>SetupGameplaySystems</c>.
+    /// </summary>
+    private int _localPlayerId = -1;
+
     // ── Simulation — persistent state across ticks ──────────────────
 
     /// <summary>
@@ -154,16 +161,31 @@ public partial class GameSession : Node
     // ── Faction colors for unit rendering ───────────────────────────
 
     private static readonly SortedList<string, Color> FactionColors = CreateFactionColors();
+    private static readonly SortedList<string, Color> FactionBaseColors = CreateFactionBaseColors();
 
     private static SortedList<string, Color> CreateFactionColors()
     {
         var colors = new SortedList<string, Color>();
-        colors.Add("arcloft", new Color(0.2f, 0.6f, 1.0f));
-        colors.Add("bastion", new Color(0.8f, 0.7f, 0.2f));
-        colors.Add("ironmarch", new Color(0.6f, 0.6f, 0.6f));
-        colors.Add("kragmore", new Color(0.8f, 0.3f, 0.1f));
-        colors.Add("stormrend", new Color(0.3f, 0.8f, 0.4f));
-        colors.Add("valkyr", new Color(0.7f, 0.2f, 0.8f));
+        colors.Add("arcloft",   CorditeWars.UI.UITheme.FactionArcloft);
+        colors.Add("bastion",   CorditeWars.UI.UITheme.FactionBastion);
+        colors.Add("ironmarch", CorditeWars.UI.UITheme.FactionIronmarch);
+        colors.Add("kragmore",  CorditeWars.UI.UITheme.FactionKragmore);
+        colors.Add("stormrend", CorditeWars.UI.UITheme.FactionStormrend);
+        colors.Add("valkyr",    CorditeWars.UI.UITheme.FactionValkyr);
+        return colors;
+    }
+
+    private static SortedList<string, Color> CreateFactionBaseColors()
+    {
+        // Secondary colors used as base tints on 3D models to give each faction
+        // a distinctive look regardless of player-assigned team color.
+        var colors = new SortedList<string, Color>();
+        colors.Add("arcloft",   CorditeWars.UI.UITheme.FactionArcloftSecondary);
+        colors.Add("bastion",   CorditeWars.UI.UITheme.FactionBastionSecondary);
+        colors.Add("ironmarch", CorditeWars.UI.UITheme.FactionIronmarchSecondary);
+        colors.Add("kragmore",  CorditeWars.UI.UITheme.FactionKragmoreSecondary);
+        colors.Add("stormrend", CorditeWars.UI.UITheme.FactionStormrendSecondary);
+        colors.Add("valkyr",    CorditeWars.UI.UITheme.FactionValkyrSecondary);
         return colors;
     }
 
@@ -230,7 +252,8 @@ public partial class GameSession : Node
         _unitSpawner = new UnitSpawner(
             _assetRegistry,
             _unitDataRegistry,
-            FactionColors);
+            FactionColors,
+            FactionBaseColors);
         AddChild(_unitSpawner);
 
         // d2. Create deterministic simulation tick pipeline
@@ -525,7 +548,17 @@ public partial class GameSession : Node
                 _persistentSimUnits[sim.UnitId] = sim;
                 var node = _unitSpawner.GetUnit(sim.UnitId);
                 if (node != null && node.IsAlive)
+                {
                     node.SyncFromSimulation(sim.Movement.Position, sim.Movement.Facing, sim.Health);
+
+                    // Sync stealth visual: own units appear as ghosts, enemy stealthed
+                    // units are fully hidden until detected or they fire.
+                    if (sim.IsStealthUnit)
+                    {
+                        bool isOwnUnit = sim.PlayerId == _localPlayerId;
+                        node.SetStealthed(sim.IsCurrentlyStealthed, isOwnUnit);
+                    }
+                }
             }
             else
             {
@@ -655,7 +688,12 @@ public partial class GameSession : Node
             CurrentTargetId     = null,
             CurrentPath         = null,
             ActiveFlowField     = null,
-            CurrentWaypointIndex = 0
+            CurrentWaypointIndex = 0,
+            IsStealthUnit        = node.IsStealthUnit,
+            IsDetector           = node.IsDetector,
+            StealthRevealTicks   = 0,
+            // New stealth units start stealthed; they reveal when attacking or detected.
+            IsCurrentlyStealthed = node.IsStealthUnit
         };
     }
 
@@ -1072,7 +1110,8 @@ public partial class GameSession : Node
         _unitSpawner = new UnitSpawner(
             _assetRegistry,
             _unitDataRegistry,
-            FactionColors);
+            FactionColors,
+            FactionBaseColors);
         AddChild(_unitSpawner);
 
         _harvesterSystem = new HarvesterSystem();
@@ -1492,6 +1531,7 @@ public partial class GameSession : Node
                 break;
             }
         }
+        _localPlayerId = localPlayerId;
 
         // Load building manifest
         _buildingManifest.Load("res://data/building_manifest.json");

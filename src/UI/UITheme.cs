@@ -50,12 +50,37 @@ public static class UITheme
     }
 
     // ── Faction Colors ───────────────────────────────────────────────────
-    public static readonly Color FactionValkyr    = new("#2196F3");
-    public static readonly Color FactionKragmore  = new("#F44336");
-    public static readonly Color FactionBastion   = new("#FFC107");
-    public static readonly Color FactionArcloft   = new("#00BCD4");
-    public static readonly Color FactionIronmarch = new("#4CAF50");
-    public static readonly Color FactionStormrend = new("#9C27B0");
+    // Each faction has three colors: Primary, Secondary (darker), Accent (bright trim)
+
+    // Valkyr Command — sleek high-tech air force; electric cobalt and silver
+    public static readonly Color FactionValkyr         = new("#2196F3"); // cobalt blue
+    public static readonly Color FactionValkyrSecondary = new("#0D47A1"); // deep navy
+    public static readonly Color FactionValkyrAccent    = new("#B3E5FC"); // ice blue
+
+    // Kragmore Clans — heavy industrial ground force; rust red and iron grey
+    public static readonly Color FactionKragmore         = new("#D32F2F"); // rust red
+    public static readonly Color FactionKragmoreSecondary = new("#4E342E"); // dark iron
+    public static readonly Color FactionKragmoreAccent    = new("#FF8A65"); // burnt orange
+
+    // Bastion Republic — fortified and armoured defenders; amber gold and stone grey
+    public static readonly Color FactionBastion         = new("#F9A825"); // amber gold
+    public static readonly Color FactionBastionSecondary = new("#5D4037"); // dark tan
+    public static readonly Color FactionBastionAccent    = new("#FFF8E1"); // pale ivory
+
+    // Arcloft Syndicate — stealth drone operators; teal cyan and gunmetal
+    public static readonly Color FactionArcloft         = new("#00ACC1"); // teal cyan
+    public static readonly Color FactionArcloftSecondary = new("#006064"); // deep teal
+    public static readonly Color FactionArcloftAccent    = new("#B2EBF2"); // pale cyan
+
+    // Ironmarch Union — engineering trench corps; olive green and khaki
+    public static readonly Color FactionIronmarch         = new("#558B2F"); // olive green
+    public static readonly Color FactionIronmarchSecondary = new("#1B5E20"); // dark forest
+    public static readonly Color FactionIronmarchAccent    = new("#DCEDC8"); // pale sage
+
+    // Stormrend Accord — lightning energy mercenaries; vivid purple and electric yellow
+    public static readonly Color FactionStormrend         = new("#7B1FA2"); // deep purple
+    public static readonly Color FactionStormrendSecondary = new("#F57F17"); // electric amber
+    public static readonly Color FactionStormrendAccent    = new("#E1BEE7"); // pale lavender
 
     public static readonly string[] FactionIds = { "valkyr", "kragmore", "bastion", "arcloft", "ironmarch", "stormrend" };
     public static readonly string[] FactionNames = { "Valkyr", "Kragmore", "Bastion", "Arcloft", "Ironmarch", "Stormrend" };
@@ -74,6 +99,34 @@ public static class UITheme
         };
     }
 
+    public static Color GetFactionSecondaryColor(int index)
+    {
+        return index switch
+        {
+            0 => FactionValkyrSecondary,
+            1 => FactionKragmoreSecondary,
+            2 => FactionBastionSecondary,
+            3 => FactionArcloftSecondary,
+            4 => FactionIronmarchSecondary,
+            5 => FactionStormrendSecondary,
+            _ => Border
+        };
+    }
+
+    public static Color GetFactionAccentColor(int index)
+    {
+        return index switch
+        {
+            0 => FactionValkyrAccent,
+            1 => FactionKragmoreAccent,
+            2 => FactionBastionAccent,
+            3 => FactionArcloftAccent,
+            4 => FactionIronmarchAccent,
+            5 => FactionStormrendAccent,
+            _ => AccentHover
+        };
+    }
+
     public static Color GetFactionColorById(string factionId)
     {
         for (int i = 0; i < FactionIds.Length; i++)
@@ -82,6 +135,26 @@ public static class UITheme
                 return GetFactionColor(i);
         }
         return Accent;
+    }
+
+    public static Color GetFactionSecondaryColorById(string factionId)
+    {
+        for (int i = 0; i < FactionIds.Length; i++)
+        {
+            if (FactionIds[i] == factionId)
+                return GetFactionSecondaryColor(i);
+        }
+        return Border;
+    }
+
+    public static Color GetFactionAccentColorById(string factionId)
+    {
+        for (int i = 0; i < FactionIds.Length; i++)
+        {
+            if (FactionIds[i] == factionId)
+                return GetFactionAccentColor(i);
+        }
+        return AccentHover;
     }
 
     // ── Fonts ────────────────────────────────────────────────────────────
