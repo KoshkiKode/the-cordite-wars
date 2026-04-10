@@ -6,6 +6,7 @@ Updates version across project.godot, export_presets.cfg, package manifests, etc
 
 import sys
 import re
+import json
 import argparse
 from pathlib import Path
 from typing import Tuple
@@ -45,15 +46,20 @@ def update_project_godot(project_root: Path, new_version: str) -> None:
     if not godot_file.exists():
         print(f"⚠ {godot_file} not found, skipping")
         return
-    
+
+    major, minor, patch = parse_version(new_version)
     content = godot_file.read_text()
-    # Update application/version = "X.Y.Z"
+
+    # project.godot stores version under [application] section as config/version="X.Y.Z"
     updated = re.sub(
-        r'(application/version\s*=\s*)"[^"]*"',
-        f'\\1"{new_version}"',
+        r'(config/version\s*=\s*)"[^"]*"',
+        f'\\g<1>"{new_version}"',
         content
     )
-    
+    updated = re.sub(r'(config/version_major\s*=\s*)\d+', f'\\g<1>{major}', updated)
+    updated = re.sub(r'(config/version_minor\s*=\s*)\d+', f'\\g<1>{minor}', updated)
+    updated = re.sub(r'(config/version_patch\s*=\s*)\d+', f'\\g<1>{patch}', updated)
+
     if updated != content:
         godot_file.write_text(updated)
         print(f"✓ Updated project.godot → {new_version}")
@@ -70,35 +76,53 @@ def update_export_presets(project_root: Path, new_version: str) -> None:
         # Windows: application/product_version
         updated = re.sub(
             r'(application/product_version\s*=\s*)"[^"]*"',
-            f'\\1"{new_version}.0"',
+            f'\\g<1>"{new_version}.0"',
             content
         )
-        
+
         # Android: package/version (integer)
         # For Android, use major*100 + minor*10 + patch (e.g., 0.1.0 → 10)
         major, minor, patch = parse_version(new_version)
         android_version = major * 100 + minor * 10 + patch
         updated = re.sub(
             r'(package/version\s*=\s*)(\d+)',
-            f'\\1{android_version}',
+            f'\\g<1>{android_version}',
             updated
         )
-        
+
         # iOS: application/short_version, application/version
         updated = re.sub(
             r'(application/short_version\s*=\s*)"[^"]*"',
-            f'\\1"{new_version}"',
+            f'\\g<1>"{new_version}"',
             updated
         )
         updated = re.sub(
             r'(application/version\s*=\s*)"[^"]*"',
-            f'\\1"{android_version}"',  # Use same integer version for consistency
+            f'\\g<1>"{android_version}"',  # Use same integer version for consistency
             updated
         )
         
         if updated != content:
             presets_file.write_text(updated)
             print(f"✓ Updated {presets_file.relative_to(project_root)} → {new_version}")
+
+
+def update_android_gradle(project_root: Path, new_version: str) -> None:
+    """Update version in Android build.gradle."""
+    gradle_file = project_root / "versions" / "android" / "build.gradle"
+    if not gradle_file.exists():
+        print(f"⚠ {gradle_file} not found, skipping")
+        return
+
+    major, minor, patch = parse_version(new_version)
+    android_version = major * 100 + minor * 10 + patch
+    content = gradle_file.read_text()
+    updated = re.sub(r'(versionCode\s+)\d+', f'\\g<1>{android_version}', content)
+    updated = re.sub(r'(versionName\s+")[^"]*"', f'\\g<1>{new_version}"', updated)
+
+    if updated != content:
+        gradle_file.write_text(updated)
+        print(f"✓ Updated versions/android/build.gradle → {new_version}")
 
 def update_snapcraft_yaml(project_root: Path, new_version: str) -> None:
     """Update version in snapcraft.yaml."""
@@ -110,7 +134,7 @@ def update_snapcraft_yaml(project_root: Path, new_version: str) -> None:
     content = snap_file.read_text()
     updated = re.sub(
         r'(version:\s*)[\'"]?[0-9.]+[\'"]?',
-        f'\\1{new_version}',
+        f'\\g<1>{new_version}',
         content
     )
     
@@ -119,33 +143,57 @@ def update_snapcraft_yaml(project_root: Path, new_version: str) -> None:
         print(f"✓ Updated snapcraft.yaml → {new_version}")
 
 def update_plist(project_root: Path, new_version: str) -> None:
-    """Update version in macOS Info.plist."""
-    plist_file = project_root / "versions" / "macos" / "Info.plist"
-    if not plist_file.exists():
-        print(f"⚠ {plist_file} not found, skipping")
-        return
-    
-    content = plist_file.read_text()
-    
-    # CFBundleShortVersionString
-    updated = re.sub(
-        r'(<key>CFBundleShortVersionString</key>\s*<string>)[^<]*(</string>)',
-        f'\\1{new_version}\\2',
-        content
-    )
-    
-    # CFBundleVersion (integer)
+    """Update version in macOS Info.plist and iOS ios-info.plist."""
     major, minor, patch = parse_version(new_version)
     bundle_version = major * 100 + minor * 10 + patch
-    updated = re.sub(
-        r'(<key>CFBundleVersion</key>\s*<string>)[^<]*(</string>)',
-        f'\\1{bundle_version}\\2',
-        updated
-    )
-    
-    if updated != content:
-        plist_file.write_text(updated)
-        print(f"✓ Updated Info.plist → {new_version}")
+
+    plist_files = [
+        project_root / "versions" / "macos" / "Info.plist",
+        project_root / "versions" / "ios" / "ios-info.plist",
+    ]
+
+    for plist_file in plist_files:
+        if not plist_file.exists():
+            print(f"⚠ {plist_file} not found, skipping")
+            continue
+
+        content = plist_file.read_text()
+
+        # CFBundleShortVersionString
+        updated = re.sub(
+            r'(<key>CFBundleShortVersionString</key>\s*<string>)[^<]*(</string>)',
+            f'\\g<1>{new_version}\\g<2>',
+            content,
+            flags=re.DOTALL
+        )
+
+        # CFBundleVersion (integer)
+        updated = re.sub(
+            r'(<key>CFBundleVersion</key>\s*<string>)[^<]*(</string>)',
+            f'\\g<1>{bundle_version}\\g<2>',
+            updated,
+            flags=re.DOTALL
+        )
+
+        if updated != content:
+            plist_file.write_text(updated)
+            print(f"✓ Updated {plist_file.relative_to(project_root)} → {new_version}")
+
+
+def update_version_json(project_root: Path, new_version: str) -> None:
+    """Update versions/shared/version.json."""
+    version_file = project_root / "versions" / "shared" / "version.json"
+    if not version_file.exists():
+        print(f"⚠ {version_file} not found, skipping")
+        return
+
+    major, minor, patch = parse_version(new_version)
+    data = json.loads(version_file.read_text())
+    data["major"] = major
+    data["minor"] = minor
+    data["patch"] = patch
+    version_file.write_text(json.dumps(data, indent=2) + "\n")
+    print(f"✓ Updated versions/shared/version.json → {new_version}")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -178,7 +226,7 @@ def main():
         sys.exit(1)
     
     content = godot_file.read_text()
-    match = re.search(r'application/version\s*=\s*"([^"]*)"', content)
+    match = re.search(r'config/version\s*=\s*"([^"]*)"', content)
     if not match:
         print("✗ Could not find version in project.godot")
         sys.exit(1)
@@ -202,6 +250,8 @@ def main():
     update_export_presets(project_root, new_version)
     update_snapcraft_yaml(project_root, new_version)
     update_plist(project_root, new_version)
+    update_android_gradle(project_root, new_version)
+    update_version_json(project_root, new_version)
     
     print(f"\n✓ Version bumped to {new_version}")
 

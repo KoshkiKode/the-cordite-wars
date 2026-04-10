@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Stealth mechanics: units with `IsStealthed` are invisible to enemies unless a detector unit is within sight range
+- Detector units per faction: Arcloft Vigilant jets, Bastion Patrol Rovers and Watcher towers, Ironmarch Signal Trucks, Valkyr Overwatch Drones and Kestrel jets; Bastion Corvettes and Depth Ward submarines detect naval stealth
+- Stealth units per faction: Kragmore Mole Rat sappers, Stormrend Flicker Mines, Valkyr Windrunners, and Arcloft Patch Drone (infiltration support); naval stealth submarines for Arcloft (Phantom Sub), Bastion (Depth Ward), Kragmore (Deep Bore), and Stormrend (Riptide Sub)
+- Per-category faction visual differentiation: unit meshes blend faction colour with category base colour via `CohesiveMaterial` (55% faction, 45% category)
+- Stealth-reveal countdown: stealthed units that fire are revealed for 15 ticks (StealthRevealDuration) before re-entering stealth
+- Campaign missions updated for all six factions to integrate stealth mechanics — new briefings, faction-specific objectives, and tactical twists referencing detector/stealth units
+- New Bastion campaign mission "Ghost in the Network" (mission 7, Hard): destroy Arcloft's underwater surveillance network using Corvettes and Depth Wards
 - Multi-platform export infrastructure (Windows, Linux, macOS, Android, iOS)
 - Semantic versioning automation across all platform exports
 - SHA256 checksum generation and verification tools
@@ -20,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Android build template extraction for non-Android targets
+- `bump-version.py` now correctly reads and writes `config/version` from `project.godot` (was using the wrong key `application/version`)
+- `bump-version.py` now updates `versions/shared/version.json`, `versions/android/build.gradle`, `versions/ios/ios-info.plist`, and `config/version_major/minor/patch` fields in `project.godot` so all platform versions stay in sync
 
 ### Security
 - Added optional Android APK signing via GitHub Actions secrets
