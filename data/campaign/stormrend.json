@@ -21,7 +21,8 @@
       "starting_cordite": 3000,
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
-      "twist": ""
+      "twist": "",
+      "win_condition": "kill_all_units"
     },
     {
       "id": "stormrend_02",
@@ -40,7 +41,8 @@
       "starting_cordite": 3500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Ironmarch Juggernauts will arrive at the 8-minute mark — be gone before then."
+      "twist": "Ironmarch Juggernauts will arrive at the 8-minute mark \u2014 be gone before then.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "stormrend_03",
@@ -60,7 +62,8 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Arcloft will keep repositioning drones — track and destroy each one quickly."
+      "twist": "Arcloft will keep repositioning drones \u2014 track and destroy each one quickly.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "stormrend_04",
@@ -81,7 +84,8 @@
       "starting_cordite": 4500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Kragmore dreadnoughts arrive in 10 minutes — the mission must be complete by then."
+      "twist": "Kragmore dreadnoughts arrive in 10 minutes \u2014 the mission must be complete by then.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "stormrend_05",
@@ -102,7 +106,8 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Bastion will fortify the canyon exit — destroy their fortifications before leading Kragmore in."
+      "twist": "Bastion will fortify the canyon exit \u2014 destroy their fortifications before leading Kragmore in.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "stormrend_06",
@@ -123,7 +128,8 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Stormrend's speed is its survival — never stop moving."
+      "twist": "Stormrend's speed is its survival \u2014 never stop moving.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "stormrend_07",
@@ -144,7 +150,8 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Thunderjaws are powerful but draw massive enemy fire — escort them with fast support units."
+      "twist": "Thunderjaws are powerful but draw massive enemy fire \u2014 escort them with fast support units.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "stormrend_08",
@@ -168,7 +175,8 @@
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Speed is everything — Stormrend must reach the Nexus before enemies can block the approach."
+      "twist": "Speed is everything \u2014 Stormrend must reach the Nexus before enemies can block the approach.",
+      "win_condition": "destroy_hq"
     }
   ]
 }

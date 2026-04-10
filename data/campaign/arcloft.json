@@ -21,7 +21,8 @@
       "starting_cordite": 3000,
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
-      "twist": ""
+      "twist": "",
+      "win_condition": "kill_all_units"
     },
     {
       "id": "arcloft_02",
@@ -40,7 +41,8 @@
       "starting_cordite": 3500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Stormrend will detect the Patch Drone if it moves too slowly — keep it moving."
+      "twist": "Stormrend will detect the Patch Drone if it moves too slowly \u2014 keep it moving.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "arcloft_03",
@@ -60,7 +62,8 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Ironmarch will call for Kragmore armour support if the attack takes longer than 8 minutes."
+      "twist": "Ironmarch will call for Kragmore armour support if the attack takes longer than 8 minutes.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "arcloft_04",
@@ -80,7 +83,8 @@
       "starting_cordite": 4500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Kragmore naval patrols will detect sonar pings — move submarines carefully between patrols."
+      "twist": "Kragmore naval patrols will detect sonar pings \u2014 move submarines carefully between patrols.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "arcloft_05",
@@ -100,7 +104,8 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Patch Drones can plant false intelligence but will be destroyed if detected."
+      "twist": "Patch Drones can plant false intelligence but will be destroyed if detected.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "arcloft_06",
@@ -121,13 +126,14 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Each faction will attempt to destroy Arcloft relays in their territory."
+      "twist": "Each faction will attempt to destroy Arcloft relays in their territory.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "arcloft_07",
       "number": 7,
       "name": "Quantum Silence",
-      "briefing": "Activate the Quantum Detection Grid — which will blind all enemy surveillance permanently.",
+      "briefing": "Activate the Quantum Detection Grid \u2014 which will blind all enemy surveillance permanently.",
       "map": "iron_ridge",
       "player_faction": "arcloft",
       "enemy_factions": [
@@ -144,13 +150,14 @@
       "starting_cordite": 4000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "All factions will send forces to stop the Grid from activating — this is Arcloft's most dangerous operation."
+      "twist": "All factions will send forces to stop the Grid from activating \u2014 this is Arcloft's most dangerous operation.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "arcloft_08",
       "number": 8,
       "name": "The Six Fronts",
-      "briefing": "Arcloft has seen everything. Now it is time to act. The Cordite Nexus must be seized — silently.",
+      "briefing": "Arcloft has seen everything. Now it is time to act. The Cordite Nexus must be seized \u2014 silently.",
       "map": "six_fronts",
       "player_faction": "arcloft",
       "enemy_factions": [
@@ -167,7 +174,8 @@
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "If Arcloft is seen capturing the Nexus by more than 2 factions simultaneously, all will attack."
+      "twist": "If Arcloft is seen capturing the Nexus by more than 2 factions simultaneously, all will attack.",
+      "win_condition": "destroy_hq"
     }
   ]
 }

@@ -1,5 +1,7 @@
 using Godot;
+using System.Collections.Generic;
 using System.Text.Json;
+using CorditeWars.Game;
 using CorditeWars.Game.Campaign;
 using CorditeWars.Systems.Audio;
 
@@ -316,16 +318,82 @@ public partial class CampaignSelect : Control
     {
         if (_selectedFaction < 0) return;
         _audioManager?.PlayUiSoundById("ui_confirm");
-        GD.Print($"[CampaignSelect] Starting campaign: {UITheme.FactionNames[_selectedFaction]}");
-        ShowComingSoonDialog();
+
+        var campaign = _campaigns[_selectedFaction];
+        if (campaign == null || campaign.Missions.Count == 0)
+        {
+            ShowComingSoonDialog();
+            return;
+        }
+
+        // Always start from mission 1 when pressing "Start"
+        LaunchMission(campaign, campaign.Missions[0]);
     }
 
     private void OnContinuePressed()
     {
         if (_selectedFaction < 0) return;
         _audioManager?.PlayUiSoundById("ui_confirm");
-        GD.Print($"[CampaignSelect] Continuing campaign: {UITheme.FactionNames[_selectedFaction]}");
-        ShowComingSoonDialog();
+
+        var campaign = _campaigns[_selectedFaction];
+        if (campaign == null || campaign.Missions.Count == 0)
+        {
+            ShowComingSoonDialog();
+            return;
+        }
+
+        // TODO: load saved campaign progress and resume from last completed mission.
+        // For now, always launch from mission 1 as a playable fallback.
+        LaunchMission(campaign, campaign.Missions[0]);
+    }
+
+    /// <summary>
+    /// Builds a <see cref="MatchConfig"/> from <paramref name="mission"/> and
+    /// transitions to the main gameplay scene.
+    /// </summary>
+    private void LaunchMission(FactionCampaign campaign, CampaignMission mission)
+    {
+        var playerConfigs = new List<PlayerConfig>();
+
+        // Slot 1 — human player
+        playerConfigs.Add(new PlayerConfig
+        {
+            PlayerId   = 1,
+            FactionId  = mission.PlayerFaction,
+            IsAI       = false,
+            PlayerName = campaign.Commander
+        });
+
+        // Slots 2+ — AI enemies
+        for (int i = 0; i < mission.EnemyFactions.Count; i++)
+        {
+            playerConfigs.Add(new PlayerConfig
+            {
+                PlayerId    = i + 2,
+                FactionId   = mission.EnemyFactions[i],
+                IsAI        = true,
+                AIDifficulty = mission.AiDifficulty,
+                PlayerName  = $"AI {mission.EnemyFactions[i]}"
+            });
+        }
+
+        var config = new MatchConfig
+        {
+            MapId            = mission.MapId,
+            MatchSeed        = (ulong)System.DateTime.Now.Ticks,
+            GameSpeed        = 1,
+            FogOfWar         = true,
+            StartingCordite  = mission.StartingCordite,
+            WinCondition     = mission.WinCondition,
+            PlayerConfigs    = playerConfigs.ToArray()
+        };
+
+        GD.Print($"[CampaignSelect] Launching mission '{mission.Name}' " +
+                 $"({mission.PlayerFaction} vs {string.Join(", ", mission.EnemyFactions)}) " +
+                 $"WinCondition={mission.WinCondition}");
+
+        CorditeWars.Game.Main.PendingConfig = config;
+        SceneTransition.TransitionTo(GetTree(), "res://scenes/Game/Main.tscn");
     }
 
     private void ShowComingSoonDialog()

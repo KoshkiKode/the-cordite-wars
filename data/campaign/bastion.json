@@ -21,7 +21,8 @@
       "starting_cordite": 3000,
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
-      "twist": ""
+      "twist": "",
+      "win_condition": "kill_all_units"
     },
     {
       "id": "bastion_02",
@@ -41,7 +42,8 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Kragmore will bring siege artillery — position walls to absorb the bombardment."
+      "twist": "Kragmore will bring siege artillery \u2014 position walls to absorb the bombardment.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "bastion_03",
@@ -61,13 +63,14 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Valkyr will attack in waves — prepare flak defences in multiple sectors."
+      "twist": "Valkyr will attack in waves \u2014 prepare flak defences in multiple sectors.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "bastion_04",
       "number": 4,
       "name": "Counter-Strike",
-      "briefing": "Castellan Mira orders a rare offensive operation — capture the enemy supply hub.",
+      "briefing": "Castellan Mira orders a rare offensive operation \u2014 capture the enemy supply hub.",
       "map": "dust_bowl",
       "player_faction": "bastion",
       "enemy_factions": [
@@ -81,7 +84,8 @@
       "starting_cordite": 4500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Bastion units are slow — plan the strike route carefully to avoid being flanked."
+      "twist": "Bastion units are slow \u2014 plan the strike route carefully to avoid being flanked.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "bastion_05",
@@ -101,7 +105,8 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Stormrend will harry the supply ships from the flank — split forces carefully."
+      "twist": "Stormrend will harry the supply ships from the flank \u2014 split forces carefully.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "bastion_06",
@@ -122,7 +127,8 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Enemy factions will attempt to break through different sections of the wall simultaneously."
+      "twist": "Enemy factions will attempt to break through different sections of the wall simultaneously.",
+      "win_condition": "destroy_hq"
     },
     {
       "id": "bastion_07",
@@ -145,7 +151,8 @@
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Bastion's strength is in defence — let the others weaken each other before making your move."
+      "twist": "Bastion's strength is in defence \u2014 let the others weaken each other before making your move.",
+      "win_condition": "destroy_hq"
     }
   ]
 }
