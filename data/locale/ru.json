@@ -120,5 +120,7 @@
   "SUBTITLES_DISABLED": "Subtitles disabled",
   "CAMPAIGN_COMING_SOON_TITLE": "Coming Soon",
   "CAMPAIGN_COMING_SOON_BODY": "Campaign missions are not yet available. Check back in a future update!",
-  "MENU_OK": "OK"
+  "MENU_OK": "OK",
+  "MENU_TUTORIAL": "ОБУЧЕНИЕ",
+  "MENU_REPLAYS": "ПОВТОРЫ"
 }

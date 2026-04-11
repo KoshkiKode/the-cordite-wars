@@ -3,7 +3,10 @@ using CorditeWars.Core;
 using CorditeWars.UI;
 using CorditeWars.UI.HUD;
 using CorditeWars.Systems.Persistence;
+using CorditeWars.Systems.Platform;
+using CorditeWars.Game.Campaign;
 using System;
+using System.Text.Json;
 
 namespace CorditeWars.Game;
 
@@ -94,16 +97,7 @@ public partial class Main : Node3D
         var campaignCtx = _session.ActiveConfig?.Campaign;
         if (won && campaignCtx is not null)
         {
-            // Award 1–3 stars based on completion speed relative to mission number.
-            // Baseline: ~5 min per mission; fast = <0.6× baseline; slow = >2× baseline.
-            double baselineSeconds = campaignCtx.MissionNumber * 300.0;
-            int stars;
-            if (duration < baselineSeconds * 0.6)
-                stars = 3;
-            else if (duration < baselineSeconds * 2.0)
-                stars = 2;
-            else
-                stars = 1;
+            int stars = GetStars(duration, campaignCtx.MissionNumber);
 
             CampaignProgressManager.RecordMissionComplete(
                 campaignCtx.FactionId,
@@ -113,16 +107,72 @@ public partial class Main : Node3D
             GD.Print($"[Main] Campaign mission complete: {campaignCtx.MissionId} ({stars}★ in {duration:F0}s)");
         }
 
+        // Check for next campaign mission
+        bool hasCampaignCtx = campaignCtx is not null;
+        bool hasNextMission  = false;
+        if (won && hasCampaignCtx)
+        {
+            var fc = LoadFactionCampaign(campaignCtx!.FactionId);
+            if (fc is not null)
+                hasNextMission = fc.Missions.FindIndex(m => m.Id == campaignCtx.MissionId) < fc.Missions.Count - 1;
+        }
+
+        // Check if this was the last mission (for COMPLETE_CAMPAIGN achievement)
+        if (won && campaignCtx is not null)
+        {
+            var fc2 = LoadFactionCampaign(campaignCtx.FactionId);
+            if (fc2 is not null)
+            {
+                var lastMission = fc2.Missions[^1];
+                if (lastMission.Id == campaignCtx.MissionId)
+                    SteamManager.Instance?.UnlockAchievement("COMPLETE_CAMPAIGN");
+            }
+        }
+
+        // Get match stats
+        var stats = _session.GetMatchStats();
+
         VictoryScreen.ShowInScene(this, new VictoryScreen.MatchResult
         {
-            Won = won,
-            PlayerFactionId = factionId,
-            EndReason = _session.EndReason,
+            Won                  = won,
+            PlayerFactionId      = factionId,
+            EndReason            = _session.EndReason,
             MatchDurationSeconds = duration,
-            IsMultiplayer = isMultiplayer,
-            IsNavalMap = isNavalMap,
-            AiDifficulty = aiDifficulty
+            IsMultiplayer        = isMultiplayer,
+            IsNavalMap           = isNavalMap,
+            AiDifficulty         = aiDifficulty,
+            IsCampaignMission    = hasCampaignCtx,
+            CampaignFactionId    = campaignCtx?.FactionId ?? string.Empty,
+            CampaignMissionId    = campaignCtx?.MissionId ?? string.Empty,
+            MissionNumber        = campaignCtx?.MissionNumber ?? 0,
+            StarsEarned          = won && hasCampaignCtx ? GetStars(duration, campaignCtx!.MissionNumber) : 0,
+            HasNextMission       = hasNextMission,
+            UnitsKilled          = stats.Kills,
+            UnitsLost            = stats.Losses,
+            BuildingsConstructed = stats.BuildingsConstructed
         });
+    }
+
+    private static int GetStars(double duration, int missionNumber)
+    {
+        double baseline = missionNumber * 300.0;
+        if (duration < baseline * 0.6) return 3;
+        if (duration < baseline * 2.0) return 2;
+        return 1;
+    }
+
+    private static FactionCampaign? LoadFactionCampaign(string factionId)
+    {
+        string path = $"res://data/campaign/{factionId}.json";
+        if (!Godot.FileAccess.FileExists(path)) return null;
+        using var file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Read);
+        if (file is null) return null;
+        try
+        {
+            var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return JsonSerializer.Deserialize<FactionCampaign>(file.GetAsText(), opts);
+        }
+        catch { return null; }
     }
 
     private string GetLocalPlayerFaction()

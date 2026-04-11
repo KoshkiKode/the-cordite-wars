@@ -1,0 +1,1252 @@
+[
+  {
+    "id": "arcloft_aether_relay",
+    "faction": "arcloft",
+    "category": "Support",
+    "hp": 240,
+    "cost": 1000,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "arcloft_apex",
+    "faction": "arcloft",
+    "category": "Jet",
+    "hp": 192,
+    "cost": 1800,
+    "damage": 42.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "arcloft_arc_cruiser",
+    "faction": "arcloft",
+    "category": "Destroyer",
+    "hp": 400.0,
+    "cost": 1700,
+    "damage": 45.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "arcloft_arc_turret",
+    "faction": "arcloft",
+    "category": "Defense",
+    "hp": 495,
+    "cost": 1000,
+    "damage": 50.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "arcloft_cirrus_runner",
+    "faction": "arcloft",
+    "category": "Support",
+    "hp": 156,
+    "cost": 400,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "arcloft_flak_citadel",
+    "faction": "arcloft",
+    "category": "Defense",
+    "hp": 562,
+    "cost": 1800,
+    "damage": 23.0,
+    "speed": 0,
+    "range": 14.0
+  },
+  {
+    "id": "arcloft_horizon_guard",
+    "faction": "arcloft",
+    "category": "Infantry",
+    "hp": 120,
+    "cost": 400,
+    "damage": 13.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "arcloft_interceptor_battery",
+    "faction": "arcloft",
+    "category": "Special",
+    "hp": 428,
+    "cost": 1000,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "arcloft_nimbus_transport",
+    "faction": "arcloft",
+    "category": "APC",
+    "hp": 342,
+    "cost": 700,
+    "damage": 10.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "arcloft_patch_drone",
+    "faction": "arcloft",
+    "category": "Support",
+    "hp": 150,
+    "cost": 400,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "arcloft_phantom_sub",
+    "faction": "arcloft",
+    "category": "Submarine",
+    "hp": 260.0,
+    "cost": 1900,
+    "damage": 90.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "arcloft_rampart_wall",
+    "faction": "arcloft",
+    "category": "Defense",
+    "hp": 562,
+    "cost": 400,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "arcloft_sky_bastion",
+    "faction": "arcloft",
+    "category": "Special",
+    "hp": 465,
+    "cost": 4500,
+    "damage": 60.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "arcloft_sky_marshal",
+    "faction": "arcloft",
+    "category": "Support",
+    "hp": 120,
+    "cost": 700,
+    "damage": 42.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "arcloft_sky_skimmer",
+    "faction": "arcloft",
+    "category": "PatrolBoat",
+    "hp": 130.0,
+    "cost": 500,
+    "damage": 22.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "arcloft_stormshot",
+    "faction": "arcloft",
+    "category": "Infantry",
+    "hp": 98,
+    "cost": 700,
+    "damage": 60.0,
+    "speed": 0,
+    "range": 11.0
+  },
+  {
+    "id": "arcloft_stratos",
+    "faction": "arcloft",
+    "category": "Helicopter",
+    "hp": 285,
+    "cost": 1400,
+    "damage": 50.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "arcloft_templar",
+    "faction": "arcloft",
+    "category": "Helicopter",
+    "hp": 240,
+    "cost": 1400,
+    "damage": 42.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "arcloft_vigilant",
+    "faction": "arcloft",
+    "category": "Jet",
+    "hp": 156,
+    "cost": 1000,
+    "damage": 17.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "bastion_aegis_generator",
+    "faction": "bastion",
+    "category": "Special",
+    "hp": 630,
+    "cost": 3500,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "bastion_bastion_turret",
+    "faction": "bastion",
+    "category": "Special",
+    "hp": 562,
+    "cost": 1400,
+    "damage": 70.0,
+    "speed": 0,
+    "range": 11.0
+  },
+  {
+    "id": "bastion_bulwark_mortar",
+    "faction": "bastion",
+    "category": "Artillery",
+    "hp": 240,
+    "cost": 1400,
+    "damage": 100.0,
+    "speed": 0,
+    "range": 28.0
+  },
+  {
+    "id": "bastion_citadel_ship",
+    "faction": "bastion",
+    "category": "CapitalShip",
+    "hp": 3000.0,
+    "cost": 5000,
+    "damage": 120.0,
+    "speed": 0,
+    "range": 16.0
+  },
+  {
+    "id": "bastion_citadel_wall",
+    "faction": "bastion",
+    "category": "Defense",
+    "hp": 765,
+    "cost": 400,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "bastion_command_hub",
+    "faction": "bastion",
+    "category": "Defense",
+    "hp": 765,
+    "cost": 2200,
+    "damage": 10.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "bastion_constructor",
+    "faction": "bastion",
+    "category": "HeavyVehicle",
+    "hp": 570,
+    "cost": 1000,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "bastion_corvette",
+    "faction": "bastion",
+    "category": "Destroyer",
+    "hp": 550.0,
+    "cost": 1800,
+    "damage": 60.0,
+    "speed": 0,
+    "range": 11.0
+  },
+  {
+    "id": "bastion_denial_field",
+    "faction": "bastion",
+    "category": "Defense",
+    "hp": 292,
+    "cost": 400,
+    "damage": 15.0,
+    "speed": 0,
+    "range": 3.0
+  },
+  {
+    "id": "bastion_depth_ward",
+    "faction": "bastion",
+    "category": "Submarine",
+    "hp": 320.0,
+    "cost": 1900,
+    "damage": 100.0,
+    "speed": 0,
+    "range": 11.0
+  },
+  {
+    "id": "bastion_guardian_drone",
+    "faction": "bastion",
+    "category": "Helicopter",
+    "hp": 195,
+    "cost": 700,
+    "damage": 33.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "bastion_keeper",
+    "faction": "bastion",
+    "category": "Support",
+    "hp": 98,
+    "cost": 400,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 5.0
+  },
+  {
+    "id": "bastion_patrol_rover",
+    "faction": "bastion",
+    "category": "LightVehicle",
+    "hp": 156,
+    "cost": 400,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "bastion_phalanx",
+    "faction": "bastion",
+    "category": "HeavyVehicle",
+    "hp": 1110,
+    "cost": 1800,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "bastion_rampart",
+    "faction": "bastion",
+    "category": "Tank",
+    "hp": 698,
+    "cost": 1400,
+    "damage": 40.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "bastion_restoration_rig",
+    "faction": "bastion",
+    "category": "Support",
+    "hp": 156,
+    "cost": 700,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "bastion_sentinel",
+    "faction": "bastion",
+    "category": "Infantry",
+    "hp": 120,
+    "cost": 700,
+    "damage": 42.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "bastion_shield_bearer",
+    "faction": "bastion",
+    "category": "Support",
+    "hp": 396,
+    "cost": 1000,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 5.0
+  },
+  {
+    "id": "bastion_shield_skiff",
+    "faction": "bastion",
+    "category": "PatrolBoat",
+    "hp": 200.0,
+    "cost": 550,
+    "damage": 18.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "bastion_spire_array",
+    "faction": "bastion",
+    "category": "Defense",
+    "hp": 495,
+    "cost": 1400,
+    "damage": 58.0,
+    "speed": 0,
+    "range": 13.0
+  },
+  {
+    "id": "bastion_warden",
+    "faction": "bastion",
+    "category": "Infantry",
+    "hp": 120,
+    "cost": 400,
+    "damage": 10.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "bastion_watcher",
+    "faction": "bastion",
+    "category": "Support",
+    "hp": 150,
+    "cost": 400,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "ironmarch_basalt",
+    "faction": "ironmarch",
+    "category": "Tank",
+    "hp": 630,
+    "cost": 1400,
+    "damage": 60.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "ironmarch_battleship",
+    "faction": "ironmarch",
+    "category": "CapitalShip",
+    "hp": 2800.0,
+    "cost": 4800,
+    "damage": 180.0,
+    "speed": 0,
+    "range": 20.0
+  },
+  {
+    "id": "ironmarch_breacher",
+    "faction": "ironmarch",
+    "category": "Infantry",
+    "hp": 120,
+    "cost": 700,
+    "damage": 30.0,
+    "speed": 0,
+    "range": 5.0
+  },
+  {
+    "id": "ironmarch_bullfrog",
+    "faction": "ironmarch",
+    "category": "Helicopter",
+    "hp": 285,
+    "cost": 1000,
+    "damage": 6.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "ironmarch_dozer",
+    "faction": "ironmarch",
+    "category": "HeavyVehicle",
+    "hp": 750,
+    "cost": 1000,
+    "damage": 10.0,
+    "speed": 0,
+    "range": 5.0
+  },
+  {
+    "id": "ironmarch_field_engineer",
+    "faction": "ironmarch",
+    "category": "Support",
+    "hp": 98,
+    "cost": 400,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 5.0
+  },
+  {
+    "id": "ironmarch_field_hospital",
+    "faction": "ironmarch",
+    "category": "Support",
+    "hp": 570,
+    "cost": 1000,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "ironmarch_fieldwork_wall",
+    "faction": "ironmarch",
+    "category": "Defense",
+    "hp": 562,
+    "cost": 200,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "ironmarch_fob_truck",
+    "faction": "ironmarch",
+    "category": "Special",
+    "hp": 660,
+    "cost": 1800,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "ironmarch_holdfast",
+    "faction": "ironmarch",
+    "category": "Infantry",
+    "hp": 142,
+    "cost": 400,
+    "damage": 13.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "ironmarch_ironclad_frigate",
+    "faction": "ironmarch",
+    "category": "Destroyer",
+    "hp": 700.0,
+    "cost": 2000,
+    "damage": 80.0,
+    "speed": 0,
+    "range": 12.0
+  },
+  {
+    "id": "ironmarch_juggernaut",
+    "faction": "ironmarch",
+    "category": "Special",
+    "hp": 1020,
+    "cost": 3500,
+    "damage": 40.0,
+    "speed": 0,
+    "range": 13.0
+  },
+  {
+    "id": "ironmarch_march_barge",
+    "faction": "ironmarch",
+    "category": "PatrolBoat",
+    "hp": 220.0,
+    "cost": 600,
+    "damage": 25.0,
+    "speed": 0,
+    "range": 6.0
+  },
+  {
+    "id": "ironmarch_pathcutter",
+    "faction": "ironmarch",
+    "category": "LightVehicle",
+    "hp": 156,
+    "cost": 400,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "ironmarch_siegebreaker",
+    "faction": "ironmarch",
+    "category": "Tank",
+    "hp": 698,
+    "cost": 2200,
+    "damage": 70.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "ironmarch_signal_truck",
+    "faction": "ironmarch",
+    "category": "Support",
+    "hp": 156,
+    "cost": 700,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "ironmarch_stonehail",
+    "faction": "ironmarch",
+    "category": "Artillery",
+    "hp": 240,
+    "cost": 1800,
+    "damage": 44.0,
+    "speed": 0,
+    "range": 30.0
+  },
+  {
+    "id": "ironmarch_trench_diver",
+    "faction": "ironmarch",
+    "category": "Submarine",
+    "hp": 360.0,
+    "cost": 2000,
+    "damage": 120.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "ironmarch_trenchline_apc",
+    "faction": "ironmarch",
+    "category": "APC",
+    "hp": 396,
+    "cost": 1000,
+    "damage": 4.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "ironmarch_watchtower",
+    "faction": "ironmarch",
+    "category": "Defense",
+    "hp": 495,
+    "cost": 1000,
+    "damage": 50.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "ironmarch_wire_field",
+    "faction": "ironmarch",
+    "category": "Defense",
+    "hp": 225,
+    "cost": 200,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 3.0
+  },
+  {
+    "id": "kragmore_anvil",
+    "faction": "kragmore",
+    "category": "Tank",
+    "hp": 765,
+    "cost": 2200,
+    "damage": 80.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "kragmore_bulwark",
+    "faction": "kragmore",
+    "category": "Tank",
+    "hp": 630,
+    "cost": 1400,
+    "damage": 60.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "kragmore_bunker",
+    "faction": "kragmore",
+    "category": "Defense",
+    "hp": 698,
+    "cost": 1000,
+    "damage": 10.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "kragmore_deep_bore",
+    "faction": "kragmore",
+    "category": "Submarine",
+    "hp": 340.0,
+    "cost": 1900,
+    "damage": 130.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "kragmore_dreadnought",
+    "faction": "kragmore",
+    "category": "Destroyer",
+    "hp": 680.0,
+    "cost": 2200,
+    "damage": 95.0,
+    "speed": 0,
+    "range": 14.0
+  },
+  {
+    "id": "kragmore_dust_runner",
+    "faction": "kragmore",
+    "category": "LightVehicle",
+    "hp": 156,
+    "cost": 400,
+    "damage": 6.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "kragmore_flak_nest",
+    "faction": "kragmore",
+    "category": "Defense",
+    "hp": 428,
+    "cost": 700,
+    "damage": 40.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "kragmore_grinder",
+    "faction": "kragmore",
+    "category": "HeavyVehicle",
+    "hp": 750,
+    "cost": 2200,
+    "damage": 100.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "kragmore_hauler_apc",
+    "faction": "kragmore",
+    "category": "APC",
+    "hp": 396,
+    "cost": 700,
+    "damage": 4.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "kragmore_iron_trawler",
+    "faction": "kragmore",
+    "category": "PatrolBoat",
+    "hp": 180.0,
+    "cost": 600,
+    "damage": 30.0,
+    "speed": 0,
+    "range": 5.0
+  },
+  {
+    "id": "kragmore_ironclad",
+    "faction": "kragmore",
+    "category": "Infantry",
+    "hp": 142,
+    "cost": 700,
+    "damage": 30.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "kragmore_ironwall",
+    "faction": "kragmore",
+    "category": "Defense",
+    "hp": 630,
+    "cost": 400,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "kragmore_leviathan",
+    "faction": "kragmore",
+    "category": "CapitalShip",
+    "hp": 2200.0,
+    "cost": 4500,
+    "damage": 200.0,
+    "speed": 0,
+    "range": 18.0
+  },
+  {
+    "id": "kragmore_mammoth",
+    "faction": "kragmore",
+    "category": "HeavyVehicle",
+    "hp": 1110,
+    "cost": 3500,
+    "damage": 90.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "kragmore_minelayer",
+    "faction": "kragmore",
+    "category": "LightVehicle",
+    "hp": 156,
+    "cost": 700,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "kragmore_mole_rat",
+    "faction": "kragmore",
+    "category": "Infantry",
+    "hp": 98,
+    "cost": 700,
+    "damage": 40.0,
+    "speed": 0,
+    "range": 4.0
+  },
+  {
+    "id": "kragmore_quake_battery",
+    "faction": "kragmore",
+    "category": "Artillery",
+    "hp": 240,
+    "cost": 1800,
+    "damage": 133.0,
+    "speed": 0,
+    "range": 33.0
+  },
+  {
+    "id": "kragmore_spotter",
+    "faction": "kragmore",
+    "category": "Support",
+    "hp": 75,
+    "cost": 200,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "kragmore_strix_gunship",
+    "faction": "kragmore",
+    "category": "Helicopter",
+    "hp": 330,
+    "cost": 1400,
+    "damage": 50.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "kragmore_tremor_mine",
+    "faction": "kragmore",
+    "category": "Defense",
+    "hp": 225,
+    "cost": 200,
+    "damage": 35.0,
+    "speed": 0,
+    "range": 3.0
+  },
+  {
+    "id": "kragmore_vanguard",
+    "faction": "kragmore",
+    "category": "Infantry",
+    "hp": 120,
+    "cost": 200,
+    "damage": 13.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "kragmore_wrecker",
+    "faction": "kragmore",
+    "category": "Support",
+    "hp": 660,
+    "cost": 700,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "stormrend_bolt",
+    "faction": "stormrend",
+    "category": "LightVehicle",
+    "hp": 120,
+    "cost": 400,
+    "damage": 8.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "stormrend_chainlink_barrier",
+    "faction": "stormrend",
+    "category": "Defense",
+    "hp": 360,
+    "cost": 200,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "stormrend_cyclone",
+    "faction": "stormrend",
+    "category": "Tank",
+    "hp": 428,
+    "cost": 1800,
+    "damage": 40.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "stormrend_flicker_mine",
+    "faction": "stormrend",
+    "category": "Defense",
+    "hp": 225,
+    "cost": 200,
+    "damage": 40.0,
+    "speed": 0,
+    "range": 3.0
+  },
+  {
+    "id": "stormrend_flickerhawk",
+    "faction": "stormrend",
+    "category": "Helicopter",
+    "hp": 195,
+    "cost": 700,
+    "damage": 7.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "stormrend_gust_apc",
+    "faction": "stormrend",
+    "category": "APC",
+    "hp": 288,
+    "cost": 700,
+    "damage": 4.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "stormrend_lightning_skiff",
+    "faction": "stormrend",
+    "category": "PatrolBoat",
+    "hp": 100.0,
+    "cost": 400,
+    "damage": 18.0,
+    "speed": 0,
+    "range": 5.0
+  },
+  {
+    "id": "stormrend_razorbeak",
+    "faction": "stormrend",
+    "category": "Jet",
+    "hp": 192,
+    "cost": 1400,
+    "damage": 42.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "stormrend_razorwind",
+    "faction": "stormrend",
+    "category": "Infantry",
+    "hp": 75,
+    "cost": 200,
+    "damage": 8.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "stormrend_riptide",
+    "faction": "stormrend",
+    "category": "Tank",
+    "hp": 495,
+    "cost": 1400,
+    "damage": 10.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "stormrend_riptide_sub",
+    "faction": "stormrend",
+    "category": "Submarine",
+    "hp": 240.0,
+    "cost": 1850,
+    "damage": 100.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "stormrend_scrap_hawk",
+    "faction": "stormrend",
+    "category": "Support",
+    "hp": 195,
+    "cost": 700,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "stormrend_snap_turret",
+    "faction": "stormrend",
+    "category": "Defense",
+    "hp": 292,
+    "cost": 400,
+    "damage": 7.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "stormrend_sparkrunner",
+    "faction": "stormrend",
+    "category": "Infantry",
+    "hp": 75,
+    "cost": 400,
+    "damage": 50.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "stormrend_storm_destroyer",
+    "faction": "stormrend",
+    "category": "Destroyer",
+    "hp": 420.0,
+    "cost": 1600,
+    "damage": 40.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "stormrend_stormbreaker",
+    "faction": "stormrend",
+    "category": "Special",
+    "hp": 228,
+    "cost": 4500,
+    "damage": 250.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "stormrend_surge_node",
+    "faction": "stormrend",
+    "category": "Support",
+    "hp": 120,
+    "cost": 700,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "stormrend_tempest_raider",
+    "faction": "stormrend",
+    "category": "LightVehicle",
+    "hp": 156,
+    "cost": 700,
+    "damage": 42.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "stormrend_thunderclap",
+    "faction": "stormrend",
+    "category": "LightVehicle",
+    "hp": 156,
+    "cost": 1400,
+    "damage": 44.0,
+    "speed": 0,
+    "range": 11.0
+  },
+  {
+    "id": "stormrend_thunderjaw",
+    "faction": "stormrend",
+    "category": "Infantry",
+    "hp": 98,
+    "cost": 400,
+    "damage": 20.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "stormrend_vortex",
+    "faction": "stormrend",
+    "category": "Helicopter",
+    "hp": 240,
+    "cost": 1400,
+    "damage": 50.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "valkyr_depth_hunter",
+    "faction": "valkyr",
+    "category": "Submarine",
+    "hp": 280.0,
+    "cost": 2000,
+    "damage": 110.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "valkyr_downburst_turret",
+    "faction": "valkyr",
+    "category": "Defense",
+    "hp": 360,
+    "cost": 700,
+    "damage": 10.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "valkyr_gale_trooper",
+    "faction": "valkyr",
+    "category": "Infantry",
+    "hp": 98,
+    "cost": 700,
+    "damage": 31.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "valkyr_harrier",
+    "faction": "valkyr",
+    "category": "Helicopter",
+    "hp": 285,
+    "cost": 1800,
+    "damage": 58.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "valkyr_kestrel",
+    "faction": "valkyr",
+    "category": "Helicopter",
+    "hp": 240,
+    "cost": 1000,
+    "damage": 7.0,
+    "speed": 0,
+    "range": 9.0
+  },
+  {
+    "id": "valkyr_mistral_apc",
+    "faction": "valkyr",
+    "category": "APC",
+    "hp": 288,
+    "cost": 700,
+    "damage": 4.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "valkyr_overwatch_drone",
+    "faction": "valkyr",
+    "category": "Support",
+    "hp": 150,
+    "cost": 400,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "valkyr_peregrine",
+    "faction": "valkyr",
+    "category": "Jet",
+    "hp": 192,
+    "cost": 1800,
+    "damage": 50.0,
+    "speed": 0,
+    "range": 11.0
+  },
+  {
+    "id": "valkyr_seabird_cutter",
+    "faction": "valkyr",
+    "category": "PatrolBoat",
+    "hp": 120.0,
+    "cost": 450,
+    "damage": 20.0,
+    "speed": 0,
+    "range": 6.0
+  },
+  {
+    "id": "valkyr_shriek",
+    "faction": "valkyr",
+    "category": "Jet",
+    "hp": 156,
+    "cost": 1400,
+    "damage": 8.0,
+    "speed": 0,
+    "range": 13.0
+  },
+  {
+    "id": "valkyr_skyguard",
+    "faction": "valkyr",
+    "category": "Infantry",
+    "hp": 98,
+    "cost": 700,
+    "damage": 50.0,
+    "speed": 0,
+    "range": 10.0
+  },
+  {
+    "id": "valkyr_skypiercer_turret",
+    "faction": "valkyr",
+    "category": "Defense",
+    "hp": 428,
+    "cost": 1000,
+    "damage": 60.0,
+    "speed": 0,
+    "range": 13.0
+  },
+  {
+    "id": "valkyr_stormcaller",
+    "faction": "valkyr",
+    "category": "Special",
+    "hp": 264,
+    "cost": 4500,
+    "damage": 250.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "valkyr_tempest",
+    "faction": "valkyr",
+    "category": "Jet",
+    "hp": 228,
+    "cost": 2800,
+    "damage": 75.0,
+    "speed": 0,
+    "range": 7.0
+  },
+  {
+    "id": "valkyr_tempest_frigate",
+    "faction": "valkyr",
+    "category": "Destroyer",
+    "hp": 380.0,
+    "cost": 1600,
+    "damage": 55.0,
+    "speed": 0,
+    "range": 12.0
+  },
+  {
+    "id": "valkyr_updraft",
+    "faction": "valkyr",
+    "category": "Support",
+    "hp": 240,
+    "cost": 1000,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "valkyr_valkyrie_carrier",
+    "faction": "valkyr",
+    "category": "Special",
+    "hp": 420,
+    "cost": 3500,
+    "damage": 7.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "valkyr_wind_wall",
+    "faction": "valkyr",
+    "category": "Defense",
+    "hp": 428,
+    "cost": 200,
+    "damage": 0,
+    "speed": 0,
+    "range": 0
+  },
+  {
+    "id": "valkyr_windrunner",
+    "faction": "valkyr",
+    "category": "Infantry",
+    "hp": 75,
+    "cost": 200,
+    "damage": 6.0,
+    "speed": 0,
+    "range": 8.0
+  },
+  {
+    "id": "valkyr_zephyr_buggy",
+    "faction": "valkyr",
+    "category": "LightVehicle",
+    "hp": 120,
+    "cost": 400,
+    "damage": 5.0,
+    "speed": 0,
+    "range": 7.0
+  }
+]

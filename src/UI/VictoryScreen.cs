@@ -16,13 +16,23 @@ public partial class VictoryScreen : CanvasLayer
 
     public sealed class MatchResult
     {
-        public bool Won { get; init; }
-        public string PlayerFactionId { get; init; } = string.Empty;
-        public string EndReason { get; init; } = string.Empty;
+        public bool   Won                  { get; init; }
+        public string PlayerFactionId      { get; init; } = string.Empty;
+        public string EndReason            { get; init; } = string.Empty;
         public double MatchDurationSeconds { get; init; }
-        public bool IsMultiplayer { get; init; }
-        public bool IsNavalMap { get; init; }
-        public int AiDifficulty { get; init; }
+        public bool   IsMultiplayer        { get; init; }
+        public bool   IsNavalMap           { get; init; }
+        public int    AiDifficulty         { get; init; }
+
+        public bool   IsCampaignMission      { get; init; }
+        public string CampaignFactionId      { get; init; } = string.Empty;
+        public string CampaignMissionId      { get; init; } = string.Empty;
+        public int    MissionNumber          { get; init; }
+        public int    StarsEarned            { get; init; }
+        public bool   HasNextMission         { get; init; }
+        public int    UnitsKilled            { get; init; }
+        public int    UnitsLost              { get; init; }
+        public int    BuildingsConstructed   { get; init; }
     }
 
     /// <summary>Set this before transitioning to the victory screen scene.</summary>
@@ -143,6 +153,30 @@ public partial class VictoryScreen : CanvasLayer
         UITheme.StyleLabel(durationLabel, UITheme.FontSizeNormal, UITheme.TextSecondary);
         vbox.AddChild(durationLabel);
 
+        // Stats row
+        var statsLabel = new Label();
+        int kills  = _result?.UnitsKilled          ?? 0;
+        int losses = _result?.UnitsLost            ?? 0;
+        int bldgs  = _result?.BuildingsConstructed ?? 0;
+        statsLabel.Text = $"Units Killed: {kills}   Units Lost: {losses}   Buildings: {bldgs}";
+        statsLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        UITheme.StyleLabel(statsLabel, UITheme.FontSizeSmall, UITheme.TextSecondary);
+        vbox.AddChild(statsLabel);
+
+        // Campaign stars
+        if (won && (_result?.IsCampaignMission ?? false))
+        {
+            int stars = _result!.StarsEarned;
+            var starsLabel = new Label();
+            var sb = new System.Text.StringBuilder(3);
+            for (int si = 0; si < 3; si++)
+                sb.Append(si < stars ? '\u2605' : '\u2606');
+            starsLabel.Text = $"Mission Complete!  {sb}";
+            starsLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            UITheme.StyleLabel(starsLabel, UITheme.FontSizeLarge, UITheme.Accent);
+            vbox.AddChild(starsLabel);
+        }
+
         // End reason (if present)
         if (!string.IsNullOrEmpty(reason))
         {
@@ -177,6 +211,21 @@ public partial class VictoryScreen : CanvasLayer
         UITheme.StyleAccentButton(playAgainBtn);
         playAgainBtn.Pressed += GoToSkirmishLobby;
         btnRow.AddChild(playAgainBtn);
+
+        // Next mission button (campaign only)
+        if (won && (_result?.IsCampaignMission ?? false) && (_result?.HasNextMission ?? false))
+        {
+            var nextBtn = new Button();
+            nextBtn.Text = "Next Mission \u25BA";
+            nextBtn.CustomMinimumSize = new Vector2(200, 50);
+            UITheme.StyleAccentButton(nextBtn);
+            nextBtn.Pressed += () =>
+            {
+                _audioManager?.PlayUiSoundById("ui_confirm");
+                SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/CampaignSelect.tscn");
+            };
+            btnRow.AddChild(nextBtn);
+        }
     }
 
     // ── Animations ───────────────────────────────────────────────────

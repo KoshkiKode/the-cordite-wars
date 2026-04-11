@@ -43,7 +43,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Kragmore will push armour from two directions at the 5-minute mark while Mole Rat sappers attempt to blow the ridge from beneath. Kestrel jets detect them — don't leave the ridge unpatrolled.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "valkyr_01"
     },
     {
       "id": "valkyr_03",
@@ -65,7 +66,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Ironmarch Signal Trucks jam targeting data — destroy them first or your aircraft strike accuracy will suffer.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "valkyr_02"
     },
     {
       "id": "valkyr_04",
@@ -87,7 +89,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Stormrend raids supply nodes every 3 minutes, using Flicker Mines as a screen. Overwatch Drones can spot them — but the Drones themselves are soft targets, so keep escort aircraft close.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "valkyr_03"
     },
     {
       "id": "valkyr_05",
@@ -109,7 +112,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Kragmore Deep Bore stealth submarines are invisible without a Tempest Frigate in range. Deploy at least one Frigate before advancing into the straits — the Deep Bores will ambush unescorted ships.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "valkyr_04"
     },
     {
       "id": "valkyr_06",
@@ -132,7 +136,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Kragmore Mole Rats, Stormrend Flicker Mines, and Ironmarch Trench Diver submarines will each approach stealthed. Enemy factions will periodically call truces to coordinate simultaneous stealth strikes from all three directions.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "valkyr_05"
     },
     {
       "id": "valkyr_07",
@@ -154,11 +159,32 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Arcloft Vigilant jets are detector aircraft — they will instantly reveal any moving Windrunner. Use stationary stealth positioning: advance Windrunners one at a time, holding still to stay hidden between movements.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "valkyr_06"
     },
     {
       "id": "valkyr_08",
       "number": 8,
+      "name": "Sovereign's Gambit",
+      "briefing": "The Ironmarch capital at Iron Ridge is within striking range. A decisive aerial assault will end their campaign.",
+      "map": "iron_ridge",
+      "player_faction": "valkyr",
+      "enemy_factions": [
+        "ironmarch"
+      ],
+      "objectives": [
+        "Destroy the Ironmarch Command Center"
+      ],
+      "starting_cordite": 5500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Ironmarch AA batteries cover the approaches — use Interceptors to suppress defences before the main strike.",
+      "win_condition": "destroy_hq",
+      "requires_mission": "valkyr_07"
+    },
+    {
+      "id": "valkyr_09",
+      "number": 9,
       "name": "The Six Fronts",
       "briefing": "All six factions converge on the Cordite Nexus. Valkyr must seize the skies above it and deny all others access. Overwatch Drones and Kestrel jets establish a total detection net — nothing approaches the Nexus without Valkyr knowing first.",
       "map": "six_fronts",
@@ -179,7 +205,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Arcloft Phantom Subs, Kragmore Mole Rats, and Stormrend Riptide Subs will each attempt a stealth approach. All other factions begin in full war with each other — but will unite against whoever controls the Nexus.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "valkyr_08"
     }
   ]
 }

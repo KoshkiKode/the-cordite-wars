@@ -341,11 +341,15 @@ public partial class CampaignSelect : Control
 
             // Show first 3 mission names as preview
             var preview = new System.Text.StringBuilder();
+            var progress = CampaignProgressManager.Load();
+            var factionProgress = progress.Factions.TryGetValue(campaign.FactionId, out var fp) ? fp : null;
             int shown = System.Math.Min(3, campaign.Missions.Count);
             for (int m = 0; m < shown; m++)
             {
                 var mission = campaign.Missions[m];
-                preview.Append($"M{mission.Number}: {mission.Name}");
+                bool locked = IsMissionLocked(mission, factionProgress);
+                string prefix = locked ? "\uD83D\uDD12 " : string.Empty;
+                preview.Append($"{prefix}M{mission.Number}: {mission.Name}");
                 if (m < shown - 1) preview.Append("  •  ");
             }
             if (campaign.Missions.Count > 3)
@@ -382,6 +386,13 @@ public partial class CampaignSelect : Control
         5 => "FACTION_DESC_STORMREND",
         _ => "GAME_TITLE"
     };
+
+    private static bool IsMissionLocked(CampaignMission mission, CorditeWars.Game.Campaign.FactionCampaignProgress? progress)
+    {
+        if (string.IsNullOrEmpty(mission.RequiresMission)) return false;
+        if (progress is null) return true;
+        return !progress.IsCompleted(mission.RequiresMission);
+    }
 
     // ── Button handlers ───────────────────────────────────────────────
 
@@ -462,7 +473,8 @@ public partial class CampaignSelect : Control
                 MissionId     = mission.Id,
                 MissionNumber = mission.Number,
                 MissionName   = mission.Name,
-                Objectives    = mission.Objectives.ToArray()
+                Objectives    = mission.Objectives.ToArray(),
+                TypedObjectives = mission.TypedObjectives.ToArray()
             }
         };
 

@@ -1,0 +1,422 @@
+[
+  {
+    "id": "arcloft_airfield",
+    "faction": "arcloft",
+    "cost": 2000,
+    "hp": 1200,
+    "build_time": 35.0
+  },
+  {
+    "id": "arcloft_barracks",
+    "faction": "arcloft",
+    "cost": 800,
+    "hp": 1000,
+    "build_time": 20.0
+  },
+  {
+    "id": "arcloft_command_center",
+    "faction": "arcloft",
+    "cost": 0,
+    "hp": 3000,
+    "build_time": 0
+  },
+  {
+    "id": "arcloft_overwatch_tower",
+    "faction": "arcloft",
+    "cost": 1500,
+    "hp": 900,
+    "build_time": 20.0
+  },
+  {
+    "id": "arcloft_reactor",
+    "faction": "arcloft",
+    "cost": 1000,
+    "hp": 800,
+    "build_time": 20.0
+  },
+  {
+    "id": "arcloft_refinery",
+    "faction": "arcloft",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 25.0
+  },
+  {
+    "id": "arcloft_shipyard",
+    "faction": "arcloft",
+    "cost": 2000,
+    "hp": 1800,
+    "build_time": 45.0
+  },
+  {
+    "id": "arcloft_supply_depot",
+    "faction": "arcloft",
+    "cost": 500,
+    "hp": 600,
+    "build_time": 15.0
+  },
+  {
+    "id": "arcloft_tech_lab",
+    "faction": "arcloft",
+    "cost": 1500,
+    "hp": 800,
+    "build_time": 30.0
+  },
+  {
+    "id": "arcloft_vehicle_factory",
+    "faction": "arcloft",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 30.0
+  },
+  {
+    "id": "bastion_airfield",
+    "faction": "bastion",
+    "cost": 2000,
+    "hp": 1200,
+    "build_time": 35.0
+  },
+  {
+    "id": "bastion_barracks",
+    "faction": "bastion",
+    "cost": 800,
+    "hp": 1000,
+    "build_time": 20.0
+  },
+  {
+    "id": "bastion_command_center",
+    "faction": "bastion",
+    "cost": 0,
+    "hp": 3000,
+    "build_time": 0
+  },
+  {
+    "id": "bastion_command_hub",
+    "faction": "bastion",
+    "cost": 2200,
+    "hp": 1800,
+    "build_time": 45.0
+  },
+  {
+    "id": "bastion_reactor",
+    "faction": "bastion",
+    "cost": 1000,
+    "hp": 800,
+    "build_time": 20.0
+  },
+  {
+    "id": "bastion_refinery",
+    "faction": "bastion",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 25.0
+  },
+  {
+    "id": "bastion_shipyard",
+    "faction": "bastion",
+    "cost": 2000,
+    "hp": 2200,
+    "build_time": 50.0
+  },
+  {
+    "id": "bastion_supply_depot",
+    "faction": "bastion",
+    "cost": 500,
+    "hp": 600,
+    "build_time": 15.0
+  },
+  {
+    "id": "bastion_tech_lab",
+    "faction": "bastion",
+    "cost": 1500,
+    "hp": 800,
+    "build_time": 30.0
+  },
+  {
+    "id": "bastion_vehicle_factory",
+    "faction": "bastion",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 30.0
+  },
+  {
+    "id": "ironmarch_airfield",
+    "faction": "ironmarch",
+    "cost": 2000,
+    "hp": 1200,
+    "build_time": 35.0
+  },
+  {
+    "id": "ironmarch_barracks",
+    "faction": "ironmarch",
+    "cost": 800,
+    "hp": 1000,
+    "build_time": 20.0
+  },
+  {
+    "id": "ironmarch_command_center",
+    "faction": "ironmarch",
+    "cost": 0,
+    "hp": 3000,
+    "build_time": 0
+  },
+  {
+    "id": "ironmarch_forward_assembly",
+    "faction": "ironmarch",
+    "cost": 1000,
+    "hp": 1200,
+    "build_time": 20.0
+  },
+  {
+    "id": "ironmarch_reactor",
+    "faction": "ironmarch",
+    "cost": 1000,
+    "hp": 800,
+    "build_time": 20.0
+  },
+  {
+    "id": "ironmarch_refinery",
+    "faction": "ironmarch",
+    "cost": 1500,
+    "hp": 2250,
+    "build_time": 25.0
+  },
+  {
+    "id": "ironmarch_shipyard",
+    "faction": "ironmarch",
+    "cost": 2000,
+    "hp": 1900,
+    "build_time": 42.0
+  },
+  {
+    "id": "ironmarch_supply_depot",
+    "faction": "ironmarch",
+    "cost": 500,
+    "hp": 600,
+    "build_time": 15.0
+  },
+  {
+    "id": "ironmarch_tech_lab",
+    "faction": "ironmarch",
+    "cost": 1500,
+    "hp": 800,
+    "build_time": 30.0
+  },
+  {
+    "id": "ironmarch_vehicle_factory",
+    "faction": "ironmarch",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 30.0
+  },
+  {
+    "id": "kragmore_airfield",
+    "faction": "kragmore",
+    "cost": 2000,
+    "hp": 1200,
+    "build_time": 35.0
+  },
+  {
+    "id": "kragmore_barracks",
+    "faction": "kragmore",
+    "cost": 800,
+    "hp": 1000,
+    "build_time": 20.0
+  },
+  {
+    "id": "kragmore_command_center",
+    "faction": "kragmore",
+    "cost": 0,
+    "hp": 3000,
+    "build_time": 0
+  },
+  {
+    "id": "kragmore_reactor",
+    "faction": "kragmore",
+    "cost": 1000,
+    "hp": 800,
+    "build_time": 20.0
+  },
+  {
+    "id": "kragmore_refinery",
+    "faction": "kragmore",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 25.0
+  },
+  {
+    "id": "kragmore_shipyard",
+    "faction": "kragmore",
+    "cost": 2000,
+    "hp": 2000,
+    "build_time": 48.0
+  },
+  {
+    "id": "kragmore_supply_depot",
+    "faction": "kragmore",
+    "cost": 500,
+    "hp": 600,
+    "build_time": 15.0
+  },
+  {
+    "id": "kragmore_tech_lab",
+    "faction": "kragmore",
+    "cost": 1500,
+    "hp": 800,
+    "build_time": 30.0
+  },
+  {
+    "id": "kragmore_vehicle_factory",
+    "faction": "kragmore",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 30.0
+  },
+  {
+    "id": "kragmore_war_forge",
+    "faction": "kragmore",
+    "cost": 2500,
+    "hp": 2000,
+    "build_time": 60.0
+  },
+  {
+    "id": "stormrend_airfield",
+    "faction": "stormrend",
+    "cost": 2000,
+    "hp": 1200,
+    "build_time": 35.0
+  },
+  {
+    "id": "stormrend_barracks",
+    "faction": "stormrend",
+    "cost": 800,
+    "hp": 1000,
+    "build_time": 20.0
+  },
+  {
+    "id": "stormrend_command_center",
+    "faction": "stormrend",
+    "cost": 0,
+    "hp": 3000,
+    "build_time": 0
+  },
+  {
+    "id": "stormrend_reactor",
+    "faction": "stormrend",
+    "cost": 1250,
+    "hp": 800,
+    "build_time": 20.0
+  },
+  {
+    "id": "stormrend_refinery",
+    "faction": "stormrend",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 25.0
+  },
+  {
+    "id": "stormrend_shipyard",
+    "faction": "stormrend",
+    "cost": 2000,
+    "hp": 1600,
+    "build_time": 38.0
+  },
+  {
+    "id": "stormrend_storm_capacitor",
+    "faction": "stormrend",
+    "cost": 2000,
+    "hp": 1000,
+    "build_time": 40.0
+  },
+  {
+    "id": "stormrend_supply_depot",
+    "faction": "stormrend",
+    "cost": 500,
+    "hp": 600,
+    "build_time": 15.0
+  },
+  {
+    "id": "stormrend_tech_lab",
+    "faction": "stormrend",
+    "cost": 1500,
+    "hp": 800,
+    "build_time": 30.0
+  },
+  {
+    "id": "stormrend_vehicle_factory",
+    "faction": "stormrend",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 30.0
+  },
+  {
+    "id": "valkyr_airfield",
+    "faction": "valkyr",
+    "cost": 2000,
+    "hp": 1200,
+    "build_time": 35.0
+  },
+  {
+    "id": "valkyr_barracks",
+    "faction": "valkyr",
+    "cost": 800,
+    "hp": 1000,
+    "build_time": 20.0
+  },
+  {
+    "id": "valkyr_carrier_pad",
+    "faction": "valkyr",
+    "cost": 3500,
+    "hp": 2000,
+    "build_time": 90.0
+  },
+  {
+    "id": "valkyr_command_center",
+    "faction": "valkyr",
+    "cost": 0,
+    "hp": 3000,
+    "build_time": 0
+  },
+  {
+    "id": "valkyr_reactor",
+    "faction": "valkyr",
+    "cost": 800,
+    "hp": 800,
+    "build_time": 20.0
+  },
+  {
+    "id": "valkyr_refinery",
+    "faction": "valkyr",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 25.0
+  },
+  {
+    "id": "valkyr_shipyard",
+    "faction": "valkyr",
+    "cost": 2000,
+    "hp": 1750,
+    "build_time": 40.0
+  },
+  {
+    "id": "valkyr_supply_depot",
+    "faction": "valkyr",
+    "cost": 500,
+    "hp": 600,
+    "build_time": 15.0
+  },
+  {
+    "id": "valkyr_tech_lab",
+    "faction": "valkyr",
+    "cost": 1500,
+    "hp": 800,
+    "build_time": 30.0
+  },
+  {
+    "id": "valkyr_vehicle_factory",
+    "faction": "valkyr",
+    "cost": 1500,
+    "hp": 1500,
+    "build_time": 30.0
+  }
+]

@@ -27,6 +27,9 @@ public sealed class CampaignMatchContext
     /// by <see cref="MatchConfig.WinCondition"/>.
     /// </summary>
     public string[] Objectives { get; init; } = [];
+
+    /// <summary>Typed (structured) objectives for the mission objective tracker.</summary>
+    public TypedObjectiveData[] TypedObjectives { get; init; } = [];
 }
 
 /// <summary>
@@ -65,6 +68,9 @@ public sealed class MatchConfig
     /// loading a static map identified by <see cref="MapId"/>.
     /// </summary>
     public MapGenConfig? MapGeneration { get; init; }
+
+    /// <summary>When true, starts the built-in tutorial sequence.</summary>
+    public bool IsTutorial { get; init; }
 
     /// <summary>
     /// When set, this match is a campaign mission.

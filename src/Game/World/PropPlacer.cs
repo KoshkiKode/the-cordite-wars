@@ -117,7 +117,7 @@ public partial class PropPlacer : Node3D
         if (instance == null)
         {
             // Create placeholder cube
-            instance = CreatePlaceholder(finalScale);
+            instance = CreatePlaceholder(prop.ModelId, finalScale);
         }
 
         instance.Position = new Vector3(worldX, worldY, worldZ);
@@ -184,17 +184,8 @@ public partial class PropPlacer : Node3D
         Node3D? instance = LoadModel(entry.ModelPath);
         if (instance == null)
         {
-            instance = CreatePlaceholder(finalScale);
+            instance = CreatePlaceholder(structure.ModelId, finalScale);
         }
-
-        instance.Position = new Vector3(worldX, worldY, worldZ);
-        instance.Rotation = new Vector3(0, rotation, 0);
-        instance.Scale = new Vector3(finalScale, finalScale, finalScale);
-        AddChild(instance);
-
-        int propId = _nextPropId++;
-
-        // Structures always have collision
         AddCollision(instance, entry.CollisionRadius.ToFloat() * finalScale);
 
         if (occupancyGrid != null)
@@ -237,16 +228,51 @@ public partial class PropPlacer : Node3D
         return instance;
     }
 
-    private static Node3D CreatePlaceholder(float scale)
+    private static Node3D CreatePlaceholder(string modelId, float scale)
     {
-        var mesh = new BoxMesh();
-        mesh.Size = new Vector3(1, 1, 1);
-        var meshInstance = new MeshInstance3D();
-        meshInstance.Mesh = mesh;
+        Mesh mesh;
+        Color color;
+
+        if (modelId.StartsWith("tree_", StringComparison.OrdinalIgnoreCase))
+        {
+            var cyl = new CylinderMesh();
+            cyl.TopRadius    = 0.0f;
+            cyl.BottomRadius = 0.3f;
+            cyl.Height       = 1.5f;
+            mesh  = cyl;
+            color = new Color(0.1f, 0.4f, 0.1f);
+        }
+        else if (modelId.StartsWith("rock_", StringComparison.OrdinalIgnoreCase))
+        {
+            var sph = new SphereMesh();
+            sph.RadialSegments = 8;
+            sph.Rings          = 4;
+            mesh  = sph;
+            color = new Color(0.4f, 0.4f, 0.4f);
+        }
+        else if (modelId.StartsWith("ruin_", StringComparison.OrdinalIgnoreCase) ||
+                 modelId.StartsWith("structure_", StringComparison.OrdinalIgnoreCase) ||
+                 modelId.StartsWith("wall_", StringComparison.OrdinalIgnoreCase))
+        {
+            var box = new BoxMesh();
+            box.Size = new Vector3(1f, 1.2f, 1f);
+            mesh  = box;
+            color = new Color(0.5f, 0.35f, 0.2f);
+        }
+        else
+        {
+            var box = new BoxMesh();
+            box.Size = new Vector3(0.8f, 0.8f, 0.8f);
+            mesh  = box;
+            color = new Color(0.8f, 0.2f, 0.8f);
+        }
 
         var mat = new StandardMaterial3D();
-        mat.AlbedoColor = new Color(0.8f, 0.2f, 0.8f, 0.7f);
+        mat.AlbedoColor  = color with { A = 0.75f };
         mat.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
+
+        var meshInstance = new MeshInstance3D();
+        meshInstance.Mesh             = mesh;
         meshInstance.MaterialOverride = mat;
 
         var parent = new Node3D();

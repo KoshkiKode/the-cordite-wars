@@ -44,7 +44,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Stormrend Flicker Mines line the approach — invisible to your units unless a Vigilant is within detector range. Clear the route before committing the Patch Drone.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "arcloft_01"
     },
     {
       "id": "arcloft_03",
@@ -66,7 +67,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Ironmarch Signal Trucks scan for electronic emissions — they will detect Vigilant jets if they fly too close. Use the Phantom Sub's overwatch stealth ping to spot enemy positions instead.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "arcloft_02"
     },
     {
       "id": "arcloft_04",
@@ -88,7 +90,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Bastion Corvettes carry stealth-detection sonar — your Phantom Sub must surface briefly to use the overwatch ping, which will immediately reveal its position to any nearby Corvette.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "arcloft_03"
     },
     {
       "id": "arcloft_05",
@@ -110,7 +113,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Valkyr Kestrel jets are detector aircraft — they will reveal any stealthed Arcloft unit they fly over. Prioritise them before deploying the Patch Drone.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "arcloft_04"
     },
     {
       "id": "arcloft_06",
@@ -133,7 +137,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Kragmore Mole Rats and Valkyr Windrunners will approach stealthed — Vigilant jets are your only warning before the stealth units reach the relays.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "arcloft_05"
     },
     {
       "id": "arcloft_07",
@@ -158,11 +163,32 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "All factions deploy stealth infiltrators — Stormrend Flicker Mines, Kragmore Mole Rats, Valkyr Windrunners — specifically targeting your tech lab. Without the Quantum Detection Grid active, you cannot see them coming.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "arcloft_06"
     },
     {
       "id": "arcloft_08",
       "number": 8,
+      "name": "Operation Whitestorm",
+      "briefing": "A Kragmore stronghold on Iron Ridge is the last obstacle before the final assault. Neutralise their command structure to pave the way for the Six Fronts operation.",
+      "map": "iron_ridge",
+      "player_faction": "arcloft",
+      "enemy_factions": [
+        "kragmore"
+      ],
+      "objectives": [
+        "Destroy the Kragmore Command Center"
+      ],
+      "starting_cordite": 5500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Kragmore scouts patrol the highland approaches — Vigilants must clear the detection grid before the main thrust.",
+      "win_condition": "destroy_hq",
+      "requires_mission": "arcloft_07"
+    },
+    {
+      "id": "arcloft_09",
+      "number": 9,
       "name": "The Six Fronts",
       "briefing": "Arcloft has seen everything. Now it is time to act. The Cordite Nexus must be seized — silently. Phantom Submarines approach from the waterways while Vigilant jets hold air superiority above. The Overwatch Protocol reaches its final expression.",
       "map": "six_fronts",
@@ -183,7 +209,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Bastion Patrol Rovers and Valkyr Overwatch Drones watch all approach routes — if Arcloft is spotted capturing the Nexus by more than 2 factions simultaneously, all will attack. The Phantom Sub's underwater approach is the only undetected route.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "arcloft_08"
     }
   ]
 }

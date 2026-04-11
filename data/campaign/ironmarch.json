@@ -46,7 +46,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Kragmore will send both Dozer units and stealth Mole Rat sappers to destroy the roads. Dozers are visible — Mole Rats are not. The Signal Truck can detect them both.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "ironmarch_01"
     },
     {
       "id": "ironmarch_03",
@@ -69,7 +70,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Valkyr Windrunners are stealth infantry — they are invisible without a Signal Truck in range. Without them jammed, every airstrike hits with perfect accuracy. Bastion probes from the south while Valkyr attacks from above.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "ironmarch_02"
     },
     {
       "id": "ironmarch_04",
@@ -90,7 +92,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Kragmore will opportunistically attack Ironmarch's rear during the siege.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "ironmarch_03"
     },
     {
       "id": "ironmarch_05",
@@ -112,7 +115,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Valkyr Tempest Frigates carry stealth-detection sonar — they will spot Trench Divers within range. Destroy the Frigates first, then move the Trench Divers into position to lay the minefield.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "ironmarch_04"
     },
     {
       "id": "ironmarch_06",
@@ -136,7 +140,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Stormrend Flicker Mines, Kragmore Mole Rats, and Valkyr Windrunners will each target the supply trucks. Signal Trucks detect all of them — but are fragile and will themselves become priority targets.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "ironmarch_05"
     },
     {
       "id": "ironmarch_07",
@@ -158,11 +163,32 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Once the relay is down, Arcloft's overwatch_protocol fails — without surveillance data, the enemy factions will fight each other. Exploit the chaos. But first, the Vigilant jets must be jammed or they will reveal every move to Stormrend raiders.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "ironmarch_06"
     },
     {
       "id": "ironmarch_08",
       "number": 8,
+      "name": "Total Advance",
+      "briefing": "Valkyr's defensive line at Highland Pass is the last barrier. Shatter it with overwhelming armoured force.",
+      "map": "highland_pass",
+      "player_faction": "ironmarch",
+      "enemy_factions": [
+        "valkyr"
+      ],
+      "objectives": [
+        "Breach and destroy the Valkyr Command Center"
+      ],
+      "starting_cordite": 5500,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Valkyr Interceptors will harass your armour columns — deploy anti-air support to protect the advance.",
+      "win_condition": "destroy_hq",
+      "requires_mission": "ironmarch_07"
+    },
+    {
+      "id": "ironmarch_09",
+      "number": 9,
       "name": "The Six Fronts",
       "briefing": "The Ironmarch war machine has been built for one purpose: this moment. Take the Cordite Nexus. Signal Trucks anchor the forward detection network — they reveal every stealth infiltrator sent to stop the advance.",
       "map": "six_fronts",
@@ -183,7 +209,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Five factions bring stealth assets to the Nexus — Arcloft Phantom Subs, Kragmore Mole Rats, Stormrend Flicker Mines, Valkyr Windrunners, and Bastion Denial Fields. Ironmarch walls channel the attackers — Signal Trucks then expose what the walls cannot stop.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "ironmarch_08"
     }
   ]
 }

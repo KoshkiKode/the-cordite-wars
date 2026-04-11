@@ -4,6 +4,20 @@ using System.Text.Json.Serialization;
 namespace CorditeWars.Game.Campaign;
 
 /// <summary>
+/// Structured (typed) objective that drives the <see cref="MissionObjectiveTracker"/>.
+/// Loaded from <c>typed_objectives</c> in a campaign mission JSON.
+/// </summary>
+public sealed class TypedObjectiveData
+{
+    [JsonPropertyName("type")]      public string Type     { get; set; } = string.Empty;
+    [JsonPropertyName("label")]     public string Label    { get; set; } = string.Empty;
+    [JsonPropertyName("target_id")] public string TargetId { get; set; } = string.Empty;
+    [JsonPropertyName("count")]     public int    Count    { get; set; } = 1;
+    [JsonPropertyName("ticks")]     public int    Ticks    { get; set; }
+    [JsonPropertyName("required")]  public bool   Required { get; set; } = true;
+}
+
+/// <summary>
 /// Victory condition variants for a match or campaign mission.
 /// </summary>
 public enum WinCondition
@@ -33,6 +47,12 @@ public sealed class CampaignMission
     [JsonPropertyName("difficulty_label")] public string DifficultyLabel { get; set; } = "Normal";
     [JsonPropertyName("twist")]            public string Twist          { get; set; } = string.Empty;
     [JsonPropertyName("unlocks_mission")]  public int?   UnlocksMission { get; set; }
+
+    /// <summary>Typed objectives for <see cref="MissionObjectiveTracker"/>.</summary>
+    [JsonPropertyName("typed_objectives")] public List<TypedObjectiveData> TypedObjectives { get; set; } = new();
+
+    /// <summary>Mission that must be completed before this one is unlocked.</summary>
+    [JsonPropertyName("requires_mission")] public string RequiresMission { get; set; } = string.Empty;
 
     /// <summary>
     /// Serialised win-condition identifier.

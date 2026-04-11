@@ -45,7 +45,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Kragmore will bring siege artillery and Mole Rat sappers — position Watcher towers to spot stealth infiltrators before they reach the inner walls.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "bastion_01"
     },
     {
       "id": "bastion_03",
@@ -67,7 +68,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Valkyr will attack in waves guided by stationary Windrunner spotters. Patrol Rovers detect them — once a Windrunner opens fire it briefly loses stealth, so position Rovers to catch them in the act.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "bastion_02"
     },
     {
       "id": "bastion_04",
@@ -89,7 +91,8 @@
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
       "twist": "Bastion units are slow — plan the route carefully. With Ironmarch Signal Trucks active, the enemy will know your exact position at all times. Destroying them is not optional.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "bastion_03"
     },
     {
       "id": "bastion_05",
@@ -112,7 +115,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Stormrend Riptide Subs are invisible to Bastion's surface ships — only the Depth Ward's built-in sonar can reveal them. Keep a Depth Ward ahead of each supply ship convoy.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "bastion_04"
     },
     {
       "id": "bastion_06",
@@ -133,7 +137,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Arcloft Phantom Subs can activate their overwatch stealth ping — briefly surfacing to reveal all Bastion positions. When the ping is active the sub loses stealth momentarily: that is the only window to destroy it. Have Corvettes ready to fire on sight.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "bastion_05"
     },
     {
       "id": "bastion_07",
@@ -156,11 +161,34 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Enemy factions will attempt to break through different wall sections simultaneously, using stealth units to mask their true point of attack. Watcher towers on every corridor — not just the main gate — are essential.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "bastion_06"
     },
     {
       "id": "bastion_08",
       "number": 8,
+      "name": "Final Perimeter",
+      "briefing": "Ironmarch and Stormrend have launched a coordinated assault. Hold the line at Crossroads until reinforcements arrive.",
+      "map": "crossroads",
+      "player_faction": "bastion",
+      "enemy_factions": [
+        "ironmarch",
+        "stormrend"
+      ],
+      "objectives": [
+        "Survive the joint assault",
+        "Destroy both enemy Command Centers"
+      ],
+      "starting_cordite": 6000,
+      "ai_difficulty": 2,
+      "difficulty_label": "Hard",
+      "twist": "Ironmarch heavy armour and Stormrend air strikes attack from opposite flanks — hold the centre at all costs.",
+      "win_condition": "destroy_hq",
+      "requires_mission": "bastion_07"
+    },
+    {
+      "id": "bastion_09",
+      "number": 9,
       "name": "The Six Fronts",
       "briefing": "The Bastion Republic has maintained control of its sector. Now comes the final battle for the Cordite Nexus. A Denial Field stealth perimeter — invisible to enemy scouts — surrounds the forward position, while Patrol Rovers and Watcher towers make the inner perimeter impenetrable.",
       "map": "six_fronts",
@@ -182,7 +210,8 @@
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
       "twist": "Every faction brings stealth assets — Arcloft Phantom Subs, Kragmore Mole Rats, Stormrend Flicker Mines, Valkyr Windrunners. Bastion's strength is in defence — let the others weaken each other before making your move.",
-      "win_condition": "destroy_hq"
+      "win_condition": "destroy_hq",
+      "requires_mission": "bastion_08"
     }
   ]
 }

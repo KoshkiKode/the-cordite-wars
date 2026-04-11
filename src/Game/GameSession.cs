@@ -141,6 +141,24 @@ public partial class GameSession : Node
 
     private WinCondition _winCondition = WinCondition.DestroyHQ;
 
+    // ── Mission Objective Tracker ────────────────────────────────────
+
+    private CorditeWars.Game.Campaign.MissionObjectiveTracker? _objectiveTracker;
+
+    // ── Tutorial ─────────────────────────────────────────────────────
+
+    private CorditeWars.Game.Tutorial.TutorialManager?  _tutorialManager;
+    private CorditeWars.UI.HUD.TutorialOverlay?         _tutorialOverlay;
+
+    // ── Post-Match Stats ─────────────────────────────────────────────
+
+    private int   _playerKills;
+    private int   _playerLosses;
+    private int   _buildingsConstructed;
+    private ulong _lastAutosaveTick;
+    private const ulong AutosaveIntervalTicks = 1800;
+    private const float TickDeltaSeconds = 1f / 30f; // 30 Hz simulation rate
+
     /// <summary>
     /// HQ BuildingInstance nodes for each player (keyed by PlayerId).
     /// Populated during PlaceStartingBuildings; entries removed when
@@ -203,6 +221,46 @@ public partial class GameSession : Node
         ActiveConfig = config;
         CurrentMatchState = MatchState.Setup;
         _winCondition = config.WinCondition;
+
+        // Reset per-match stats
+        _playerKills          = 0;
+        _playerLosses         = 0;
+        _buildingsConstructed = 0;
+        _lastAutosaveTick     = 0;
+
+        // Initialize mission objective tracker
+        var typedObjs = config.Campaign?.TypedObjectives;
+        if (typedObjs != null && typedObjs.Length > 0)
+        {
+            _objectiveTracker = new CorditeWars.Game.Campaign.MissionObjectiveTracker();
+            var list = new List<CorditeWars.Game.Campaign.TypedObjective>(typedObjs.Length);
+            for (int i = 0; i < typedObjs.Length; i++)
+            {
+                var d = typedObjs[i];
+                list.Add(new CorditeWars.Game.Campaign.TypedObjective
+                {
+                    Type     = d.Type switch
+                    {
+                        "build_building"      => CorditeWars.Game.Campaign.ObjectiveType.BuildBuilding,
+                        "maintain_unit_type"  => CorditeWars.Game.Campaign.ObjectiveType.MaintainUnitType,
+                        "survive_timer"       => CorditeWars.Game.Campaign.ObjectiveType.SurviveTimer,
+                        "destroy_building_type" => CorditeWars.Game.Campaign.ObjectiveType.DestroyBuildingType,
+                        "accumulate_cordite"  => CorditeWars.Game.Campaign.ObjectiveType.AccumulateCordite,
+                        _                     => CorditeWars.Game.Campaign.ObjectiveType.SurviveTimer
+                    },
+                    Label    = d.Label,
+                    TargetId = d.TargetId,
+                    Count    = d.Count,
+                    Ticks    = d.Ticks,
+                    Required = d.Required
+                });
+            }
+            _objectiveTracker.Initialize(list, 0);
+        }
+        else
+        {
+            _objectiveTracker = null;
+        }
 
         // Resolve AudioManager once; used throughout match lifecycle.
         _audioManager ??= GetNodeOrNull<CorditeWars.Systems.Audio.AudioManager>("/root/AudioManager");
@@ -420,6 +478,33 @@ public partial class GameSession : Node
         }
 
         GD.Print("[GameSession] Match started successfully.");
+
+        // Initialize tutorial if requested
+        if (config.IsTutorial)
+        {
+            _tutorialManager = new CorditeWars.Game.Tutorial.TutorialManager();
+            var steps = new List<CorditeWars.Game.Tutorial.TutorialStep>
+            {
+                new CorditeWars.Game.Tutorial.TutorialStep { Id="t1", Title="Welcome!", Body="This is Cordite Wars. Your goal is to destroy the enemy Command Center.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=5f },
+                new CorditeWars.Game.Tutorial.TutorialStep { Id="t2", Title="Starting Units", Body="You have a Command Center (HQ) and a harvester. Click your harvester to select it.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=8f },
+                new CorditeWars.Game.Tutorial.TutorialStep { Id="t3", Title="Harvest Cordite", Body="Right-click a glowing Cordite node to send your harvester to collect resources.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.CorditeAbove, TriggerValue=2000f },
+                new CorditeWars.Game.Tutorial.TutorialStep { Id="t4", Title="Build!", Body="You're earning Cordite! Open the Build menu and construct a Refinery or Barracks.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.BuildingPlaced, TriggerValue=0f },
+                new CorditeWars.Game.Tutorial.TutorialStep { Id="t5", Title="Train Units", Body="Select your Barracks and train infantry to build your army.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=30f },
+                new CorditeWars.Game.Tutorial.TutorialStep { Id="t6", Title="Attack!", Body="Select your units and right-click the enemy base to attack. Destroy the enemy Command Center to win!", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=60f },
+                new CorditeWars.Game.Tutorial.TutorialStep { Id="t7", Title="Tutorial Complete", Body="Good luck on the battlefield, Commander! The tutorial will now end.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=4f },
+            };
+            _tutorialManager.Start(steps);
+
+            _tutorialOverlay = new CorditeWars.UI.HUD.TutorialOverlay();
+            _tutorialOverlay.Name = "TutorialOverlay";
+            AddChild(_tutorialOverlay);
+            _tutorialOverlay.Attach(_tutorialManager);
+        }
+        else
+        {
+            _tutorialManager = null;
+            _tutorialOverlay = null;
+        }
     }
 
     /// <summary>
@@ -669,6 +754,23 @@ public partial class GameSession : Node
         }
 
         // ── 4c. Despawn mobile unit visual nodes ───────────────────────────
+        // Track kills and losses before despawning
+        for (int i = 0; i < tickResult.DestroyedUnitIds.Count; i++)
+        {
+            int destroyedId = tickResult.DestroyedUnitIds[i];
+            if (IsBuildingId(destroyedId)) continue;
+            if (_persistentSimUnits.TryGetValue(destroyedId, out SimUnit deadSim))
+            {
+                if (deadSim.PlayerId == _localPlayerId)
+                    _playerLosses++;
+                else
+                {
+                    _playerKills++;
+                    SteamManager.Instance?.RecordUnitsDestroyed(1);
+                }
+            }
+        }
+
         for (int i = 0; i < tickResult.DestroyedUnitIds.Count; i++)
         {
             int destroyedId = tickResult.DestroyedUnitIds[i];
@@ -681,6 +783,35 @@ public partial class GameSession : Node
 
         // ── 6. Check win condition ─────────────────────────────────────────
         CheckWinCondition();
+
+        // ── 7. Objective tracker ──────────────────────────────────────────
+        if (_objectiveTracker is not null && _economyManager is not null)
+        {
+            var ctx = new CorditeWars.Game.Campaign.MissionSessionContext();
+            ctx.AllBuildings  = _buildingPlacer?.GetAllBuildings() ?? (System.Collections.Generic.IList<BuildingInstance>)System.Array.Empty<BuildingInstance>();
+            ctx.AliveUnits    = _unitSpawner?.GetAllUnits()        ?? (System.Collections.Generic.IList<UnitNode3D>)System.Array.Empty<UnitNode3D>();
+            ctx.PlayerCordite = _economyManager.GetPlayer(_localPlayerId)?.Cordite ?? FixedPoint.Zero;
+            _objectiveTracker.Tick(_localPlayerId, ctx, currentTick);
+            if (_objectiveTracker.AllPrimaryObjectivesComplete)
+                EndMatch(_localPlayerId, "All objectives complete.");
+            else if (_objectiveTracker.AnyObjectiveFailed)
+                EndMatch(-1, "Mission failed: objective failed.");
+        }
+
+        // ── 8. Tutorial tick ──────────────────────────────────────────────
+        if (_tutorialManager is not null && _economyManager is not null)
+        {
+            int cordite = _economyManager.GetPlayer(_localPlayerId)?.Cordite.ToInt() ?? 0;
+            _tutorialManager.NotifyCordite(cordite);
+            _tutorialManager.Tick(TickDeltaSeconds);
+        }
+
+        // ── 9. Autosave ───────────────────────────────────────────────────
+        if (currentTick > 0 && currentTick - _lastAutosaveTick >= AutosaveIntervalTicks)
+        {
+            _lastAutosaveTick = currentTick;
+            SaveCurrentState("autosave_0");
+        }
     }
 
     /// <summary>
@@ -1097,6 +1228,22 @@ public partial class GameSession : Node
         SaveGameData data = GetMatchState();
         return _saveManager.SaveGame(slotName, data);
     }
+
+    /// <summary>Returns accumulated post-match statistics for the local player.</summary>
+    public readonly struct MatchStats
+    {
+        public int Kills                { get; init; }
+        public int Losses               { get; init; }
+        public int BuildingsConstructed { get; init; }
+    }
+
+    /// <summary>Returns the current match stats (kills, losses, buildings constructed).</summary>
+    public MatchStats GetMatchStats() => new MatchStats
+    {
+        Kills                = _playerKills,
+        Losses               = _playerLosses,
+        BuildingsConstructed = _buildingsConstructed
+    };
 
     /// <summary>
     /// Restores full game state from a save. Tears down current state
@@ -1655,6 +1802,10 @@ public partial class GameSession : Node
         // e2. Wire building-destroyed to keep BuildingPlacer and HQ tracking in sync
         EventBus.Instance?.Connect(EventBus.SignalName.BuildingDestroyed,
             Callable.From<Node>(OnBuildingDestroyed));
+
+        // e2b. Track buildings constructed for post-match stats
+        EventBus.Instance?.Connect(EventBus.SignalName.BuildingCompleted,
+            Callable.From<Node>(_ => _buildingsConstructed++));
 
         // e3. Wire command events to ReplayManager so human commands are recorded
         if (_replayManager is not null)

@@ -104,6 +104,13 @@
       "description": "Play 10 skirmish matches.",
       "hidden": false,
       "icon": "achievements/veteran.png"
+    },
+    {
+      "id": "COMPLETE_CAMPAIGN",
+      "name": "Victory Across All Fronts",
+      "description": "Complete any faction campaign.",
+      "hidden": false,
+      "icon": "achievements/complete_campaign.png"
     }
   ]
 }

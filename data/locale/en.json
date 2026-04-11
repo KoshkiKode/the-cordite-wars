@@ -122,5 +122,7 @@
   "CAMPAIGN_COMING_SOON_BODY": "Campaign missions are not yet available. Check back in a future update!",
   "MENU_OK": "OK",
   "SPLASH_SKIP_HINT": "Press any key to skip",
-  "LOADING_TIP_PREFIX": "TIP:"
+  "LOADING_TIP_PREFIX": "TIP:",
+  "MENU_TUTORIAL": "TUTORIAL",
+  "MENU_REPLAYS": "REPLAYS"
 }

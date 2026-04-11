@@ -18,13 +18,15 @@ public partial class MainMenu : Control
         return string.IsNullOrEmpty(build) ? $"v{version}" : $"v{version}-{build}";
     }
 
-    private static readonly string[] ButtonLabelKeys = { "MENU_CAMPAIGN", "MENU_SKIRMISH", "MENU_MULTIPLAYER", "MENU_OPTIONS", "MENU_CREDITS", "MENU_QUIT" };
+    private static readonly string[] ButtonLabelKeys = { "MENU_CAMPAIGN", "MENU_TUTORIAL", "MENU_SKIRMISH", "MENU_MULTIPLAYER", "MENU_OPTIONS", "MENU_REPLAYS", "MENU_CREDITS", "MENU_QUIT" };
     private static readonly string[] ButtonScenes =
     {
         "res://scenes/UI/CampaignSelect.tscn",
+        "", // Tutorial — handled specially
         "res://scenes/UI/SkirmishLobby.tscn",
         "res://scenes/UI/MultiplayerLobby.tscn",
         "res://scenes/UI/OptionsMenu.tscn",
+        "res://scenes/UI/ReplayBrowserScreen.tscn",
         "res://scenes/UI/CreditsScreen.tscn",
         "" // Quit
     };
@@ -141,10 +143,15 @@ public partial class MainMenu : Control
     {
         _audioManager?.PlayUiSoundById("ui_click");
 
-        if (index == ButtonLabelKeys.Length - 1)
+        if (ButtonLabelKeys[index] == "MENU_QUIT")
         {
-            // Quit
             GetTree().Quit();
+            return;
+        }
+
+        if (ButtonLabelKeys[index] == "MENU_TUTORIAL")
+        {
+            LaunchTutorial();
             return;
         }
 
@@ -153,6 +160,26 @@ public partial class MainMenu : Control
         {
         SceneTransition.TransitionTo(GetTree(), scene);
         }
+    }
+
+    private void LaunchTutorial()
+    {
+        _audioManager?.PlayUiSoundById("ui_confirm");
+        CorditeWars.Game.Main.PendingConfig = new CorditeWars.Game.MatchConfig
+        {
+            MapId           = "crossroads",
+            MatchSeed       = (ulong)System.DateTime.Now.Ticks,
+            GameSpeed       = 1,
+            FogOfWar        = false,
+            StartingCordite = 5000,
+            IsTutorial      = true,
+            PlayerConfigs   = new CorditeWars.Game.PlayerConfig[]
+            {
+                new CorditeWars.Game.PlayerConfig { PlayerId = 1, FactionId = "arcloft", IsAI = false, PlayerName = "Commander" },
+                new CorditeWars.Game.PlayerConfig { PlayerId = 2, FactionId = "kragmore", IsAI = true, AIDifficulty = 0, PlayerName = "Tutorial AI" }
+            }
+        };
+        SceneTransition.TransitionTo(GetTree(), "res://scenes/Game/Main.tscn");
     }
 
     private void OnButtonHover()
