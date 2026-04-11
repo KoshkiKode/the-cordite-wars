@@ -133,6 +133,18 @@ public sealed class BuildingRegistry
     /// <summary>Returns the number of loaded buildings.</summary>
     public int Count => _buildings.Count;
 
+    /// <summary>
+    /// Registers a building programmatically. Intended for testing without
+    /// requiring Godot's file-system APIs.
+    /// </summary>
+    public void Register(BuildingData data)
+    {
+        if (!_buildings.ContainsKey(data.Id))
+            _buildings.Add(data.Id, data);
+        else
+            _buildings[data.Id] = data;
+    }
+
     // ── Private Helpers ─────────────────────────────────────────────
 
     private static string ReadGodotFile(string path)

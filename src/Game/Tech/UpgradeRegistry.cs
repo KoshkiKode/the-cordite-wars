@@ -141,6 +141,18 @@ public sealed class UpgradeRegistry
     /// <summary>Returns the number of loaded upgrades.</summary>
     public int Count => _upgrades.Count;
 
+    /// <summary>
+    /// Registers an upgrade programmatically. Intended for testing without
+    /// requiring Godot's file-system APIs.
+    /// </summary>
+    public void Register(UpgradeData data)
+    {
+        if (!_upgrades.ContainsKey(data.Id))
+            _upgrades.Add(data.Id, data);
+        else
+            _upgrades[data.Id] = data;
+    }
+
     // ── Private Helpers ─────────────────────────────────────────────
 
     private static int CompareTierThenId(UpgradeData a, UpgradeData b)
