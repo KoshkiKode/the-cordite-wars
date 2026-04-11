@@ -20,10 +20,49 @@ permissions:
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
+  # 0. Validate that all required GOG secrets are configured.
+  #    Fails fast with a clear checklist before wasting runner minutes on a build.
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-secrets:
+    name: Validate GOG Secrets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      HAVE_PRODUCT_ID:    ${{ secrets.GOG_PRODUCT_ID != '' }}
+      HAVE_CLIENT_ID:     ${{ secrets.GOG_CLIENT_ID != '' }}
+      HAVE_CLIENT_SECRET: ${{ secrets.GOG_CLIENT_SECRET != '' }}
+      HAVE_USERNAME:      ${{ secrets.GOG_USERNAME != '' }}
+      HAVE_PASSWORD:      ${{ secrets.GOG_PASSWORD != '' }}
+    steps:
+      - name: Check required secrets
+        run: |
+          MISSING=()
+          [ "$HAVE_PRODUCT_ID"    != "true" ] && MISSING+=("GOG_PRODUCT_ID")
+          [ "$HAVE_CLIENT_ID"     != "true" ] && MISSING+=("GOG_CLIENT_ID")
+          [ "$HAVE_CLIENT_SECRET" != "true" ] && MISSING+=("GOG_CLIENT_SECRET")
+          [ "$HAVE_USERNAME"      != "true" ] && MISSING+=("GOG_USERNAME")
+          [ "$HAVE_PASSWORD"      != "true" ] && MISSING+=("GOG_PASSWORD")
+
+          if [ "${#MISSING[@]}" -gt 0 ]; then
+            echo "::error::GOG deploy is missing required repository secrets:"
+            for s in "${MISSING[@]}"; do
+              echo "::error::  • $s"
+            done
+            echo ""
+            echo "Add them at: https://github.com/$GITHUB_REPOSITORY/settings/secrets/actions"
+            echo "See docs/secrets-setup.md for where to find each value."
+            exit 1
+          fi
+
+          echo "✅ All required GOG secrets are present."
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # 1. Build all platform exports first (reuses the existing export workflow)
   # ─────────────────────────────────────────────────────────────────────────────
   build:
     name: Build All Platforms
+    needs: validate-secrets
     uses: ./.github/workflows/export.yml
     permissions:
       contents: read

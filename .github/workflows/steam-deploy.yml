@@ -23,10 +23,71 @@ env:
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
+  # 0. Validate that all required Steam secrets are configured.
+  #    Fails fast with a clear checklist before wasting runner minutes on a build.
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-secrets:
+    name: Validate Steam Secrets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      HAVE_APP_ID:        ${{ secrets.STEAM_APP_ID != '' }}
+      HAVE_WINDOWS_DEPOT: ${{ secrets.STEAM_WINDOWS_DEPOT_ID != '' }}
+      HAVE_LINUX_DEPOT:   ${{ secrets.STEAM_LINUX_DEPOT_ID != '' }}
+      HAVE_MACOS_DEPOT:   ${{ secrets.STEAM_MACOS_DEPOT_ID != '' }}
+      HAVE_USERNAME:      ${{ secrets.STEAM_USERNAME != '' }}
+      HAVE_PASSWORD:      ${{ secrets.STEAM_PASSWORD != '' }}
+    steps:
+      - name: Check required secrets
+        run: |
+          MISSING=()
+          [ "$HAVE_APP_ID"        != "true" ] && MISSING+=("STEAM_APP_ID")
+          [ "$HAVE_WINDOWS_DEPOT" != "true" ] && MISSING+=("STEAM_WINDOWS_DEPOT_ID")
+          [ "$HAVE_LINUX_DEPOT"   != "true" ] && MISSING+=("STEAM_LINUX_DEPOT_ID")
+          [ "$HAVE_MACOS_DEPOT"   != "true" ] && MISSING+=("STEAM_MACOS_DEPOT_ID")
+          [ "$HAVE_USERNAME"      != "true" ] && MISSING+=("STEAM_USERNAME")
+          [ "$HAVE_PASSWORD"      != "true" ] && MISSING+=("STEAM_PASSWORD")
+
+          if [ "${#MISSING[@]}" -gt 0 ]; then
+            echo "::error::Steam deploy is missing required repository secrets:"
+            for s in "${MISSING[@]}"; do
+              echo "::error::  • $s"
+            done
+            echo ""
+            echo "Add them at: https://github.com/$GITHUB_REPOSITORY/settings/secrets/actions"
+            echo "See docs/secrets-setup.md for where to find each value."
+            exit 1
+          fi
+
+          echo "✅ All required Steam secrets are present."
+
+      - name: Warn if STEAM_TOTP_SECRET is absent
+        run: |
+          # TOTP is optional but strongly recommended to avoid interactive 2FA prompts.
+          if [ "${{ secrets.STEAM_TOTP_SECRET != '' }}" != "true" ]; then
+            echo "::warning::STEAM_TOTP_SECRET is not set. SteamCMD will attempt login without a TOTP code." \
+                         "This may fail if Steam Guard is enabled on the builder account." \
+                         "See docs/secrets-setup.md → Steam Guard TOTP."
+          fi
+
+      - name: Guard against test App ID 480
+        env:
+          APP_ID: ${{ secrets.STEAM_APP_ID }}
+        run: |
+          if [ "${APP_ID}" = "480" ]; then
+            echo "::error::STEAM_APP_ID is set to 480 (Valve 'Space War' test app)."
+            echo "::error::Replace it with your real Cordite Wars App ID before deploying."
+            echo "::error::See docs/secrets-setup.md → STEAM_APP_ID."
+            exit 1
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # 1. Build all platform exports first (reuses the existing export workflow)
   # ─────────────────────────────────────────────────────────────────────────────
   build:
     name: Build All Platforms
+    needs: validate-secrets
     uses: ./.github/workflows/export.yml
     permissions:
       contents: read
@@ -61,7 +122,7 @@ jobs:
       - name: Download macOS export
         uses: actions/download-artifact@v4
         with:
-          name: CorditeWars-macOS
+          name: CorditeWars-macOS-Export
           path: build/macos/
 
       # ── Substitute real App ID / Depot IDs into the VDF scripts ──────────
