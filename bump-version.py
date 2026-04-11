@@ -73,11 +73,16 @@ def update_export_presets(project_root: Path, new_version: str) -> None:
     for presets_file in presets_files:
         content = presets_file.read_text()
         
-        # Windows: application/product_version
+        # Windows: application/file_version and application/product_version
+        updated = re.sub(
+            r'(application/file_version\s*=\s*)"[^"]*"',
+            f'\\g<1>"{new_version}.0"',
+            content
+        )
         updated = re.sub(
             r'(application/product_version\s*=\s*)"[^"]*"',
             f'\\g<1>"{new_version}.0"',
-            content
+            updated
         )
 
         # Android: package/version (integer)
