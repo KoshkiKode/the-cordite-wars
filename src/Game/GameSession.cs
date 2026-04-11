@@ -771,7 +771,7 @@ public partial class GameSession : Node
                         SteamManager.Instance?.RecordUnitsDestroyed(1);
                     }
                 }
-                _unitSpawner?.DespawnUnit(destroyedId);
+                _unitSpawner.DespawnUnit(destroyedId);
             }
         }
 
