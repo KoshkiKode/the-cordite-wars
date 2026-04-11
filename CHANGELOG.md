@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-04-11
+
 ### Added
 - Stealth mechanics: units with `IsStealthed` are invisible to enemies unless a detector unit is within sight range
 - Detector units per faction: Arcloft Vigilant jets, Bastion Patrol Rovers and Watcher towers, Ironmarch Signal Trucks, Valkyr Overwatch Drones and Kestrel jets; Bastion Corvettes and Depth Ward submarines detect naval stealth
@@ -127,7 +129,6 @@ When submitting a PR or preparing a release:
 ## Unreleased Changes Tracking
 
 Current work in progress:
-- [ ] Playability smoke tests for each platform export
-- [ ] Performance metrics collection
+- [ ] Post-release performance metrics collection
 - [ ] Analytics/crash reporting integration (optional)
 - [ ] Store update automation (optional)

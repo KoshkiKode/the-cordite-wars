@@ -5,7 +5,7 @@ on:
 
 env:
   GODOT_VERSION: "4.6.2-stable"
-  APP_VERSION: "0.1.0"
+  APP_VERSION: "1.0.0"
 
 jobs:
   build-all-platforms:

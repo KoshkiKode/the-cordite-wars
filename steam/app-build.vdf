@@ -3,7 +3,7 @@
     "AppID"       "YOUR_STEAM_APP_ID"
     "Desc"        "Cordite Wars build"
     "BuildOutput" "./build/steam/"
-    "SetLive"     "beta"
+    "SetLive"     ""
 
     "Depots"
     {

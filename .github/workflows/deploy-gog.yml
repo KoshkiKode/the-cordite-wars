@@ -11,9 +11,9 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "GOG branch to publish to (e.g. 'beta', 'master')"
+        description: "GOG branch to publish to (e.g. 'master', 'beta')"
         required: false
-        default: "beta"
+        default: "master"
 
 permissions:
   contents: read
@@ -112,7 +112,7 @@ jobs:
         env:
           GOG_USERNAME: ${{ secrets.GOG_USERNAME }}
           GOG_PASSWORD: ${{ secrets.GOG_PASSWORD }}
-          GOG_BRANCH:   ${{ github.event.inputs.branch || 'beta' }}
+          GOG_BRANCH:   ${{ github.event.inputs.branch || 'master' }}
         run: |
           pipeline_builder build \
             --username  "$GOG_USERNAME" \
@@ -130,7 +130,7 @@ jobs:
           echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Version | ${VERSION} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Branch  | ${{ github.event.inputs.branch || 'beta' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch  | ${{ github.event.inputs.branch || 'master' }} |" >> "$GITHUB_STEP_SUMMARY"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 3. Upload Linux build to GOG
@@ -177,7 +177,7 @@ jobs:
         env:
           GOG_USERNAME: ${{ secrets.GOG_USERNAME }}
           GOG_PASSWORD: ${{ secrets.GOG_PASSWORD }}
-          GOG_BRANCH:   ${{ github.event.inputs.branch || 'beta' }}
+          GOG_BRANCH:   ${{ github.event.inputs.branch || 'master' }}
         run: |
           pipeline_builder build \
             --username  "$GOG_USERNAME" \
@@ -195,7 +195,7 @@ jobs:
           echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Version | ${VERSION} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Branch  | ${{ github.event.inputs.branch || 'beta' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch  | ${{ github.event.inputs.branch || 'master' }} |" >> "$GITHUB_STEP_SUMMARY"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 4. Upload macOS build to GOG
@@ -249,7 +249,7 @@ jobs:
         env:
           GOG_USERNAME: ${{ secrets.GOG_USERNAME }}
           GOG_PASSWORD: ${{ secrets.GOG_PASSWORD }}
-          GOG_BRANCH:   ${{ github.event.inputs.branch || 'beta' }}
+          GOG_BRANCH:   ${{ github.event.inputs.branch || 'master' }}
         run: |
           pipeline_builder build \
             --username  "$GOG_USERNAME" \
@@ -267,4 +267,4 @@ jobs:
           echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Version | ${VERSION} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Branch  | ${{ github.event.inputs.branch || 'beta' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch  | ${{ github.event.inputs.branch || 'master' }} |" >> "$GITHUB_STEP_SUMMARY"
