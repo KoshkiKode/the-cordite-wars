@@ -365,13 +365,18 @@ public partial class BuildingPlacer : Node
         int gridX = (int)Mathf.Round(_ghostPosition.X);
         int gridY = (int)Mathf.Round(_ghostPosition.Z);
 
+        BuildingModelEntry? modelEntry = _buildingManifest?.HasEntry(_placingBuildingId) == true
+            ? _buildingManifest.GetEntry(_placingBuildingId)
+            : null;
+
         var instance = new BuildingInstance();
         instance.Initialize(
             buildingId,
             _placingBuildingId,
             _placingData,
             _localPlayerId,
-            gridX, gridY);
+            gridX, gridY,
+            modelEntry);
 
         AddChild(instance);
         _buildings.Add(buildingId, instance);

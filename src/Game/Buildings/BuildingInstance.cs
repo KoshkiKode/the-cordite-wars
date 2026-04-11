@@ -1,6 +1,8 @@
 using Godot;
 using CorditeWars.Core;
 using CorditeWars.Game.Economy;
+using CorditeWars.Game.Units;
+using CorditeWars.Game.World;
 
 namespace CorditeWars.Game.Buildings;
 
@@ -34,6 +36,7 @@ public partial class BuildingInstance : Node3D
     // ── Visuals ──────────────────────────────────────────────────────
 
     private MeshInstance3D? _meshInstance;
+    private Node3D?          _modelRoot;
     private float _targetScaleY;
 
     // ── Initialization ───────────────────────────────────────────────
@@ -44,7 +47,8 @@ public partial class BuildingInstance : Node3D
         BuildingData data,
         int playerId,
         int gridX,
-        int gridY)
+        int gridY,
+        BuildingModelEntry? modelEntry = null)
     {
         BuildingId = buildingId;
         BuildingTypeId = buildingTypeId;
@@ -68,7 +72,7 @@ public partial class BuildingInstance : Node3D
         Name = $"Building_{buildingId}_{buildingTypeId}";
         GlobalPosition = new Vector3(gridX, 0f, gridY);
 
-        CreateVisuals(data);
+        CreateVisuals(data, modelEntry);
     }
 
     /// <summary>
@@ -83,27 +87,71 @@ public partial class BuildingInstance : Node3D
 
     // ── Visuals ──────────────────────────────────────────────────────
 
-    private void CreateVisuals(BuildingData data)
+    private void CreateVisuals(BuildingData data, BuildingModelEntry? modelEntry)
     {
-        _meshInstance = new MeshInstance3D();
-        var boxMesh = new BoxMesh();
-        boxMesh.Size = new Vector3(
-            data.FootprintWidth,
-            3f,
-            data.FootprintHeight);
-        _meshInstance.Mesh = boxMesh;
-        _meshInstance.Position = new Vector3(0, 1.5f, 0);
+        // Outer wrapper — this node is what we scale during construction
+        _modelRoot = new Node3D();
+        _modelRoot.Name = "ModelRoot";
+        AddChild(_modelRoot);
 
-        // Team color material
-        var mat = new StandardMaterial3D();
-        mat.AlbedoColor = new Color(0.4f, 0.4f, 0.5f);
-        _meshInstance.MaterialOverride = mat;
+        bool loadedModel = false;
 
-        AddChild(_meshInstance);
+        if (modelEntry is not null && !string.IsNullOrEmpty(modelEntry.ModelPath))
+        {
+            string fullPath = "res://" + modelEntry.ModelPath;
+            var packed = GD.Load<PackedScene>(fullPath);
+            if (packed is not null)
+            {
+                var instance = packed.Instantiate<Node3D>();
+                _modelRoot.AddChild(instance);
 
-        // Start with Y scale at 0 — will grow during construction
+                float scale = modelEntry.ModelScale > FixedPoint.Zero
+                    ? modelEntry.ModelScale.ToFloat()
+                    : 1.0f;
+                instance.Scale = new Vector3(scale, scale, scale);
+
+                float rotDeg = modelEntry.ModelRotation.ToFloat();
+                if (rotDeg != 0f)
+                    instance.RotateY(Mathf.DegToRad(rotDeg));
+
+                // Apply the cohesive cel-shader using a neutral grey base so the
+                // faction colour (supplied later if needed) comes through cleanly.
+                Color baseGrey   = new Color(0.55f, 0.55f, 0.60f);
+                Color factionGrey = new Color(0.40f, 0.40f, 0.45f);
+                CohesiveMaterial.ApplyToScene(instance, baseGrey, factionGrey);
+
+                loadedModel = true;
+            }
+            else
+            {
+                GD.PushWarning(
+                    $"[BuildingInstance] Could not load model '{fullPath}' for '{BuildingTypeId}'. " +
+                    "Falling back to box mesh.");
+            }
+        }
+
+        if (!loadedModel)
+        {
+            // Fallback: coloured box whose dimensions match the footprint
+            _meshInstance = new MeshInstance3D();
+            var boxMesh = new BoxMesh();
+            boxMesh.Size = new Vector3(
+                data.FootprintWidth,
+                3f,
+                data.FootprintHeight);
+            _meshInstance.Mesh = boxMesh;
+            _meshInstance.Position = new Vector3(0f, 1.5f, 0f);
+
+            var mat = new StandardMaterial3D();
+            mat.AlbedoColor = new Color(0.4f, 0.4f, 0.5f);
+            _meshInstance.MaterialOverride = mat;
+
+            _modelRoot.AddChild(_meshInstance);
+        }
+
+        // Construction animation: start collapsed, grow to full height
         _targetScaleY = 1f;
-        _meshInstance.Scale = new Vector3(1f, 0.05f, 1f);
+        _modelRoot.Scale = new Vector3(1f, 0.05f, 1f);
     }
 
     // ── Simulation Tick ──────────────────────────────────────────────
@@ -138,19 +186,19 @@ public partial class BuildingInstance : Node3D
     /// </summary>
     public void SyncVisuals()
     {
-        if (_meshInstance is null) return;
+        if (_modelRoot is null) return;
 
         if (!IsConstructed)
         {
-            // Scale Y from 0 to 1 based on construction progress
+            // Scale Y from near-zero to 1 based on construction progress
             float progress = BuildTime > FixedPoint.Zero
                 ? Mathf.Clamp(ConstructionProgress.ToFloat() / BuildTime.ToFloat(), 0.05f, 1f)
                 : 1f;
-            _meshInstance.Scale = new Vector3(1f, progress, 1f);
+            _modelRoot.Scale = new Vector3(1f, progress, 1f);
         }
         else
         {
-            _meshInstance.Scale = Vector3.One;
+            _modelRoot.Scale = Vector3.One;
         }
     }
 
@@ -185,10 +233,10 @@ public partial class BuildingInstance : Node3D
         EventBus.Instance?.EmitBuildingDestroyed(this);
 
         // Visual death: tween to zero and free
-        if (_meshInstance is not null)
+        if (_modelRoot is not null)
         {
             var tween = CreateTween();
-            tween.TweenProperty(_meshInstance, "scale", Vector3.Zero, 0.5f);
+            tween.TweenProperty(_modelRoot, "scale", Vector3.Zero, 0.5f);
             tween.TweenCallback(Callable.From(QueueFree));
         }
         else

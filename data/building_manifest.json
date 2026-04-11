@@ -1,17 +1,17 @@
 {
   "arcloft_command_center": {
-    "ModelPath": "assets/models/kaykit-city/building_A.gltf",
+    "ModelPath": "assets/models/quaternius/space_Base_Large_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 5,
     "CollisionRadius": 3.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 2.2,
+    "ModelScale": 2.0,
     "ModelRotation": 0.0,
     "Category": "Production"
   },
   "arcloft_airfield": {
-    "ModelPath": "assets/models/kenney-buildings/roof-flat-square.glb",
+    "ModelPath": "assets/models/quaternius/space_House_OpenBack_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 4,
     "CollisionRadius": 3.0,
@@ -22,7 +22,7 @@
     "Category": "Production"
   },
   "arcloft_barracks": {
-    "ModelPath": "assets/models/kenney-buildings/wall-corner.glb",
+    "ModelPath": "assets/models/quaternius/space_Building_L_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
@@ -33,7 +33,7 @@
     "Category": "Production"
   },
   "arcloft_refinery": {
-    "ModelPath": "assets/models/kenney-buildings/detail-pipe.glb",
+    "ModelPath": "assets/models/quaternius/space_MetalSupport_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.5,
@@ -44,18 +44,18 @@
     "Category": "Economy"
   },
   "arcloft_reactor": {
-    "ModelPath": "assets/models/kenney-urban/wall-a-roof-detailed.glb",
+    "ModelPath": "assets/models/quaternius/space_SolarPanel_Structure_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.5,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Economy"
   },
   "arcloft_supply_depot": {
-    "ModelPath": "assets/models/kenney-buildings/floor.glb",
+    "ModelPath": "assets/models/quaternius/space_House_Single_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.2,
@@ -66,62 +66,62 @@
     "Category": "Utility"
   },
   "arcloft_tech_lab": {
-    "ModelPath": "assets/models/kaykit-city/building_C.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Cylinder_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.7,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Tech"
   },
   "arcloft_overwatch_tower": {
-    "ModelPath": "assets/models/kenney-urban/scaffolding-structure.glb",
+    "ModelPath": "assets/models/quaternius/space_Roof_Radar_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.2,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.8,
+    "ModelScale": 1.2,
     "ModelRotation": 0.0,
     "Category": "Defense"
   },
   "arcloft_vehicle_factory": {
-    "ModelPath": "assets/models/kaykit-city/building_D.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Long_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.8,
-    "Mass": 999,
-    "Passable": false,
-    "ModelScale": 2.0,
-    "ModelRotation": 0.0,
-    "Category": "Production"
-  },
-  "bastion_command_center": {
-    "ModelPath": "assets/models/kaykit-city/building_B.gltf",
-    "CollisionWidth": 5,
-    "CollisionHeight": 5,
-    "CollisionRadius": 3.5,
     "Mass": 999,
     "Passable": false,
     "ModelScale": 2.2,
     "ModelRotation": 0.0,
     "Category": "Production"
   },
+  "bastion_command_center": {
+    "ModelPath": "assets/models/quaternius/space_Base_Large_cohesive.glb",
+    "CollisionWidth": 5,
+    "CollisionHeight": 5,
+    "CollisionRadius": 3.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.0,
+    "ModelRotation": 0.0,
+    "Category": "Production"
+  },
   "bastion_airfield": {
-    "ModelPath": "assets/models/kenney-buildings/roof-flat-center.glb",
+    "ModelPath": "assets/models/quaternius/space_House_OpenBack_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 4,
     "CollisionRadius": 3.0,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 2.8,
+    "ModelScale": 2.5,
     "ModelRotation": 0.0,
     "Category": "Production"
   },
   "bastion_barracks": {
-    "ModelPath": "assets/models/kenney-buildings/wall-doorway-square.glb",
+    "ModelPath": "assets/models/quaternius/space_Building_L_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
@@ -132,7 +132,7 @@
     "Category": "Production"
   },
   "bastion_refinery": {
-    "ModelPath": "assets/models/kenney-buildings/plating-detailed.glb",
+    "ModelPath": "assets/models/quaternius/space_MetalSupport_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.5,
@@ -143,40 +143,40 @@
     "Category": "Economy"
   },
   "bastion_reactor": {
-    "ModelPath": "assets/models/kenney-urban/wall-b-flat.glb",
+    "ModelPath": "assets/models/quaternius/space_SolarPanel_Structure_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.5,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Economy"
   },
   "bastion_supply_depot": {
-    "ModelPath": "assets/models/kenney-buildings/floor-corner-diagonal.glb",
+    "ModelPath": "assets/models/quaternius/space_House_Single_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.2,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.4,
+    "ModelScale": 1.5,
     "ModelRotation": 0.0,
     "Category": "Utility"
   },
   "bastion_tech_lab": {
-    "ModelPath": "assets/models/kaykit-city/building_E.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Cylinder_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.7,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Tech"
   },
   "bastion_command_hub": {
-    "ModelPath": "assets/models/kenney-pirate/tower-complete-large.glb",
+    "ModelPath": "assets/models/quaternius/space_GeodesicDome_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.5,
@@ -187,29 +187,29 @@
     "Category": "Defense"
   },
   "bastion_vehicle_factory": {
-    "ModelPath": "assets/models/kaykit-city/building_F.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Long_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.8,
-    "Mass": 999,
-    "Passable": false,
-    "ModelScale": 2.0,
-    "ModelRotation": 0.0,
-    "Category": "Production"
-  },
-  "ironmarch_command_center": {
-    "ModelPath": "assets/models/kaykit-city/building_G.gltf",
-    "CollisionWidth": 5,
-    "CollisionHeight": 5,
-    "CollisionRadius": 3.5,
     "Mass": 999,
     "Passable": false,
     "ModelScale": 2.2,
     "ModelRotation": 0.0,
     "Category": "Production"
   },
+  "ironmarch_command_center": {
+    "ModelPath": "assets/models/quaternius/space_Base_Large_cohesive.glb",
+    "CollisionWidth": 5,
+    "CollisionHeight": 5,
+    "CollisionRadius": 3.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.0,
+    "ModelRotation": 0.0,
+    "Category": "Production"
+  },
   "ironmarch_airfield": {
-    "ModelPath": "assets/models/kenney-buildings/roof-flat-patch-large.glb",
+    "ModelPath": "assets/models/quaternius/space_House_OpenBack_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 4,
     "CollisionRadius": 3.0,
@@ -220,7 +220,7 @@
     "Category": "Production"
   },
   "ironmarch_barracks": {
-    "ModelPath": "assets/models/kenney-buildings/wall-window-square.glb",
+    "ModelPath": "assets/models/quaternius/space_Building_L_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
@@ -231,7 +231,7 @@
     "Category": "Production"
   },
   "ironmarch_refinery": {
-    "ModelPath": "assets/models/kenney-buildings/plating-wide.glb",
+    "ModelPath": "assets/models/quaternius/space_MetalSupport_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.5,
@@ -242,40 +242,40 @@
     "Category": "Economy"
   },
   "ironmarch_reactor": {
-    "ModelPath": "assets/models/kenney-urban/wall-a-roof-slant-detailed.glb",
+    "ModelPath": "assets/models/quaternius/space_SolarPanel_Structure_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.5,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Economy"
   },
   "ironmarch_supply_depot": {
-    "ModelPath": "assets/models/kenney-buildings/floor-half.glb",
+    "ModelPath": "assets/models/quaternius/space_House_Single_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.2,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.4,
+    "ModelScale": 1.5,
     "ModelRotation": 0.0,
     "Category": "Utility"
   },
   "ironmarch_tech_lab": {
-    "ModelPath": "assets/models/kaykit-city/building_H.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Cylinder_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.7,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Tech"
   },
   "ironmarch_forward_assembly": {
-    "ModelPath": "assets/models/kenney-buildings/wall-low.glb",
+    "ModelPath": "assets/models/quaternius/space_House_Single_Support_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
@@ -286,7 +286,7 @@
     "Category": "Utility"
   },
   "ironmarch_vehicle_factory": {
-    "ModelPath": "assets/models/kaykit-city/building_A.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Long_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.8,
@@ -297,18 +297,18 @@
     "Category": "Production"
   },
   "kragmore_command_center": {
-    "ModelPath": "assets/models/kaykit-city/building_B.gltf",
+    "ModelPath": "assets/models/quaternius/space_Base_Large_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 5,
     "CollisionRadius": 3.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 2.4,
+    "ModelScale": 2.0,
     "ModelRotation": 90.0,
     "Category": "Production"
   },
   "kragmore_airfield": {
-    "ModelPath": "assets/models/kenney-buildings/roof-flat-corner.glb",
+    "ModelPath": "assets/models/quaternius/space_House_OpenBack_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 4,
     "CollisionRadius": 3.0,
@@ -319,7 +319,7 @@
     "Category": "Production"
   },
   "kragmore_barracks": {
-    "ModelPath": "assets/models/kenney-buildings/wall-corner-column.glb",
+    "ModelPath": "assets/models/quaternius/space_Building_L_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
@@ -330,7 +330,7 @@
     "Category": "Production"
   },
   "kragmore_refinery": {
-    "ModelPath": "assets/models/kenney-buildings/gutter-vertical.glb",
+    "ModelPath": "assets/models/quaternius/space_MetalSupport_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.5,
@@ -341,84 +341,84 @@
     "Category": "Economy"
   },
   "kragmore_reactor": {
-    "ModelPath": "assets/models/kenney-urban/wall-a-detail.glb",
+    "ModelPath": "assets/models/quaternius/space_SolarPanel_Structure_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.5,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Economy"
   },
   "kragmore_supply_depot": {
-    "ModelPath": "assets/models/kenney-buildings/floor-quarter.glb",
+    "ModelPath": "assets/models/quaternius/space_House_Single_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.2,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.4,
+    "ModelScale": 1.5,
     "ModelRotation": 0.0,
     "Category": "Utility"
   },
   "kragmore_tech_lab": {
-    "ModelPath": "assets/models/kaykit-city/building_C.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Cylinder_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.7,
+    "ModelScale": 1.8,
     "ModelRotation": 180.0,
     "Category": "Tech"
   },
   "kragmore_war_forge": {
-    "ModelPath": "assets/models/kaykit-city/building_D.gltf",
+    "ModelPath": "assets/models/quaternius/space_GeodesicDome_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 5,
     "CollisionRadius": 3.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 2.5,
+    "ModelScale": 2.0,
     "ModelRotation": 0.0,
     "Category": "Tech"
   },
   "kragmore_vehicle_factory": {
-    "ModelPath": "assets/models/kaykit-city/building_E.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Long_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.8,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.2,
+    "ModelRotation": 0.0,
+    "Category": "Production"
+  },
+  "stormrend_command_center": {
+    "ModelPath": "assets/models/quaternius/space_Base_Large_cohesive.glb",
+    "CollisionWidth": 5,
+    "CollisionHeight": 5,
+    "CollisionRadius": 3.5,
     "Mass": 999,
     "Passable": false,
     "ModelScale": 2.0,
     "ModelRotation": 0.0,
     "Category": "Production"
   },
-  "stormrend_command_center": {
-    "ModelPath": "assets/models/kaykit-city/building_F.gltf",
-    "CollisionWidth": 5,
-    "CollisionHeight": 5,
-    "CollisionRadius": 3.5,
-    "Mass": 999,
-    "Passable": false,
-    "ModelScale": 2.3,
-    "ModelRotation": 0.0,
-    "Category": "Production"
-  },
   "stormrend_airfield": {
-    "ModelPath": "assets/models/kenney-buildings/roof-flat-side.glb",
+    "ModelPath": "assets/models/quaternius/space_House_OpenBack_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 4,
     "CollisionRadius": 3.0,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 2.6,
+    "ModelScale": 2.5,
     "ModelRotation": 0.0,
     "Category": "Production"
   },
   "stormrend_barracks": {
-    "ModelPath": "assets/models/kenney-buildings/wall-half.glb",
+    "ModelPath": "assets/models/quaternius/space_Building_L_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
@@ -429,51 +429,40 @@
     "Category": "Production"
   },
   "stormrend_refinery": {
-    "ModelPath": "assets/models/kenney-buildings/plating-detailed-wide.glb",
+    "ModelPath": "assets/models/quaternius/space_MetalSupport_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.2,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.9,
+    "ModelScale": 2.0,
     "ModelRotation": 0.0,
     "Category": "Economy"
   },
   "stormrend_reactor": {
-    "ModelPath": "assets/models/kenney-urban/wall-a-flat.glb",
+    "ModelPath": "assets/models/quaternius/space_SolarPanel_Structure_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.6,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Economy"
   },
   "stormrend_supply_depot": {
-    "ModelPath": "assets/models/kenney-buildings/floor-corner-round.glb",
+    "ModelPath": "assets/models/quaternius/space_House_Single_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.2,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.4,
+    "ModelScale": 1.5,
     "ModelRotation": 0.0,
     "Category": "Utility"
   },
   "stormrend_tech_lab": {
-    "ModelPath": "assets/models/kaykit-city/building_G.gltf",
-    "CollisionWidth": 3,
-    "CollisionHeight": 3,
-    "CollisionRadius": 2.0,
-    "Mass": 999,
-    "Passable": false,
-    "ModelScale": 1.7,
-    "ModelRotation": 0.0,
-    "Category": "Tech"
-  },
-  "stormrend_storm_capacitor": {
-    "ModelPath": "assets/models/kenney-urban/scaffolding-floor.glb",
+    "ModelPath": "assets/models/quaternius/space_House_Cylinder_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
@@ -481,43 +470,54 @@
     "Passable": false,
     "ModelScale": 1.8,
     "ModelRotation": 0.0,
+    "Category": "Tech"
+  },
+  "stormrend_storm_capacitor": {
+    "ModelPath": "assets/models/quaternius/space_Roof_Antenna_cohesive.glb",
+    "CollisionWidth": 3,
+    "CollisionHeight": 3,
+    "CollisionRadius": 2.0,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 1.5,
+    "ModelRotation": 0.0,
     "Category": "Utility"
   },
   "stormrend_vehicle_factory": {
-    "ModelPath": "assets/models/kaykit-city/building_H.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Long_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.8,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 2.0,
+    "ModelScale": 2.2,
     "ModelRotation": 0.0,
     "Category": "Production"
   },
   "valkyr_command_center": {
-    "ModelPath": "assets/models/kaykit-city/building_A.gltf",
+    "ModelPath": "assets/models/quaternius/space_Base_Large_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 5,
     "CollisionRadius": 3.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 2.5,
+    "ModelScale": 2.0,
     "ModelRotation": 45.0,
     "Category": "Production"
   },
   "valkyr_airfield": {
-    "ModelPath": "assets/models/kenney-buildings/roof-flat-patch.glb",
+    "ModelPath": "assets/models/quaternius/space_House_OpenBack_cohesive.glb",
     "CollisionWidth": 5,
     "CollisionHeight": 4,
     "CollisionRadius": 3.0,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 2.8,
+    "ModelScale": 2.5,
     "ModelRotation": 0.0,
     "Category": "Production"
   },
   "valkyr_barracks": {
-    "ModelPath": "assets/models/kenney-buildings/wall-window-round.glb",
+    "ModelPath": "assets/models/quaternius/space_Building_L_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
@@ -528,69 +528,135 @@
     "Category": "Production"
   },
   "valkyr_refinery": {
-    "ModelPath": "assets/models/kenney-buildings/gutter-vertical-wall.glb",
+    "ModelPath": "assets/models/quaternius/space_MetalSupport_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.2,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.9,
+    "ModelScale": 2.0,
     "ModelRotation": 0.0,
     "Category": "Economy"
   },
   "valkyr_reactor": {
-    "ModelPath": "assets/models/kenney-urban/wall-b-corner.glb",
+    "ModelPath": "assets/models/quaternius/space_SolarPanel_Structure_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.5,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.5,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Economy"
   },
   "valkyr_supply_depot": {
-    "ModelPath": "assets/models/kenney-buildings/column.glb",
+    "ModelPath": "assets/models/quaternius/space_House_Single_cohesive.glb",
     "CollisionWidth": 2,
     "CollisionHeight": 2,
     "CollisionRadius": 1.2,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.6,
+    "ModelScale": 1.5,
     "ModelRotation": 0.0,
     "Category": "Utility"
   },
   "valkyr_tech_lab": {
-    "ModelPath": "assets/models/kaykit-city/building_B.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Cylinder_cohesive.glb",
     "CollisionWidth": 3,
     "CollisionHeight": 3,
     "CollisionRadius": 2.0,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 1.7,
+    "ModelScale": 1.8,
     "ModelRotation": 0.0,
     "Category": "Tech"
   },
   "valkyr_carrier_pad": {
-    "ModelPath": "assets/models/kaykit-city/building_C.gltf",
+    "ModelPath": "assets/models/quaternius/space_GeodesicDome_cohesive.glb",
     "CollisionWidth": 6,
     "CollisionHeight": 6,
     "CollisionRadius": 4.0,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 3.0,
+    "ModelScale": 2.5,
     "ModelRotation": 0.0,
     "Category": "Superweapon"
   },
   "valkyr_vehicle_factory": {
-    "ModelPath": "assets/models/kaykit-city/building_D.gltf",
+    "ModelPath": "assets/models/quaternius/space_House_Long_cohesive.glb",
     "CollisionWidth": 4,
     "CollisionHeight": 4,
     "CollisionRadius": 2.8,
     "Mass": 999,
     "Passable": false,
-    "ModelScale": 2.1,
+    "ModelScale": 2.2,
     "ModelRotation": 0.0,
     "Category": "Production"
+  },
+  "arcloft_shipyard": {
+    "CollisionWidth": 5,
+    "CollisionHeight": 5,
+    "CollisionRadius": 3.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.2,
+    "ModelRotation": 0.0,
+    "Category": "Production",
+    "ModelPath": "assets/models/quaternius/space_House_Open_cohesive.glb"
+  },
+  "bastion_shipyard": {
+    "CollisionWidth": 5,
+    "CollisionHeight": 5,
+    "CollisionRadius": 3.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.2,
+    "ModelRotation": 0.0,
+    "Category": "Production",
+    "ModelPath": "assets/models/quaternius/space_House_Open_cohesive.glb"
+  },
+  "ironmarch_shipyard": {
+    "CollisionWidth": 5,
+    "CollisionHeight": 5,
+    "CollisionRadius": 3.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.2,
+    "ModelRotation": 0.0,
+    "Category": "Production",
+    "ModelPath": "assets/models/quaternius/space_House_Open_cohesive.glb"
+  },
+  "kragmore_shipyard": {
+    "CollisionWidth": 5,
+    "CollisionHeight": 5,
+    "CollisionRadius": 3.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.2,
+    "ModelRotation": 0.0,
+    "Category": "Production",
+    "ModelPath": "assets/models/quaternius/space_House_Open_cohesive.glb"
+  },
+  "stormrend_shipyard": {
+    "CollisionWidth": 5,
+    "CollisionHeight": 5,
+    "CollisionRadius": 3.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.2,
+    "ModelRotation": 0.0,
+    "Category": "Production",
+    "ModelPath": "assets/models/quaternius/space_House_Open_cohesive.glb"
+  },
+  "valkyr_shipyard": {
+    "CollisionWidth": 5,
+    "CollisionHeight": 5,
+    "CollisionRadius": 3.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.2,
+    "ModelRotation": 0.0,
+    "Category": "Production",
+    "ModelPath": "assets/models/quaternius/space_House_Open_cohesive.glb"
   }
 }
