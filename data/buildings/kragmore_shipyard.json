@@ -25,10 +25,10 @@
     "kragmore_tech_lab"
   ],
   "UnlocksUnitIds": [
-    "kragmore_dredger",
-    "kragmore_ram_cutter",
-    "kragmore_crusher_gunship",
-    "kragmore_titan_dreadnought"
+    "kragmore_iron_trawler",
+    "kragmore_dreadnought",
+    "kragmore_deep_bore",
+    "kragmore_leviathan"
   ],
   "Description": "Kragmore industrial dock — the collective's shipbuilding philosophy mirrors its ground doctrine: maximum tonnage, maximum impact. What cannot be outfought can be outweighed. Must be placed adjacent to navigable water."
 }

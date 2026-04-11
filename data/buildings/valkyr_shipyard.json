@@ -25,10 +25,9 @@
     "valkyr_tech_lab"
   ],
   "UnlocksUnitIds": [
-    "valkyr_recon_skiff",
-    "valkyr_lance_frigate",
-    "valkyr_interceptor_cruiser",
-    "valkyr_skyborne_carrier"
+    "valkyr_seabird_cutter",
+    "valkyr_tempest_frigate",
+    "valkyr_depth_hunter"
   ],
   "Description": "Valkyr carrier berth — the Ascendancy extends its vertical doctrine to the sea. Valkyr naval vessels serve as mobile airbases and long-range precision platforms. Must be placed adjacent to navigable water."
 }

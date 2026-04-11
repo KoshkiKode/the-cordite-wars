@@ -25,10 +25,9 @@
     "stormrend_tech_lab"
   ],
   "UnlocksUnitIds": [
-    "stormrend_blitz_boat",
-    "stormrend_razortide_corvette",
-    "stormrend_tempest_destroyer",
-    "stormrend_stormfront_flagship"
+    "stormrend_lightning_skiff",
+    "stormrend_storm_destroyer",
+    "stormrend_riptide_sub"
   ],
   "Description": "Stormrend rapid-build strike dock — built for speed above all else. Stormrend ships are lightly armoured but devastating in the first strike. The pact shattered empires; the sea will be no different. Must be placed adjacent to navigable water."
 }

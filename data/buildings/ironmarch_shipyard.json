@@ -26,8 +26,8 @@
   ],
   "UnlocksUnitIds": [
     "ironmarch_march_barge",
-    "ironmarch_ironclad_gunboat",
-    "ironmarch_bulwark_destroyer",
+    "ironmarch_ironclad_frigate",
+    "ironmarch_trench_diver",
     "ironmarch_battleship"
   ],
   "Description": "Ironmarch modular war dock — rapid assembly from prefabricated sections. The Ironmarch doctrine applies to the sea as much as the land: one mile at a time, paved in steel. Must be placed adjacent to navigable water."

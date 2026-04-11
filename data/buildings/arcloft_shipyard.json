@@ -25,10 +25,9 @@
     "arcloft_tech_lab"
   ],
   "UnlocksUnitIds": [
-    "arcloft_aurora_skimmer",
-    "arcloft_aetherfin_corvette",
-    "arcloft_tempest_frigate",
-    "arcloft_stormcrest_carrier"
+    "arcloft_sky_skimmer",
+    "arcloft_phantom_sub",
+    "arcloft_arc_cruiser"
   ],
   "Description": "Arcloft floating naval platform — uses levitation technology to construct warships at the water's edge. Requires Tech Lab and Workshop. Must be placed adjacent to navigable water."
 }

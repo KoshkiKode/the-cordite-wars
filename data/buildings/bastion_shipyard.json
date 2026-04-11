@@ -25,9 +25,9 @@
     "bastion_tech_lab"
   ],
   "UnlocksUnitIds": [
-    "bastion_fortress_boat",
-    "bastion_bulwark_cruiser",
-    "bastion_aegis_destroyer",
+    "bastion_shield_skiff",
+    "bastion_corvette",
+    "bastion_depth_ward",
     "bastion_citadel_ship"
   ],
   "Description": "Bastion reinforced drydock — the most heavily armoured shipyard in the theatre. Slow to build, but the ships that emerge are fortresses in their own right. Must be placed adjacent to navigable water."
