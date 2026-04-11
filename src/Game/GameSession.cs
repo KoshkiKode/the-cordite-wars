@@ -11,6 +11,7 @@ using CorditeWars.Game.Economy;
 using CorditeWars.Game.Tech;
 using CorditeWars.Game.Units;
 using CorditeWars.Game.World;
+using CorditeWars.Game.VFX;
 using CorditeWars.Systems.Audio;
 using CorditeWars.Systems.Networking;
 using CorditeWars.Systems.Pathfinding;
@@ -78,6 +79,7 @@ public partial class GameSession : Node
     // ── Audio ───────────────────────────────────────────────────────
 
     private CombatAudioBridge? _combatAudioBridge;
+    private CombatVFXBridge?   _combatVFXBridge;
     private CorditeWars.Systems.Audio.AudioManager? _audioManager;
 
     // ── Fog of War / Vision ─────────────────────────────────────────
@@ -352,6 +354,11 @@ public partial class GameSession : Node
         _combatAudioBridge = new CombatAudioBridge();
         AddChild(_combatAudioBridge);
         _combatAudioBridge.Initialize();
+
+        // e3. Create CombatVFXBridge (wires combat events → GPU particle effects)
+        _combatVFXBridge = new CombatVFXBridge();
+        AddChild(_combatVFXBridge);
+        _combatVFXBridge.Initialize();
 
         // f. Create SaveManager
         _saveManager = new SaveManager();
@@ -2110,9 +2117,14 @@ public partial class GameSession : Node
             {
                 BuildingData hqData = _buildingRegistry.GetBuilding(hqBuildingId);
                 int buildingId = -(pc.PlayerId * 100); // Negative IDs for pre-placed HQ buildings
+
+                BuildingModelEntry? hqModelEntry = _buildingManifest.HasEntry(hqBuildingId)
+                    ? _buildingManifest.GetEntry(hqBuildingId)
+                    : null;
+
                 var hqNode = new BuildingInstance();
                 hqNode.Initialize(buildingId, hqBuildingId, hqData, pc.PlayerId,
-                    startPos.X, startPos.Y);
+                    startPos.X, startPos.Y, hqModelEntry);
                 // Mark fully constructed so it doesn't animate in during the game start
                 hqNode.RestoreState(hqData.MaxHealth, true, hqData.BuildTime);
                 AddChild(hqNode);

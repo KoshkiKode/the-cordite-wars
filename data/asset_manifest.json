@@ -1,6 +1,6 @@
 {
   "valkyr_windrunner": {
-    "ModelPath": "assets/models/quaternius/space_Astronaut_BarbaraTheBee_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Mech_BarbaraTheBee_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -13,7 +13,7 @@
     "ModelRotation": 0.0
   },
   "valkyr_skyguard": {
-    "ModelPath": "assets/models/quaternius/space_Astronaut_FernandoTheFlamingo_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Mech_FinnTheFrog_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -26,7 +26,7 @@
     "ModelRotation": 0.0
   },
   "valkyr_gale_trooper": {
-    "ModelPath": "assets/models/quaternius/space_Astronaut_FinnTheFrog_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Mech_FernandoTheFlamingo_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -91,7 +91,7 @@
     "ModelRotation": 0.0
   },
   "valkyr_peregrine": {
-    "ModelPath": "assets/models/kenney/craft_racer_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Spaceship_FernandoTheFlamingo_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 0.5,
     "FootprintWidth": 1,
@@ -104,7 +104,7 @@
     "ModelRotation": 0.0
   },
   "valkyr_tempest": {
-    "ModelPath": "assets/models/kenney/craft_speederA_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Spaceship_FernandoTheFlamingo_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 0.5,
     "FootprintWidth": 1,
@@ -117,7 +117,7 @@
     "ModelRotation": 0.0
   },
   "valkyr_shriek": {
-    "ModelPath": "assets/models/kenney/craft_speederB_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Spaceship_FernandoTheFlamingo_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 0.5,
     "FootprintWidth": 1,
@@ -156,7 +156,7 @@
     "ModelRotation": 0.0
   },
   "valkyr_stormcaller": {
-    "ModelPath": "assets/models/kenney/craft_speederC_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Spaceship_FernandoTheFlamingo_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 0.5,
     "FootprintWidth": 1,
@@ -169,7 +169,7 @@
     "ModelRotation": 0.0
   },
   "valkyr_valkyrie_carrier": {
-    "ModelPath": "assets/models/quaternius/space_Enemy_Flying_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Mech_RaeTheRedPanda_cohesive.glb",
     "CollisionRadius": 1.0,
     "CollisionHeight": 1.0,
     "FootprintWidth": 2,
@@ -221,7 +221,7 @@
     "ModelRotation": 0.0
   },
   "kragmore_vanguard": {
-    "ModelPath": "assets/models/kenney/weapon_gun_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_Mike_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -234,7 +234,7 @@
     "ModelRotation": 0.0
   },
   "kragmore_ironclad": {
-    "ModelPath": "assets/models/kenney/weapon_rifle_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_George_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -351,7 +351,7 @@
     "ModelRotation": 0.0
   },
   "kragmore_strix_gunship": {
-    "ModelPath": "assets/models/quaternius/space_Enemy_Flying_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Mech_RaeTheRedPanda_cohesive.glb",
     "CollisionRadius": 1.0,
     "CollisionHeight": 1.0,
     "FootprintWidth": 2,
@@ -455,7 +455,7 @@
     "ModelRotation": 0.0
   },
   "bastion_warden": {
-    "ModelPath": "assets/models/kenney/astronautA_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_Leela_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -468,7 +468,7 @@
     "ModelRotation": 0.0
   },
   "bastion_sentinel": {
-    "ModelPath": "assets/models/kenney/astronautB_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_Leela_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -689,7 +689,7 @@
     "ModelRotation": 0.0
   },
   "arcloft_horizon_guard": {
-    "ModelPath": "assets/models/quaternius/space_Astronaut_RaeTheRedPanda_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_George_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -702,7 +702,7 @@
     "ModelRotation": 0.0
   },
   "arcloft_stormshot": {
-    "ModelPath": "assets/models/kenney/alien_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_George_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -715,7 +715,7 @@
     "ModelRotation": 0.0
   },
   "arcloft_sky_marshal": {
-    "ModelPath": "assets/models/kenney/astronautA_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_George_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -767,7 +767,7 @@
     "ModelRotation": 0.0
   },
   "arcloft_templar": {
-    "ModelPath": "assets/models/quaternius/space_Enemy_Flying_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Mech_FinnTheFrog_cohesive.glb",
     "CollisionRadius": 1.0,
     "CollisionHeight": 1.0,
     "FootprintWidth": 2,
@@ -780,7 +780,7 @@
     "ModelRotation": 0.0
   },
   "arcloft_apex": {
-    "ModelPath": "assets/models/kenney/craft_speederA_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Spaceship_FinnTheFrog_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 0.5,
     "FootprintWidth": 1,
@@ -793,7 +793,7 @@
     "ModelRotation": 0.0
   },
   "arcloft_vigilant": {
-    "ModelPath": "assets/models/kenney/craft_speederB_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Spaceship_FinnTheFrog_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 0.5,
     "FootprintWidth": 1,
@@ -832,7 +832,7 @@
     "ModelRotation": 0.0
   },
   "arcloft_sky_bastion": {
-    "ModelPath": "assets/models/quaternius/space_Enemy_Flying_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Mech_BarbaraTheBee_cohesive.glb",
     "CollisionRadius": 1.0,
     "CollisionHeight": 1.0,
     "FootprintWidth": 2,
@@ -897,7 +897,7 @@
     "ModelRotation": 0.0
   },
   "ironmarch_holdfast": {
-    "ModelPath": "assets/models/quaternius/space_Astronaut_FernandoTheFlamingo_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_Mike_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -910,7 +910,7 @@
     "ModelRotation": 0.0
   },
   "ironmarch_breacher": {
-    "ModelPath": "assets/models/quaternius/space_Astronaut_FinnTheFrog_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_Mike_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -923,7 +923,7 @@
     "ModelRotation": 0.0
   },
   "ironmarch_field_engineer": {
-    "ModelPath": "assets/models/quaternius/space_Astronaut_RaeTheRedPanda_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_Mike_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -1014,7 +1014,7 @@
     "ModelRotation": 0.0
   },
   "ironmarch_bullfrog": {
-    "ModelPath": "assets/models/quaternius/space_Enemy_Flying_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Mech_FernandoTheFlamingo_cohesive.glb",
     "CollisionRadius": 1.0,
     "CollisionHeight": 1.0,
     "FootprintWidth": 2,
@@ -1118,7 +1118,7 @@
     "ModelRotation": 0.0
   },
   "stormrend_razorwind": {
-    "ModelPath": "assets/models/kenney/weapon_rifle_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_Stan_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -1131,7 +1131,7 @@
     "ModelRotation": 0.0
   },
   "stormrend_thunderjaw": {
-    "ModelPath": "assets/models/quaternius/space_Astronaut_BarbaraTheBee_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_Stan_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -1144,7 +1144,7 @@
     "ModelRotation": 0.0
   },
   "stormrend_sparkrunner": {
-    "ModelPath": "assets/models/quaternius/space_Astronaut_FernandoTheFlamingo_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/mech_Stan_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 1.8,
     "FootprintWidth": 1,
@@ -1248,7 +1248,7 @@
     "ModelRotation": 0.0
   },
   "stormrend_vortex": {
-    "ModelPath": "assets/models/quaternius/space_Enemy_Flying_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Mech_FinnTheFrog_cohesive.glb",
     "CollisionRadius": 1.0,
     "CollisionHeight": 1.0,
     "FootprintWidth": 2,
@@ -1261,7 +1261,7 @@
     "ModelRotation": 0.0
   },
   "stormrend_razorbeak": {
-    "ModelPath": "assets/models/kenney/craft_racer_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Spaceship_RaeTheRedPanda_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 0.5,
     "FootprintWidth": 1,
@@ -1300,7 +1300,7 @@
     "ModelRotation": 0.0
   },
   "stormrend_stormbreaker": {
-    "ModelPath": "assets/models/kenney/craft_speederA_cohesive.glb",
+    "ModelPath": "assets/models/quaternius/space_Spaceship_RaeTheRedPanda_cohesive.glb",
     "CollisionRadius": 0.5,
     "CollisionHeight": 0.5,
     "FootprintWidth": 1,
