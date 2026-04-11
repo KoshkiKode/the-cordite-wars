@@ -112,7 +112,7 @@ public partial class LoadingScreen : Control
 
         // Tip text at bottom
         _tipLabel = new Label();
-        _tipLabel.Text = Tr("LOADING_TIP_PREFIX") + ": " + LoadingTips[GD.RandRange(0, LoadingTips.Length - 1)];
+        _tipLabel.Text = Tr("LOADING_TIP_PREFIX") + " " + LoadingTips[GD.RandRange(0, LoadingTips.Length - 1)];
         _tipLabel.HorizontalAlignment = HorizontalAlignment.Center;
         _tipLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         UITheme.StyleLabel(_tipLabel, UITheme.FontSizeSmall, UITheme.TextMuted);

@@ -17,7 +17,7 @@ public partial class BootLoader : Node
         string versionBuild = ProjectSettings.GetSetting("application/config/version_build", "").AsString();
         string versionDisplay = string.IsNullOrEmpty(versionBuild) ? $"v{gameVersion}" : $"v{gameVersion}-{versionBuild}";
         GD.Print("╔════════════════════════════════════════╗");
-        GD.Print($"║   Cordite Wars: Six Fronts — {versionDisplay,-11}║");
+        GD.Print($"║   Cordite Wars: Six Fronts — {versionDisplay}");
         GD.Print("║   Godot 4.6 + C# / .NET 9             ║");
         GD.Print("╚════════════════════════════════════════╝");
         GD.Print("");
