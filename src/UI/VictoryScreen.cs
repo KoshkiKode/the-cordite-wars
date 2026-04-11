@@ -216,7 +216,7 @@ public partial class VictoryScreen : CanvasLayer
         btnRow.AddChild(playAgainBtn);
 
         // Next mission button (campaign only)
-        if (won && (_result?.IsCampaignMission ?? false) && (_result?.HasNextMission ?? false))
+        if (won && _result is { IsCampaignMission: true, HasNextMission: true })
         {
             var nextBtn = new Button();
             nextBtn.Text = "Next Mission \u25BA";
