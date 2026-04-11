@@ -3,6 +3,37 @@ using CorditeWars.Core;
 namespace CorditeWars.Game.World;
 
 /// <summary>
+/// Per-map sun/lighting configuration loaded from JSON.
+/// When <see cref="Enabled"/> is false the map uses a flat overcast ambient light.
+/// </summary>
+public sealed class MapSunConfig
+{
+    /// <summary>Whether a directional sun light is active on this map.</summary>
+    public bool Enabled { get; init; } = true;
+
+    /// <summary>Rotation around the X axis in degrees (controls altitude).</summary>
+    public float RotationX { get; init; } = -55f;
+
+    /// <summary>Rotation around the Y axis in degrees (controls compass bearing).</summary>
+    public float RotationY { get; init; } = 30f;
+
+    /// <summary>Hex colour string for the sun light (e.g. "#FFF4E0").</summary>
+    public string Color { get; init; } = "#FFFFFF";
+
+    /// <summary>Sun light energy multiplier.</summary>
+    public float Energy { get; init; } = 1.2f;
+
+    /// <summary>Hex colour string for ambient fill light.</summary>
+    public string AmbientColor { get; init; } = "#8899BB";
+
+    /// <summary>Ambient light energy multiplier.</summary>
+    public float AmbientEnergy { get; init; } = 0.45f;
+
+    /// <summary>Hex colour string for the sky / background clear colour.</summary>
+    public string SkyColor { get; init; } = "#1A2040";
+}
+
+/// <summary>
 /// Starting position for a player on the map.
 /// </summary>
 public sealed class StartingPosition
@@ -88,4 +119,10 @@ public sealed class MapData
     public PropPlacement[] Props { get; init; } = [];
     public StructurePlacement[] Structures { get; init; } = [];
     public ElevationZone[] ElevationZones { get; init; } = [];
+
+    /// <summary>
+    /// Optional per-map sun / ambient lighting config.
+    /// When null, <see cref="MapSunConfig"/> defaults are used.
+    /// </summary>
+    public MapSunConfig? SunConfig { get; init; }
 }

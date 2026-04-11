@@ -21,7 +21,11 @@
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
       "twist": "",
-      "win_condition": "kill_all_units"
+      "win_condition": "kill_all_units",
+      "unlocks_buildings": [
+        "kragmore_refinery",
+        "kragmore_supply_depot"
+      ]
     },
     {
       "id": "kragmore_02",
@@ -40,9 +44,13 @@
       "starting_cordite": 3500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Bastion has pre-built defence networks — use artillery to break them before advancing.",
+      "twist": "Bastion has pre-built defence networks \u2014 use artillery to break them before advancing.",
       "win_condition": "destroy_hq",
-      "requires_mission": "kragmore_01"
+      "requires_mission": "kragmore_01",
+      "unlocks_buildings": [
+        "kragmore_barracks",
+        "kragmore_war_forge"
+      ]
     },
     {
       "id": "kragmore_03",
@@ -63,9 +71,12 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Valkyr Overwatch Drones will detect Mole Rats the moment they fire — send in the sappers before Valkyr drones are deployed, or the tunnelling approach will fail.",
+      "twist": "Valkyr Overwatch Drones will detect Mole Rats the moment they fire \u2014 send in the sappers before Valkyr drones are deployed, or the tunnelling approach will fail.",
       "win_condition": "destroy_hq",
-      "requires_mission": "kragmore_02"
+      "requires_mission": "kragmore_02",
+      "unlocks_buildings": [
+        "kragmore_vehicle_factory"
+      ]
     },
     {
       "id": "kragmore_04",
@@ -86,9 +97,13 @@
       "starting_cordite": 4500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Bastion Corvettes carry stealth-detection sonar — they will spot the Deep Bore submarines if they get too close. Sink the Corvettes from range before moving through the main channel.",
+      "twist": "Bastion Corvettes carry stealth-detection sonar \u2014 they will spot the Deep Bore submarines if they get too close. Sink the Corvettes from range before moving through the main channel.",
       "win_condition": "destroy_hq",
-      "requires_mission": "kragmore_03"
+      "requires_mission": "kragmore_03",
+      "unlocks_buildings": [
+        "kragmore_airfield",
+        "kragmore_shipyard"
+      ]
     },
     {
       "id": "kragmore_05",
@@ -109,15 +124,18 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Ironmarch Signal Trucks detect stealthed Mole Rats within their sensor range — destroy them first. Once the Signal Trucks are gone, Kragmore stealth assets move freely across the field.",
+      "twist": "Ironmarch Signal Trucks detect stealthed Mole Rats within their sensor range \u2014 destroy them first. Once the Signal Trucks are gone, Kragmore stealth assets move freely across the field.",
       "win_condition": "destroy_hq",
-      "requires_mission": "kragmore_04"
+      "requires_mission": "kragmore_04",
+      "unlocks_buildings": [
+        "kragmore_tech_lab"
+      ]
     },
     {
       "id": "kragmore_06",
       "number": 6,
       "name": "The Long Siege",
-      "briefing": "A massive Bastion citadel-city must fall. Mole Rat sappers will tunnel beneath the outer walls while artillery suppresses the defenders above — a two-pronged assault that Bastion's static detection network cannot cover simultaneously.",
+      "briefing": "A massive Bastion citadel-city must fall. Mole Rat sappers will tunnel beneath the outer walls while artillery suppresses the defenders above \u2014 a two-pronged assault that Bastion's static detection network cannot cover simultaneously.",
       "map": "iron_ridge",
       "player_faction": "kragmore",
       "enemy_factions": [
@@ -134,15 +152,18 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Bastion Watcher towers and Patrol Rovers will detect Mole Rats the instant they surface — time the underground approach to coincide with the artillery barrage so Bastion's detectors are suppressed.",
+      "twist": "Bastion Watcher towers and Patrol Rovers will detect Mole Rats the instant they surface \u2014 time the underground approach to coincide with the artillery barrage so Bastion's detectors are suppressed.",
       "win_condition": "destroy_hq",
-      "requires_mission": "kragmore_05"
+      "requires_mission": "kragmore_05",
+      "unlocks_buildings": [
+        "kragmore_reactor"
+      ]
     },
     {
       "id": "kragmore_07",
       "number": 7,
       "name": "Stormrend Ambush",
-      "briefing": "Stormrend has ambushed a Kragmore supply convoy. The ambushers must be hunted down. Stormrend Flicker Mines are invisible to Kragmore — advance slowly and sweep each sector before moving the convoy through.",
+      "briefing": "Stormrend has ambushed a Kragmore supply convoy. The ambushers must be hunted down. Stormrend Flicker Mines are invisible to Kragmore \u2014 advance slowly and sweep each sector before moving the convoy through.",
       "map": "crossroads",
       "player_faction": "kragmore",
       "enemy_factions": [
@@ -151,21 +172,22 @@
       ],
       "objectives": [
         "Protect the remaining convoy units",
-        "Advance cautiously — Stormrend Flicker Mines are hidden along the route",
+        "Advance cautiously \u2014 Stormrend Flicker Mines are hidden along the route",
         "Destroy all Stormrend ambush forces"
       ],
       "starting_cordite": 3500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Kragmore has no detector units — Stormrend Flicker Mines will only reveal themselves when triggered. Move Spotter units ahead of the convoy to absorb mine detonations before the main column advances.",
+      "twist": "Kragmore has no detector units \u2014 Stormrend Flicker Mines will only reveal themselves when triggered. Move Spotter units ahead of the convoy to absorb mine detonations before the main column advances.",
       "win_condition": "destroy_hq",
-      "requires_mission": "kragmore_06"
+      "requires_mission": "kragmore_06",
+      "unlocks_buildings": []
     },
     {
       "id": "kragmore_08",
       "number": 8,
       "name": "The Arcloft Network",
-      "briefing": "Arcloft's surveillance grid has exposed Kragmore movements to all enemies. Destroy it. Arcloft Vigilant jets detect everything — send Mole Rat sappers as the vanguard to take out Aether Relays before the main armoured column moves.",
+      "briefing": "Arcloft's surveillance grid has exposed Kragmore movements to all enemies. Destroy it. Arcloft Vigilant jets detect everything \u2014 send Mole Rat sappers as the vanguard to take out Aether Relays before the main armoured column moves.",
       "map": "six_fronts",
       "player_faction": "kragmore",
       "enemy_factions": [
@@ -180,15 +202,16 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Arcloft Vigilant jets will detect the Mole Rat sappers the moment they fire — commit the main armoured column to cover their approach, forcing the Vigilants to engage the tanks rather than hunting the sappers.",
+      "twist": "Arcloft Vigilant jets will detect the Mole Rat sappers the moment they fire \u2014 commit the main armoured column to cover their approach, forcing the Vigilants to engage the tanks rather than hunting the sappers.",
       "win_condition": "destroy_hq",
-      "requires_mission": "kragmore_07"
+      "requires_mission": "kragmore_07",
+      "unlocks_buildings": []
     },
     {
       "id": "kragmore_09",
       "number": 9,
       "name": "The Six Fronts",
-      "briefing": "The Cordite Nexus — the largest deposit ever found. Kragmore tanks will crush any who stand in the way. Deep Bore submarines take the waterway while Mole Rats tunnel under the Nexus perimeter ahead of the main assault.",
+      "briefing": "The Cordite Nexus \u2014 the largest deposit ever found. Kragmore tanks will crush any who stand in the way. Deep Bore submarines take the waterway while Mole Rats tunnel under the Nexus perimeter ahead of the main assault.",
       "map": "six_fronts",
       "player_faction": "kragmore",
       "enemy_factions": [
@@ -206,9 +229,10 @@
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Arcloft Vigilants and Bastion Patrol Rovers form a combined detection ring around the Nexus. The underground approach via Mole Rats is the only route the detection net cannot cover — but they must detonate before the main column arrives.",
+      "twist": "Arcloft Vigilants and Bastion Patrol Rovers form a combined detection ring around the Nexus. The underground approach via Mole Rats is the only route the detection net cannot cover \u2014 but they must detonate before the main column arrives.",
       "win_condition": "destroy_hq",
-      "requires_mission": "kragmore_08"
+      "requires_mission": "kragmore_08",
+      "unlocks_buildings": []
     }
   ]
 }

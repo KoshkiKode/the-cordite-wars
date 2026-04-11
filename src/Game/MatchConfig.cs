@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CorditeWars.Game.Campaign;
 using CorditeWars.Game.World;
 
@@ -30,6 +31,13 @@ public sealed class CampaignMatchContext
 
     /// <summary>Typed (structured) objectives for the mission objective tracker.</summary>
     public TypedObjectiveData[] TypedObjectives { get; init; } = [];
+
+    /// <summary>
+    /// Set of building IDs the player is allowed to construct in this mission.
+    /// Accumulated from all missions up to and including this one.
+    /// <c>null</c> means all buildings are allowed (used for skirmish/multiplayer).
+    /// </summary>
+    public HashSet<string>? AllowedBuildingIds { get; init; }
 }
 
 /// <summary>

@@ -8,7 +8,7 @@
       "id": "arcloft_01",
       "number": 1,
       "name": "Eyes Open",
-      "briefing": "Establish a surveillance network across the contested zone before other factions realise what is happening. The Overwatch Protocol begins here — deploy Aether Relays and keep Vigilant patrol jets airborne to ensure nothing moves unseen.",
+      "briefing": "Establish a surveillance network across the contested zone before other factions realise what is happening. The Overwatch Protocol begins here \u2014 deploy Aether Relays and keep Vigilant patrol jets airborne to ensure nothing moves unseen.",
       "map": "crossroads",
       "player_faction": "arcloft",
       "enemy_factions": [
@@ -22,8 +22,12 @@
       "starting_cordite": 3000,
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
-      "twist": "Stormrend Scrap Hawks will probe your perimeter — Vigilants detect them before they reach the relays.",
-      "win_condition": "kill_all_units"
+      "twist": "Stormrend Scrap Hawks will probe your perimeter \u2014 Vigilants detect them before they reach the relays.",
+      "win_condition": "kill_all_units",
+      "unlocks_buildings": [
+        "arcloft_refinery",
+        "arcloft_supply_depot"
+      ]
     },
     {
       "id": "arcloft_02",
@@ -43,15 +47,19 @@
       "starting_cordite": 3500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Stormrend Flicker Mines line the approach — invisible to your units unless a Vigilant is within detector range. Clear the route before committing the Patch Drone.",
+      "twist": "Stormrend Flicker Mines line the approach \u2014 invisible to your units unless a Vigilant is within detector range. Clear the route before committing the Patch Drone.",
       "win_condition": "destroy_hq",
-      "requires_mission": "arcloft_01"
+      "requires_mission": "arcloft_01",
+      "unlocks_buildings": [
+        "arcloft_barracks",
+        "arcloft_overwatch_tower"
+      ]
     },
     {
       "id": "arcloft_03",
       "number": 3,
       "name": "The Ironmarch Files",
-      "briefing": "Ironmarch is building something secret. Arcloft reconnaissance reveals it must be destroyed. A Phantom Sub has been pre-positioned in the river delta for the extraction phase — use it to cover the withdrawal once the site is destroyed.",
+      "briefing": "Ironmarch is building something secret. Arcloft reconnaissance reveals it must be destroyed. A Phantom Sub has been pre-positioned in the river delta for the extraction phase \u2014 use it to cover the withdrawal once the site is destroyed.",
       "map": "iron_ridge",
       "player_faction": "arcloft",
       "enemy_factions": [
@@ -66,15 +74,18 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Ironmarch Signal Trucks scan for electronic emissions — they will detect Vigilant jets if they fly too close. Use the Phantom Sub's overwatch stealth ping to spot enemy positions instead.",
+      "twist": "Ironmarch Signal Trucks scan for electronic emissions \u2014 they will detect Vigilant jets if they fly too close. Use the Phantom Sub's overwatch stealth ping to spot enemy positions instead.",
       "win_condition": "destroy_hq",
-      "requires_mission": "arcloft_02"
+      "requires_mission": "arcloft_02",
+      "unlocks_buildings": [
+        "arcloft_vehicle_factory"
+      ]
     },
     {
       "id": "arcloft_04",
       "number": 4,
       "name": "Archipelago Silence",
-      "briefing": "Arcloft Phantom Submarines will cut naval communication cables between enemy island bases. The Kragmore fleet includes Deep Bore stealth submarines of their own — use your Phantom Sub's overwatch stealth ping to find them before they find you.",
+      "briefing": "Arcloft Phantom Submarines will cut naval communication cables between enemy island bases. The Kragmore fleet includes Deep Bore stealth submarines of their own \u2014 use your Phantom Sub's overwatch stealth ping to find them before they find you.",
       "map": "archipelago",
       "player_faction": "arcloft",
       "enemy_factions": [
@@ -89,15 +100,19 @@
       "starting_cordite": 4500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Bastion Corvettes carry stealth-detection sonar — your Phantom Sub must surface briefly to use the overwatch ping, which will immediately reveal its position to any nearby Corvette.",
+      "twist": "Bastion Corvettes carry stealth-detection sonar \u2014 your Phantom Sub must surface briefly to use the overwatch ping, which will immediately reveal its position to any nearby Corvette.",
       "win_condition": "destroy_hq",
-      "requires_mission": "arcloft_03"
+      "requires_mission": "arcloft_03",
+      "unlocks_buildings": [
+        "arcloft_airfield",
+        "arcloft_shipyard"
+      ]
     },
     {
       "id": "arcloft_05",
       "number": 5,
       "name": "The Valkyr Gambit",
-      "briefing": "Valkyr is close to discovering Arcloft's network. A counter-intelligence operation must discredit them. Valkyr Overwatch Drones blanket the area with stealth detection — your forces must neutralise the drones before attempting any stealth approach.",
+      "briefing": "Valkyr is close to discovering Arcloft's network. A counter-intelligence operation must discredit them. Valkyr Overwatch Drones blanket the area with stealth detection \u2014 your forces must neutralise the drones before attempting any stealth approach.",
       "map": "crossroads",
       "player_faction": "arcloft",
       "enemy_factions": [
@@ -112,15 +127,18 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Valkyr Kestrel jets are detector aircraft — they will reveal any stealthed Arcloft unit they fly over. Prioritise them before deploying the Patch Drone.",
+      "twist": "Valkyr Kestrel jets are detector aircraft \u2014 they will reveal any stealthed Arcloft unit they fly over. Prioritise them before deploying the Patch Drone.",
       "win_condition": "destroy_hq",
-      "requires_mission": "arcloft_04"
+      "requires_mission": "arcloft_04",
+      "unlocks_buildings": [
+        "arcloft_tech_lab"
+      ]
     },
     {
       "id": "arcloft_06",
       "number": 6,
       "name": "Eyes Everywhere",
-      "briefing": "Expand the Aether Relay network to cover all six faction territories simultaneously. Vigilant patrol jets must maintain unbroken detector coverage — without them the Relays are blind nodes.",
+      "briefing": "Expand the Aether Relay network to cover all six faction territories simultaneously. Vigilant patrol jets must maintain unbroken detector coverage \u2014 without them the Relays are blind nodes.",
       "map": "six_fronts",
       "player_faction": "arcloft",
       "enemy_factions": [
@@ -136,15 +154,18 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Kragmore Mole Rats and Valkyr Windrunners will approach stealthed — Vigilant jets are your only warning before the stealth units reach the relays.",
+      "twist": "Kragmore Mole Rats and Valkyr Windrunners will approach stealthed \u2014 Vigilant jets are your only warning before the stealth units reach the relays.",
       "win_condition": "destroy_hq",
-      "requires_mission": "arcloft_05"
+      "requires_mission": "arcloft_05",
+      "unlocks_buildings": [
+        "arcloft_reactor"
+      ]
     },
     {
       "id": "arcloft_07",
       "number": 7,
       "name": "Quantum Silence",
-      "briefing": "Activate the Quantum Detection Grid upgrade — which will permanently extend stealth-reveal range to every Arcloft detector across the theatre. Defend the tech lab while the Grid comes online.",
+      "briefing": "Activate the Quantum Detection Grid upgrade \u2014 which will permanently extend stealth-reveal range to every Arcloft detector across the theatre. Defend the tech lab while the Grid comes online.",
       "map": "iron_ridge",
       "player_faction": "arcloft",
       "enemy_factions": [
@@ -162,9 +183,10 @@
       "starting_cordite": 4000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "All factions deploy stealth infiltrators — Stormrend Flicker Mines, Kragmore Mole Rats, Valkyr Windrunners — specifically targeting your tech lab. Without the Quantum Detection Grid active, you cannot see them coming.",
+      "twist": "All factions deploy stealth infiltrators \u2014 Stormrend Flicker Mines, Kragmore Mole Rats, Valkyr Windrunners \u2014 specifically targeting your tech lab. Without the Quantum Detection Grid active, you cannot see them coming.",
       "win_condition": "destroy_hq",
-      "requires_mission": "arcloft_06"
+      "requires_mission": "arcloft_06",
+      "unlocks_buildings": []
     },
     {
       "id": "arcloft_08",
@@ -182,15 +204,16 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Kragmore scouts patrol the highland approaches — Vigilants must clear the detection grid before the main thrust.",
+      "twist": "Kragmore scouts patrol the highland approaches \u2014 Vigilants must clear the detection grid before the main thrust.",
       "win_condition": "destroy_hq",
-      "requires_mission": "arcloft_07"
+      "requires_mission": "arcloft_07",
+      "unlocks_buildings": []
     },
     {
       "id": "arcloft_09",
       "number": 9,
       "name": "The Six Fronts",
-      "briefing": "Arcloft has seen everything. Now it is time to act. The Cordite Nexus must be seized — silently. Phantom Submarines approach from the waterways while Vigilant jets hold air superiority above. The Overwatch Protocol reaches its final expression.",
+      "briefing": "Arcloft has seen everything. Now it is time to act. The Cordite Nexus must be seized \u2014 silently. Phantom Submarines approach from the waterways while Vigilant jets hold air superiority above. The Overwatch Protocol reaches its final expression.",
       "map": "six_fronts",
       "player_faction": "arcloft",
       "enemy_factions": [
@@ -208,9 +231,10 @@
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Bastion Patrol Rovers and Valkyr Overwatch Drones watch all approach routes — if Arcloft is spotted capturing the Nexus by more than 2 factions simultaneously, all will attack. The Phantom Sub's underwater approach is the only undetected route.",
+      "twist": "Bastion Patrol Rovers and Valkyr Overwatch Drones watch all approach routes \u2014 if Arcloft is spotted capturing the Nexus by more than 2 factions simultaneously, all will attack. The Phantom Sub's underwater approach is the only undetected route.",
       "win_condition": "destroy_hq",
-      "requires_mission": "arcloft_08"
+      "requires_mission": "arcloft_08",
+      "unlocks_buildings": []
     }
   ]
 }

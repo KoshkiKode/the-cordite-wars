@@ -37,16 +37,16 @@ public partial class Main : Node3D
             PendingConfig = CreateFallbackConfig();
         }
 
-        // Setup environment
-        SetupEnvironment();
-
-        // Create and start the GameSession
+        // Create and start the GameSession first so ActiveMap is available for environment setup
         _session = new GameSession();
         _session.Name = "GameSession";
         AddChild(_session);
 
         _session.StartMatch(PendingConfig);
         _matchStartTime = DateTime.UtcNow;
+
+        // Setup environment using the loaded map's sun configuration
+        SetupEnvironment(_session.ActiveMap?.SunConfig);
 
         // Wire match-ended signal
         EventBus.Instance?.Connect(
@@ -195,24 +195,28 @@ public partial class Main : Node3D
             : 0;
     }
 
-    private void SetupEnvironment()
+    private void SetupEnvironment(CorditeWars.Game.World.MapSunConfig? sunConfig = null)
     {
-        // Add basic lighting if not present in the map
+        // Use map-specific sun settings, falling back to sensible defaults
+        sunConfig ??= new CorditeWars.Game.World.MapSunConfig();
+
+        // Directional sun light
         var sun = new DirectionalLight3D();
-        sun.ShadowEnabled = true;
-        sun.RotationDegrees = new Vector3(-45, 45, 0); // Angled down
-        sun.LightEnergy = 1.0f;
+        sun.Visible = sunConfig.Enabled;
+        sun.ShadowEnabled = sunConfig.Enabled;
+        sun.RotationDegrees = new Vector3(sunConfig.RotationX, sunConfig.RotationY, 0f);
+        sun.LightColor = new Color(sunConfig.Color);
+        sun.LightEnergy = sunConfig.Energy;
         AddChild(sun);
 
         var env = new WorldEnvironment();
         var environment = new Godot.Environment();
         environment.BackgroundMode = Godot.Environment.BGMode.ClearColor;
-        environment.BackgroundColor = new Color(0.1f, 0.1f, 0.12f, 1.0f); // Dark space/abyss color
+        environment.BackgroundColor = new Color(sunConfig.SkyColor);
 
-        // Settings to integrate well with shaders and effects
         environment.AmbientLightSource = Godot.Environment.AmbientSource.Color;
-        environment.AmbientLightColor = new Color(0.8f, 0.8f, 0.9f);
-        environment.AmbientLightEnergy = 0.5f;
+        environment.AmbientLightColor = new Color(sunConfig.AmbientColor);
+        environment.AmbientLightEnergy = sunConfig.AmbientEnergy;
 
         environment.TonemapMode = Godot.Environment.ToneMapper.Aces;
         env.Environment = environment;

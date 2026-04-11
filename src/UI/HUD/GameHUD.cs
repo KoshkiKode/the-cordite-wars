@@ -65,7 +65,8 @@ public partial class GameHUD : CanvasLayer
 
         // Command Card — bottom-right
         _commandCard = new CommandCard();
-        _commandCard.Initialize(selectionManager, buildingPlacer, buildingRegistry, unitDataRegistry);
+        _commandCard.Initialize(selectionManager, buildingPlacer, buildingRegistry, unitDataRegistry,
+            campaignContext?.AllowedBuildingIds);
         AddChild(_commandCard);
 
         // Production Queue Display — above command card

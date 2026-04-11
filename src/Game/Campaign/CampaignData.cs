@@ -55,6 +55,13 @@ public sealed class CampaignMission
     [JsonPropertyName("requires_mission")] public string RequiresMission { get; set; } = string.Empty;
 
     /// <summary>
+    /// Building IDs newly unlocked for construction when this mission is started.
+    /// These accumulate across the mission chain — later missions include all prior unlocks.
+    /// An empty list means no new buildings are added beyond what was already available.
+    /// </summary>
+    [JsonPropertyName("unlocks_buildings")] public List<string> UnlocksBuildings { get; set; } = new();
+
+    /// <summary>
     /// Serialised win-condition identifier.
     /// <c>"destroy_hq"</c> (default) or <c>"kill_all_units"</c>.
     /// </summary>

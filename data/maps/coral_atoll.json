@@ -111,5 +111,15 @@
         [ 110, 220 ]
       ]
     }
-  ]
+  ],
+  "SunConfig": {
+    "Enabled": true,
+    "RotationX": -72,
+    "RotationY": 45,
+    "Color": "#FFEE88",
+    "Energy": 1.7,
+    "AmbientColor": "#40A8C8",
+    "AmbientEnergy": 0.55,
+    "SkyColor": "#0A4C78"
+  }
 }

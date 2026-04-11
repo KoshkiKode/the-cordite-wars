@@ -469,12 +469,13 @@ public partial class CampaignSelect : Control
             PlayerConfigs    = playerConfigs.ToArray(),
             Campaign         = new CampaignMatchContext
             {
-                FactionId     = campaign.FactionId,
-                MissionId     = mission.Id,
-                MissionNumber = mission.Number,
-                MissionName   = mission.Name,
-                Objectives    = mission.Objectives.ToArray(),
-                TypedObjectives = mission.TypedObjectives.ToArray()
+                FactionId       = campaign.FactionId,
+                MissionId       = mission.Id,
+                MissionNumber   = mission.Number,
+                MissionName     = mission.Name,
+                Objectives      = mission.Objectives.ToArray(),
+                TypedObjectives = mission.TypedObjectives.ToArray(),
+                AllowedBuildingIds = AccumulateBuildingUnlocks(campaign, mission)
             }
         };
 
@@ -496,5 +497,53 @@ public partial class CampaignSelect : Control
         dialog.PopupCentered();
         dialog.Confirmed += () => dialog.QueueFree();
         dialog.Canceled += () => dialog.QueueFree();
+    }
+
+    /// <summary>
+    /// Walks the mission chain backwards from <paramref name="mission"/> and
+    /// accumulates all <c>unlocks_buildings</c> lists into a single set.
+    /// The command center is always included so the player can rebuild their HQ.
+    /// Returns <c>null</c> if no mission in the chain defines any unlock list
+    /// (treated as "all buildings allowed" for backwards compatibility).
+    /// </summary>
+    private static System.Collections.Generic.HashSet<string>? AccumulateBuildingUnlocks(
+        FactionCampaign campaign, CampaignMission startMission)
+    {
+        // Build a quick lookup: mission ID → mission
+        var byId = new System.Collections.Generic.Dictionary<string, CampaignMission>();
+        foreach (var m in campaign.Missions)
+            byId[m.Id] = m;
+
+        // Check if ANY mission in the chain has unlock data — if none do, fall back
+        // to the unrestricted mode so old campaigns still work.
+        bool anyUnlocks = false;
+        var check = startMission;
+        while (check != null)
+        {
+            if (check.UnlocksBuildings.Count > 0) { anyUnlocks = true; break; }
+            check = string.IsNullOrEmpty(check.RequiresMission) ? null
+                    : byId.GetValueOrDefault(check.RequiresMission);
+        }
+
+        if (!anyUnlocks)
+            return null;
+
+        var result = new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
+
+        // Always allow the faction's command center (it is the starting building)
+        result.Add($"{campaign.FactionId}_command_center");
+
+        // Walk the chain and union all unlock lists
+        var current = startMission;
+        while (current != null)
+        {
+            foreach (string bid in current.UnlocksBuildings)
+                result.Add(bid);
+
+            current = string.IsNullOrEmpty(current.RequiresMission) ? null
+                      : byId.GetValueOrDefault(current.RequiresMission);
+        }
+
+        return result;
     }
 }

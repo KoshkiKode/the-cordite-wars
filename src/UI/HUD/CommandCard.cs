@@ -30,18 +30,23 @@ public partial class CommandCard : PanelContainer
     // Current button bindings
     private readonly CardAction[] _actions = new CardAction[Columns * Rows];
 
+    // Campaign building restriction — null means all buildings are allowed
+    private System.Collections.Generic.HashSet<string>? _allowedBuildingIds;
+
     // ── Initialization ───────────────────────────────────────────────
 
     public void Initialize(
         SelectionManager selectionManager,
         BuildingPlacer buildingPlacer,
         BuildingRegistry buildingRegistry,
-        UnitDataRegistry unitDataRegistry)
+        UnitDataRegistry unitDataRegistry,
+        System.Collections.Generic.HashSet<string>? allowedBuildingIds = null)
     {
         _selectionManager = selectionManager;
         _buildingPlacer = buildingPlacer;
         _buildingRegistry = buildingRegistry;
         _unitDataRegistry = unitDataRegistry;
+        _allowedBuildingIds = allowedBuildingIds;
 
         Name = "CommandCard";
 
@@ -166,6 +171,8 @@ public partial class CommandCard : PanelContainer
 
     /// <summary>
     /// Populates building placement buttons for a construction building (e.g., HQ).
+    /// When a campaign <see cref="_allowedBuildingIds"/> set is present only those
+    /// buildings are shown, hiding higher-tier structures not yet unlocked.
     /// </summary>
     public void PopulateBuildingPlacement(string factionId)
     {
@@ -178,6 +185,10 @@ public partial class CommandCard : PanelContainer
         int slot = 0;
         for (int i = 0; i < buildings.Count && slot < Columns * Rows; i++)
         {
+            // Skip buildings not yet unlocked for this campaign mission
+            if (_allowedBuildingIds != null && !_allowedBuildingIds.Contains(buildings[i].Id))
+                continue;
+
             string label = buildings[i].DisplayName.Length > 6
                 ? buildings[i].DisplayName[..6]
                 : buildings[i].DisplayName;

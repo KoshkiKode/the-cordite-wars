@@ -125,6 +125,10 @@ public partial class PropPlacer : Node3D
         instance.Scale = new Vector3(finalScale, finalScale, finalScale);
         AddChild(instance);
 
+        // Spawn shadow blob beneath every prop to add ambient ground shadow
+        float shadowRadius = Math.Max(0.3f, entry.CollisionRadius.ToFloat() * finalScale * 1.3f);
+        SpawnShadowBlob(worldX, worldY, worldZ, shadowRadius);
+
         int propId = _nextPropId++;
 
         // Create collision for non-passable props
@@ -191,6 +195,10 @@ public partial class PropPlacer : Node3D
         instance.Rotation = new Vector3(0, rotation, 0);
         instance.Scale = new Vector3(finalScale, finalScale, finalScale);
         AddChild(instance);
+
+        // Spawn shadow blob beneath every structure for ground shadow effect
+        float structShadowRadius = Math.Max(0.4f, entry.CollisionRadius.ToFloat() * finalScale * 1.4f);
+        SpawnShadowBlob(worldX, worldY, worldZ, structShadowRadius);
 
         int propId = _nextPropId++;
 
@@ -304,6 +312,36 @@ public partial class PropPlacer : Node3D
         body.AddChild(collisionShape);
 
         instance.AddChild(body);
+    }
+
+    /// <summary>
+    /// Spawns a flat, dark, semi-transparent disc at ground level to simulate
+    /// an ambient shadow blob beneath props and structures.
+    /// These are inexpensive and give depth to the scene even without real-time shadows.
+    /// </summary>
+    private void SpawnShadowBlob(float worldX, float worldY, float worldZ, float radius)
+    {
+        var disc = new CylinderMesh();
+        disc.TopRadius    = radius;
+        disc.BottomRadius = radius;
+        disc.Height       = 0.04f;
+        disc.RadialSegments = 16;
+        disc.Rings          = 1;
+
+        var mat = new StandardMaterial3D();
+        mat.AlbedoColor  = new Color(0.0f, 0.0f, 0.0f, 0.55f);
+        mat.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
+        mat.ShadingMode  = BaseMaterial3D.ShadingModeEnum.Unshaded;
+        mat.CullMode     = BaseMaterial3D.CullModeEnum.Disabled;
+
+        var mesh = new MeshInstance3D();
+        mesh.Mesh             = disc;
+        mesh.MaterialOverride = mat;
+        mesh.CastShadow       = GeometryInstance3D.ShadowCastingSetting.Off;
+        // Render slightly above the terrain surface to prevent z-fighting
+        mesh.Position = new Vector3(worldX, worldY + 0.02f, worldZ);
+
+        AddChild(mesh);
     }
 
     private void DestroyProp(int propId, DestructibleProp prop, OccupancyGrid occupancyGrid)

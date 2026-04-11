@@ -8,7 +8,7 @@
       "id": "stormrend_01",
       "number": 1,
       "name": "First Lightning",
-      "briefing": "A Bastion patrol has spotted Stormrend raider teams. Strike before they can report back. Plant Flicker Mines along the patrol route as an invisible trap — then engage the patrol from the far side to drive them into the minefield.",
+      "briefing": "A Bastion patrol has spotted Stormrend raider teams. Strike before they can report back. Plant Flicker Mines along the patrol route as an invisible trap \u2014 then engage the patrol from the far side to drive them into the minefield.",
       "map": "dust_bowl",
       "player_faction": "stormrend",
       "enemy_factions": [
@@ -22,14 +22,18 @@
       "starting_cordite": 3000,
       "ai_difficulty": 0,
       "difficulty_label": "Easy",
-      "twist": "Flicker Mines are invisible to the enemy — use them to secure your retreat route and deny Bastion any pursuit after the strike.",
-      "win_condition": "kill_all_units"
+      "twist": "Flicker Mines are invisible to the enemy \u2014 use them to secure your retreat route and deny Bastion any pursuit after the strike.",
+      "win_condition": "kill_all_units",
+      "unlocks_buildings": [
+        "stormrend_refinery",
+        "stormrend_supply_depot"
+      ]
     },
     {
       "id": "stormrend_02",
       "number": 2,
       "name": "Blitz Protocol",
-      "briefing": "Hit Ironmarch's forward logistics before they can dig in. The Ironmarch Signal Truck is already in the field — it will detect Stormrend units the moment they enter range. Destroy it first, then the Flicker Mines will block the reinforcement routes.",
+      "briefing": "Hit Ironmarch's forward logistics before they can dig in. The Ironmarch Signal Truck is already in the field \u2014 it will detect Stormrend units the moment they enter range. Destroy it first, then the Flicker Mines will block the reinforcement routes.",
       "map": "crossroads",
       "player_faction": "stormrend",
       "enemy_factions": [
@@ -44,15 +48,19 @@
       "starting_cordite": 3500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Ironmarch Juggernauts arrive at the 8-minute mark — be gone before then. The Signal Truck will alert them the moment it detects Stormrend units. Speed and the Flicker Mine screen are the only edge.",
+      "twist": "Ironmarch Juggernauts arrive at the 8-minute mark \u2014 be gone before then. The Signal Truck will alert them the moment it detects Stormrend units. Speed and the Flicker Mine screen are the only edge.",
       "win_condition": "destroy_hq",
-      "requires_mission": "stormrend_01"
+      "requires_mission": "stormrend_01",
+      "unlocks_buildings": [
+        "stormrend_barracks",
+        "stormrend_storm_capacitor"
+      ]
     },
     {
       "id": "stormrend_03",
       "number": 3,
       "name": "Counter-Surveillance",
-      "briefing": "Arcloft drones track every Stormrend movement. Blind them. Arcloft Vigilant jets are detector aircraft — they will spot Stormrend units the instant they fly overhead. Approach from their blind spots, then destroy the Vigilants before pressing on to the relay.",
+      "briefing": "Arcloft drones track every Stormrend movement. Blind them. Arcloft Vigilant jets are detector aircraft \u2014 they will spot Stormrend units the instant they fly overhead. Approach from their blind spots, then destroy the Vigilants before pressing on to the relay.",
       "map": "iron_ridge",
       "player_faction": "stormrend",
       "enemy_factions": [
@@ -67,15 +75,18 @@
       "starting_cordite": 4000,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Arcloft Vigilant jets are detector aircraft — they nullify stealth and make Stormrend's speed advantage irrelevant. Destroy the Vigilants first, then the Overwatch Drones. Once the detection net is down, the relay is undefended.",
+      "twist": "Arcloft Vigilant jets are detector aircraft \u2014 they nullify stealth and make Stormrend's speed advantage irrelevant. Destroy the Vigilants first, then the Overwatch Drones. Once the detection net is down, the relay is undefended.",
       "win_condition": "destroy_hq",
-      "requires_mission": "stormrend_02"
+      "requires_mission": "stormrend_02",
+      "unlocks_buildings": [
+        "stormrend_vehicle_factory"
+      ]
     },
     {
       "id": "stormrend_04",
       "number": 4,
       "name": "Storm the Beaches",
-      "briefing": "Stormrend raiders cross the sea to strike Bastion island fortresses. A Riptide Sub will lead the assault — submerged and invisible until the moment of the torpedo strike — before the fast-attack surface fleet charges in.",
+      "briefing": "Stormrend raiders cross the sea to strike Bastion island fortresses. A Riptide Sub will lead the assault \u2014 submerged and invisible until the moment of the torpedo strike \u2014 before the fast-attack surface fleet charges in.",
       "map": "archipelago",
       "player_faction": "stormrend",
       "enemy_factions": [
@@ -91,15 +102,19 @@
       "starting_cordite": 4500,
       "ai_difficulty": 1,
       "difficulty_label": "Normal",
-      "twist": "Bastion Corvettes and Depth Ward submarines carry stealth-detection sonar — they will spot the Riptide Sub if it ventures close without first neutralising them. Kragmore dreadnoughts arrive in 10 minutes.",
+      "twist": "Bastion Corvettes and Depth Ward submarines carry stealth-detection sonar \u2014 they will spot the Riptide Sub if it ventures close without first neutralising them. Kragmore dreadnoughts arrive in 10 minutes.",
       "win_condition": "destroy_hq",
-      "requires_mission": "stormrend_03"
+      "requires_mission": "stormrend_03",
+      "unlocks_buildings": [
+        "stormrend_airfield",
+        "stormrend_shipyard"
+      ]
     },
     {
       "id": "stormrend_05",
       "number": 5,
       "name": "Surge and Fade",
-      "briefing": "Kragmore heavy columns are slow. Lead them into a kill zone and destroy them. Pre-position Flicker Mines throughout the canyon before the ambush — invisible to Kragmore since they have no detectors. Destroy the Bastion Watcher towers at the canyon exit first.",
+      "briefing": "Kragmore heavy columns are slow. Lead them into a kill zone and destroy them. Pre-position Flicker Mines throughout the canyon before the ambush \u2014 invisible to Kragmore since they have no detectors. Destroy the Bastion Watcher towers at the canyon exit first.",
       "map": "iron_ridge",
       "player_faction": "stormrend",
       "enemy_factions": [
@@ -115,9 +130,12 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Bastion Watcher towers at the canyon exit will detect the Flicker Mines before they can be armed — destroy all Watcher towers first. Kragmore has no detectors, so the minefield will remain invisible until it triggers.",
+      "twist": "Bastion Watcher towers at the canyon exit will detect the Flicker Mines before they can be armed \u2014 destroy all Watcher towers first. Kragmore has no detectors, so the minefield will remain invisible until it triggers.",
       "win_condition": "destroy_hq",
-      "requires_mission": "stormrend_04"
+      "requires_mission": "stormrend_04",
+      "unlocks_buildings": [
+        "stormrend_tech_lab"
+      ]
     },
     {
       "id": "stormrend_06",
@@ -139,15 +157,18 @@
       "starting_cordite": 5000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Arcloft Vigilant jets and Valkyr Overwatch Drones will detect surface Stormrend units — the Riptide Sub is invisible to both. Ironmarch Signal Trucks on the ground will detect surface raiders. Speed is survival — never stop moving on the surface.",
+      "twist": "Arcloft Vigilant jets and Valkyr Overwatch Drones will detect surface Stormrend units \u2014 the Riptide Sub is invisible to both. Ironmarch Signal Trucks on the ground will detect surface raiders. Speed is survival \u2014 never stop moving on the surface.",
       "win_condition": "destroy_hq",
-      "requires_mission": "stormrend_05"
+      "requires_mission": "stormrend_05",
+      "unlocks_buildings": [
+        "stormrend_reactor"
+      ]
     },
     {
       "id": "stormrend_07",
       "number": 7,
       "name": "Tempest Rising",
-      "briefing": "Stormrend Thunderjaw walkers are ready for their first major deployment. Ring the Thunderjaws with a Flicker Mine defensive perimeter — invisible to Ironmarch ground forces — before rolling them forward through the Bastion citadel wall.",
+      "briefing": "Stormrend Thunderjaw walkers are ready for their first major deployment. Ring the Thunderjaws with a Flicker Mine defensive perimeter \u2014 invisible to Ironmarch ground forces \u2014 before rolling them forward through the Bastion citadel wall.",
       "map": "iron_ridge",
       "player_faction": "stormrend",
       "enemy_factions": [
@@ -164,9 +185,10 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Ironmarch Signal Trucks can detect Stormrend stealth assets — if the Signal Truck is alive when the Thunderjaws advance, it will immediately reveal their position to all defenders. Escort the Thunderjaws with fast support units and take out the Signal Truck on the way in.",
+      "twist": "Ironmarch Signal Trucks can detect Stormrend stealth assets \u2014 if the Signal Truck is alive when the Thunderjaws advance, it will immediately reveal their position to all defenders. Escort the Thunderjaws with fast support units and take out the Signal Truck on the way in.",
       "win_condition": "destroy_hq",
-      "requires_mission": "stormrend_06"
+      "requires_mission": "stormrend_06",
+      "unlocks_buildings": []
     },
     {
       "id": "stormrend_08",
@@ -184,15 +206,16 @@
       "starting_cordite": 5500,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Arcloft Vigilants will reveal your Scrap Hawks early — strike fast before their detection grid is fully active.",
+      "twist": "Arcloft Vigilants will reveal your Scrap Hawks early \u2014 strike fast before their detection grid is fully active.",
       "win_condition": "destroy_hq",
-      "requires_mission": "stormrend_07"
+      "requires_mission": "stormrend_07",
+      "unlocks_buildings": []
     },
     {
       "id": "stormrend_09",
       "number": 9,
       "name": "The Six Fronts",
-      "briefing": "The Cordite Nexus will be taken by the fastest commander in the war. Tempest Kael leads Stormrend to total victory. Riptide Sub seizes the underwater approach while Flicker Mines ring the Nexus perimeter — unseen by every faction that lacks a detector.",
+      "briefing": "The Cordite Nexus will be taken by the fastest commander in the war. Tempest Kael leads Stormrend to total victory. Riptide Sub seizes the underwater approach while Flicker Mines ring the Nexus perimeter \u2014 unseen by every faction that lacks a detector.",
       "map": "six_fronts",
       "player_faction": "stormrend",
       "enemy_factions": [
@@ -212,9 +235,10 @@
       "starting_cordite": 6000,
       "ai_difficulty": 2,
       "difficulty_label": "Hard",
-      "twist": "Arcloft Vigilants, Bastion Patrol Rovers, Valkyr Overwatch Drones, and Ironmarch Signal Trucks will together form a near-complete detection net. The Riptide Sub and Flicker Mine perimeter are the only assets that bypass it — speed plus stealth is Stormrend's total advantage.",
+      "twist": "Arcloft Vigilants, Bastion Patrol Rovers, Valkyr Overwatch Drones, and Ironmarch Signal Trucks will together form a near-complete detection net. The Riptide Sub and Flicker Mine perimeter are the only assets that bypass it \u2014 speed plus stealth is Stormrend's total advantage.",
       "win_condition": "destroy_hq",
-      "requires_mission": "stormrend_08"
+      "requires_mission": "stormrend_08",
+      "unlocks_buildings": []
     }
   ]
 }

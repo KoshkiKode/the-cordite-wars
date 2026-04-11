@@ -1884,5 +1884,15 @@
       "Radius": 74,
       "Height": -0.860339
     }
-  ]
+  ],
+  "SunConfig": {
+    "Enabled": false,
+    "RotationX": -42,
+    "RotationY": 15,
+    "Color": "#B8C8D8",
+    "Energy": 0.75,
+    "AmbientColor": "#708090",
+    "AmbientEnergy": 0.6,
+    "SkyColor": "#1A2838"
+  }
 }
