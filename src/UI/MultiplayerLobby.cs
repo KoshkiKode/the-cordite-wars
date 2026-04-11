@@ -468,7 +468,7 @@ public partial class MultiplayerLobby : Control
             EventBus.Instance.Disconnect(EventBus.SignalName.MatchCountdown, Callable.From<int>(OnMatchCountdown));
         }
 
-        GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+        SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/MainMenu.tscn");
     }
 
     private void OnMatchCountdown(int ticks)

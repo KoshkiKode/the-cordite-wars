@@ -32,6 +32,8 @@ public partial class VictoryScreen : CanvasLayer
 
     private MatchResult? _result;
     private AudioManager? _audioManager;
+    private ColorRect _overlayBg = null!;
+    private CenterContainer _overlayContent = null!;
 
     // ── Godot lifecycle ──────────────────────────────────────────────
 
@@ -43,6 +45,7 @@ public partial class VictoryScreen : CanvasLayer
 
         Layer = 50;
         BuildUI();
+        PlayFadeIn();
 
         // Play victory or defeat music + UI stinger
         bool won = _result?.Won ?? false;
@@ -93,23 +96,25 @@ public partial class VictoryScreen : CanvasLayer
         string reason = _result?.EndReason ?? string.Empty;
         double duration = _result?.MatchDurationSeconds ?? 0.0;
 
-        // Dark semi-transparent background
-        var bg = new ColorRect();
-        bg.Color = won
+        // Dark semi-transparent background — fades in
+        _overlayBg = new ColorRect();
+        _overlayBg.Color = won
             ? new Color(0.05f, 0.1f, 0.05f, 0.92f)
             : new Color(0.1f, 0.05f, 0.05f, 0.92f);
-        bg.AnchorsPreset = (int)Control.LayoutPreset.FullRect;
-        AddChild(bg);
+        _overlayBg.AnchorsPreset = (int)Control.LayoutPreset.FullRect;
+        _overlayBg.Modulate = new Color(1, 1, 1, 0);
+        AddChild(_overlayBg);
 
-        // Center container
-        var center = new CenterContainer();
-        center.AnchorsPreset = (int)Control.LayoutPreset.FullRect;
-        AddChild(center);
+        // Center container — fades in with a slight delay
+        _overlayContent = new CenterContainer();
+        _overlayContent.AnchorsPreset = (int)Control.LayoutPreset.FullRect;
+        _overlayContent.Modulate = new Color(1, 1, 1, 0);
+        AddChild(_overlayContent);
 
         var vbox = new VBoxContainer();
         vbox.CustomMinimumSize = new Vector2(600, 0);
         vbox.AddThemeConstantOverride("separation", 24);
-        center.AddChild(vbox);
+        _overlayContent.AddChild(vbox);
 
         // Result title
         var titleLabel = new Label();
@@ -172,6 +177,22 @@ public partial class VictoryScreen : CanvasLayer
         UITheme.StyleAccentButton(playAgainBtn);
         playAgainBtn.Pressed += GoToSkirmishLobby;
         btnRow.AddChild(playAgainBtn);
+    }
+
+    // ── Animations ───────────────────────────────────────────────────
+
+    private async void PlayFadeIn()
+    {
+        // Background fades in first
+        var bgTween = CreateTween();
+        bgTween.TweenProperty(_overlayBg, "modulate", new Color(1, 1, 1, 1), 0.3f)
+            .SetEase(Tween.EaseType.Out);
+        await ToSignal(bgTween, Tween.SignalName.Finished);
+
+        // Content fades in with a slight delay for layered feel
+        var contentTween = CreateTween();
+        contentTween.TweenProperty(_overlayContent, "modulate", new Color(1, 1, 1, 1), 0.4f)
+            .SetEase(Tween.EaseType.Out);
     }
 
     // ── Navigation ────────────────────────────────────────────────────

@@ -13,9 +13,12 @@ public partial class BootLoader : Node
 {
     public override void _Ready()
     {
+        string gameVersion = ProjectSettings.GetSetting("application/config/version", "0.1.0").AsString();
+        string versionBuild = ProjectSettings.GetSetting("application/config/version_build", "").AsString();
+        string versionDisplay = string.IsNullOrEmpty(versionBuild) ? $"v{gameVersion}" : $"v{gameVersion}-{versionBuild}";
         GD.Print("╔════════════════════════════════════════╗");
-        GD.Print("║   Cordite Wars: Six Fronts — v0.1.0    ║");
-        GD.Print("║   Godot 4.6 + C# | Forward Plus       ║");
+        GD.Print($"║   Cordite Wars: Six Fronts — {versionDisplay,-11}║");
+        GD.Print("║   Godot 4.6 + C# / .NET 9             ║");
         GD.Print("╚════════════════════════════════════════╝");
         GD.Print("");
 

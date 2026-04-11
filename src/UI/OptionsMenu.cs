@@ -530,7 +530,7 @@ public partial class OptionsMenu : Control
     private void OnBackPressed()
     {
         _audioManager?.PlayUiSoundById("ui_cancel");
-        GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+        SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/MainMenu.tscn");
     }
 
     // ── Apply to Systems ──────────────────────────────────────────────

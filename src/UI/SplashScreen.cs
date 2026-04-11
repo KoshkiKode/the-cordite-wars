@@ -11,8 +11,17 @@ public partial class SplashScreen : Control
     private const float FadeInDuration  = 0.5f;
     private const float HoldDuration    = 1.5f;
     private const float FadeOutDuration = 0.5f;
-    private const string VersionString  = "v0.1.0-alpha";
     private const string NextScene      = "res://scenes/UI/LoadingScreen.tscn";
+
+    private static string VersionString
+    {
+        get
+        {
+            string version = ProjectSettings.GetSetting("application/config/version", "0.1.0").AsString();
+            string build = ProjectSettings.GetSetting("application/config/version_build", "").AsString();
+            return string.IsNullOrEmpty(build) ? $"v{version}" : $"v{version}-{build}";
+        }
+    }
 
     private Control _content = null!;
     private bool _skipping;
@@ -67,6 +76,17 @@ public partial class SplashScreen : Control
         version.OffsetLeft = -120;
         version.OffsetTop = -30;
         _content.AddChild(version);
+
+        // Skip hint (bottom-center)
+        var skipHint = new Label();
+        skipHint.Text = Tr("SPLASH_SKIP_HINT");
+        skipHint.HorizontalAlignment = HorizontalAlignment.Center;
+        UITheme.StyleLabel(skipHint, UITheme.FontSizeSmall, UITheme.TextMuted);
+        skipHint.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomWide, LayoutPresetMode.KeepSize);
+        skipHint.GrowHorizontal = GrowDirection.Both;
+        skipHint.GrowVertical = GrowDirection.Begin;
+        skipHint.OffsetTop = -30;
+        _content.AddChild(skipHint);
 
         // Start the animation sequence
         PlayAnimation();

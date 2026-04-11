@@ -31,8 +31,8 @@ Antoine Goumain (antoinegoumain.fr) — CC-BY 4.0
 Kenney (kenney.nl) — CC0
 
 Built With
-Godot Engine 4.4
-C# / .NET 8
+Godot Engine 4.6
+C# / .NET 9
 
 
 Special Thanks
@@ -72,7 +72,7 @@ The open-source game development community
         backBtn.Pressed += () =>
         {
             _audioManager?.PlayUiSoundById("ui_cancel");
-            GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+            SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/MainMenu.tscn");
         };
         header.AddChild(backBtn);
 
@@ -119,7 +119,7 @@ The open-source game development community
         // Reset when fully scrolled past
         if (_scrollOffset < -(_creditsLabel.Size.Y + 200))
         {
-            GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+            SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/MainMenu.tscn");
         }
     }
 
@@ -129,7 +129,7 @@ The open-source game development community
         {
             if (keyEvent.Keycode == Key.Escape && keyEvent.Pressed)
             {
-                GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+                SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/MainMenu.tscn");
                 GetViewport().SetInputAsHandled();
                 return;
             }

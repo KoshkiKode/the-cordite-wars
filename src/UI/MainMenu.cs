@@ -9,7 +9,14 @@ namespace CorditeWars.UI;
 /// </summary>
 public partial class MainMenu : Control
 {
-    private const string VersionString = "v0.1.0-alpha";
+    private static string VersionString => BuildVersionString();
+
+    private static string BuildVersionString()
+    {
+        string version = ProjectSettings.GetSetting("application/config/version", "0.1.0").AsString();
+        string build = ProjectSettings.GetSetting("application/config/version_build", "").AsString();
+        return string.IsNullOrEmpty(build) ? $"v{version}" : $"v{version}-{build}";
+    }
 
     private static readonly string[] ButtonLabelKeys = { "MENU_CAMPAIGN", "MENU_SKIRMISH", "MENU_MULTIPLAYER", "MENU_OPTIONS", "MENU_CREDITS", "MENU_QUIT" };
     private static readonly string[] ButtonScenes =
@@ -144,7 +151,7 @@ public partial class MainMenu : Control
         string scene = ButtonScenes[index];
         if (!string.IsNullOrEmpty(scene))
         {
-            GetTree().ChangeSceneToFile(scene);
+        SceneTransition.TransitionTo(GetTree(), scene);
         }
     }
 

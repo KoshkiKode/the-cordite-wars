@@ -73,7 +73,7 @@ public partial class SkirmishLobby : Control
         backBtn.Pressed += () =>
         {
             _audioManager?.PlayUiSoundById("ui_cancel");
-            GetTree().ChangeSceneToFile("res://scenes/UI/MainMenu.tscn");
+            SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/MainMenu.tscn");
         };
         header.AddChild(backBtn);
 

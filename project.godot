@@ -24,7 +24,7 @@ config/version_major=0
 config/version_minor=1
 config/version_patch=0
 config/version_protocol=1
-config/version_build="alpha"
+config/version_build=""
 
 [autoload]
 
