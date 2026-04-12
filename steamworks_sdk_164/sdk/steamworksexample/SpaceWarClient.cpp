@@ -2453,7 +2453,7 @@ CWorkshopItem *CSpaceWarClient::LoadWorkshopItemFromFile( const char *pszFileNam
 	{
 		float flXPos, flYPos, flXVelocity, flYVelocity;
 		// initialize object
-		if ( sscanf(szLine, "%f %f %f %f", &flXPos, &flYPos, &flXVelocity, &flYVelocity) )
+		if ( sscanf(szLine, "%f %f %f %f", &flXPos, &flYPos, &flXVelocity, &flYVelocity) == 4 )
 		{
 			pItem = new CWorkshopItem( m_pGameEngine, 0 );
 
