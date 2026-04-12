@@ -262,7 +262,7 @@ public partial class SkirmishAI : Node
         _buildOrder?.ExecuteNextStep(
             PlayerId, economy, _basePosition,
             _economyManager!, _buildingPlacer!, _buildingRegistry!,
-            _unitDataRegistry!);
+            _unitDataRegistry!, _unitSpawner!, FactionId);
     }
 
     private void ExecuteExpanding(PlayerEconomy economy)
@@ -273,7 +273,7 @@ public partial class SkirmishAI : Node
             _buildOrder.ExecuteNextStep(
                 PlayerId, economy, _basePosition,
                 _economyManager!, _buildingPlacer!, _buildingRegistry!,
-                _unitDataRegistry!);
+                _unitDataRegistry!, _unitSpawner!, FactionId);
         }
 
         // Build additional economy buildings
@@ -343,7 +343,12 @@ public partial class SkirmishAI : Node
                     // Check supply
                     if (economy.CurrentSupply + unitData.PopulationCost <= economy.MaxSupply)
                     {
-                        _economyManager?.TryBuildUnit(PlayerId, unitData);
+                        if (_economyManager?.TryBuildUnit(PlayerId, unitData) == true)
+                        {
+                            // Spawn the unit at the building's rally point
+                            FixedVector2 spawnPos = building.RallyPoint;
+                            _unitSpawner?.SpawnUnit(unitId, FactionId, PlayerId, spawnPos, FixedPoint.Zero);
+                        }
                         break; // One unit per building per AI tick
                     }
                 }

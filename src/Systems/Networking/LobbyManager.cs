@@ -142,18 +142,76 @@ public partial class LobbyManager : Node
     }
 
     /// <summary>
-    /// Returns true if all players are ready and there are at least 2 players.
+    /// Adds an AI player slot (host only). The AI slot is broadcast to all clients
+    /// so everyone's MatchConfig is consistent. Returns the new AI player's ID,
+    /// or -1 if the lobby is full.
+    /// </summary>
+    public int AddAiSlot(int difficulty, string factionId = "")
+    {
+        if (!IsHost) return -1;
+        if (_playerSlots.Count >= MaxSlots) return -1;
+
+        int playerId = _nextPlayerId++;
+        var slot = new PlayerSlot
+        {
+            PlayerId = playerId,
+            PlayerName = $"AI ({DifficultyName(difficulty)})",
+            FactionId = factionId,
+            IsReady = true, // AI is always "ready"
+            IsHost = false,
+            IsAI = true,
+            AIDifficulty = difficulty
+        };
+        _playerSlots[playerId] = slot;
+
+        // Broadcast AI slot to all clients
+        Rpc(MethodName.ClientOnAiSlotAdded, playerId, slot.PlayerName, factionId, difficulty);
+
+        EventBus.Instance?.EmitLobbyUpdated();
+        GD.Print($"[LobbyManager] AI slot added: player {playerId}, difficulty {DifficultyName(difficulty)}.");
+        return playerId;
+    }
+
+    /// <summary>
+    /// Removes an AI player slot by player ID (host only).
+    /// </summary>
+    public void RemoveAiSlot(int playerId)
+    {
+        if (!IsHost) return;
+        if (!_playerSlots.TryGetValue(playerId, out var slot)) return;
+        if (!slot.IsAI) return;
+
+        _playerSlots.Remove(playerId);
+        Rpc(MethodName.ClientOnPlayerLeft, playerId);
+
+        EventBus.Instance?.EmitLobbyUpdated();
+        GD.Print($"[LobbyManager] AI slot removed: player {playerId}.");
+    }
+
+    private static string DifficultyName(int difficulty) => difficulty switch
+    {
+        0 => "Easy",
+        1 => "Medium",
+        _ => "Hard"
+    };
+
+    /// <summary>
+    /// Returns true if all *human* players are ready and there is at least one
+    /// human player plus at least one other participant (human or AI).
     /// </summary>
     public bool AllPlayersReady()
     {
-        if (_playerSlots.Count < 2) return false;
-
+        int humanCount = 0;
         for (int i = 0; i < _playerSlots.Count; i++)
         {
-            if (!_playerSlots.Values[i].IsReady)
-                return false;
+            var s = _playerSlots.Values[i];
+            if (!s.IsAI)
+            {
+                humanCount++;
+                if (!s.IsReady) return false;
+            }
         }
-        return true;
+        return humanCount >= 1 && _playerSlots.Count >= 2;
     }
 
     /// <summary>
@@ -286,6 +344,29 @@ public partial class LobbyManager : Node
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ClientOnAiSlotAdded(int playerId, string playerName, string factionId, int difficulty)
+    {
+        // Replicate AI slot onto non-host clients so every machine's lobby state matches.
+        var slot = new PlayerSlot
+        {
+            PlayerId = playerId,
+            PlayerName = playerName,
+            FactionId = factionId,
+            IsReady = true,
+            IsHost = false,
+            IsAI = true,
+            AIDifficulty = difficulty
+        };
+        _playerSlots[playerId] = slot;
+
+        // Keep _nextPlayerId ahead of IDs assigned by the host.
+        if (playerId >= _nextPlayerId)
+            _nextPlayerId = playerId + 1;
+
+        EventBus.Instance?.EmitLobbyUpdated();
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     private void ClientOnPlayerJoined(int playerId, string playerName, string factionId, bool isReady, bool isHost)
     {
         var slot = new PlayerSlot
@@ -294,7 +375,9 @@ public partial class LobbyManager : Node
             PlayerName = playerName,
             FactionId = factionId,
             IsReady = isReady,
-            IsHost = isHost
+            IsHost = isHost,
+            IsAI = false,
+            AIDifficulty = 0
         };
         _playerSlots[playerId] = slot;
         EventBus.Instance?.EmitLobbyUpdated();
@@ -436,4 +519,6 @@ public struct PlayerSlot
     public string FactionId;
     public bool IsReady;
     public bool IsHost;
+    public bool IsAI;
+    public int AIDifficulty; // 0=Easy, 1=Medium, 2=Hard
 }

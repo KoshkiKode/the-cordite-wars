@@ -1808,14 +1808,19 @@ public partial class GameSession : Node
     {
         if (_camera is null || _unitSpawner is null || _economyManager is null) return;
 
-        // Find the local (human) player ID
-        int localPlayerId = 0;
-        for (int i = 0; i < config.PlayerConfigs.Length; i++)
+        // Find the local (human) player ID.
+        // If the MatchConfig already specifies the local player (network multiplayer),
+        // use it directly; otherwise auto-detect as the first non-AI player.
+        int localPlayerId = config.LocalPlayerId >= 0 ? config.LocalPlayerId : 0;
+        if (config.LocalPlayerId < 0)
         {
-            if (!config.PlayerConfigs[i].IsAI)
+            for (int i = 0; i < config.PlayerConfigs.Length; i++)
             {
-                localPlayerId = config.PlayerConfigs[i].PlayerId;
-                break;
+                if (!config.PlayerConfigs[i].IsAI)
+                {
+                    localPlayerId = config.PlayerConfigs[i].PlayerId;
+                    break;
+                }
             }
         }
         _localPlayerId = localPlayerId;
@@ -2471,20 +2476,32 @@ public partial class GameSession : Node
         _lockstepManager.Name = "LockstepManager";
         AddChild(_lockstepManager);
 
-        // Find the local player (first non-AI player)
-        int localPlayerId = 0;
+        // Resolve local player: use config.LocalPlayerId when set by the lobby,
+        // otherwise fall back to the first non-AI player (skirmish compatibility).
+        int localPlayerId = config.LocalPlayerId >= 0 ? config.LocalPlayerId : 0;
+        if (config.LocalPlayerId < 0)
+        {
+            for (int i = 0; i < config.PlayerConfigs.Length; i++)
+            {
+                if (!config.PlayerConfigs[i].IsAI)
+                {
+                    localPlayerId = config.PlayerConfigs[i].PlayerId;
+                    break;
+                }
+            }
+        }
+
+        // LockstepManager only tracks human players — AI runs deterministically on every machine.
+        int humanPlayerCount = 0;
         for (int i = 0; i < config.PlayerConfigs.Length; i++)
         {
             if (!config.PlayerConfigs[i].IsAI)
-            {
-                localPlayerId = config.PlayerConfigs[i].PlayerId;
-                break;
-            }
+                humanPlayerCount++;
         }
 
         _lockstepManager.Initialize(
             localPlayerId,
-            config.PlayerConfigs.Length,
+            humanPlayerCount,
             _networkTransport.IsHost,
             inputDelay: 6,
             _networkTransport);

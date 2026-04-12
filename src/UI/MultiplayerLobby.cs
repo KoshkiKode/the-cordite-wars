@@ -32,6 +32,7 @@ public partial class MultiplayerLobby : Control
     // Lobby UI
     private VBoxContainer _lobbyPanel = null!;
     private VBoxContainer _playerSlotsBox = null!;
+    private HBoxContainer _addAiRow = null!;
     private OptionButton _mapSelector = null!;
     private Button _readyBtn = null!;
     private Button _startBtn = null!;
@@ -156,6 +157,32 @@ public partial class MultiplayerLobby : Control
         _playerSlotsBox.AddThemeConstantOverride("separation", 8);
         _lobbyPanel.AddChild(_playerSlotsBox);
 
+        // Add AI buttons row (host only — visibility toggled in _Process)
+        var addAiRow = new HBoxContainer();
+        addAiRow.AddThemeConstantOverride("separation", 8);
+        addAiRow.Name = "AddAiRow";
+        _lobbyPanel.AddChild(addAiRow);
+
+        var addAiEasyBtn = new Button();
+        addAiEasyBtn.Text = "+ AI Easy";
+        UITheme.StyleButton(addAiEasyBtn);
+        addAiEasyBtn.Pressed += () => OnAddAiPressed(0);
+        addAiRow.AddChild(addAiEasyBtn);
+
+        var addAiMedBtn = new Button();
+        addAiMedBtn.Text = "+ AI Medium";
+        UITheme.StyleButton(addAiMedBtn);
+        addAiMedBtn.Pressed += () => OnAddAiPressed(1);
+        addAiRow.AddChild(addAiMedBtn);
+
+        var addAiHardBtn = new Button();
+        addAiHardBtn.Text = "+ AI Hard";
+        UITheme.StyleButton(addAiHardBtn);
+        addAiHardBtn.Pressed += () => OnAddAiPressed(2);
+        addAiRow.AddChild(addAiHardBtn);
+
+        _addAiRow = addAiRow;
+
         // Map selector (host only)
         var mapRow = new HBoxContainer();
         mapRow.AddThemeConstantOverride("separation", 12);
@@ -223,6 +250,8 @@ public partial class MultiplayerLobby : Control
             _startBtn.Visible = _isHost;
             _startBtn.Disabled = !(_lobbyManager.AllPlayersReady());
             _mapSelector.Disabled = !_isHost;
+            // AI slot management is host-only and only when the lobby isn't full
+            _addAiRow.Visible = _isHost && _lobbyManager.GetPlayerSlots().Count < LobbyManager.MaxSlots;
         }
     }
 
@@ -379,9 +408,13 @@ public partial class MultiplayerLobby : Control
             var row = new HBoxContainer();
             row.AddThemeConstantOverride("separation", 12);
 
+            // Label differs for human vs AI slots
+            string slotLabel = slot.IsAI
+                ? $"AI ({DifficultyLabel(slot.AIDifficulty)}): {slot.PlayerName}"
+                : $"Player {slotKey + 1}: {slot.PlayerName}";
             var nameLabel = new Label();
-            nameLabel.Text = $"Player {slotKey + 1}: {slot.PlayerName}";
-            nameLabel.CustomMinimumSize = new Vector2(200, 0);
+            nameLabel.Text = slotLabel;
+            nameLabel.CustomMinimumSize = new Vector2(220, 0);
             var nameColor = !string.IsNullOrEmpty(slot.FactionId) ? UITheme.GetFactionColorById(slot.FactionId) : UITheme.TextPrimary;
             UITheme.StyleLabel(nameLabel, UITheme.FontSizeNormal, nameColor);
             row.AddChild(nameLabel);
@@ -392,12 +425,27 @@ public partial class MultiplayerLobby : Control
             UITheme.StyleLabel(factionLabel, UITheme.FontSizeNormal, UITheme.TextSecondary);
             row.AddChild(factionLabel);
 
-            // Ready status
+            // Ready status (AI is always ready)
             var readyLabel = new Label();
             readyLabel.Text = slot.IsReady ? "READY \u2713" : "NOT READY \u2717";
             UITheme.StyleLabel(readyLabel, UITheme.FontSizeNormal,
                 slot.IsReady ? UITheme.SuccessColor : UITheme.TextMuted);
             row.AddChild(readyLabel);
+
+            // Host can remove AI slots
+            if (_isHost && slot.IsAI)
+            {
+                var removeBtn = new Button();
+                removeBtn.Text = "\u2715";
+                UITheme.StyleButton(removeBtn);
+                int capturedId = slot.PlayerId;
+                removeBtn.Pressed += () =>
+                {
+                    _audioManager?.PlayUiSoundById("ui_cancel");
+                    _lobbyManager?.RemoveAiSlot(capturedId);
+                };
+                row.AddChild(removeBtn);
+            }
 
             _playerSlotsBox.AddChild(row);
         }
@@ -413,6 +461,40 @@ public partial class MultiplayerLobby : Control
             row.AddChild(openLabel);
             _playerSlotsBox.AddChild(row);
         }
+    }
+
+    private static string DifficultyLabel(int d) => d switch
+    {
+        0 => "Easy",
+        1 => "Medium",
+        _ => "Hard"
+    };
+
+    private void OnAddAiPressed(int difficulty)
+    {
+        if (_lobbyManager == null || !_isHost) return;
+        _audioManager?.PlayUiSoundById("ui_click");
+        // Pick a faction not already taken
+        string faction = PickAvailableFaction();
+        _lobbyManager.AddAiSlot(difficulty, faction);
+    }
+
+    private string PickAvailableFaction()
+    {
+        if (_lobbyManager == null) return "valkyr";
+        var taken = new System.Collections.Generic.HashSet<string>();
+        var slots = _lobbyManager.GetPlayerSlots();
+        for (int i = 0; i < slots.Count; i++)
+        {
+            string f = slots.Values[i].FactionId;
+            if (!string.IsNullOrEmpty(f)) taken.Add(f);
+        }
+        for (int i = 0; i < UITheme.FactionIds.Length; i++)
+        {
+            if (!taken.Contains(UITheme.FactionIds[i]))
+                return UITheme.FactionIds[i];
+        }
+        return UITheme.FactionIds[0]; // fallback — all taken
     }
 
     private void OnReadyToggle()
@@ -505,7 +587,8 @@ public partial class MultiplayerLobby : Control
             {
                 PlayerId = slot.PlayerId,
                 FactionId = string.IsNullOrEmpty(slot.FactionId) ? "valkyr" : slot.FactionId,
-                IsAI = false,
+                IsAI = slot.IsAI,
+                AIDifficulty = slot.AIDifficulty,
                 PlayerName = slot.PlayerName
             });
         }
@@ -517,7 +600,9 @@ public partial class MultiplayerLobby : Control
             GameSpeed = 1,
             FogOfWar = true,
             StartingCordite = 5000,
-            PlayerConfigs = players.ToArray()
+            PlayerConfigs = players.ToArray(),
+            // Each machine sets its own local player so GameSession controls the right faction.
+            LocalPlayerId = _lobbyManager.LocalPlayerId
         };
 
         CorditeWars.Game.Main.PendingConfig = config;

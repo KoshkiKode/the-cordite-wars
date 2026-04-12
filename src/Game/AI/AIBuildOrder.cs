@@ -189,7 +189,9 @@ public partial class AIBuildOrder : Node
         EconomyManager economyManager,
         BuildingPlacer buildingPlacer,
         BuildingRegistry buildingRegistry,
-        UnitDataRegistry unitDataRegistry)
+        UnitDataRegistry unitDataRegistry,
+        UnitSpawner unitSpawner,
+        string factionId)
     {
         if (IsComplete) return;
 
@@ -212,7 +214,7 @@ public partial class AIBuildOrder : Node
 
             case BuildStepType.ProduceUnit:
                 if (TryExecuteProduceStep(step, playerId, economy,
-                    economyManager, unitDataRegistry))
+                    economyManager, unitDataRegistry, unitSpawner, basePosition, factionId))
                 {
                     _currentCount++;
                     if (_currentCount >= step.Count)
@@ -297,7 +299,10 @@ public partial class AIBuildOrder : Node
         int playerId,
         PlayerEconomy economy,
         EconomyManager economyManager,
-        UnitDataRegistry unitDataRegistry)
+        UnitDataRegistry unitDataRegistry,
+        UnitSpawner unitSpawner,
+        FixedVector2 basePosition,
+        string factionId)
     {
         string unitId = step.TargetId;
         if (!unitDataRegistry.HasUnit(unitId))
@@ -331,6 +336,9 @@ public partial class AIBuildOrder : Node
 
         if (!economyManager.TryBuildUnit(playerId, unitData))
             return false;
+
+        // Spawn the unit near the base position
+        unitSpawner.SpawnUnit(unitId, factionId, playerId, basePosition, FixedPoint.Zero);
 
         return true;
     }

@@ -88,6 +88,15 @@ public sealed class MatchConfig
     public int TutorialMission { get; init; } = 1;
 
     /// <summary>
+    /// The player ID that is controlled locally on this machine.
+    /// In single-player/skirmish this is auto-detected as the first non-AI player.
+    /// In network multiplayer the lobby sets this to the machine's own assigned
+    /// player ID so the correct faction is controlled on each client.
+    /// -1 means auto-detect.
+    /// </summary>
+    public int LocalPlayerId { get; init; } = -1;
+
+    /// <summary>
     /// When set, this match is a campaign mission.
     /// <see cref="Main"/> uses this to save progress and display objectives.
     /// Null for skirmish and multiplayer matches.
