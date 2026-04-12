@@ -1,0 +1,21 @@
+{
+  "Id": "arcloft_bunker",
+  "DisplayName": "Arcloft Bunker",
+  "FactionId": "arcloft",
+  "Category": "Defense",
+  "MaxHealth": 400,
+  "ArmorClass": "Building",
+  "ArmorValue": 5,
+  "Cost": 200,
+  "SecondaryCost": 0,
+  "BuildTime": 15.0,
+  "FootprintWidth": 2,
+  "FootprintHeight": 2,
+  "SightRange": 8,
+  "GarrisonCapacity": 4,
+  "GarrisonDefenseBonus": 60,
+  "Description": "A reinforced concrete bunker. Infantry stationed inside gain heavy cover and a 60% damage reduction.",
+  "UnlocksUnitIds": [],
+  "RequiresTech": [],
+  "Weapons": []
+}

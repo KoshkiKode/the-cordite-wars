@@ -1,0 +1,21 @@
+{
+  "Id": "bastion_bunker",
+  "DisplayName": "Bastion Bunker",
+  "FactionId": "bastion",
+  "Category": "Defense",
+  "MaxHealth": 500,
+  "ArmorClass": "Building",
+  "ArmorValue": 8,
+  "Cost": 250,
+  "SecondaryCost": 0,
+  "BuildTime": 18.0,
+  "FootprintWidth": 2,
+  "FootprintHeight": 2,
+  "SightRange": 9,
+  "GarrisonCapacity": 6,
+  "GarrisonDefenseBonus": 65,
+  "Description": "Bastion-spec fortified pillbox. Accepts up to 6 infantry. Garrisoned units take 65% reduced damage.",
+  "UnlocksUnitIds": [],
+  "RequiresTech": [],
+  "Weapons": []
+}

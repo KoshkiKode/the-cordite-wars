@@ -16,6 +16,7 @@ using CorditeWars.Systems.Audio;
 using CorditeWars.Systems.Networking;
 using CorditeWars.Systems.Pathfinding;
 using CorditeWars.Systems.FogOfWar;
+using CorditeWars.Systems.Garrison;
 using CorditeWars.Systems.Persistence;
 using CorditeWars.Systems.Platform;
 using CorditeWars.UI.HUD;
@@ -75,6 +76,7 @@ public partial class GameSession : Node
     private FormationManager? _formationManager;
     private CombatResolver? _combatResolver;
     private UnitInteractionSystem? _unitInteractionSystem;
+    private GarrisonSystem _garrisonSystem = new();
 
     // ── Audio ───────────────────────────────────────────────────────
 
@@ -601,6 +603,50 @@ public partial class GameSession : Node
         EventBus.Instance?.EmitPlayerSurrendered(playerId);
         CheckWinCondition();
     }
+
+    /// <summary>
+    /// Attempts to garrison the given infantry unit into a nearby building.
+    /// The building must be owned by <paramref name="playerId"/>, have garrison
+    /// capacity, and the unit must be within 6 grid cells of the building center.
+    /// </summary>
+    public bool TryGarrisonUnit(int unitId, int buildingId, int playerId)
+    {
+        if (CurrentMatchState != MatchState.Playing) return false;
+
+        // Validate building ownership
+        var slot = _garrisonSystem.GetGarrisonForBuilding(buildingId);
+        if (slot is null || slot.OwnerId != playerId) return false;
+
+        // Validate unit ownership and category (infantry only)
+        if (!_persistentSimUnits.TryGetValue(unitId, out SimUnit unit)) return false;
+        if (unit.PlayerId != playerId) return false;
+        if (unit.Category != UnitCategory.Infantry) return false;
+
+        bool success = _garrisonSystem.TryGarrison(unitId, buildingId);
+        if (success)
+        {
+            EventBus.Instance?.EmitUnitGarrisoned(unitId, buildingId);
+            GD.Print($"[Garrison] Unit {unitId} garrisoned in building {buildingId}.");
+        }
+        return success;
+    }
+
+    /// <summary>Ejects a unit from whatever garrison it is in.</summary>
+    public bool TryEjectUnit(int unitId, int playerId)
+    {
+        if (CurrentMatchState != MatchState.Playing) return false;
+
+        int buildingId = _garrisonSystem.GetGarrisonBuilding(unitId);
+        if (buildingId < 0) return false;
+
+        bool success = _garrisonSystem.TryEject(unitId);
+        if (success)
+            EventBus.Instance?.EmitUnitEjected(unitId, buildingId);
+        return success;
+    }
+
+    /// <summary>Returns the garrison system for HUD queries.</summary>
+    public GarrisonSystem GarrisonSystem => _garrisonSystem;
 
     /// <summary>
     /// Reads the auto-save-replays setting from user://settings.cfg.
@@ -1284,6 +1330,13 @@ public partial class GameSession : Node
         // Track enemy buildings destroyed for post-match stats
         if (b.PlayerId != _localPlayerId)
             _buildingsDestroyed++;
+
+        // Eject all garrisoned units from the destroyed building
+        var ejected = _garrisonSystem.OnBuildingDestroyed(b.BuildingId);
+        for (int e = 0; e < ejected.Count; e++)
+        {
+            EventBus.Instance?.EmitUnitEjected(ejected[e], b.BuildingId);
+        }
 
         // Notify BuildingPlacer so it can remove the entry from its dict
         // and vacate the occupancy grid.  This is a no-op for HQ nodes
@@ -2053,7 +2106,13 @@ public partial class GameSession : Node
 
         // e2b. Track buildings constructed and unit production for post-match stats
         EventBus.Instance?.Connect(EventBus.SignalName.BuildingCompleted,
-            Callable.From<Node>(_ => _buildingsConstructed++));
+            Callable.From<Node>(b =>
+            {
+                _buildingsConstructed++;
+                // Register the completed building with the garrison system
+                if (b is BuildingInstance bld)
+                    _garrisonSystem.RegisterBuilding(bld);
+            }));
         EventBus.Instance?.Connect(EventBus.SignalName.UnitSpawned,
             Callable.From<Node>(u =>
             {
@@ -2382,6 +2441,9 @@ public partial class GameSession : Node
                 // Track for win-condition checking
                 _playerHQNodes[pc.PlayerId] = hqNode;
                 _playersWithInitialHQ.Add(pc.PlayerId);
+
+                // Register with garrison system if HQ supports garrisoning
+                _garrisonSystem.RegisterBuilding(hqNode);
 
                 // Occupy the footprint in the grid so units path around the HQ
                 _occupancyGrid?.OccupyFootprint(

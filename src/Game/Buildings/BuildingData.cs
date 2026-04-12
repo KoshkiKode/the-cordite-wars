@@ -119,6 +119,18 @@ public sealed class BuildingData
     /// </summary>
     public bool RequiresWaterAccess { get; init; }
 
+    /// <summary>
+    /// Maximum number of infantry units that can garrison this building.
+    /// 0 means this building cannot be garrisoned.
+    /// </summary>
+    public int GarrisonCapacity { get; init; }
+
+    /// <summary>
+    /// Damage-reduction percentage for garrisoned units (0–100).
+    /// Default 50 means garrisoned units take 50% less damage.
+    /// </summary>
+    public int GarrisonDefenseBonus { get; init; } = 50;
+
     // ── Flavor ───────────────────────────────────────────────────────
 
     /// <summary>Lore / flavor text.</summary>
