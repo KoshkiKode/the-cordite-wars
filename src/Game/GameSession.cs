@@ -161,6 +161,9 @@ public partial class GameSession : Node
     private int   _playerKills;
     private int   _playerLosses;
     private int   _buildingsConstructed;
+    private int   _buildingsDestroyed;
+    private int   _unitsProduced;
+    private int   _corditeHarvested;
     private ulong _lastAutosaveTick;
     private const ulong AutosaveIntervalTicks = 1800;
     private const float TickDeltaSeconds = 1f / 30f; // 30 Hz simulation rate
@@ -232,6 +235,9 @@ public partial class GameSession : Node
         _playerKills          = 0;
         _playerLosses         = 0;
         _buildingsConstructed = 0;
+        _buildingsDestroyed   = 0;
+        _unitsProduced        = 0;
+        _corditeHarvested     = 0;
         _lastAutosaveTick     = 0;
         _surrenderedPlayers.Clear();
 
@@ -1275,6 +1281,10 @@ public partial class GameSession : Node
     {
         if (building is not BuildingInstance b) return;
 
+        // Track enemy buildings destroyed for post-match stats
+        if (b.PlayerId != _localPlayerId)
+            _buildingsDestroyed++;
+
         // Notify BuildingPlacer so it can remove the entry from its dict
         // and vacate the occupancy grid.  This is a no-op for HQ nodes
         // (which are not in BuildingPlacer._buildings).
@@ -1457,14 +1467,20 @@ public partial class GameSession : Node
         public int Kills                { get; init; }
         public int Losses               { get; init; }
         public int BuildingsConstructed { get; init; }
+        public int BuildingsDestroyed   { get; init; }
+        public int UnitsProduced        { get; init; }
+        public int CorditeHarvested     { get; init; }
     }
 
-    /// <summary>Returns the current match stats (kills, losses, buildings constructed).</summary>
+    /// <summary>Returns the current match stats (kills, losses, buildings, units, cordite).</summary>
     public MatchStats GetMatchStats() => new MatchStats
     {
         Kills                = _playerKills,
         Losses               = _playerLosses,
-        BuildingsConstructed = _buildingsConstructed
+        BuildingsConstructed = _buildingsConstructed,
+        BuildingsDestroyed   = _buildingsDestroyed,
+        UnitsProduced        = _unitsProduced,
+        CorditeHarvested     = _economyManager?.GetPlayer(_localPlayerId)?.TotalCorditeIncome ?? 0
     };
 
     /// <summary>
@@ -2035,9 +2051,15 @@ public partial class GameSession : Node
         EventBus.Instance?.Connect(EventBus.SignalName.BuildingDestroyed,
             Callable.From<Node>(OnBuildingDestroyed));
 
-        // e2b. Track buildings constructed for post-match stats
+        // e2b. Track buildings constructed and unit production for post-match stats
         EventBus.Instance?.Connect(EventBus.SignalName.BuildingCompleted,
             Callable.From<Node>(_ => _buildingsConstructed++));
+        EventBus.Instance?.Connect(EventBus.SignalName.UnitSpawned,
+            Callable.From<Node>(u =>
+            {
+                if (u is UnitNode3D node && node.PlayerId == localPlayerId)
+                    _unitsProduced++;
+            }));
 
         // e3. Wire command events to ReplayManager so human commands are recorded
         if (_replayManager is not null)

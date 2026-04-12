@@ -33,6 +33,9 @@ public partial class VictoryScreen : CanvasLayer
         public int    UnitsKilled            { get; init; }
         public int    UnitsLost              { get; init; }
         public int    BuildingsConstructed   { get; init; }
+        public int    BuildingsDestroyed     { get; init; }
+        public int    UnitsProduced          { get; init; }
+        public int    CorditeHarvested       { get; init; }
     }
 
     /// <summary>Set this before transitioning to the victory screen scene.</summary>
@@ -153,18 +156,45 @@ public partial class VictoryScreen : CanvasLayer
         UITheme.StyleLabel(durationLabel, UITheme.FontSizeNormal, UITheme.TextSecondary);
         vbox.AddChild(durationLabel);
 
-        // Stats row
-        // Stats row — use an HBox with individual labels for consistent spacing
-        int kills  = _result?.UnitsKilled          ?? 0;
-        int losses = _result?.UnitsLost            ?? 0;
-        int bldgs  = _result?.BuildingsConstructed ?? 0;
-        var statsRow = new HBoxContainer();
-        statsRow.Alignment = BoxContainer.AlignmentMode.Center;
-        statsRow.AddThemeConstantOverride("separation", 24);
-        vbox.AddChild(statsRow);
-        AddStatLabel(statsRow, $"Killed: {kills}");
-        AddStatLabel(statsRow, $"Lost: {losses}");
-        AddStatLabel(statsRow, $"Buildings: {bldgs}");
+        // Stats table — 2-column grid
+        int kills    = _result?.UnitsKilled          ?? 0;
+        int losses   = _result?.UnitsLost            ?? 0;
+        int bldgs    = _result?.BuildingsConstructed ?? 0;
+        int bldgsDst = _result?.BuildingsDestroyed   ?? 0;
+        int produced = _result?.UnitsProduced        ?? 0;
+        int cordite  = _result?.CorditeHarvested     ?? 0;
+
+        var statsPanel = new PanelContainer();
+        var statsBg = new StyleBoxFlat();
+        statsBg.BgColor = new Color(0.08f, 0.08f, 0.12f, 0.85f);
+        statsBg.SetCornerRadiusAll(6);
+        statsBg.ContentMarginLeft = statsBg.ContentMarginRight = 20;
+        statsBg.ContentMarginTop  = statsBg.ContentMarginBottom = 12;
+        statsPanel.AddThemeStyleboxOverride("panel", statsBg);
+        vbox.AddChild(statsPanel);
+
+        var statsGrid = new GridContainer();
+        statsGrid.Columns = 2;
+        statsGrid.AddThemeConstantOverride("h_separation", 32);
+        statsGrid.AddThemeConstantOverride("v_separation", 6);
+        statsPanel.AddChild(statsGrid);
+
+        void AddStatRow(string label, string value, Color? valueColor = null)
+        {
+            var lbl = new Label { Text = label };
+            UITheme.StyleLabel(lbl, UITheme.FontSizeNormal, UITheme.TextSecondary);
+            statsGrid.AddChild(lbl);
+            var val = new Label { Text = value, HorizontalAlignment = HorizontalAlignment.Right };
+            UITheme.StyleLabel(val, UITheme.FontSizeNormal, valueColor ?? UITheme.TextPrimary);
+            statsGrid.AddChild(val);
+        }
+
+        AddStatRow("Units Destroyed",       $"{kills}",    UITheme.SuccessColor);
+        AddStatRow("Units Lost",            $"{losses}",   UITheme.ErrorColor);
+        AddStatRow("Buildings Destroyed",   $"{bldgsDst}");
+        AddStatRow("Buildings Constructed", $"{bldgs}");
+        AddStatRow("Units Produced",        $"{produced}");
+        AddStatRow("Cordite Harvested",     $"{cordite:N0}",    UITheme.Accent);
 
         // Campaign stars
         if (won && (_result?.IsCampaignMission ?? false))

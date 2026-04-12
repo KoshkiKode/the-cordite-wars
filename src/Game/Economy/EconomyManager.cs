@@ -34,6 +34,9 @@ public sealed class PlayerEconomy
     public int DepotCount { get; private set; }
     public int RefineryCount { get; private set; }
 
+    /// <summary>Total cordite received from all income sources since match start.</summary>
+    public int TotalCorditeIncome { get; private set; }
+
     // ── Initialization ──────────────────────────────────────────────
 
     /// <summary>
@@ -51,6 +54,7 @@ public sealed class PlayerEconomy
         RefineryCount = 0;
         CorditePerSecond = FixedPoint.Zero;
         VCPerSecond = FixedPoint.Zero;
+        TotalCorditeIncome = 0;
     }
 
     // ── Resource Mutations ──────────────────────────────────────────
@@ -58,6 +62,7 @@ public sealed class PlayerEconomy
     public void AddCordite(FixedPoint amount)
     {
         Cordite = Cordite + amount;
+        TotalCorditeIncome += amount.ToInt();
     }
 
     public void AddVC(FixedPoint amount)

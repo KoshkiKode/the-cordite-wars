@@ -77,6 +77,8 @@ public partial class EventBus : Node
     [Signal] public delegate void PlayerDisconnectedEventHandler(int playerId);
     [Signal] public delegate void PlayerSurrenderedEventHandler(int playerId);
     [Signal] public delegate void StanceChangeRequestedEventHandler(int stance);
+    [Signal] public delegate void ChatMessageSentEventHandler(int senderId, string senderName, string message);
+    [Signal] public delegate void ChatMessageReceivedEventHandler(int senderId, string senderName, string message);
     [Signal] public delegate void LobbyUpdatedEventHandler();
     [Signal] public delegate void MatchCountdownEventHandler(int secondsRemaining);
     /// <summary>Fired on the client when the host rejects the join request (e.g. version mismatch).</summary>
@@ -247,6 +249,10 @@ public partial class EventBus : Node
         EmitSignal(SignalName.PlayerSurrendered, playerId);
     public void EmitStanceChangeRequested(int stance) =>
         EmitSignal(SignalName.StanceChangeRequested, stance);
+    public void EmitChatMessageSent(int senderId, string senderName, string message) =>
+        EmitSignal(SignalName.ChatMessageSent, senderId, senderName, message);
+    public void EmitChatMessageReceived(int senderId, string senderName, string message) =>
+        EmitSignal(SignalName.ChatMessageReceived, senderId, senderName, message);
     public void EmitLobbyUpdated() => EmitSignal(SignalName.LobbyUpdated);
     public void EmitMatchCountdown(int secondsRemaining) =>
         EmitSignal(SignalName.MatchCountdown, secondsRemaining);

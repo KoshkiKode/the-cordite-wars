@@ -150,7 +150,10 @@ public partial class Main : Node3D
             HasNextMission       = hasNextMission,
             UnitsKilled          = stats.Kills,
             UnitsLost            = stats.Losses,
-            BuildingsConstructed = stats.BuildingsConstructed
+            BuildingsConstructed = stats.BuildingsConstructed,
+            BuildingsDestroyed   = stats.BuildingsDestroyed,
+            UnitsProduced        = stats.UnitsProduced,
+            CorditeHarvested     = stats.CorditeHarvested
         });
     }
 

@@ -27,6 +27,7 @@ public partial class GameHUD : CanvasLayer
     private CommandCard? _commandCard;
     private ProductionQueueDisplay? _productionQueueDisplay;
     private MissionObjectivesPanel? _missionObjectivesPanel;
+    private ChatPanel? _chatPanel;
 
     // Box select overlay
     private SelectionManager? _selectionManager;
@@ -52,7 +53,9 @@ public partial class GameHUD : CanvasLayer
         UnitSpawner unitSpawner,
         UnitDataRegistry unitDataRegistry,
         BuildingRegistry buildingRegistry,
-        CampaignMatchContext? campaignContext = null)
+        CampaignMatchContext? campaignContext = null,
+        string playerName = "Commander",
+        Color playerColor = default)
     {
         _selectionManager = selectionManager;
         Name = "GameHUD";
@@ -92,6 +95,12 @@ public partial class GameHUD : CanvasLayer
         _missionObjectivesPanel = new MissionObjectivesPanel();
         _missionObjectivesPanel.Initialize(campaignContext);
         AddChild(_missionObjectivesPanel);
+
+        // Chat panel — bottom-left overlay (above minimap)
+        _chatPanel = new ChatPanel();
+        Color chatColor = playerColor == default ? new Color(0.3f, 0.75f, 1f) : playerColor;
+        _chatPanel.Initialize(localPlayerId, playerName, chatColor);
+        AddChild(_chatPanel);
     }
 
     /// <summary>
