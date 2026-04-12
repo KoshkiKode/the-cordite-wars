@@ -38,7 +38,7 @@
         },
         {
           "type": "destroy_building_type",
-          "label": "Destroy the Kragmore supply depot",
+          "label": "Destroy the Kragmore Command Centre",
           "target_id": "kragmore_command_center",
           "count": 1,
           "ticks": 0,

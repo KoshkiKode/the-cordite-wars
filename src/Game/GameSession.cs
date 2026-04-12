@@ -409,13 +409,11 @@ public partial class GameSession : Node
             _economyManager.AddPlayer(pc.PlayerId, pc.FactionId);
             _techTreeManager.AddPlayer(pc.PlayerId, pc.FactionId);
 
-            // Register superweapon ability for this player based on faction
-            string weaponId = pc.FactionId switch
-            {
-                "arcloft" => "arcloft_orbital_strike",
-                "bastion" => "bastion_missile_barrage",
-                _         => "arcloft_orbital_strike" // fallback
-            };
+            // Register superweapon ability for this player based on faction.
+            // The catalogue's first entry per faction is the primary ability.
+            string weaponId = SuperweaponSystem.GetDefaultWeaponForFaction(pc.FactionId);
+            if (string.IsNullOrEmpty(weaponId))
+                weaponId = "arcloft_orbital_strike"; // safe global fallback
             _superweaponSystem.RegisterPlayer(pc.PlayerId, weaponId);
         }
 

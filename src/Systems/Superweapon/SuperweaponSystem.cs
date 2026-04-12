@@ -18,7 +18,15 @@ public enum SuperweaponType
     /// <summary>Bastion: rapid deployment of reinforcement infantry around the target.</summary>
     ReinforcementDrop,
     /// <summary>Generic fallback — high-damage area explosion.</summary>
-    Airstrike
+    Airstrike,
+    /// <summary>Ironmarch: underground seismic charges detonate under the target, dealing devastating damage in a wide area.</summary>
+    SeismicCharge,
+    /// <summary>Kragmore: sustained off-map artillery barrage that pummels a large zone repeatedly.</summary>
+    ArtillerySalvo,
+    /// <summary>Stormrend: lightning bolt that chains between nearby enemies, dealing full damage to each struck unit.</summary>
+    LightningCascade,
+    /// <summary>Valkyr: a squadron of bombers makes a strafing run along a chosen axis, dropping ordnance across a long linear strip.</summary>
+    CarpetBombRun
 }
 
 /// <summary>
@@ -43,6 +51,24 @@ public sealed class SuperweaponData
 
     /// <summary>Base damage applied to each unit in the area.</summary>
     public FixedPoint Damage  { get; init; }
+
+    /// <summary>
+    /// Maximum number of chain-arc targets for <see cref="SuperweaponType.LightningCascade"/>.
+    /// 0 = unused.
+    /// </summary>
+    public int ChainCount { get; init; }
+
+    /// <summary>
+    /// Half-width of the bomb strip for <see cref="SuperweaponType.CarpetBombRun"/>, in grid cells.
+    /// 0 = unused.
+    /// </summary>
+    public FixedPoint StripHalfWidth { get; init; }
+
+    /// <summary>
+    /// Length of the bomb strip for <see cref="SuperweaponType.CarpetBombRun"/>, in grid cells.
+    /// 0 = unused.
+    /// </summary>
+    public FixedPoint StripLength { get; init; }
 }
 
 /// <summary>
@@ -173,6 +199,68 @@ public sealed class SuperweaponSystem
             Range          = FixedPoint.FromInt(100),
             AreaOfEffect   = FixedPoint.Zero,
             Damage         = FixedPoint.Zero
+        },
+
+        // ── Ironmarch ────────────────────────────────────────────────────────
+        ["ironmarch_seismic_charge"] = new SuperweaponData
+        {
+            Id = "ironmarch_seismic_charge",
+            DisplayName = "Seismic Charge",
+            Description = "Engineer teams detonate buried charges beneath the target. Devastating ground-shaking explosion " +
+                          "that flattens everything in a wide radius.",
+            FactionId = "ironmarch",
+            Type = SuperweaponType.SeismicCharge,
+            CooldownTicks = 2400, // 80 s
+            Range          = FixedPoint.FromInt(85),
+            AreaOfEffect   = FixedPoint.FromInt(9),
+            Damage         = FixedPoint.FromInt(250)
+        },
+
+        // ── Kragmore ─────────────────────────────────────────────────────────
+        ["kragmore_artillery_salvo"] = new SuperweaponData
+        {
+            Id = "kragmore_artillery_salvo",
+            DisplayName = "Artillery Salvo",
+            Description = "Off-map heavy artillery fires a rolling barrage over a large area, shredding armor and infantry alike.",
+            FactionId = "kragmore",
+            Type = SuperweaponType.ArtillerySalvo,
+            CooldownTicks = 1650, // 55 s
+            Range          = FixedPoint.FromInt(95),
+            AreaOfEffect   = FixedPoint.FromInt(11),
+            Damage         = FixedPoint.FromInt(140)
+        },
+
+        // ── Stormrend ────────────────────────────────────────────────────────
+        ["stormrend_lightning_cascade"] = new SuperweaponData
+        {
+            Id = "stormrend_lightning_cascade",
+            DisplayName = "Lightning Cascade",
+            Description = "A focused lightning bolt strikes the target, then arcs between up to 8 nearby enemies " +
+                          "for full damage — lethal against clustered formations.",
+            FactionId = "stormrend",
+            Type = SuperweaponType.LightningCascade,
+            CooldownTicks = 1350, // 45 s
+            Range          = FixedPoint.FromInt(90),
+            AreaOfEffect   = FixedPoint.FromInt(7),  // arc search radius
+            Damage         = FixedPoint.FromInt(200),
+            ChainCount     = 8
+        },
+
+        // ── Valkyr ───────────────────────────────────────────────────────────
+        ["valkyr_carpet_bomb_run"] = new SuperweaponData
+        {
+            Id = "valkyr_carpet_bomb_run",
+            DisplayName = "Carpet Bomb Run",
+            Description = "A Valkyr bomber squadron makes a strafing run over the target zone, laying a 24-cell-long " +
+                          "strip of high-explosive ordnance.",
+            FactionId = "valkyr",
+            Type = SuperweaponType.CarpetBombRun,
+            CooldownTicks = 1800, // 60 s
+            Range          = FixedPoint.FromInt(100),
+            AreaOfEffect   = FixedPoint.FromInt(4),   // half-strip width
+            Damage         = FixedPoint.FromInt(160),
+            StripHalfWidth = FixedPoint.FromInt(4),
+            StripLength    = FixedPoint.FromInt(24)
         }
     };
 
@@ -189,6 +277,30 @@ public sealed class SuperweaponSystem
                 yield return kv.Value;
         }
     }
+
+    /// <summary>
+    /// Returns the default (first registered) superweapon ID for a faction, or an empty
+    /// string if the faction has no entry in the catalogue. This eliminates hardcoded
+    /// faction→weapon switches in callers such as <see cref="GameSession"/>.
+    /// </summary>
+    public static string GetDefaultWeaponForFaction(string factionId)
+    {
+        foreach (var kv in _catalogue)
+        {
+            if (kv.Value.FactionId == factionId)
+                return kv.Key;
+        }
+        return string.Empty;
+    }
+
+    // ── Distance sentinel ────────────────────────────────────────────
+
+    /// <summary>
+    /// A large-but-safe squared-distance sentinel for "not yet found" comparisons.
+    /// Represents 10 000 cells² (distance 100 cells) — well beyond any map diagonal
+    /// and safe from FixedPoint overflow in comparisons (not arithmetic).
+    /// </summary>
+    private static readonly FixedPoint _distanceSentinel = FixedPoint.FromInt(10_000);
 
     // ── Player Registration ──────────────────────────────────────────
 
@@ -250,6 +362,17 @@ public sealed class SuperweaponSystem
             return result;
         }
 
+        if (state.Data.Type == SuperweaponType.LightningCascade)
+        {
+            return ResolveLightningCascade(playerId, target, allUnits, state.Data, result);
+        }
+
+        if (state.Data.Type == SuperweaponType.CarpetBombRun)
+        {
+            return ResolveCarpetBombRun(playerId, target, allUnits, state.Data, result);
+        }
+
+        // ── Circular AoE (OrbitalStrike, EMPBlast, MissileBarrage, SeismicCharge, ArtillerySalvo) ──
         // Area damage for all other weapon types
         FixedPoint aoeSq = state.Data.AreaOfEffect * state.Data.AreaOfEffect;
         for (int i = 0; i < allUnits.Count; i++)
@@ -264,6 +387,112 @@ public sealed class SuperweaponSystem
 
             result.HitUnitIds.Add(unit.UnitId);
             result.DamagePerUnit.Add(state.Data.Damage);
+        }
+
+        return result;
+    }
+
+    // ── Special activation resolvers ─────────────────────────────────
+
+    /// <summary>
+    /// Resolves a LightningCascade: strikes the closest enemy to the target,
+    /// then chains up to <see cref="SuperweaponData.ChainCount"/> times to the
+    /// nearest remaining enemy within <see cref="SuperweaponData.AreaOfEffect"/> of
+    /// each struck unit. Each hit unit takes full Damage; no unit is hit twice.
+    /// </summary>
+    private static SuperweaponResult ResolveLightningCascade(
+        int playerId,
+        FixedVector2 target,
+        IReadOnlyList<CorditeWars.Systems.Pathfinding.SimUnit> allUnits,
+        SuperweaponData data,
+        SuperweaponResult result)
+    {
+        int maxChains = data.ChainCount > 0 ? data.ChainCount : 8;
+        FixedPoint arcRadiusSq = data.AreaOfEffect * data.AreaOfEffect;
+
+        var hitSet = new System.Collections.Generic.HashSet<int>();
+
+        // Find closest enemy to target as first strike
+        int firstId = -1;
+        FixedPoint bestDistSq = _distanceSentinel;
+        for (int i = 0; i < allUnits.Count; i++)
+        {
+            var u = allUnits[i];
+            if (!u.IsAlive || u.PlayerId == playerId) continue;
+            FixedVector2 d2 = u.Movement.Position - target;
+            FixedPoint dSq = d2.X * d2.X + d2.Y * d2.Y;
+            if (dSq < bestDistSq) { bestDistSq = dSq; firstId = u.UnitId; }
+        }
+
+        if (firstId < 0) return result; // no enemies in range
+
+        // Build a lookup for fast position queries
+        var posLookup = new System.Collections.Generic.Dictionary<int, FixedVector2>();
+        for (int i = 0; i < allUnits.Count; i++)
+            if (allUnits[i].IsAlive && allUnits[i].PlayerId != playerId)
+                posLookup[allUnits[i].UnitId] = allUnits[i].Movement.Position;
+
+        int current = firstId;
+        for (int chain = 0; chain <= maxChains; chain++)
+        {
+            if (!posLookup.ContainsKey(current)) break;
+
+            hitSet.Add(current);
+            result.HitUnitIds.Add(current);
+            result.DamagePerUnit.Add(data.Damage);
+
+            // Find nearest un-hit enemy within arc radius of current unit
+            FixedVector2 currentPos = posLookup[current];
+            int nextId = -1;
+            FixedPoint nextDistSq = arcRadiusSq + FixedPoint.One; // just beyond radius
+
+            foreach (var kv in posLookup)
+            {
+                if (hitSet.Contains(kv.Key)) continue;
+                FixedVector2 dv = kv.Value - currentPos;
+                FixedPoint dsq = dv.X * dv.X + dv.Y * dv.Y;
+                if (dsq <= arcRadiusSq && dsq < nextDistSq)
+                {
+                    nextDistSq = dsq;
+                    nextId = kv.Key;
+                }
+            }
+
+            if (nextId < 0) break; // no more nearby targets
+            current = nextId;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Resolves a CarpetBombRun: hits all enemies in a rectangular strip centred
+    /// on <paramref name="target"/>. The strip runs along the X-axis with half-width
+    /// <see cref="SuperweaponData.StripHalfWidth"/> and length
+    /// <see cref="SuperweaponData.StripLength"/>.
+    /// </summary>
+    private static SuperweaponResult ResolveCarpetBombRun(
+        int playerId,
+        FixedVector2 target,
+        IReadOnlyList<CorditeWars.Systems.Pathfinding.SimUnit> allUnits,
+        SuperweaponData data,
+        SuperweaponResult result)
+    {
+        FixedPoint halfLen    = data.StripLength    > FixedPoint.Zero ? data.StripLength    / FixedPoint.FromInt(2) : FixedPoint.FromInt(12);
+        FixedPoint halfWidth  = data.StripHalfWidth > FixedPoint.Zero ? data.StripHalfWidth : FixedPoint.FromInt(4);
+
+        for (int i = 0; i < allUnits.Count; i++)
+        {
+            var unit = allUnits[i];
+            if (!unit.IsAlive || unit.PlayerId == playerId) continue;
+
+            FixedVector2 diff = unit.Movement.Position - target;
+            // Strip is axis-aligned along X; |dx| <= halfLen, |dz| <= halfWidth
+            if (diff.X < -halfLen || diff.X > halfLen) continue;
+            if (diff.Y < -halfWidth || diff.Y > halfWidth) continue;
+
+            result.HitUnitIds.Add(unit.UnitId);
+            result.DamagePerUnit.Add(data.Damage);
         }
 
         return result;

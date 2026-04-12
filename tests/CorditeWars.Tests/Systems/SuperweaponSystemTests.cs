@@ -257,4 +257,252 @@ public class SuperweaponSystemTests
         Assert.True(result.DidFire);
         Assert.True(result.SpawnedUnitTypeIds.Count > 0);
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Ironmarch — Seismic Charge
+    // ═══════════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void Catalogue_ContainsIronmarchWeapons()
+    {
+        var weapons = new List<SuperweaponData>(SuperweaponSystem.GetFactionWeapons("ironmarch"));
+        Assert.True(weapons.Count >= 1);
+        Assert.All(weapons, w => Assert.Equal("ironmarch", w.FactionId));
+    }
+
+    [Fact]
+    public void SeismicCharge_InCatalogue_WithCorrectType()
+    {
+        var data = SuperweaponSystem.GetData("ironmarch_seismic_charge");
+        Assert.NotNull(data);
+        Assert.Equal(SuperweaponType.SeismicCharge, data!.Type);
+    }
+
+    [Fact]
+    public void SeismicCharge_HitsEnemiesInAoE()
+    {
+        var sys = new SuperweaponSystem();
+        sys.RegisterPlayer(1, "ironmarch_seismic_charge");
+        MakeReady(sys, 1);
+
+        var target = new FixedVector2(FixedPoint.FromInt(10), FixedPoint.FromInt(10));
+        var units = new List<SimUnit>
+        {
+            MakeUnit(10, 2, new FixedVector2(FixedPoint.FromInt(10), FixedPoint.FromInt(10))), // inside
+            MakeUnit(11, 2, new FixedVector2(FixedPoint.FromInt(100), FixedPoint.FromInt(100))) // far away
+        };
+
+        var result = sys.TryActivate(1, target, units);
+        Assert.True(result.DidFire);
+        Assert.Contains(10, result.HitUnitIds);
+        Assert.DoesNotContain(11, result.HitUnitIds);
+    }
+
+    [Fact]
+    public void SeismicCharge_DamageIs250()
+    {
+        var data = SuperweaponSystem.GetData("ironmarch_seismic_charge")!;
+        Assert.Equal(250, data.Damage.ToInt());
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Kragmore — Artillery Salvo
+    // ═══════════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void Catalogue_ContainsKragmoreWeapons()
+    {
+        var weapons = new List<SuperweaponData>(SuperweaponSystem.GetFactionWeapons("kragmore"));
+        Assert.True(weapons.Count >= 1);
+        Assert.All(weapons, w => Assert.Equal("kragmore", w.FactionId));
+    }
+
+    [Fact]
+    public void ArtillerySalvo_InCatalogue_WithCorrectType()
+    {
+        var data = SuperweaponSystem.GetData("kragmore_artillery_salvo");
+        Assert.NotNull(data);
+        Assert.Equal(SuperweaponType.ArtillerySalvo, data!.Type);
+    }
+
+    [Fact]
+    public void ArtillerySalvo_HitsMultipleEnemiesInArea()
+    {
+        var sys = new SuperweaponSystem();
+        sys.RegisterPlayer(1, "kragmore_artillery_salvo");
+        MakeReady(sys, 1);
+
+        // AoE radius = 11 cells; pack 3 enemies inside and 1 clearly outside
+        var units = new List<SimUnit>
+        {
+            MakeUnit(10, 2, new FixedVector2(FixedPoint.FromInt(1), FixedPoint.Zero)),
+            MakeUnit(11, 2, new FixedVector2(FixedPoint.Zero,      FixedPoint.FromInt(1))),
+            MakeUnit(12, 2, new FixedVector2(FixedPoint.FromInt(2), FixedPoint.FromInt(2))),
+            MakeUnit(20, 2, new FixedVector2(FixedPoint.FromInt(50), FixedPoint.Zero)), // outside AoE (radius=11)
+        };
+
+        var result = sys.TryActivate(1, FixedVector2.Zero, units);
+        Assert.True(result.DidFire);
+        Assert.True(result.HitUnitIds.Count >= 3);
+        Assert.DoesNotContain(20, result.HitUnitIds);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Stormrend — Lightning Cascade
+    // ═══════════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void Catalogue_ContainsStormrendWeapons()
+    {
+        var weapons = new List<SuperweaponData>(SuperweaponSystem.GetFactionWeapons("stormrend"));
+        Assert.True(weapons.Count >= 1);
+        Assert.All(weapons, w => Assert.Equal("stormrend", w.FactionId));
+    }
+
+    [Fact]
+    public void LightningCascade_InCatalogue_WithCorrectType()
+    {
+        var data = SuperweaponSystem.GetData("stormrend_lightning_cascade");
+        Assert.NotNull(data);
+        Assert.Equal(SuperweaponType.LightningCascade, data!.Type);
+        Assert.True(data.ChainCount > 0);
+    }
+
+    [Fact]
+    public void LightningCascade_HitsChainedTargets()
+    {
+        var sys = new SuperweaponSystem();
+        sys.RegisterPlayer(1, "stormrend_lightning_cascade");
+        MakeReady(sys, 1);
+
+        // 4 enemies clustered close together
+        var units = new List<SimUnit>
+        {
+            MakeUnit(10, 2, new FixedVector2(FixedPoint.FromInt(1), FixedPoint.Zero)),
+            MakeUnit(11, 2, new FixedVector2(FixedPoint.FromInt(2), FixedPoint.Zero)),
+            MakeUnit(12, 2, new FixedVector2(FixedPoint.FromInt(3), FixedPoint.Zero)),
+            MakeUnit(13, 2, new FixedVector2(FixedPoint.FromInt(4), FixedPoint.Zero)),
+        };
+
+        var result = sys.TryActivate(1, FixedVector2.Zero, units);
+        Assert.True(result.DidFire);
+        Assert.True(result.HitUnitIds.Count >= 2, $"Expected chain ≥2 hits, got {result.HitUnitIds.Count}");
+    }
+
+    [Fact]
+    public void LightningCascade_NeverHitsSameUnitTwice()
+    {
+        var sys = new SuperweaponSystem();
+        sys.RegisterPlayer(1, "stormrend_lightning_cascade");
+        MakeReady(sys, 1);
+
+        var units = new List<SimUnit>
+        {
+            MakeUnit(10, 2, FixedVector2.Zero),
+            MakeUnit(11, 2, new FixedVector2(FixedPoint.FromInt(1), FixedPoint.Zero)),
+            MakeUnit(12, 2, new FixedVector2(FixedPoint.FromInt(2), FixedPoint.Zero)),
+        };
+
+        var result = sys.TryActivate(1, FixedVector2.Zero, units);
+        var hitSet = new HashSet<int>(result.HitUnitIds);
+        Assert.Equal(result.HitUnitIds.Count, hitSet.Count); // no duplicates
+    }
+
+    [Fact]
+    public void LightningCascade_DoesNotHitFriendlyUnits()
+    {
+        var sys = new SuperweaponSystem();
+        sys.RegisterPlayer(1, "stormrend_lightning_cascade");
+        MakeReady(sys, 1);
+
+        var units = new List<SimUnit>
+        {
+            MakeUnit(5, 1, FixedVector2.Zero), // friendly — must not be hit
+        };
+
+        var result = sys.TryActivate(1, FixedVector2.Zero, units);
+        Assert.Empty(result.HitUnitIds);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Valkyr — Carpet Bomb Run
+    // ═══════════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void Catalogue_ContainsValkyrWeapons()
+    {
+        var weapons = new List<SuperweaponData>(SuperweaponSystem.GetFactionWeapons("valkyr"));
+        Assert.True(weapons.Count >= 1);
+        Assert.All(weapons, w => Assert.Equal("valkyr", w.FactionId));
+    }
+
+    [Fact]
+    public void CarpetBombRun_InCatalogue_WithCorrectType()
+    {
+        var data = SuperweaponSystem.GetData("valkyr_carpet_bomb_run");
+        Assert.NotNull(data);
+        Assert.Equal(SuperweaponType.CarpetBombRun, data!.Type);
+        Assert.True(data.StripLength > FixedPoint.Zero);
+        Assert.True(data.StripHalfWidth > FixedPoint.Zero);
+    }
+
+    [Fact]
+    public void CarpetBombRun_HitsEnemiesInsideStrip()
+    {
+        var sys = new SuperweaponSystem();
+        sys.RegisterPlayer(1, "valkyr_carpet_bomb_run");
+        MakeReady(sys, 1);
+
+        // Strip runs along X; half-width=4, half-length=12, centred at origin
+        var units = new List<SimUnit>
+        {
+            // inside strip (X ≤ 12, Y ≤ 4)
+            MakeUnit(10, 2, new FixedVector2(FixedPoint.FromInt(5), FixedPoint.FromInt(2))),
+            MakeUnit(11, 2, new FixedVector2(FixedPoint.FromInt(-8), FixedPoint.FromInt(-3))),
+            // outside strip — too wide
+            MakeUnit(20, 2, new FixedVector2(FixedPoint.FromInt(1), FixedPoint.FromInt(10))),
+            // outside strip — too long
+            MakeUnit(21, 2, new FixedVector2(FixedPoint.FromInt(20), FixedPoint.Zero)),
+        };
+
+        var result = sys.TryActivate(1, FixedVector2.Zero, units);
+        Assert.True(result.DidFire);
+        Assert.Contains(10, result.HitUnitIds);
+        Assert.Contains(11, result.HitUnitIds);
+        Assert.DoesNotContain(20, result.HitUnitIds);
+        Assert.DoesNotContain(21, result.HitUnitIds);
+    }
+
+    [Fact]
+    public void CarpetBombRun_DoesNotHitFriendlyUnits()
+    {
+        var sys = new SuperweaponSystem();
+        sys.RegisterPlayer(1, "valkyr_carpet_bomb_run");
+        MakeReady(sys, 1);
+
+        var units = new List<SimUnit>
+        {
+            MakeUnit(5, 1, FixedVector2.Zero), // friendly — inside strip but should not be hit
+        };
+
+        var result = sys.TryActivate(1, FixedVector2.Zero, units);
+        Assert.Empty(result.HitUnitIds);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // All 6 factions have weapons in the catalogue
+    // ═══════════════════════════════════════════════════════════════════════
+
+    [Theory]
+    [InlineData("arcloft")]
+    [InlineData("bastion")]
+    [InlineData("ironmarch")]
+    [InlineData("kragmore")]
+    [InlineData("stormrend")]
+    [InlineData("valkyr")]
+    public void AllFactions_HaveAtLeastOneWeapon(string factionId)
+    {
+        var weapons = new List<SuperweaponData>(SuperweaponSystem.GetFactionWeapons(factionId));
+        Assert.True(weapons.Count >= 1, $"Faction '{factionId}' has no superweapon in the catalogue");
+    }
 }
