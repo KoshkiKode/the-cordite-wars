@@ -106,9 +106,8 @@ public partial class CombatVFXBridge : Node
             SpawnAt(ParticleFactory.CreateSpark(), position);
         }
 
-        // Torpedo hits always produce a water splash
-        // (we don't know the weapon type here, but naval impacts frequently produce them;
-        //  the audio bridge handles per-weapon routing so a generic splash is acceptable)
+        // Note: this handler currently has no weapon-type context, so it cannot
+        // apply torpedo-specific impact VFX (such as water splashes) here.
     }
 
     private void OnUnitDeath(int unitId, int unitCategory, Vector3 position)

@@ -58,7 +58,7 @@ extern bool ParseCommandLine( const char *pchCmdLine, const char **ppchServerAdd
 uint32 Plat_GetTicks()
 {
 #if defined(USE_SDL2)
-	return SDL_GetTicks64();
+	return SDL_GetTicks();
 #elif defined(SDL)
 	return SDL_GetTicks();
 #else
@@ -99,7 +99,6 @@ void CSpaceWarClient::Init( IGameEngine *pGameEngine )
 	m_ulPingSentTime = 0;
 	m_bSentWebOpen = false;
 	m_bShowTimer = false;
-	m_unTicksAtLaunch = 0;
 	m_hTimerFont = 0;
 	m_hConnServer = k_HSteamNetConnection_Invalid;
 	m_unTicksAtLaunch = Plat_GetTicks();
@@ -442,8 +441,9 @@ void CSpaceWarClient::OnReceiveServerUpdate( ServerSpaceWarUpdateData_t *pUpdate
 	bool bScoresChanged = false;
 	for( int i=0; i < MAX_PLAYERS_PER_SERVER; ++i )
 	{
-		m_rguPlayerScores[i] = pUpdateData->GetPlayerScore(i);
-		bScoresChanged = bScoresChanged || m_rguPlayerScores[ i ] != pUpdateData->GetPlayerScore( i );
+		const int nNewScore = pUpdateData->GetPlayerScore( i );
+		bScoresChanged = bScoresChanged || ( m_rguPlayerScores[ i ] != nNewScore );
+		m_rguPlayerScores[ i ] = nNewScore;
 	}
 	if ( bScoresChanged )
 	{
@@ -825,13 +825,13 @@ void CSpaceWarClient::ReceiveNetworkData()
 		break;
 			
 		case k_EMsgVoiceChatData:
-			// This is really bad exmaple code that just assumes the message is the right size
+			// This is really bad example code that just assumes the message is the right size
 			// Don't ship code like this.
 			m_pVoiceChat->HandleVoiceChatData( message->GetData() );
 			break;
 
 		case k_EMsgP2PSendingTicket:
-			// This is really bad exmaple code that just assumes the message is the right size
+			// This is really bad example code that just assumes the message is the right size
 			// Don't ship code like this.
 			m_pP2PAuthedGame->HandleP2PSendingTicket( message->GetData() );
 			break;

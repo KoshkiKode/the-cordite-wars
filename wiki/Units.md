@@ -2,7 +2,7 @@
 
 All combat and support units in Cordite Wars: Six Fronts, organized by faction. For lore and playstyle context see individual [Faction pages](Factions).
 
-> **Legend:** 🔍 = Detector unit | 🥷 = Stealthed unit | 🏆 = Superunit/requires special building | C = Cordite cost | VC = Voltaic Charge cost
+> **Legend:** 🔍 = Detector unit | 🥷 = Stealthed unit | 🏆 = Superunit/requires special building | 🏗️ = Deploys structure/fortification | C = Cordite cost | VC = Voltaic Charge cost
 
 ---
 
@@ -58,7 +58,7 @@ All combat and support units in Cordite Wars: Six Fronts, organized by faction. 
 | **Restoration Rig** | 156 | Light | 700 | — | 2 | Support | Dual repair | Fast repair vehicle. |
 | **Shield Bearer** | 396 | Medium | 1,000 | 50 | 2 | APC | Energy shield | Mobile shield generator. |
 | **Rampart** | 698 | Medium | 1,400 | 100 | 3 | Tank | Entrench mode | Tank that wants to stop moving — mobile hardpoint. |
-| **Phalanx** | 1,110 | Heavy | 1,800 | 200 | 4 | HeavyVehicle | Taunt aura | Rolling fortress absorbing punishment for everything behind it. |
+| 🛡️ **Phalanx** | 1,110 | Heavy | 1,800 | 200 | 4 | HeavyVehicle | Taunt aura | Rolling fortress absorbing punishment for everything behind it. |
 | **Constructor** | 570 | Heavy | 1,000 | 50 | 2 | HeavyVehicle | Build anywhere | Expansion vehicle — fortress follows where it goes. |
 | **Bulwark Mortar** | 240 | Heavy | 1,400 | 100 | 3 | Artillery | Deploy mode | Defensive mortar creating kill zones. |
 
@@ -239,7 +239,7 @@ All combat and support units in Cordite Wars: Six Fronts, organized by faction. 
 | Arcloft | Arc Cruiser | Cruiser | Heavy AA cruiser extending air-defense umbrella to sea |
 | Bastion | Shield Skiff | Patrol | Fast vessel with active defense bubble |
 | Bastion | 🔍 Corvette | Corvette | Multi-role with sonar — detects submarine stealth |
-| Bastion | 🔍 Depth Ward | Submarine | Minelayer with sonar; also detects naval stealth |
+| Bastion | 🔍 Depth Ward | Submarine | Stealthed minelayer with sonar; detects naval stealth while remaining cloaked |
 | Bastion | Citadel Ship | Capital | Massive armored naval fortress |
 | Ironmarch | March Barge | Transport | Armored assault barge |
 | Ironmarch | Ironclad Frigate | Frigate | Heavy frigate — Ironmarch doctrine at sea |

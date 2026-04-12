@@ -105,6 +105,8 @@ public partial class GameHUD : CanvasLayer
 /// </summary>
 internal partial class BoxSelectOverlay : Control
 {
+    private static readonly Color DefaultSelectionFill = new(0.29f, 0.62f, 0.80f, 0.15f);
+    private static readonly Color DefaultSelectionBorder = new(0.29f, 0.62f, 0.80f, 0.8f);
     private readonly SelectionManager _selectionManager;
 
     public BoxSelectOverlay(SelectionManager selectionManager)
@@ -130,8 +132,8 @@ internal partial class BoxSelectOverlay : Control
         }
         else
         {
-            fill = new Color(0.29f, 0.62f, 0.80f, 0.15f);
-            border = new Color(0.29f, 0.62f, 0.80f, 0.8f);
+            fill = DefaultSelectionFill;
+            border = DefaultSelectionBorder;
         }
 
         DrawRect(rect, fill, true);

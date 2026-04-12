@@ -61,7 +61,11 @@
 #endif
 
 //===============================================================================
-#define TOLOWERC( x )  (( ( x >= 'A' ) && ( x <= 'Z' ) )?( x + 32 ) : x )
+inline int tolower_ascii_fast( int x )
+{
+	return ( ( x >= 'A' ) && ( x <= 'Z' ) ) ? ( x + ( 'a' - 'A' ) ) : x;
+}
+
 int	V_stricmp(const char *s1, const char *s2 )
 {
 	uint8 const *pS1 = ( uint8 const * ) s1;
@@ -80,27 +84,8 @@ int	V_stricmp(const char *s1, const char *s2 )
 			{
 				return c1 - c2;
 			}
-			c1 = TOLOWERC( c1 );
-			c2 = TOLOWERC( c2 );
-			if ( c1 != c2 )
-			{
-				return c1 - c2;
-			}
-		}
-		c1 = *( pS1++ );
-		c2 = *( pS2++ );
-		if ( c1 == c2 )
-		{
-			if ( !c1 ) return 0;
-		}
-		else
-		{
-			if ( ! c2 )
-			{
-				return c1 - c2;
-			}
-			c1 = TOLOWERC( c1 );
-			c2 = TOLOWERC( c2 );
+			c1 = tolower_ascii_fast( c1 );
+			c2 = tolower_ascii_fast( c2 );
 			if ( c1 != c2 )
 			{
 				return c1 - c2;
@@ -1200,7 +1185,6 @@ GLMValueEntry_t g_gl_enums[] =
 	{	0x80E0,	"GL_BGR_EXT"	},
 	{	0x80E0,	"GL_BGR"	},
 	{	0x80E1,	"GL_BGRA_EXT"	},
-	{	0x80E1,	"GL_BGRA"	},
 	{	0x80E1,	"GL_BGRA"	},
 	{	0x80E2,	"GL_COLOR_INDEX1_EXT"	},
 	{	0x80E3,	"GL_COLOR_INDEX2_EXT"	},
@@ -2724,7 +2708,7 @@ const char	*GLMDecodeMask( GLMThing_t kind, unsigned long value )
 	char	*dest = start;
 	char	first = 1;
 	
-	DWORD mask = (1L<<31);
+	uint32 mask = (1u<<31);
 	while(mask)
 	{
 		if (mask & value)
@@ -2807,7 +2791,11 @@ bool	GLMDetectGDB( void )			// aka AmIBeingDebugged()
     junk = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);  
     (void)junk;
   
-    assert(junk == 0);  
+    if ( junk != 0 )
+    {
+        assert(junk == 0);
+        return false;
+    }
   
     // We're being debugged if the P_TRACED  
     // flag is set.  
