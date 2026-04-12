@@ -3628,7 +3628,7 @@ CGLMEditableTextItem::~CGLMEditableTextItem( )
 	
 	if (m_mirror)
 	{
-		free( m_mirror );
+		delete m_mirror;
 	}
 }
 
