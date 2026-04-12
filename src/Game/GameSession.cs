@@ -19,6 +19,7 @@ using CorditeWars.Systems.FogOfWar;
 using CorditeWars.Systems.Garrison;
 using CorditeWars.Systems.Persistence;
 using CorditeWars.Systems.Platform;
+using CorditeWars.Systems.Superweapon;
 using CorditeWars.UI.HUD;
 using CorditeWars.UI.Input;
 
@@ -77,6 +78,7 @@ public partial class GameSession : Node
     private CombatResolver? _combatResolver;
     private UnitInteractionSystem? _unitInteractionSystem;
     private GarrisonSystem _garrisonSystem = new();
+    private readonly SuperweaponSystem _superweaponSystem = new();
 
     // ── Audio ───────────────────────────────────────────────────────
 
@@ -406,6 +408,15 @@ public partial class GameSession : Node
             PlayerConfig pc = config.PlayerConfigs[i];
             _economyManager.AddPlayer(pc.PlayerId, pc.FactionId);
             _techTreeManager.AddPlayer(pc.PlayerId, pc.FactionId);
+
+            // Register superweapon ability for this player based on faction
+            string weaponId = pc.FactionId switch
+            {
+                "arcloft" => "arcloft_orbital_strike",
+                "bastion" => "bastion_missile_barrage",
+                _         => "arcloft_orbital_strike" // fallback
+            };
+            _superweaponSystem.RegisterPlayer(pc.PlayerId, weaponId);
         }
 
         // g2. Initialize fog of war (after terrain and players are set up)
@@ -648,6 +659,67 @@ public partial class GameSession : Node
     /// <summary>Returns the garrison system for HUD queries.</summary>
     public GarrisonSystem GarrisonSystem => _garrisonSystem;
 
+    /// <summary>Returns the superweapon system for HUD queries and ability activation.</summary>
+    public SuperweaponSystem SuperweaponSystem => _superweaponSystem;
+
+    /// <summary>
+    /// Attempts to fire the local player's superweapon targeting a world position.
+    /// Returns the result (which may contain hit unit IDs to which damage must be applied).
+    /// </summary>
+    public SuperweaponResult ActivateSuperweapon(FixedVector2 targetPosition)
+    {
+        if (CurrentMatchState != MatchState.Playing)
+            return new SuperweaponResult { TargetPosition = targetPosition, DidFire = false };
+
+        // Build a snapshot of all alive units for targeting
+        var allAlive = new List<CorditeWars.Systems.Pathfinding.SimUnit>(_persistentSimUnits.Count);
+        foreach (var kv in _persistentSimUnits)
+            if (kv.Value.IsAlive)
+                allAlive.Add(kv.Value);
+
+        var result = _superweaponSystem.TryActivate(_localPlayerId, targetPosition, allAlive);
+
+        if (result.DidFire)
+        {
+            var swState = _superweaponSystem.GetState(_localPlayerId);
+            string weaponId = swState?.Data.Id ?? string.Empty;
+            EventBus.Instance?.EmitSuperweaponFired(_localPlayerId, weaponId,
+                new Vector3(targetPosition.X.ToFloat(), 0, targetPosition.Y.ToFloat()));
+
+            // Apply damage from result
+            for (int i = 0; i < result.HitUnitIds.Count; i++)
+            {
+                int uid = result.HitUnitIds[i];
+                if (_persistentSimUnits.TryGetValue(uid, out SimUnit su))
+                {
+                    su.Health = FixedPoint.Max(FixedPoint.Zero, su.Health - result.DamagePerUnit[i]);
+                    if (su.Health <= FixedPoint.Zero)
+                        su.IsAlive = false;
+                    _persistentSimUnits[uid] = su;
+                }
+            }
+
+            // Handle EMP — suppress weapon cooldown refresh so enemies can't fire
+            if (result.IsEMP)
+            {
+                foreach (var kv in _persistentSimUnits)
+                {
+                    SimUnit su = kv.Value;
+                    if (su.PlayerId == _localPlayerId || !su.IsAlive) continue;
+
+                    if (su.WeaponCooldowns != null)
+                    {
+                        for (int w = 0; w < su.WeaponCooldowns.Count; w++)
+                            su.WeaponCooldowns[w] = FixedPoint.FromInt(result.EMPDurationTicks);
+                    }
+                    _persistentSimUnits[su.UnitId] = su;
+                }
+            }
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// Reads the auto-save-replays setting from user://settings.cfg.
     /// Defaults to true if the file or key is absent.
@@ -757,6 +829,16 @@ public partial class GameSession : Node
                     }
                 }
             }
+        }
+
+        // ── 0b. Tick superweapon cooldowns ─────────────────────────────────
+        bool wasReadyBefore = _superweaponSystem.IsReady(_localPlayerId);
+        _superweaponSystem.Tick();
+        if (!wasReadyBefore && _superweaponSystem.IsReady(_localPlayerId))
+        {
+            var swState = _superweaponSystem.GetState(_localPlayerId);
+            if (swState is not null)
+                EventBus.Instance?.EmitSuperweaponReady(_localPlayerId, swState.Data.Id);
         }
 
         // ── 1. Build combined SimUnit list (mobile units + buildings) ──────
@@ -2092,7 +2174,10 @@ public partial class GameSession : Node
             _unitSpawner,
             _unitDataRegistry,
             _buildingRegistry,
-            config.Campaign);
+            config.Campaign,
+            config.PlayerConfigs.Length > 0 ? config.PlayerConfigs[0].PlayerName : "Commander",
+            default,
+            _superweaponSystem);
         AddChild(_gameHUD);
         _gameHUD.SetCommandInput(_commandInput);
 

@@ -213,15 +213,21 @@ public partial class ChatPanel : CanvasLayer
         // Don't echo our own message (already posted in OnTextSubmitted)
         if (senderId == _localPlayerId) return;
 
-        // Pick a colour per sender ID (consistent but distinct)
-        Color color = senderId switch
-        {
-            2 => new Color(1f, 0.65f, 0.1f),   // orange
-            3 => new Color(0.5f, 1f, 0.5f),    // green
-            4 => new Color(1f, 0.4f, 0.4f),    // red
-            _ => UITheme.TextSecondary
-        };
+        // Generate a consistent, distinct color per sender ID using a simple hash
+        Color color = GeneratePlayerColor(senderId);
         PostLocalMessage(senderName, message, color);
+    }
+
+    /// <summary>
+    /// Generates a visually distinct, consistent color for a player ID
+    /// using a golden-ratio hue distribution.
+    /// </summary>
+    private static Color GeneratePlayerColor(int playerId)
+    {
+        // Golden angle in hue space ensures perceptually distinct colors
+        const float GoldenAngle = 137.508f;
+        float hue = ((playerId * GoldenAngle) % 360f) / 360f;
+        return Color.FromHsv(hue, 0.65f, 0.90f);
     }
 
     private void PostLocalMessage(string sender, string text, Color nameColor)
