@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "ro",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Comandant la bord. Toate unitățile, raportați starea.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Meci inițiat. Stabiliți-vă baza și securizați nodurile Cordite.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Atenție! Baza noastră este sub atac!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Producția unității completă. Gata de desfășurare.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Construcție completă.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Cordite insuficient. Securizați mai multe noduri de resurse.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Cercetare îmbunătățire completă. Noi capacități online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Toate forțele inamice eliminate. Victoria este a noastră!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Baza noastră a fost distrusă. Misiune eșuată.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Nod Cordite epuizat. Relocați recoltoarele.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Contact inamic! Forțe ostile detectate.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Întăriri sosesc. Mențineți-vă pozițiile.",
+      "duration": 2.5
+    }
+  }
 }

@@ -211,6 +211,7 @@ public partial class MultiplayerLobby : Control
         if (EventBus.Instance != null)
         {
             EventBus.Instance.Connect(EventBus.SignalName.MatchCountdown, Callable.From<int>(OnMatchCountdown));
+            EventBus.Instance.Connect(EventBus.SignalName.JoinRejected, Callable.From<string>(OnJoinRejected));
         }
     }
 
@@ -466,9 +467,27 @@ public partial class MultiplayerLobby : Control
         if (EventBus.Instance != null)
         {
             EventBus.Instance.Disconnect(EventBus.SignalName.MatchCountdown, Callable.From<int>(OnMatchCountdown));
+            EventBus.Instance.Disconnect(EventBus.SignalName.JoinRejected, Callable.From<string>(OnJoinRejected));
         }
 
         SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/MainMenu.tscn");
+    }
+
+    private void OnJoinRejected(string reason)
+    {
+        // Drop back to the browser and show why the join was refused
+        _lobbyManager = null;
+        Multiplayer.MultiplayerPeer = null;
+
+        _state = LobbyState.Browser;
+        _browserPanel.Visible = true;
+        _lobbyPanel.Visible = false;
+
+        _noGamesLabel.Text = $"Could not join: {reason}";
+        _noGamesLabel.Visible = true;
+        UITheme.StyleLabel(_noGamesLabel, UITheme.FontSizeNormal, new Color(1f, 0.35f, 0.35f));
+
+        GD.PushWarning($"[MultiplayerLobby] Join rejected — {reason}");
     }
 
     private void OnMatchCountdown(int ticks)
@@ -562,9 +581,13 @@ public partial class MultiplayerLobby : Control
         _discovery?.StopBroadcasting();
         _discovery?.StopListening();
 
-        if (EventBus.Instance != null && EventBus.Instance.IsConnected(EventBus.SignalName.MatchCountdown, Callable.From<int>(OnMatchCountdown)))
+        if (EventBus.Instance != null)
         {
-            EventBus.Instance.Disconnect(EventBus.SignalName.MatchCountdown, Callable.From<int>(OnMatchCountdown));
+            if (EventBus.Instance.IsConnected(EventBus.SignalName.MatchCountdown, Callable.From<int>(OnMatchCountdown)))
+                EventBus.Instance.Disconnect(EventBus.SignalName.MatchCountdown, Callable.From<int>(OnMatchCountdown));
+
+            if (EventBus.Instance.IsConnected(EventBus.SignalName.JoinRejected, Callable.From<string>(OnJoinRejected)))
+                EventBus.Instance.Disconnect(EventBus.SignalName.JoinRejected, Callable.From<string>(OnJoinRejected));
         }
     }
 }

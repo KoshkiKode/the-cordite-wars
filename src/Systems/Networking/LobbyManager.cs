@@ -8,6 +8,12 @@ namespace CorditeWars.Systems.Networking;
 /// Pre-game lobby managing player slots, faction selection, ready state, and match start.
 /// The host is authoritative: faction uniqueness and match start are enforced server-side.
 /// All state changes are broadcast via Godot RPC to keep all clients in sync.
+///
+/// Version safety: <see cref="ServerRequestJoin"/> includes the client's game version string.
+/// If it does not match the host's version the join is rejected and the client receives
+/// <see cref="ClientOnJoinRejected"/> before the transport-level connection is closed.
+/// Different game versions are intentionally incompatible — this is by design so that
+/// breaking simulation changes do not cause silent desyncs.
 /// </summary>
 public partial class LobbyManager : Node
 {
@@ -85,10 +91,12 @@ public partial class LobbyManager : Node
         transport.PeerConnected += OnPeerConnected;
         transport.PeerDisconnected += OnPeerDisconnected;
 
-        // Announce to host — the host will assign a player ID and broadcast back
-        RpcId(1, MethodName.ServerRequestJoin, playerName);
+        // Announce to host — the host will assign a player ID and broadcast back.
+        // Include the game version so the host can reject mismatched clients immediately.
+        string gameVersion = ProjectSettings.GetSetting("application/config/version", "0.0.0").AsString();
+        RpcId(1, MethodName.ServerRequestJoin, playerName, gameVersion);
 
-        GD.Print($"[LobbyManager] Client requesting to join as '{playerName}'.");
+        GD.Print($"[LobbyManager] Client requesting to join as '{playerName}' (version {gameVersion}).");
     }
 
     // ── Client-callable actions ─────────────────────────────────────
@@ -185,14 +193,27 @@ public partial class LobbyManager : Node
     // ── Server-side RPCs (called by clients, run on host) ──────────
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    private void ServerRequestJoin(string playerName)
+    private void ServerRequestJoin(string playerName, string clientVersion)
     {
         if (!IsHost) return;
         int senderId = Multiplayer.GetRemoteSenderId();
 
+        // ── Version check ──────────────────────────────────────────
+        string hostVersion = ProjectSettings.GetSetting("application/config/version", "0.0.0").AsString();
+        if (clientVersion != hostVersion)
+        {
+            string reason = $"Version mismatch: host is v{hostVersion}, you are v{clientVersion}. " +
+                            "Please use the same game version to connect.";
+            GD.PushWarning($"[LobbyManager] Rejecting player '{playerName}' — {reason}");
+            RpcId(senderId, MethodName.ClientOnJoinRejected, reason);
+            return;
+        }
+
         if (_playerSlots.Count >= MaxSlots)
         {
+            string reason = "The lobby is full.";
             GD.PushWarning($"[LobbyManager] Rejecting player '{playerName}' — lobby full.");
+            RpcId(senderId, MethodName.ClientOnJoinRejected, reason);
             return;
         }
 
@@ -255,6 +276,13 @@ public partial class LobbyManager : Node
     {
         LocalPlayerId = playerId;
         GD.Print($"[LobbyManager] Assigned player ID: {playerId}");
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ClientOnJoinRejected(string reason)
+    {
+        GD.PrintErr($"[LobbyManager] Join rejected: {reason}");
+        EventBus.Instance?.EmitJoinRejected(reason);
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]

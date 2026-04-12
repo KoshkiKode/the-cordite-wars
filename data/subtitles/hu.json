@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "hu",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "A parancsnok fedélzeten. Minden egység, jelentsék státuszát.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Csata kezdődött. Alapítsa meg bázisát és biztosítsa a Kordite-csomópontokat.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Figyelem! A bázisunkat támadják!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Az egység gyártása kész. Bevetésre kész.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Építés kész.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Elégtelen Kordite. Biztosítson több erőforrás-csomópontot.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "A fejlesztés kutatása kész. Új képességek online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Minden ellenséges erő megsemmisítve. A győzelem a miénk!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "A bázisunkat megsemmisítették. A küldetés sikertelen.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Kordite-csomópont kimerült. Helyezze át a betakarítókat.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Ellenséges kontakt! Ellenséges erőket észleltek.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Erősítések érkeznek. Tartsák a pozícióikat.",
+      "duration": 2.5
+    }
+  }
 }

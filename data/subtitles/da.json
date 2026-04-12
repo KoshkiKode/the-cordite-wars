@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "da",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Kommandant om bord. Alle enheder, rapporter status.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Kamp initieret. Etabler din base og sikr Cordite-noder.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Advarsel! Vores base er under angreb!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Enhedsproduktion afsluttet. Klar til indsættelse.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Konstruktion afsluttet.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Utilstrækkelig Cordite. Sikr flere ressourcenoder.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Opgraderingsforskning afsluttet. Nye evner online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Alle fjendtlige styrker elimineret. Sejren er vores!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Vores base er blevet ødelagt. Missionen mislykkedes.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Cordite-node opbrugt. Flyt høstere.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Fjendekontakt! Fjendtlige styrker opdaget.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Forstærkninger ankommer. Hold jeres positioner.",
+      "duration": 2.5
+    }
+  }
 }

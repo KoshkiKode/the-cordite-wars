@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "cs",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Velitel na palubě. Všechny jednotky, hlaste stav.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Zápas zahájen. Zřiďte základnu a zajistěte uzly Korditu.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Varování! Naše základna je pod útokem!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Výroba jednotky dokončena. Připravena k nasazení.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Stavba dokončena.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Nedostatek Korditu. Zajistěte více zdrojových uzlů.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Výzkum upgradu dokončen. Nové schopnosti online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Všechny nepřátelské síly eliminovány. Vítězství je naše!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Naše základna byla zničena. Mise selhala.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Uzel Korditu vyčerpán. Přemístěte harvestery.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Kontakt s nepřítelem! Nepřátelské síly detekovány.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Posily přijíždějí. Udržte své pozice.",
+      "duration": 2.5
+    }
+  }
 }

@@ -116,8 +116,9 @@ public partial class PropPlacer : Node3D
         Node3D? instance = LoadModel(entry.ModelPath);
         if (instance == null)
         {
-            // Create placeholder cube
-            instance = CreatePlaceholder(prop.ModelId, finalScale);
+            // Try procedural model definition before falling back to the generic placeholder
+            instance = ProceduralModelLoader.TryLoad(prop.ModelId)
+                       ?? CreatePlaceholder(prop.ModelId, finalScale);
         }
 
         instance.Position = new Vector3(worldX, worldY, worldZ);
@@ -188,7 +189,9 @@ public partial class PropPlacer : Node3D
         Node3D? instance = LoadModel(entry.ModelPath);
         if (instance == null)
         {
-            instance = CreatePlaceholder(structure.ModelId, finalScale);
+            // Try procedural model definition before falling back to the generic placeholder
+            instance = ProceduralModelLoader.TryLoad(structure.ModelId)
+                       ?? CreatePlaceholder(structure.ModelId, finalScale);
         }
 
         instance.Position = new Vector3(worldX, worldY, worldZ);

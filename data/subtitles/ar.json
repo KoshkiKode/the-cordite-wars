@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "ar",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "القائد على السطح. جميع الوحدات، أبلغوا عن الوضع.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "بدأت المعركة. أنشئوا قاعدتكم وأمّنوا عقد الكورديت.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "تحذير! قاعدتنا تتعرض للهجوم!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "اكتملت إنتاج الوحدة. جاهزة للنشر.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "اكتمل البناء.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "كورديت غير كافٍ. أمّن المزيد من عقد الموارد.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "اكتمل بحث الترقية. قدرات جديدة متصلة.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "تم القضاء على جميع قوات العدو. النصر لنا!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "تم تدمير قاعدتنا. فشلت المهمة.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "عقدة الكورديت استنفدت. أعد نشر آلات الحصاد.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "اتصال بالعدو! تم الكشف عن قوات معادية.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "التعزيزات قادمة. أمسكوا بمواقعكم.",
+      "duration": 2.5
+    }
+  }
 }

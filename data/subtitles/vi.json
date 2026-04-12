@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "vi",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Chỉ huy lên tàu. Tất cả đơn vị, báo cáo trạng thái.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Trận đấu bắt đầu. Thiết lập căn cứ và bảo vệ các nút Cordite.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Cảnh báo! Căn cứ của chúng ta đang bị tấn công!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Sản xuất đơn vị hoàn tất. Sẵn sàng triển khai.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Xây dựng hoàn tất.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Cordite không đủ. Bảo vệ thêm nút tài nguyên.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Nghiên cứu nâng cấp hoàn tất. Khả năng mới trực tuyến.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Tất cả lực lượng thù địch bị tiêu diệt. Chiến thắng thuộc về chúng ta!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Căn cứ của chúng ta bị phá hủy. Nhiệm vụ thất bại.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Nút Cordite đã cạn kiệt. Di chuyển máy thu hoạch.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Tiếp xúc kẻ thù! Phát hiện lực lượng thù địch.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Viện quân đang đến. Giữ vững vị trí của bạn.",
+      "duration": 2.5
+    }
+  }
 }

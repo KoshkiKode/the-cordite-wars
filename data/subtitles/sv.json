@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "sv",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Befälhavare ombord. Alla enheter, rapportera status.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Match initierad. Etablera din bas och säkra Cordite-noder.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Varning! Vår bas är under attack!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Enhetsproduktion klar. Redo för driftsättning.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Konstruktion klar.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Otillräckligt Cordite. Säkra fler resursnoder.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Uppgraderingsforskning klar. Nya förmågor online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Alla fiendestyrkор eliminerade. Segern är vår!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Vår bas har förstörts. Uppdrag misslyckat.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Cordite-nod tömd. Omplacera skördare.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Fiendecontakt! Fientliga styrkor identifierade.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Förstärkningar anländer. Håll era positioner.",
+      "duration": 2.5
+    }
+  }
 }

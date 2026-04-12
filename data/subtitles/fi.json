@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "fi",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Komentaja paikalla. Kaikki yksiköt, ilmoittakaa tila.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Ottelu alkoi. Perusta tukikohtasi ja turvaa Kordiittisolmukohdat.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Varoitus! Tukikohtaamme hyökätään!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Yksikön tuotanto valmis. Valmis käyttöönottoon.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Rakentaminen valmis.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Liian vähän Kordiittia. Turvaa lisää resurssisolmuja.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Päivitystutkimus valmis. Uudet ominaisuudet käytössä.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Kaikki vihollisjoukot tuhottu. Voitto on meidän!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Tukikohtamme on tuhottu. Tehtävä epäonnistui.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Kordiittisolmu tyhjentynyt. Siirrä korjuukoneet.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Viholliskontakti! Vihollisjoukkoja havaittu.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Vahvistuksia saapumassa. Pitäkää asemanne.",
+      "duration": 2.5
+    }
+  }
 }

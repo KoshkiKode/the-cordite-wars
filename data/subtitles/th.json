@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "th",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "ผู้บัญชาการมาถึงแล้ว หน่วยทั้งหมด รายงานสถานะ",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "เริ่มการต่อสู้ สร้างฐานและรักษาโหนด Cordite",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "คำเตือน! ฐานของเราถูกโจมตี!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "การผลิตหน่วยเสร็จสิ้น พร้อมสำหรับการประจำการ",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "การก่อสร้างเสร็จสมบูรณ์",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Cordite ไม่เพียงพอ รักษาโหนดทรัพยากรเพิ่มขึ้น",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "การวิจัยอัปเกรดเสร็จสิ้น ความสามารถใหม่ออนไลน์",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "กำจัดกองกำลังศัตรูทั้งหมด ชัยชนะเป็นของเรา!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "ฐานของเราถูกทำลาย ภารกิจล้มเหลว",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "โหนด Cordite หมดแล้ว ย้ายเครื่องเก็บเกี่ยว",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "พบศัตรู! ตรวจพบกองกำลังฝ่ายตรงข้าม",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "กำลังเสริมกำลังมาถึง รักษาตำแหน่งของคุณ",
+      "duration": 2.5
+    }
+  }
 }

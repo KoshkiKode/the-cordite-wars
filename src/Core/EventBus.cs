@@ -77,6 +77,8 @@ public partial class EventBus : Node
     [Signal] public delegate void PlayerDisconnectedEventHandler(int playerId);
     [Signal] public delegate void LobbyUpdatedEventHandler();
     [Signal] public delegate void MatchCountdownEventHandler(int secondsRemaining);
+    /// <summary>Fired on the client when the host rejects the join request (e.g. version mismatch).</summary>
+    [Signal] public delegate void JoinRejectedEventHandler(string reason);
 
     // ── Economy Events ─────────────────────────────────────────────────
 
@@ -242,6 +244,7 @@ public partial class EventBus : Node
     public void EmitLobbyUpdated() => EmitSignal(SignalName.LobbyUpdated);
     public void EmitMatchCountdown(int secondsRemaining) =>
         EmitSignal(SignalName.MatchCountdown, secondsRemaining);
+    public void EmitJoinRejected(string reason) => EmitSignal(SignalName.JoinRejected, reason);
 
     // ── Accessibility Emit Helpers ──────────────────────────────────
 

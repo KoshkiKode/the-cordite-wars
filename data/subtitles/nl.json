@@ -1,5 +1,54 @@
 {
   "version": 1,
   "locale": "nl",
-  "entries": {}
+  "entries": {
+    "vo_commander_greeting": {
+      "text": "Commandant aan boord. Alle eenheden, rapporteer status.",
+      "duration": 3.0
+    },
+    "vo_match_started": {
+      "text": "Gevecht gestart. Vestig je basis en beveilig Cordite-knooppunten.",
+      "duration": 4.0
+    },
+    "vo_base_under_attack": {
+      "text": "Waarschuwing! Onze basis wordt aangevallen!",
+      "duration": 2.5
+    },
+    "vo_unit_ready": {
+      "text": "Eenheidsproductie voltooid. Klaar voor inzet.",
+      "duration": 2.5
+    },
+    "vo_building_complete": {
+      "text": "Constructie voltooid.",
+      "duration": 2.0
+    },
+    "vo_insufficient_funds": {
+      "text": "Onvoldoende Cordite. Beveilig meer resourceknooppunten.",
+      "duration": 3.0
+    },
+    "vo_upgrade_complete": {
+      "text": "Upgradeonderzoek voltooid. Nieuwe mogelijkheden online.",
+      "duration": 3.0
+    },
+    "vo_victory": {
+      "text": "Alle vijandelijke troepen geëlimineerd. De overwinning is van ons!",
+      "duration": 3.5
+    },
+    "vo_defeat": {
+      "text": "Onze basis is vernietigd. Missie mislukt.",
+      "duration": 3.0
+    },
+    "vo_node_depleted": {
+      "text": "Cordite-knooppunt uitgeput. Verplaats oogsters.",
+      "duration": 2.5
+    },
+    "vo_enemy_spotted": {
+      "text": "Vijandelijk contact! Vijandelijke troepen gedetecteerd.",
+      "duration": 2.5
+    },
+    "vo_reinforcements": {
+      "text": "Versterkingen arriveren. Houd uw posities.",
+      "duration": 2.5
+    }
+  }
 }
