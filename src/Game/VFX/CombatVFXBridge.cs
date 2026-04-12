@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 using CorditeWars.Core;
 using CorditeWars.Game.Units;
@@ -73,94 +74,48 @@ public partial class CombatVFXBridge : Node
     private void OnAttackFired(int attackerId, int weaponType, Vector3 position)
     {
         var type = (WeaponType)weaponType;
-
-        // Muzzle flash on every discharge
-        SpawnAt(ParticleFactory.CreateMuzzleFlash(), position);
-
-        // Rockets and missiles also leave a brief thruster trail
-        if (type is WeaponType.Missile or WeaponType.Rockets or WeaponType.SAM or WeaponType.Torpedo)
-        {
-            SpawnAt(ParticleFactory.CreateThrusterTrail(), position);
-        }
-
-        // Flamethrower and chemical spray get a smoke puff at the emitter
-        if (type is WeaponType.Flamethrower or WeaponType.ChemicalSpray)
-        {
-            SpawnAt(ParticleFactory.CreateSmokePuff(), position);
-        }
+        SpawnRequests(VFXDispatcher.GetAttackFiredEffects(type), position);
     }
 
     private void OnAttackImpact(int targetId, bool isHit, bool hasAoe, Vector3 position)
     {
-        if (!isHit && !hasAoe) return; // Clean misses produce no visual
-
-        if (hasAoe)
-        {
-            // Splash weapons: medium explosion + smoke
-            SpawnAt(ParticleFactory.CreateExplosionMedium(), position);
-            SpawnAt(ParticleFactory.CreateSmokePuff(), position);
-        }
-        else
-        {
-            // Direct-hit bullet/beam: sparks
-            SpawnAt(ParticleFactory.CreateSpark(), position);
-        }
-
-        // Note: this handler currently has no weapon-type context, so it cannot
-        // apply torpedo-specific impact VFX (such as water splashes) here.
+        SpawnRequests(VFXDispatcher.GetAttackImpactEffects(isHit, hasAoe), position);
     }
 
     private void OnUnitDeath(int unitId, int unitCategory, Vector3 position)
     {
         var category = (UnitCategory)unitCategory;
-
-        switch (category)
-        {
-            case UnitCategory.Infantry:
-            case UnitCategory.Special:
-                SpawnAt(ParticleFactory.CreateExplosionSmall(), position);
-                SpawnAt(ParticleFactory.CreateDustCloud(), position);
-                break;
-
-            case UnitCategory.LightVehicle:
-            case UnitCategory.APC:
-            case UnitCategory.Support:
-            case UnitCategory.Defense:
-            case UnitCategory.PatrolBoat:
-                SpawnAt(ParticleFactory.CreateExplosionMedium(), position);
-                SpawnAt(ParticleFactory.CreateSmokePuff(), position);
-                break;
-
-            case UnitCategory.HeavyVehicle:
-            case UnitCategory.Tank:
-            case UnitCategory.Artillery:
-            case UnitCategory.Helicopter:
-            case UnitCategory.Jet:
-            case UnitCategory.Destroyer:
-            case UnitCategory.Submarine:
-                SpawnAt(ParticleFactory.CreateExplosionLarge(), position);
-                SpawnAt(ParticleFactory.CreateSmokePuff(), position);
-                SpawnAt(ParticleFactory.CreateSpark(), position);
-                break;
-
-            case UnitCategory.CapitalShip:
-                // Capital ship: massive triple explosion sequence
-                SpawnAt(ParticleFactory.CreateExplosionLarge(), position);
-                SpawnAt(ParticleFactory.CreateExplosionLarge(),
-                    position + new Vector3(2f, 0f, 0f));
-                SpawnAt(ParticleFactory.CreateExplosionMedium(),
-                    position + new Vector3(-1f, 1f, 1f));
-                SpawnAt(ParticleFactory.CreateSmokePuff(), position);
-                SpawnAt(ParticleFactory.CreateWaterSplash(), position);
-                break;
-
-            default:
-                SpawnAt(ParticleFactory.CreateExplosionSmall(), position);
-                break;
-        }
+        SpawnRequests(VFXDispatcher.GetUnitDeathEffects(category), position);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Resolves each <see cref="VFXRequest"/> to a concrete
+    /// <see cref="GpuParticles3D"/> and spawns it at
+    /// <paramref name="basePos"/> + the request's offset.
+    /// </summary>
+    private void SpawnRequests(IReadOnlyList<VFXRequest> requests, Vector3 basePos)
+    {
+        foreach (var req in requests)
+        {
+            var particles = req.Effect switch
+            {
+                VFXEffectType.ExplosionSmall  => ParticleFactory.CreateExplosionSmall(),
+                VFXEffectType.ExplosionMedium => ParticleFactory.CreateExplosionMedium(),
+                VFXEffectType.ExplosionLarge  => ParticleFactory.CreateExplosionLarge(),
+                VFXEffectType.SmokePuff       => ParticleFactory.CreateSmokePuff(),
+                VFXEffectType.DustCloud       => ParticleFactory.CreateDustCloud(),
+                VFXEffectType.MuzzleFlash     => ParticleFactory.CreateMuzzleFlash(),
+                VFXEffectType.ThrusterTrail   => ParticleFactory.CreateThrusterTrail(),
+                VFXEffectType.Spark           => ParticleFactory.CreateSpark(),
+                VFXEffectType.WaterSplash     => ParticleFactory.CreateWaterSplash(),
+                _                             => ParticleFactory.CreateExplosionSmall()
+            };
+
+            SpawnAt(particles, basePos + new Vector3(req.OffsetX, req.OffsetY, req.OffsetZ));
+        }
+    }
 
     /// <summary>
     /// Positions <paramref name="particles"/> at <paramref name="worldPos"/>
