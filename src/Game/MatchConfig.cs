@@ -81,6 +81,13 @@ public sealed class MatchConfig
     public bool IsTutorial { get; init; }
 
     /// <summary>
+    /// Which tutorial mission to load (1, 2, or 3).
+    /// 1 = Movement &amp; Camera; 2 = Buildings &amp; Units; 3 = Advanced Strategy.
+    /// Only meaningful when <see cref="IsTutorial"/> is true.
+    /// </summary>
+    public int TutorialMission { get; init; } = 1;
+
+    /// <summary>
     /// When set, this match is a campaign mission.
     /// <see cref="Main"/> uses this to save progress and display objectives.
     /// Null for skirmish and multiplayer matches.

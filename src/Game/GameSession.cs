@@ -490,16 +490,7 @@ public partial class GameSession : Node
         if (config.IsTutorial)
         {
             _tutorialManager = new CorditeWars.Game.Tutorial.TutorialManager();
-            var steps = new List<CorditeWars.Game.Tutorial.TutorialStep>
-            {
-                new CorditeWars.Game.Tutorial.TutorialStep { Id="t1", Title="Welcome!", Body="This is Cordite Wars. Your goal is to destroy the enemy Command Center.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=5f },
-                new CorditeWars.Game.Tutorial.TutorialStep { Id="t2", Title="Starting Units", Body="You have a Command Center (HQ) and a harvester. Click your harvester to select it.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=8f },
-                new CorditeWars.Game.Tutorial.TutorialStep { Id="t3", Title="Harvest Cordite", Body="Right-click a glowing Cordite node to send your harvester to collect resources.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.CorditeAbove, TriggerValue=2000f },
-                new CorditeWars.Game.Tutorial.TutorialStep { Id="t4", Title="Build!", Body="You're earning Cordite! Open the Build menu and construct a Refinery or Barracks.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.BuildingPlaced, TriggerValue=0f },
-                new CorditeWars.Game.Tutorial.TutorialStep { Id="t5", Title="Train Units", Body="Select your Barracks and train infantry to build your army.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=30f },
-                new CorditeWars.Game.Tutorial.TutorialStep { Id="t6", Title="Attack!", Body="Select your units and right-click the enemy base to attack. Destroy the enemy Command Center to win!", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=60f },
-                new CorditeWars.Game.Tutorial.TutorialStep { Id="t7", Title="Tutorial Complete", Body="Good luck on the battlefield, Commander! The tutorial will now end.", TriggerCondition=CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds, TriggerValue=4f },
-            };
+            var steps = BuildTutorialSteps(config.TutorialMission);
             _tutorialManager.Start(steps);
 
             _tutorialOverlay = new CorditeWars.UI.HUD.TutorialOverlay();
@@ -826,6 +817,108 @@ public partial class GameSession : Node
     /// starts at 1 and a match will not reach 100_000 live units simultaneously).
     /// </summary>
     private static bool IsBuildingId(int unitId) => unitId < 0 || unitId >= 100_001;
+
+    /// <summary>
+    /// Returns the ordered list of <see cref="TutorialStep"/>s for the given tutorial mission number.
+    /// </summary>
+    private static List<CorditeWars.Game.Tutorial.TutorialStep> BuildTutorialSteps(int mission)
+    {
+        const CorditeWars.Game.Tutorial.TriggerCondition T  = CorditeWars.Game.Tutorial.TriggerCondition.TimerSeconds;
+        const CorditeWars.Game.Tutorial.TriggerCondition US = CorditeWars.Game.Tutorial.TriggerCondition.UnitSelected;
+        const CorditeWars.Game.Tutorial.TriggerCondition BP = CorditeWars.Game.Tutorial.TriggerCondition.BuildingPlaced;
+        const CorditeWars.Game.Tutorial.TriggerCondition CA = CorditeWars.Game.Tutorial.TriggerCondition.CorditeAbove;
+
+        return mission switch
+        {
+            1 => new List<CorditeWars.Game.Tutorial.TutorialStep>
+            {
+                new() { Id="m1_01", Title="Mission 1 \u2014 Movement & Camera",
+                        Body="Welcome, Commander! This mission teaches you how to move around the battlefield and navigate the interface.",
+                        TriggerCondition=T, TriggerValue=6f },
+                new() { Id="m1_02", Title="Camera \u2014 Zoom",
+                        Body="Scroll the mouse wheel to zoom in and out. Zoom in to see unit details; zoom out for a strategic overview.",
+                        TriggerCondition=T, TriggerValue=8f },
+                new() { Id="m1_03", Title="Camera \u2014 Pan",
+                        Body="Hold Middle Mouse Button (or move to screen edges) to pan the camera across the map. Try panning now.",
+                        TriggerCondition=T, TriggerValue=8f },
+                new() { Id="m1_04", Title="Select a Unit",
+                        Body="Left-click your harvester unit to select it. Selected units show a green ring underneath them.",
+                        TriggerCondition=US, TriggerValue=0f },
+                new() { Id="m1_05", Title="Move a Unit",
+                        Body="With your harvester selected, right-click anywhere on the ground to move it there. Try moving it now.",
+                        TriggerCondition=T, TriggerValue=10f },
+                new() { Id="m1_06", Title="Box Selection",
+                        Body="Hold left mouse button and drag to draw a selection box. All friendly units inside the box will be selected.",
+                        TriggerCondition=T, TriggerValue=8f },
+                new() { Id="m1_07", Title="The Minimap",
+                        Body="The minimap (bottom-left) shows the full battlefield. Left-click it to jump the camera to that location.",
+                        TriggerCondition=T, TriggerValue=7f },
+                new() { Id="m1_08", Title="The Build Menu",
+                        Body="The Build panel (bottom-right) lists structures you can construct. Click a building icon to start placing it.",
+                        TriggerCondition=T, TriggerValue=7f },
+                new() { Id="m1_09", Title="Pause Menu",
+                        Body="Press Escape at any time to open the Pause menu where you can adjust settings or quit.",
+                        TriggerCondition=T, TriggerValue=6f },
+                new() { Id="m1_10", Title="Mission 1 Complete!",
+                        Body="You've mastered movement and the camera. Proceed to Mission 2 to learn about buildings and units.",
+                        TriggerCondition=T, TriggerValue=5f },
+            },
+            2 => new List<CorditeWars.Game.Tutorial.TutorialStep>
+            {
+                new() { Id="m2_01", Title="Mission 2 \u2014 Buildings & Units",
+                        Body="Welcome back! This mission teaches you how to build structures and train units.",
+                        TriggerCondition=T, TriggerValue=6f },
+                new() { Id="m2_02", Title="Cordite \u2014 Your Economy",
+                        Body="Cordite is your resource. Your harvester collects it from glowing nodes. Right-click a node to send your harvester there.",
+                        TriggerCondition=CA, TriggerValue=2000f },
+                new() { Id="m2_03", Title="Build a Refinery",
+                        Body="Good, Cordite is flowing! A Refinery increases your income rate. Open the Build menu and place a Refinery now.",
+                        TriggerCondition=BP, TriggerValue=0f },
+                new() { Id="m2_04", Title="Build a Barracks",
+                        Body="Excellent! Now build a Barracks to train infantry. Select it from the Build menu and place it near your base.",
+                        TriggerCondition=BP, TriggerValue=0f },
+                new() { Id="m2_05", Title="Train Infantry",
+                        Body="Click your Barracks to select it. A unit-training panel will appear \u2014 click an infantry unit to queue training.",
+                        TriggerCondition=US, TriggerValue=0f },
+                new() { Id="m2_06", Title="Attack the Enemy",
+                        Body="Select your trained units and right-click the enemy base on the minimap to issue an attack order.",
+                        TriggerCondition=T, TriggerValue=30f },
+                new() { Id="m2_07", Title="Destroy the HQ",
+                        Body="Destroy the enemy Command Center to win the match. Focus fire on the HQ \u2014 concentrate your forces!",
+                        TriggerCondition=T, TriggerValue=60f },
+                new() { Id="m2_08", Title="Mission 2 Complete!",
+                        Body="You now understand economy, construction, and unit training. Proceed to Mission 3 for advanced tactics.",
+                        TriggerCondition=T, TriggerValue=5f },
+            },
+            _ => new List<CorditeWars.Game.Tutorial.TutorialStep>
+            {
+                new() { Id="m3_01", Title="Mission 3 \u2014 Advanced Strategy",
+                        Body="Welcome to your final training mission. You will learn tech buildings, advanced units, and multi-front tactics.",
+                        TriggerCondition=T, TriggerValue=6f },
+                new() { Id="m3_02", Title="Research Lab",
+                        Body="Build a Tech Lab from the Build menu. It unlocks advanced units and global upgrades for your faction.",
+                        TriggerCondition=BP, TriggerValue=0f },
+                new() { Id="m3_03", Title="Upgrades",
+                        Body="Select your Tech Lab and browse the Upgrades tab. Researching upgrades permanently improves your entire army.",
+                        TriggerCondition=T, TriggerValue=12f },
+                new() { Id="m3_04", Title="Advanced Units",
+                        Body="Build a Vehicle Factory or Airfield. Advanced units are powerful but expensive \u2014 use them to break stalemates.",
+                        TriggerCondition=BP, TriggerValue=0f },
+                new() { Id="m3_05", Title="Control Groups",
+                        Body="Select a group of units and press Ctrl+1\u20139 to assign them a control group. Press 1\u20139 to reselect instantly.",
+                        TriggerCondition=T, TriggerValue=10f },
+                new() { Id="m3_06", Title="Fog of War",
+                        Body="In real missions, Fog of War hides the map. Station detector units near your perimeter to spot stealthed enemies.",
+                        TriggerCondition=T, TriggerValue=10f },
+                new() { Id="m3_07", Title="Multi-Front Tactics",
+                        Body="Use control groups to manage separate attack waves. While one group distracts, send another to flank the enemy base.",
+                        TriggerCondition=T, TriggerValue=12f },
+                new() { Id="m3_08", Title="Victory!",
+                        Body="You are ready for the campaign, Commander. Choose a faction from the Campaign menu and begin the war for Cordite.",
+                        TriggerCondition=T, TriggerValue=5f },
+            }
+        };
+    }
 
     /// <summary>
     /// Creates a fresh <see cref="SimUnit"/> for a mobile unit on its first

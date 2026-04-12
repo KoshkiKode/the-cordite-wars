@@ -151,7 +151,8 @@ public partial class MainMenu : Control
 
         if (ButtonLabelKeys[index] == "MENU_TUTORIAL")
         {
-            LaunchTutorial();
+            _audioManager?.PlayUiSoundById("ui_click");
+            SceneTransition.TransitionTo(GetTree(), "res://scenes/UI/TutorialSelect.tscn");
             return;
         }
 
@@ -160,26 +161,6 @@ public partial class MainMenu : Control
         {
         SceneTransition.TransitionTo(GetTree(), scene);
         }
-    }
-
-    private void LaunchTutorial()
-    {
-        _audioManager?.PlayUiSoundById("ui_confirm");
-        CorditeWars.Game.Main.PendingConfig = new CorditeWars.Game.MatchConfig
-        {
-            MapId           = "crossroads",
-            MatchSeed       = (ulong)System.DateTime.Now.Ticks,
-            GameSpeed       = 1,
-            FogOfWar        = false,
-            StartingCordite = 5000,
-            IsTutorial      = true,
-            PlayerConfigs   = new CorditeWars.Game.PlayerConfig[]
-            {
-                new CorditeWars.Game.PlayerConfig { PlayerId = 1, FactionId = "arcloft", IsAI = false, PlayerName = "Commander" },
-                new CorditeWars.Game.PlayerConfig { PlayerId = 2, FactionId = "kragmore", IsAI = true, AIDifficulty = 0, PlayerName = "Tutorial AI" }
-            }
-        };
-        SceneTransition.TransitionTo(GetTree(), "res://scenes/Game/Main.tscn");
     }
 
     private void OnButtonHover()
