@@ -1022,6 +1022,7 @@ public class UnitInteractionSystem
 
             // Submarines surface (are always visible) in shallow water.
             // Only DeepWater cells allow a submarine to remain submerged.
+            // GetTerrainType is a single array read (O(1)) — no caching needed.
             if (stealthUnit.Category == UnitCategory.Submarine)
             {
                 TerrainType cellType = terrain.GetTerrainType(stealthUnit.Movement.Position);

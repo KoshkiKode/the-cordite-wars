@@ -234,7 +234,8 @@ public partial class ReplayBrowserScreen : Control
                 sb.AppendLine($"Duration: {minutes}:{seconds:00}");
             }
 
-            // Players
+            // Players — parse into a name-lookup dictionary for the winner step below
+            var playerNames = new System.Collections.Generic.Dictionary<int, string>();
             if (root.TryGetProperty("players", out var playersEl) &&
                 playersEl.ValueKind == JsonValueKind.Array)
             {
@@ -245,16 +246,24 @@ public partial class ReplayBrowserScreen : Control
                     string name    = player.TryGetProperty("player_name", out var nEl) ? nEl.GetString() ?? "Unknown" : "Unknown";
                     string faction = player.TryGetProperty("faction_id",  out var fEl) ? fEl.GetString() ?? "?"       : "?";
                     bool   isAI    = player.TryGetProperty("is_ai",       out var aEl) && aEl.GetBoolean();
+                    int    id      = player.TryGetProperty("player_id",   out var iEl) ? iEl.GetInt32() : -1;
                     sb.AppendLine($"  {name} ({faction}){(isAI ? " [AI]" : "")}");
+                    if (id >= 0)
+                        playerNames[id] = name;
                 }
             }
 
-            // Winner
+            // Winner — resolve to player name when available
             if (root.TryGetProperty("winner_player_id", out var winnerEl))
             {
                 int winnerId = winnerEl.GetInt32();
                 sb.AppendLine();
-                sb.AppendLine(winnerId >= 0 ? $"Winner:   Player {winnerId}" : "Result:   Draw");
+                if (winnerId < 0)
+                    sb.AppendLine("Result:   Draw");
+                else if (playerNames.TryGetValue(winnerId, out string? winnerName))
+                    sb.AppendLine($"Winner:   {winnerName}");
+                else
+                    sb.AppendLine($"Winner:   Player {winnerId}");
             }
 
             sb.AppendLine();
@@ -262,8 +271,9 @@ public partial class ReplayBrowserScreen : Control
 
             return sb.ToString().TrimEnd();
         }
-        catch
+        catch (Exception ex)
         {
+            GD.PushWarning($"[ReplayBrowser] Failed to parse replay metadata for '{fileName}': {ex.Message}");
             return $"Could not read replay metadata.\n\nFile: {fileName}";
         }
     }
