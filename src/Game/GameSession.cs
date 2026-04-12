@@ -1548,8 +1548,9 @@ public partial class GameSession : Node
                 FixedPoint.FromRaw((int)us.PositionX),
                 FixedPoint.FromRaw((int)us.PositionY));
             FixedPoint facing = FixedPoint.FromRaw((int)us.Facing);
+            FixedPoint health = FixedPoint.FromRaw((int)us.Health);
 
-            _unitSpawner.SpawnUnit(us.UnitTypeId, factionId, us.PlayerId, unitPos, facing);
+            _unitSpawner.SpawnUnitWithId(us.UnitId, us.UnitTypeId, factionId, us.PlayerId, unitPos, facing, health);
         }
 
         // Restore harvesters

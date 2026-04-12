@@ -63,6 +63,39 @@ public partial class UnitSpawner : Node
         FixedVector2 position,
         FixedPoint facing)
     {
+        int unitId = _nextUnitId++;
+        return SpawnUnitCore(unitId, unitTypeId, factionId, playerId, position, facing, health: null);
+    }
+
+    /// <summary>
+    /// Restores a unit from a save using its original ID and health value.
+    /// Advances <see cref="_nextUnitId"/> past <paramref name="unitId"/> so that
+    /// future auto-assigned IDs never collide with saved IDs.
+    /// </summary>
+    public UnitNode3D? SpawnUnitWithId(
+        int unitId,
+        string unitTypeId,
+        string factionId,
+        int playerId,
+        FixedVector2 position,
+        FixedPoint facing,
+        FixedPoint health)
+    {
+        if (unitId >= _nextUnitId)
+            _nextUnitId = unitId + 1;
+
+        return SpawnUnitCore(unitId, unitTypeId, factionId, playerId, position, facing, health);
+    }
+
+    private UnitNode3D? SpawnUnitCore(
+        int unitId,
+        string unitTypeId,
+        string factionId,
+        int playerId,
+        FixedVector2 position,
+        FixedPoint facing,
+        FixedPoint? health)
+    {
         if (!_unitDataRegistry.HasUnit(unitTypeId))
         {
             GD.PushWarning($"[UnitSpawner] Unit type '{unitTypeId}' not found in UnitDataRegistry.");
@@ -97,11 +130,11 @@ public partial class UnitSpawner : Node
             position = FindNearestWaterSpawn(position);
         }
 
-        int unitId = _nextUnitId++;
+        FixedPoint spawnHealth = health ?? data.MaxHealth;
 
         var unitNode = new UnitNode3D();
         unitNode.Initialize(unitId, unitTypeId, data, asset, teamColor, factionBaseColor, playerId);
-        unitNode.SyncFromSimulation(position, facing, data.MaxHealth);
+        unitNode.SyncFromSimulation(position, facing, spawnHealth);
 
         if (_unitsParent is not null)
         {
