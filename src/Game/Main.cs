@@ -118,16 +118,17 @@ public partial class Main : Node3D
         }
 
         // Check if this was the last mission (for COMPLETE_CAMPAIGN achievement)
-        if (won && campaignCtx is not null)
-        {
-            var fc2 = LoadFactionCampaign(campaignCtx.FactionId);
-            if (fc2 is not null)
-            {
-                var lastMission = fc2.Missions[^1];
-                if (lastMission.Id == campaignCtx.MissionId)
-                    SteamManager.Instance?.UnlockAchievement("COMPLETE_CAMPAIGN");
-            }
-        }
+        // Steam achievement disabled until Steam integration is re-enabled:
+        // if (won && campaignCtx is not null)
+        // {
+        //     var fc2 = LoadFactionCampaign(campaignCtx.FactionId);
+        //     if (fc2 is not null)
+        //     {
+        //         var lastMission = fc2.Missions[^1];
+        //         if (lastMission.Id == campaignCtx.MissionId)
+        //             SteamManager.Instance?.UnlockAchievement("COMPLETE_CAMPAIGN");
+        //     }
+        // }
 
         // Get match stats
         var stats = _session.GetMatchStats();

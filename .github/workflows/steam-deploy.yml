@@ -1,19 +1,25 @@
 name: "Deploy to Steam"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Triggered automatically when a versioned release tag is pushed, or
-# manually from the Actions tab.
+# DISABLED — Steam integration is commented out until a Steam App ID is obtained.
+# Re-enable by restoring the `on:` triggers below.
 # ─────────────────────────────────────────────────────────────────────────────
+# on:
+#   push:
+#     tags:
+#       - "v*"
+#   workflow_dispatch:
+#     inputs:
+#       branch:
+#         description: "Steam branch to set live (e.g. 'default', 'beta')"
+#         required: false
+#         default: "default"
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
     inputs:
-      branch:
-        description: "Steam branch to set live (e.g. 'default', 'beta')"
+      _disabled:
+        description: "This workflow is disabled. Restore the on: triggers to re-enable."
         required: false
-        default: "default"
 
 permissions:
   contents: read

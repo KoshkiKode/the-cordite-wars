@@ -475,14 +475,14 @@ public partial class GameSession : Node
         _audioManager?.PlayUiSoundById("ui_match_start");
         _audioManager?.PlayMusicById("music_battle_calm");
 
-        // Notify Steam of match start
-        if (SteamManager.Instance is { } steam && config.PlayerConfigs.Length > 0)
-        {
-            bool isMultiplayerSteam = config.PlayerConfigs.Length > 1 && !config.PlayerConfigs[1].IsAI;
-            bool hasAiOpponent     = config.PlayerConfigs.Length > 1 && config.PlayerConfigs[1].IsAI;
-            int  aiDiff            = hasAiOpponent ? config.PlayerConfigs[1].AIDifficulty : 0;
-            steam.OnMatchStarted(config.PlayerConfigs[0].FactionId, isMultiplayerSteam, hasAiOpponent, aiDiff);
-        }
+        // Steam match-start notification — disabled until Steam integration is re-enabled.
+        // if (SteamManager.Instance is { } steam && config.PlayerConfigs.Length > 0)
+        // {
+        //     bool isMultiplayerSteam = config.PlayerConfigs.Length > 1 && !config.PlayerConfigs[1].IsAI;
+        //     bool hasAiOpponent     = config.PlayerConfigs.Length > 1 && config.PlayerConfigs[1].IsAI;
+        //     int  aiDiff            = hasAiOpponent ? config.PlayerConfigs[1].AIDifficulty : 0;
+        //     steam.OnMatchStarted(config.PlayerConfigs[0].FactionId, isMultiplayerSteam, hasAiOpponent, aiDiff);
+        // }
 
         GD.Print("[GameSession] Match started successfully.");
 
@@ -566,15 +566,15 @@ public partial class GameSession : Node
         bool autoSaveReplays = LoadAutoSaveReplaySetting();
         _replayManager?.FinalizeAndSave(finalTick, winnerPlayerId, autoSaveReplays);
 
-        // Notify Steam: hard AI defeat achievement
-        if (SteamManager.Instance is { } steam && ActiveConfig is not null)
-        {
-            bool hasHardAI = ActiveConfig.PlayerConfigs.Length > 1
-                && ActiveConfig.PlayerConfigs[1].IsAI
-                && ActiveConfig.PlayerConfigs[1].AIDifficulty >= 2;
-            if (hasHardAI && winnerPlayerId == 1)
-                steam.OnHardAIDefeated();
-        }
+        // Steam hard-AI defeat achievement — disabled until Steam integration is re-enabled.
+        // if (SteamManager.Instance is { } steam && ActiveConfig is not null)
+        // {
+        //     bool hasHardAI = ActiveConfig.PlayerConfigs.Length > 1
+        //         && ActiveConfig.PlayerConfigs[1].IsAI
+        //         && ActiveConfig.PlayerConfigs[1].AIDifficulty >= 2;
+        //     if (hasHardAI && winnerPlayerId == 1)
+        //         steam.OnHardAIDefeated();
+        // }
 
         // Signal through EventBus so listeners (Main.cs, VictoryScreen, etc.) can react
         EventBus.Instance?.EmitMatchEnded();
@@ -775,7 +775,7 @@ public partial class GameSession : Node
                     else
                     {
                         _playerKills++;
-                        SteamManager.Instance?.RecordUnitsDestroyed(1);
+                        // SteamManager.Instance?.RecordUnitsDestroyed(1); // disabled until Steam integration is re-enabled
                     }
                 }
                 _unitSpawner.DespawnUnit(destroyedId);

@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Godot;
 using System.Linq;
-using Steamworks;
+// using Steamworks; // disabled — Steam integration commented out until a Steam App ID is obtained
 
 namespace CorditeWars.Systems.Platform;
 
@@ -32,8 +32,10 @@ file sealed class AchievementFile
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// SteamManager
+// SteamManager — DISABLED
+// Entire class commented out. Re-enable when a Steam App ID is obtained.
 // ──────────────────────────────────────────────────────────────────────────────
+#if false
 
 /// <summary>
 /// Manages all Steamworks integration for Cordite Wars.
@@ -561,3 +563,5 @@ public sealed partial class SteamManager : Node
         UnlockAchievement("DEFEAT_HARD_AI");
     }
 }
+
+#endif // Steam integration disabled

@@ -62,15 +62,15 @@ public partial class VictoryScreen : CanvasLayer
         _audioManager?.PlayMusicById(won ? "music_victory" : "music_defeat");
         _audioManager?.PlayUiSoundById(won ? "ui_match_victory" : "ui_match_defeat");
 
-        // Report result to Steam
-        if (_result is not null && SteamManager.Instance is { } steam)
-        {
-            if (_result.Won)
-                steam.OnMatchWon(_result.PlayerFactionId, _result.IsMultiplayer,
-                    _result.IsNavalMap, _result.MatchDurationSeconds);
-            else
-                steam.OnMatchLost();
-        }
+        // Steam match-result reporting — disabled until Steam integration is re-enabled.
+        // if (_result is not null && SteamManager.Instance is { } steam)
+        // {
+        //     if (_result.Won)
+        //         steam.OnMatchWon(_result.PlayerFactionId, _result.IsMultiplayer,
+        //             _result.IsNavalMap, _result.MatchDurationSeconds);
+        //     else
+        //         steam.OnMatchLost();
+        // }
     }
 
     public override void _Input(InputEvent @event)
