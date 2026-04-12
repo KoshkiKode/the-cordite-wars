@@ -25,6 +25,8 @@ public partial class UnitInfoPanel : PanelContainer
     private Label? _hpLabel;
     private Label? _armorLabel;
     private Label? _weaponLabel;
+    private Label? _veterancyLabel;
+    private Label? _stanceLabel;
 
     // Multi-select display
     private GridContainer? _multiSelectGrid;
@@ -113,6 +115,21 @@ public partial class UnitInfoPanel : PanelContainer
         _weaponLabel.AddThemeFontSizeOverride("font_size", 14);
         _singleUnitDisplay.AddChild(_weaponLabel);
 
+        // Veterancy row
+        var vetRow = new HBoxContainer();
+        vetRow.AddThemeConstantOverride("separation", 8);
+        _singleUnitDisplay.AddChild(vetRow);
+
+        _veterancyLabel = new Label();
+        _veterancyLabel.AddThemeColorOverride("font_color", new Color(1.0f, 0.85f, 0.25f)); // gold
+        _veterancyLabel.AddThemeFontSizeOverride("font_size", 13);
+        vetRow.AddChild(_veterancyLabel);
+
+        _stanceLabel = new Label();
+        _stanceLabel.AddThemeColorOverride("font_color", new Color(0.533f, 0.533f, 0.627f));
+        _stanceLabel.AddThemeFontSizeOverride("font_size", 13);
+        vetRow.AddChild(_stanceLabel);
+
         _singleUnitDisplay.Visible = false;
     }
 
@@ -182,6 +199,27 @@ public partial class UnitInfoPanel : PanelContainer
             else
                 _weaponLabel!.Text = "No weapons";
         }
+
+        // Veterancy & stance
+        string vetStars = unit.Veterancy switch
+        {
+            CorditeWars.Systems.Pathfinding.VeterancyLevel.Heroic  => "★★★★ Heroic",
+            CorditeWars.Systems.Pathfinding.VeterancyLevel.Elite   => "★★★ Elite",
+            CorditeWars.Systems.Pathfinding.VeterancyLevel.Veteran => "★★ Veteran",
+            _                                                        => "★ Recruit"
+        };
+        if (_veterancyLabel != null)
+            _veterancyLabel.Text = vetStars;
+
+        string stanceName = unit.Stance switch
+        {
+            CorditeWars.Systems.Pathfinding.UnitStance.Defensive  => "Defensive",
+            CorditeWars.Systems.Pathfinding.UnitStance.HoldGround => "Hold Ground",
+            CorditeWars.Systems.Pathfinding.UnitStance.HoldFire   => "Hold Fire",
+            _                                                       => "Aggressive"
+        };
+        if (_stanceLabel != null)
+            _stanceLabel.Text = $"| {stanceName}";
     }
 
     private float GetMaxHealth(UnitNode3D unit)

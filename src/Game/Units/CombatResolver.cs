@@ -137,6 +137,12 @@ public struct AttackerInfo
     /// A weapon can fire when its cooldown reaches 0 or below.
     /// </summary>
     public List<FixedPoint> WeaponCooldowns;
+
+    /// <summary>
+    /// Outgoing damage multiplier. Used by veterancy to boost damage.
+    /// 1.0 = normal. 1.1 = Veteran. 1.25 = Elite. 1.5 = Heroic.
+    /// </summary>
+    public FixedPoint DamageMultiplier;
 }
 
 /// <summary>
@@ -326,6 +332,10 @@ public class CombatResolver
 
         // ── Step 2: Base damage ──
         FixedPoint damage = weapon.Damage;
+
+        // Apply attacker veterancy damage multiplier
+        if (attacker.DamageMultiplier > FixedPoint.Zero && attacker.DamageMultiplier != FixedPoint.One)
+            damage = damage * attacker.DamageMultiplier;
 
         // ── Step 3: Armor type modifier ──
         // Lookup the weapon's modifier for this armor type.

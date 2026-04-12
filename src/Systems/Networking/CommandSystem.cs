@@ -47,7 +47,8 @@ public enum CommandType
     Move = 2,
     AttackMove = 3,
     Attack = 4,
-    Patrol = 5
+    Patrol = 5,
+    SetStance = 6
 }
 
 /// <summary>
@@ -123,6 +124,9 @@ public struct UnitOrder
     /// Stored as a list so the unit can cycle through them.
     /// </summary>
     public List<FixedVector2>? PatrolWaypoints;
+
+    /// <summary>New stance for SetStance orders.</summary>
+    public CorditeWars.Systems.Pathfinding.UnitStance Stance;
 }
 
 /// <summary>
@@ -135,7 +139,8 @@ public enum UnitOrderType
     AttackMove,
     Attack,
     Patrol,
-    HoldPosition
+    HoldPosition,
+    SetStance
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -419,6 +424,43 @@ public class HoldPositionCommand : GameCommand
                 TargetPosition = unit.Value.Position, // Hold at current position
                 TargetUnitId = -1,
                 PatrolWaypoints = null
+            });
+        }
+    }
+}
+
+/// <summary>
+/// Sets the combat stance for selected units. Stance changes affect whether
+/// units will move to engage enemies and whether they will fire at all.
+/// </summary>
+public class SetStanceCommand : GameCommand
+{
+    public override CommandType Type => CommandType.SetStance;
+
+    /// <summary>IDs of the units whose stance is being changed.</summary>
+    public List<int> UnitIds { get; set; } = new();
+
+    /// <summary>The new stance to apply.</summary>
+    public CorditeWars.Systems.Pathfinding.UnitStance Stance { get; set; }
+
+    public override void Execute(GameCommandContext ctx)
+    {
+        UnitIds.Sort();
+
+        for (int i = 0; i < UnitIds.Count; i++)
+        {
+            int unitId = UnitIds[i];
+            var unit = ctx.GetUnit(unitId);
+            if (unit == null) continue;
+            if (unit.Value.PlayerId != PlayerId) continue;
+
+            ctx.IssueOrder(unitId, new UnitOrder
+            {
+                Type             = UnitOrderType.SetStance,
+                Stance           = Stance,
+                TargetPosition   = unit.Value.Position,
+                TargetUnitId     = -1,
+                PatrolWaypoints  = null
             });
         }
     }

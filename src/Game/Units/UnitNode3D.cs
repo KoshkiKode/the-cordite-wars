@@ -26,6 +26,13 @@ public partial class UnitNode3D : Node3D
     public FixedPoint MaxHealth { get; private set; }
     public bool IsAlive { get; private set; } = true;
 
+    /// <summary>Current combat stance. Synced from SimUnit each tick.</summary>
+    public CorditeWars.Systems.Pathfinding.UnitStance Stance { get; private set; }
+    /// <summary>Accumulated experience points. Synced from SimUnit each tick.</summary>
+    public int XP { get; private set; }
+    /// <summary>Veterancy level. Synced from SimUnit each tick.</summary>
+    public CorditeWars.Systems.Pathfinding.VeterancyLevel Veterancy { get; private set; }
+
     // Fixed combat and movement traits
     public FixedPoint Radius { get; private set; }
     public FixedPoint ArmorValue { get; private set; }
@@ -125,11 +132,17 @@ public partial class UnitNode3D : Node3D
     /// Updates the Godot transform from simulation state.
     /// Sim X maps to Godot X, Sim Y maps to Godot Z. Godot Y is up.
     /// </summary>
-    public void SyncFromSimulation(FixedVector2 simPos, FixedPoint simFacing, FixedPoint health)
+    public void SyncFromSimulation(FixedVector2 simPos, FixedPoint simFacing, FixedPoint health,
+        CorditeWars.Systems.Pathfinding.UnitStance stance = CorditeWars.Systems.Pathfinding.UnitStance.Aggressive,
+        int xp = 0,
+        CorditeWars.Systems.Pathfinding.VeterancyLevel veterancy = CorditeWars.Systems.Pathfinding.VeterancyLevel.Recruit)
     {
         SimPosition = simPos;
         SimFacing = simFacing;
         Health = health;
+        Stance = stance;
+        XP = xp;
+        Veterancy = veterancy;
 
         float height = _isAirUnit ? AirUnitHoverHeight : 0.0f;
         Position = new Vector3(simPos.X.ToFloat(), height, simPos.Y.ToFloat());

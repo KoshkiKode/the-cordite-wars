@@ -43,6 +43,32 @@ namespace CorditeWars.Systems.Pathfinding;
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /// <summary>
+/// Controls how a unit behaves when enemies are in range.
+/// </summary>
+public enum UnitStance
+{
+    /// <summary>Move toward enemies on sight and attack. (Default)</summary>
+    Aggressive = 0,
+    /// <summary>Hold position, attack enemies that enter weapon range.</summary>
+    Defensive = 1,
+    /// <summary>Never move to engage. Attack only targets that enter weapon range without repositioning.</summary>
+    HoldGround = 2,
+    /// <summary>Never attack. Focus on movement/orders only.</summary>
+    HoldFire = 3
+}
+
+/// <summary>
+/// Unit veterancy level. Units gain XP by destroying enemy units/buildings.
+/// </summary>
+public enum VeterancyLevel
+{
+    Recruit  = 0,
+    Veteran  = 1,
+    Elite    = 2,
+    Heroic   = 3
+}
+
+/// <summary>
 /// Combined simulation state for one unit. Contains all per-unit data needed
 /// by the tick pipeline. Updated in-place between ticks.
 /// </summary>
@@ -155,6 +181,24 @@ public struct SimUnit
     /// fired recently, and no enemy detector is within detection range.
     /// </summary>
     public bool IsCurrentlyStealthed;
+
+    // ── Stance ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Current combat stance. Controls targeting and movement-to-engage behaviour.
+    /// </summary>
+    public UnitStance Stance;
+
+    // ── Veterancy ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Accumulated experience points. Increases each time this unit destroys
+    /// an enemy unit or building.
+    /// </summary>
+    public int XP;
+
+    /// <summary>Current veterancy level, derived from <see cref="XP"/>.</summary>
+    public VeterancyLevel Veterancy;
 }
 
 /// <summary>
@@ -484,12 +528,31 @@ public class UnitInteractionSystem
             units[i] = updatedUnit;
 
             // ── Build movement input ──
-            movementInputs[i] = new MovementInput
+            // HoldGround and Defensive stances suppress movement when no
+            // explicit path exists (unit should not chase enemies).
+            bool suppressMovement = (unit.Stance == UnitStance.HoldGround ||
+                                     unit.Stance == UnitStance.Defensive) &&
+                                    (unit.CurrentPath == null || unit.CurrentPath.Count == 0) &&
+                                    unit.ActiveFlowField == null;
+
+            if (suppressMovement)
             {
-                DesiredDirection = steering.DesiredDirection,
-                DesiredSpeed = steering.DesiredSpeed,
-                Brake = steering.HasArrived
-            };
+                movementInputs[i] = new MovementInput
+                {
+                    DesiredDirection = FixedVector2.Zero,
+                    DesiredSpeed     = FixedPoint.Zero,
+                    Brake            = true
+                };
+            }
+            else
+            {
+                movementInputs[i] = new MovementInput
+                {
+                    DesiredDirection = steering.DesiredDirection,
+                    DesiredSpeed     = steering.DesiredSpeed,
+                    Brake            = steering.HasArrived
+                };
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -694,11 +757,30 @@ public class UnitInteractionSystem
             if (unit.Weapons == null || unit.Weapons.Count == 0) continue;
 
             // ── 7a. Target Acquisition ──
+            // HoldFire: never acquire a target — skip combat entirely
+            if (unit.Stance == UnitStance.HoldFire)
+            {
+                unit.CurrentTargetId = null;
+                units[i] = unit;
+                continue;
+            }
+
             if (!unit.CurrentTargetId.HasValue || !IsTargetStillValid(unit.CurrentTargetId.Value, units))
             {
                 AttackerInfo atkInfo = BuildAttackerInfo(unit);
                 CombatTarget? newTarget = _combatResolver.AcquireTarget(
                     atkInfo, unit.Weapons, _spatialHash, _combatInfos, _occupancyGrid);
+
+                // Defensive stance: only engage if the target is within half
+                // sight range (reactive range only, not full sight range).
+                if (newTarget.HasValue && unit.Stance == UnitStance.Defensive)
+                {
+                    FixedVector2 diff = newTarget.Value.TargetPosition - unit.Movement.Position;
+                    FixedPoint distSq = diff.X * diff.X + diff.Y * diff.Y;
+                    FixedPoint halfSight = unit.SightRange / FixedPoint.FromInt(2);
+                    if (distSq > halfSight * halfSight)
+                        newTarget = null; // Out of reactive range — ignore
+                }
 
                 unit.CurrentTargetId = newTarget.HasValue ? newTarget.Value.TargetId : (int?)null;
             }
@@ -811,6 +893,7 @@ public class UnitInteractionSystem
         // ══════════════════════════════════════════════════════════════════
 
         // 8a. Final pass: ensure all destroyed units are marked dead
+        // Also grant XP to the unit responsible for each kill.
         for (int d = 0; d < _destroyedIds.Count; d++)
         {
             int deadId = _destroyedIds[d];
@@ -823,6 +906,37 @@ public class UnitInteractionSystem
                     unit.Health = FixedPoint.Zero;
                     units[i] = unit;
                     break;
+                }
+            }
+
+            // Find the attacker responsible for this kill and grant XP
+            int attackerId = -1;
+            for (int a = 0; a < _attackResults.Count; a++)
+            {
+                if (_attackResults[a].TargetId == deadId && _attackResults[a].DidHit)
+                {
+                    attackerId = _attackResults[a].AttackerId;
+                    break;
+                }
+            }
+            if (attackerId >= 0)
+            {
+                for (int i = 0; i < units.Count; i++)
+                {
+                    if (units[i].UnitId == attackerId && units[i].IsAlive)
+                    {
+                        SimUnit killer = units[i];
+                        killer.XP += 1;
+                        killer.Veterancy = killer.XP switch
+                        {
+                            >= 6 => VeterancyLevel.Heroic,
+                            >= 3 => VeterancyLevel.Elite,
+                            >= 1 => VeterancyLevel.Veteran,
+                            _    => VeterancyLevel.Recruit
+                        };
+                        units[i] = killer;
+                        break;
+                    }
                 }
             }
         }
@@ -907,15 +1021,25 @@ public class UnitInteractionSystem
     /// </summary>
     private static AttackerInfo BuildAttackerInfo(SimUnit unit)
     {
+        // Veterancy damage multipliers: Recruit=1.0, Veteran=1.1, Elite=1.25, Heroic=1.5
+        FixedPoint damageMultiplier = unit.Veterancy switch
+        {
+            VeterancyLevel.Heroic  => FixedPoint.FromFloat(1.5f),
+            VeterancyLevel.Elite   => FixedPoint.FromFloat(1.25f),
+            VeterancyLevel.Veteran => FixedPoint.FromFloat(1.1f),
+            _                      => FixedPoint.One
+        };
+
         return new AttackerInfo
         {
-            UnitId = unit.UnitId,
-            PlayerId = unit.PlayerId,
-            Position = unit.Movement.Position,
-            Facing = unit.Movement.Facing,
+            UnitId          = unit.UnitId,
+            PlayerId        = unit.PlayerId,
+            Position        = unit.Movement.Position,
+            Facing          = unit.Movement.Facing,
             CurrentTargetId = unit.CurrentTargetId,
-            Weapons = unit.Weapons,
-            WeaponCooldowns = unit.WeaponCooldowns
+            Weapons         = unit.Weapons,
+            WeaponCooldowns = unit.WeaponCooldowns,
+            DamageMultiplier = damageMultiplier
         };
     }
 

@@ -620,6 +620,93 @@ public partial class GameSession : Node
         if (_unitInteractionSystem == null || _unitSpawner == null || _terrainGrid == null)
             return;
 
+        // ── 0. Execute queued commands from this tick ─────────────────────
+        // Process commands from the CommandBuffer that are scheduled for
+        // this tick. SetStance commands update _persistentSimUnits before
+        // the sim units list is built below so the change takes effect immediately.
+        // Move/Stop/HoldPosition/Patrol commands are also processed here via
+        // path requests and direct state changes.
+        var gameManager = GetNodeOrNull<GameManager>("/root/GameManager");
+        if (gameManager?.CommandBuffer != null)
+        {
+            var cmds = gameManager.CommandBuffer.GetCommandsForTick(currentTick);
+            for (int c = 0; c < cmds.Count; c++)
+            {
+                var cmd = cmds[c];
+                switch (cmd)
+                {
+                    case CorditeWars.Systems.Networking.SetStanceCommand stanceCmd:
+                    {
+                        for (int k = 0; k < stanceCmd.UnitIds.Count; k++)
+                        {
+                            int uid = stanceCmd.UnitIds[k];
+                            if (_persistentSimUnits.TryGetValue(uid, out SimUnit su))
+                            {
+                                su.Stance = stanceCmd.Stance;
+                                _persistentSimUnits[uid] = su;
+                            }
+                        }
+                        break;
+                    }
+                    case CorditeWars.Systems.Networking.MoveCommand moveCmd:
+                    {
+                        for (int k = 0; k < moveCmd.UnitIds.Count; k++)
+                        {
+                            int uid = moveCmd.UnitIds[k];
+                            if (_persistentSimUnits.TryGetValue(uid, out SimUnit su))
+                            {
+                                int capturedId = uid;
+                                MovementProfile profile = su.Profile;
+                                FixedVector2 from = su.Movement.Position;
+                                FixedVector2 to   = moveCmd.TargetPosition;
+                                _pathRequestManager?.RequestPath(capturedId, profile, from, to,
+                                    path =>
+                                    {
+                                        if (_persistentSimUnits.TryGetValue(capturedId, out SimUnit s2))
+                                        {
+                                            s2.CurrentPath = path;
+                                            s2.CurrentWaypointIndex = 0;
+                                            s2.ActiveFlowField = null;
+                                            _persistentSimUnits[capturedId] = s2;
+                                        }
+                                    });
+                            }
+                        }
+                        break;
+                    }
+                    case CorditeWars.Systems.Networking.StopCommand stopCmd:
+                    {
+                        for (int k = 0; k < stopCmd.UnitIds.Count; k++)
+                        {
+                            int uid = stopCmd.UnitIds[k];
+                            if (_persistentSimUnits.TryGetValue(uid, out SimUnit su))
+                            {
+                                su.CurrentPath = null;
+                                su.ActiveFlowField = null;
+                                su.CurrentTargetId = null;
+                                _persistentSimUnits[uid] = su;
+                            }
+                        }
+                        break;
+                    }
+                    case CorditeWars.Systems.Networking.HoldPositionCommand holdCmd:
+                    {
+                        for (int k = 0; k < holdCmd.UnitIds.Count; k++)
+                        {
+                            int uid = holdCmd.UnitIds[k];
+                            if (_persistentSimUnits.TryGetValue(uid, out SimUnit su))
+                            {
+                                su.CurrentPath = null;
+                                su.ActiveFlowField = null;
+                                _persistentSimUnits[uid] = su;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
         // ── 1. Build combined SimUnit list (mobile units + buildings) ──────
 
         var allNodes = _unitSpawner.GetAllUnits();
@@ -697,7 +784,8 @@ public partial class GameSession : Node
                 var node = _unitSpawner.GetUnit(sim.UnitId);
                 if (node != null && node.IsAlive)
                 {
-                    node.SyncFromSimulation(sim.Movement.Position, sim.Movement.Facing, sim.Health);
+                    node.SyncFromSimulation(sim.Movement.Position, sim.Movement.Facing, sim.Health,
+                        sim.Stance, sim.XP, sim.Veterancy);
 
                     // Sync stealth visual: own units appear as ghosts, enemy stealthed
                     // units are fully hidden until detected or they fire.
@@ -985,8 +1073,11 @@ public partial class GameSession : Node
             IsStealthUnit        = node.IsStealthUnit,
             IsDetector           = node.IsDetector,
             StealthRevealTicks   = 0,
-            // New stealth units start stealthed; they reveal when attacking or detected.
-            IsCurrentlyStealthed = node.IsStealthUnit
+            IsCurrentlyStealthed = node.IsStealthUnit,
+            // Stance and veterancy default to Aggressive/Recruit for newly spawned units
+            Stance     = UnitStance.Aggressive,
+            XP         = 0,
+            Veterancy  = VeterancyLevel.Recruit
         };
     }
 
@@ -1870,6 +1961,9 @@ public partial class GameSession : Node
 
         // b. CommandInput — needs CommandBuffer from GameManager
         var commandBuffer = new CommandBuffer();
+        // Share this CommandBuffer with GameManager so HandleSimulationTick can consume commands
+        if (_gameManager != null)
+            _gameManager.CommandBuffer = commandBuffer;
         _commandInput = new CommandInput();
         _commandInput.Name = "CommandInput";
         _commandInput.Initialize(

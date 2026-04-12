@@ -140,6 +140,15 @@ public partial class CommandCard : PanelContainer
         SetButton(2, "Stop", "S", CardActionType.Stop);
         SetButton(3, "Hold", "H", CardActionType.Hold);
         SetButton(4, "Patrol", "P", CardActionType.Patrol);
+        // Bottom row: stance buttons
+        SetButton(8,  "Aggr",  string.Empty, CardActionType.SetStanceAggressive);
+        SetButton(9,  "Defn",  string.Empty, CardActionType.SetStanceDefensive);
+        SetButton(10, "HGnd",  string.Empty, CardActionType.SetStanceHoldGround);
+        SetButton(11, "HFire", string.Empty, CardActionType.SetStanceHoldFire);
+        _buttons[8].TooltipText  = "Aggressive stance — pursue and attack all enemies";
+        _buttons[9].TooltipText  = "Defensive stance — hold position, engage nearby threats";
+        _buttons[10].TooltipText = "Hold Ground — attack enemies in range without moving";
+        _buttons[11].TooltipText = "Hold Fire — never attack";
     }
 
     /// <summary>
@@ -239,6 +248,18 @@ public partial class CommandCard : PanelContainer
                 break;
             case CardActionType.SetRally:
                 RallyModeRequested?.Invoke();
+                break;
+            case CardActionType.SetStanceAggressive:
+                EventBus.Instance?.EmitStanceChangeRequested((int)CorditeWars.Systems.Pathfinding.UnitStance.Aggressive);
+                break;
+            case CardActionType.SetStanceDefensive:
+                EventBus.Instance?.EmitStanceChangeRequested((int)CorditeWars.Systems.Pathfinding.UnitStance.Defensive);
+                break;
+            case CardActionType.SetStanceHoldGround:
+                EventBus.Instance?.EmitStanceChangeRequested((int)CorditeWars.Systems.Pathfinding.UnitStance.HoldGround);
+                break;
+            case CardActionType.SetStanceHoldFire:
+                EventBus.Instance?.EmitStanceChangeRequested((int)CorditeWars.Systems.Pathfinding.UnitStance.HoldFire);
                 break;
         }
     }
@@ -349,7 +370,11 @@ internal enum CardActionType
     Patrol,
     ProduceUnit,
     PlaceBuilding,
-    SetRally
+    SetRally,
+    SetStanceAggressive,
+    SetStanceDefensive,
+    SetStanceHoldGround,
+    SetStanceHoldFire
 }
 
 internal struct CardAction

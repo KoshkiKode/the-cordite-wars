@@ -45,6 +45,10 @@ public partial class CommandInput : Node
         _commandBuffer = commandBuffer;
         _unitSpawner = unitSpawner;
         _camera = camera;
+
+        // Wire stance change requests from CommandCard via EventBus
+        EventBus.Instance?.Connect(EventBus.SignalName.StanceChangeRequested,
+            Callable.From<int>(stance => IssueSetStanceCommand((CorditeWars.Systems.Pathfinding.UnitStance)stance)));
     }
 
     /// <summary>
@@ -329,6 +333,24 @@ public partial class CommandInput : Node
             UnitIds = unitIds
         };
         _commandBuffer.AddCommand(cmd);
+    }
+
+    private void IssueSetStanceCommand(CorditeWars.Systems.Pathfinding.UnitStance stance)
+    {
+        if (_selectionManager is null || _commandBuffer is null) return;
+
+        var unitIds = _selectionManager.GetSelectedUnitIds();
+        if (unitIds.Count == 0) return;
+
+        var cmd = new SetStanceCommand
+        {
+            ScheduledTick = GetScheduledTick(),
+            PlayerId = _localPlayerId,
+            UnitIds = unitIds,
+            Stance = stance
+        };
+        _commandBuffer.AddCommand(cmd);
+        EventBus.Instance?.EmitUnitOrdered(unitIds.ToArray(), $"stance_{stance}");
     }
 
     // ── Raycasting ───────────────────────────────────────────────────
