@@ -12,6 +12,9 @@ public partial class AudioManager : Node
     private const int SfxPoolSize = 32;
     private const int UiPoolSize  = 8;
 
+    private const string SettingsPath    = "user://settings.cfg";
+    private const string SettingsSection = "Audio";
+
     private AudioStreamPlayer? _musicPlayer;
     private readonly AudioStreamPlayer3D[] _sfxPool = new AudioStreamPlayer3D[SfxPoolSize];
     private readonly AudioStreamPlayer[]   _uiPool  = new AudioStreamPlayer[UiPoolSize];
@@ -21,11 +24,13 @@ public partial class AudioManager : Node
     // Volume levels (linear, 0.0 to 1.0)
     private float _masterVolume = 1.0f;
     private float _musicVolume  = 0.7f;
-    private float _sfxVolume    = 1.0f;
-    private float _uiVolume     = 1.0f;
+    private float _sfxVolume    = 0.8f;
+    private float _uiVolume     = 0.8f;
 
     // Track the current music stream so we can loop it when it finishes.
     private AudioStream? _currentMusicStream;
+    // Entry volume for the current music track (applied on loop restart).
+    private float _currentMusicEntryVolume = 1.0f;
 
     public override void _Ready()
     {
@@ -48,6 +53,10 @@ public partial class AudioManager : Node
             AddChild(_uiPool[i]);
         }
 
+        // Apply persisted user preferences immediately so volume is correct
+        // from the very first sound played, without needing the Options menu.
+        LoadSettings();
+
         GD.Print($"[AudioManager] Initialized — {SfxPoolSize} SFX slots, {UiPoolSize} UI slots.");
     }
 
@@ -56,12 +65,21 @@ public partial class AudioManager : Node
     /// <summary>
     /// Plays a 3D positional sound effect using the next available pool slot.
     /// </summary>
-    public void PlaySfx(AudioStream stream, Vector3 position)
+    /// <param name="stream">The audio stream to play.</param>
+    /// <param name="position">World-space position of the sound source.</param>
+    /// <param name="entryVolume">
+    /// Per-entry volume multiplier from the sound manifest (0–1). Defaults to 1.
+    /// </param>
+    /// <param name="pitchScale">
+    /// Pitch multiplier (1 = normal). Use <see cref="SoundRegistry.RandomisedPitch"/> to derive this.
+    /// </param>
+    public void PlaySfx(AudioStream stream, Vector3 position, float entryVolume = 1.0f, float pitchScale = 1.0f)
     {
         var player = _sfxPool[_nextSfxIndex];
         player.Stream         = stream;
         player.GlobalPosition = position;
-        player.VolumeDb       = Mathf.LinearToDb(_sfxVolume * _masterVolume);
+        player.VolumeDb       = Mathf.LinearToDb(entryVolume * _sfxVolume * _masterVolume);
+        player.PitchScale     = pitchScale;
         player.Play();
 
         _nextSfxIndex = (_nextSfxIndex + 1) % SfxPoolSize;
@@ -70,11 +88,19 @@ public partial class AudioManager : Node
     /// <summary>
     /// Plays a non-positional UI sound (button click, alert, notification).
     /// </summary>
-    public void PlayUiSound(AudioStream stream)
+    /// <param name="stream">The audio stream to play.</param>
+    /// <param name="entryVolume">
+    /// Per-entry volume multiplier from the sound manifest (0–1). Defaults to 1.
+    /// </param>
+    /// <param name="pitchScale">
+    /// Pitch multiplier (1 = normal). Use <see cref="SoundRegistry.RandomisedPitch"/> to derive this.
+    /// </param>
+    public void PlayUiSound(AudioStream stream, float entryVolume = 1.0f, float pitchScale = 1.0f)
     {
         var player = _uiPool[_nextUiIndex];
-        player.Stream   = stream;
-        player.VolumeDb = Mathf.LinearToDb(_uiVolume * _masterVolume);
+        player.Stream      = stream;
+        player.VolumeDb    = Mathf.LinearToDb(entryVolume * _uiVolume * _masterVolume);
+        player.PitchScale  = pitchScale;
         player.Play();
 
         _nextUiIndex = (_nextUiIndex + 1) % UiPoolSize;
@@ -83,6 +109,7 @@ public partial class AudioManager : Node
     /// <summary>
     /// Convenience: resolve a sound by category + ID from the SoundRegistry
     /// and play it as a non-positional UI sound.
+    /// Applies the manifest entry's Volume and PitchVariation automatically.
     /// </summary>
     public void PlayUiSoundById(string soundId)
     {
@@ -94,14 +121,15 @@ public partial class AudioManager : Node
         string? file = SoundRegistry.PickVariant(entry);
         if (file == null) return;
 
-        AudioStream? stream = GD.Load<AudioStream>(file);
+        string resPath = file.StartsWith("res://") ? file : "res://" + file;
+        AudioStream? stream = GD.Load<AudioStream>(resPath);
         if (stream == null)
         {
-            GD.PushWarning($"[AudioManager] Cannot load UI audio: {file}");
+            GD.PushWarning($"[AudioManager] Cannot load UI audio: {resPath}");
             return;
         }
 
-        PlayUiSound(stream);
+        PlayUiSound(stream, entry.Volume, SoundRegistry.RandomisedPitch(entry));
     }
 
     /// <summary>
@@ -109,7 +137,7 @@ public partial class AudioManager : Node
     /// If the same stream is already playing nothing changes.
     /// Pass <c>null</c> to stop music without starting new music.
     /// </summary>
-    public void PlayMusic(AudioStream? stream)
+    public void PlayMusic(AudioStream? stream, float entryVolume = 1.0f)
     {
         if (_musicPlayer == null) return;
         if (stream == null) { StopMusic(); return; }
@@ -117,15 +145,17 @@ public partial class AudioManager : Node
         // Avoid restarting the exact same track.
         if (_musicPlayer.Playing && _currentMusicStream == stream) return;
 
-        _currentMusicStream = stream;
-        _musicPlayer.Stream  = stream;
-        _musicPlayer.VolumeDb = Mathf.LinearToDb(_musicVolume * _masterVolume);
+        _currentMusicStream      = stream;
+        _currentMusicEntryVolume = entryVolume;
+        _musicPlayer.Stream      = stream;
+        _musicPlayer.VolumeDb    = Mathf.LinearToDb(entryVolume * _musicVolume * _masterVolume);
         _musicPlayer.Play();
     }
 
     /// <summary>
     /// Convenience: resolve a music entry by sound ID from the "music" category
     /// and start it (looping). Pass <c>null</c> soundId to stop music.
+    /// Applies the manifest entry's Volume automatically.
     /// </summary>
     public void PlayMusicById(string? soundId)
     {
@@ -143,14 +173,15 @@ public partial class AudioManager : Node
         string? file = SoundRegistry.PickVariant(entry);
         if (file == null) return;
 
-        AudioStream? stream = GD.Load<AudioStream>(file);
+        string resPath = file.StartsWith("res://") ? file : "res://" + file;
+        AudioStream? stream = GD.Load<AudioStream>(resPath);
         if (stream == null)
         {
-            GD.PushWarning($"[AudioManager] Cannot load music file: {file}");
+            GD.PushWarning($"[AudioManager] Cannot load music file: {resPath}");
             return;
         }
 
-        PlayMusic(stream);
+        PlayMusic(stream, entry.Volume);
     }
 
     /// <summary>
@@ -158,7 +189,8 @@ public partial class AudioManager : Node
     /// </summary>
     public void StopMusic()
     {
-        _currentMusicStream = null;
+        _currentMusicStream      = null;
+        _currentMusicEntryVolume = 1.0f;
         _musicPlayer?.Stop();
     }
 
@@ -173,7 +205,7 @@ public partial class AudioManager : Node
     {
         _musicVolume = Mathf.Clamp(volume, 0.0f, 1.0f);
         if (_musicPlayer != null)
-            _musicPlayer.VolumeDb = Mathf.LinearToDb(_musicVolume * _masterVolume);
+            _musicPlayer.VolumeDb = Mathf.LinearToDb(_currentMusicEntryVolume * _musicVolume * _masterVolume);
     }
 
     public void SetSfxVolume(float volume)
@@ -194,7 +226,30 @@ public partial class AudioManager : Node
     private void OnMusicFinished()
     {
         if (_currentMusicStream == null || _musicPlayer == null) return;
-        _musicPlayer.Stream = _currentMusicStream;
+        _musicPlayer.Stream   = _currentMusicStream;
+        _musicPlayer.VolumeDb = Mathf.LinearToDb(_currentMusicEntryVolume * _musicVolume * _masterVolume);
         _musicPlayer.Play();
+    }
+
+    // ── Settings persistence ─────────────────────────────────────────
+
+    /// <summary>
+    /// Loads volume settings saved by <see cref="CorditeWars.UI.OptionsMenu"/> from
+    /// <c>user://settings.cfg</c> and applies them immediately.
+    /// Called on <see cref="_Ready"/> so the correct volumes are active from
+    /// the very first sound, without requiring the user to open the Options menu.
+    /// </summary>
+    private void LoadSettings()
+    {
+        var cfg = new ConfigFile();
+        if (cfg.Load(SettingsPath) != Error.Ok)
+            return; // No saved settings — keep defaults.
+
+        _masterVolume = Mathf.Clamp((float)cfg.GetValue(SettingsSection, "master_volume", _masterVolume), 0f, 1f);
+        _musicVolume  = Mathf.Clamp((float)cfg.GetValue(SettingsSection, "music_volume",  _musicVolume),  0f, 1f);
+        _sfxVolume    = Mathf.Clamp((float)cfg.GetValue(SettingsSection, "sfx_volume",    _sfxVolume),    0f, 1f);
+        _uiVolume     = Mathf.Clamp((float)cfg.GetValue(SettingsSection, "ui_volume",     _uiVolume),     0f, 1f);
+
+        GD.Print($"[AudioManager] Loaded settings — master={_masterVolume:F2} music={_musicVolume:F2} sfx={_sfxVolume:F2} ui={_uiVolume:F2}");
     }
 }

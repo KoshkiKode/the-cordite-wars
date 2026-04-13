@@ -669,6 +669,21 @@ jobs:
           echo "macOS build contents after extraction:"
           ls -la build/macos/
 
+      - name: Ad-hoc sign macOS .app bundle
+        run: |
+          # Ad-hoc signing (-) satisfies macOS's minimum code-signature
+          # requirement and prevents Gatekeeper from showing the "app is
+          # damaged" error when users download and open the artifact directly.
+          # Users will still need to right-click → Open on first launch until
+          # the app is notarized with a real Apple Developer certificate.
+          APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -1)
+          if [ -n "$APP_PATH" ]; then
+            codesign --deep --force --sign - "$APP_PATH"
+            echo "Ad-hoc signed: $APP_PATH"
+          else
+            echo "WARNING: No .app bundle found to sign"
+          fi
+
       - name: Upload macOS export artifact
         uses: actions/upload-artifact@v4
         with:
