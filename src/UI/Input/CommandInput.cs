@@ -1,8 +1,10 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 using CorditeWars.Core;
 using CorditeWars.Game.Units;
 using CorditeWars.Systems.Networking;
+using CorditeWars.Systems.Superweapon;
 
 namespace CorditeWars.UI.Input;
 
@@ -28,6 +30,10 @@ public partial class CommandInput : Node
     // Rally mode: next right-click sets rally point on selected buildings
     private bool _rallyMode;
 
+    // Superweapon targeting mode: left-click fires the pending weapon
+    private string _superweaponTargetingId = string.Empty;
+    private Func<string, FixedVector2, SuperweaponResult>? _activateSuperweapon;
+
     // Input delay for deterministic networking
     private const int InputDelay = 6;
 
@@ -52,6 +58,31 @@ public partial class CommandInput : Node
     }
 
     /// <summary>
+    /// Registers the callback used to fire a superweapon once the player
+    /// selects a target position. Called from GameSession after both systems
+    /// are initialized.
+    /// </summary>
+    public void SetSuperweaponActivateCallback(Func<string, FixedVector2, SuperweaponResult> callback)
+        => _activateSuperweapon = callback;
+
+    /// <summary>
+    /// Enters superweapon targeting mode for <paramref name="weaponId"/>.
+    /// The next left-click on the map will fire the weapon at that position.
+    /// Calling this again replaces any pending weapon.
+    /// </summary>
+    public void StartSuperweaponTargeting(string weaponId)
+    {
+        _superweaponTargetingId = weaponId;
+        // Cancel other exclusive modes so they don't conflict
+        _attackMoveMode = false;
+        _patrolMode = false;
+        _rallyMode = false;
+    }
+
+    /// <summary>Whether the player is currently picking a superweapon target.</summary>
+    public bool IsSuperweaponTargetingMode => !string.IsNullOrEmpty(_superweaponTargetingId);
+
+    /// <summary>
     /// Enters or exits rally-point mode. In rally mode the next right-click
     /// will set the rally point for all ProductionQueues in the scene tree
     /// rather than issuing a move command.
@@ -62,6 +93,13 @@ public partial class CommandInput : Node
 
     public override void _UnhandledInput(InputEvent @event)
     {
+        // Superweapon targeting mode intercepts all mouse clicks regardless of selection
+        if (IsSuperweaponTargetingMode && @event is InputEventMouseButton swBtn && swBtn.Pressed)
+        {
+            HandleSuperweaponTargetClick(swBtn);
+            return;
+        }
+
         if (_selectionManager is null || _commandBuffer is null) return;
         if (!_selectionManager.HasSelection) return;
 
@@ -104,6 +142,37 @@ public partial class CommandInput : Node
         }
     }
 
+    /// <summary>
+    /// Handles a click while in superweapon targeting mode.
+    /// Left-click fires at the target; right-click cancels.
+    /// </summary>
+    private void HandleSuperweaponTargetClick(InputEventMouseButton mouseBtn)
+    {
+        if (mouseBtn.ButtonIndex == MouseButton.Right)
+        {
+            // Right-click cancels targeting
+            _superweaponTargetingId = string.Empty;
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        if (mouseBtn.ButtonIndex != MouseButton.Left) return;
+
+        string weaponId = _superweaponTargetingId;
+        _superweaponTargetingId = string.Empty;
+
+        Vector3? worldPos = RaycastGround(mouseBtn.Position);
+        if (worldPos.HasValue && _activateSuperweapon is not null)
+        {
+            var fixedTarget = new FixedVector2(
+                FixedPoint.FromFloat(worldPos.Value.X),
+                FixedPoint.FromFloat(worldPos.Value.Z));
+            _activateSuperweapon(weaponId, fixedTarget);
+        }
+
+        GetViewport().SetInputAsHandled();
+    }
+
     private void HandleKeyInput(InputEventKey keyEvent)
     {
         var km = KeybindManager.Instance;
@@ -140,6 +209,7 @@ public partial class CommandInput : Node
             _attackMoveMode = false;
             _patrolMode = false;
             _rallyMode = false;
+            _superweaponTargetingId = string.Empty;
         }
     }
 
@@ -429,5 +499,6 @@ public partial class CommandInput : Node
     {
         _attackMoveMode = false;
         _patrolMode = false;
+        _superweaponTargetingId = string.Empty;
     }
 }

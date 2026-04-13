@@ -711,9 +711,45 @@ public partial class GameSession : Node
                     _persistentSimUnits[su.UnitId] = su;
                 }
             }
+
+            // Handle ReinforcementDrop — spawn units at the target position
+            if (result.SpawnedUnitTypeIds.Count > 0 && _unitSpawner is not null)
+            {
+                string factionId = GetPlayerFactionId(_localPlayerId);
+
+                // Scatter spawn positions in a small ring around the target
+                FixedPoint spawnRadius = FixedPoint.FromInt(3);
+                // Offsets at cardinal directions: N, E, S, W
+                FixedPoint[] offX = [FixedPoint.Zero, spawnRadius,  FixedPoint.Zero, -spawnRadius];
+                FixedPoint[] offY = [spawnRadius,  FixedPoint.Zero, -spawnRadius, FixedPoint.Zero];
+
+                for (int i = 0; i < result.SpawnedUnitTypeIds.Count; i++)
+                {
+                    int idx = i % 4;
+                    FixedVector2 spawnPos = new FixedVector2(
+                        targetPosition.X + offX[idx],
+                        targetPosition.Y + offY[idx]);
+                    _unitSpawner.SpawnUnit(
+                        result.SpawnedUnitTypeIds[i],
+                        factionId,
+                        _localPlayerId,
+                        spawnPos,
+                        facing: FixedPoint.Zero);
+                }
+            }
         }
 
         return result;
+    }
+
+    /// <summary>Returns the faction ID for a player, or an empty string if not found.</summary>
+    private string GetPlayerFactionId(int playerId)
+    {
+        if (ActiveConfig is null) return string.Empty;
+        foreach (var pc in ActiveConfig.PlayerConfigs)
+            if (pc.PlayerId == playerId)
+                return pc.FactionId;
+        return string.Empty;
     }
 
     /// <summary>
@@ -2126,6 +2162,8 @@ public partial class GameSession : Node
             commandBuffer,
             _unitSpawner,
             _camera);
+        // Wire superweapon targeting: FIRE button → targeting mode → left-click → activate
+        _commandInput.SetSuperweaponActivateCallback(ActivateSuperweapon);
         AddChild(_commandInput);
 
         // c. BuildingPlacer
@@ -2198,6 +2236,15 @@ public partial class GameSession : Node
         // e. Wire minimap click-to-move to camera
         EventBus.Instance?.Connect(EventBus.SignalName.MinimapClick,
             Callable.From<Vector3>((pos) => _camera?.SetFocusPoint(pos)));
+
+        // e1. Wire superweapon FIRE button → targeting mode in CommandInput
+        var capturedCommandInput = _commandInput;
+        EventBus.Instance?.Connect(EventBus.SignalName.SuperweaponActivateRequested,
+            Callable.From<int, string>((pid, weaponId) =>
+            {
+                if (pid == localPlayerId)
+                    capturedCommandInput?.StartSuperweaponTargeting(weaponId);
+            }));
 
         // e2. Wire building-destroyed to keep BuildingPlacer and HQ tracking in sync
         EventBus.Instance?.Connect(EventBus.SignalName.BuildingDestroyed,

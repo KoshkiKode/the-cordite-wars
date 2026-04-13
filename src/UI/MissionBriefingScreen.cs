@@ -101,7 +101,9 @@ public partial class MissionBriefingScreen : CanvasLayer
         headerRow.AddThemeConstantOverride("separation", 12);
         vbox.AddChild(headerRow);
 
-        string missionNum = _mission != null ? $"Mission {_mission.Number}" : "Mission";
+        string missionNum = _mission != null
+            ? string.Format(Tr("MISSION_NUMBER_FMT"), _mission.Number)
+            : Tr("MISSION_NUMBER_FMT").Replace("{0}", string.Empty).Trim();
         var numLabel = new Label();
         numLabel.Text = missionNum;
         UITheme.StyleLabel(numLabel, UITheme.FontSizeSmall, UITheme.TextSecondary);
@@ -111,9 +113,9 @@ public partial class MissionBriefingScreen : CanvasLayer
         spacer.SizeFlagsHorizontal = Control.SizeFlags.Expand;
         headerRow.AddChild(spacer);
 
-        string difficulty = _mission?.DifficultyLabel ?? "Normal";
+        string difficulty = _mission?.DifficultyLabel ?? string.Empty;
         var diffLabel = new Label();
-        diffLabel.Text = $"Difficulty: {difficulty}";
+        diffLabel.Text = string.Format(Tr("MISSION_DIFFICULTY_FMT"), difficulty);
         UITheme.StyleLabel(diffLabel, UITheme.FontSizeSmall, UITheme.TextSecondary);
         headerRow.AddChild(diffLabel);
 
@@ -141,7 +143,7 @@ public partial class MissionBriefingScreen : CanvasLayer
         if (_mission?.Objectives != null && _mission.Objectives.Count > 0)
         {
             var objHeader = new Label();
-            objHeader.Text = "OBJECTIVES";
+            objHeader.Text = Tr("MISSION_OBJECTIVES");
             UITheme.StyleLabel(objHeader, UITheme.FontSizeSmall, UITheme.Accent);
             vbox.AddChild(objHeader);
 
@@ -160,7 +162,7 @@ public partial class MissionBriefingScreen : CanvasLayer
         {
             vbox.AddChild(new HSeparator());
             var intelHeader = new Label();
-            intelHeader.Text = "INTELLIGENCE";
+            intelHeader.Text = Tr("MISSION_INTELLIGENCE");
             UITheme.StyleLabel(intelHeader, UITheme.FontSizeSmall, new Color(0.9f, 0.7f, 0.1f));
             vbox.AddChild(intelHeader);
 
