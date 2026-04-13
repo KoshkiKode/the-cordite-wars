@@ -95,7 +95,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   export-windows:
     name: Windows Export
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: validate-project
     steps:
       - name: Checkout
@@ -112,7 +112,7 @@ jobs:
       - name: Export Windows
         uses: firebelley/godot-export@v7.0.0
         with:
-          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_win64.exe.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
           archive_output: false
@@ -121,6 +121,7 @@ jobs:
           presets_to_export: "Windows Desktop"
 
       - name: Flatten Windows export output
+        shell: bash
         run: |
           # godot-export copies the internal build dir (named after the preset) into
           # the configured path, producing build/windows/Windows Desktop/*.  Flatten it.
@@ -131,6 +132,7 @@ jobs:
           fi
 
       - name: Verify Windows export
+        shell: bash
         run: |
           echo "Windows export contents:"
           ls -la build/windows/
