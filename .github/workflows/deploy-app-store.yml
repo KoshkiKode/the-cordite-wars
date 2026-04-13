@@ -50,6 +50,64 @@ jobs:
       - name: Build C# Assemblies
         run: dotnet build -c ExportRelease
 
+      - name: Inject App Store Team ID into iOS preset
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          TEAM_ID="${APPLE_TEAM_ID:?APPLE_TEAM_ID secret is required for App Store deployment}"
+          export TEAM_ID
+          python - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+          team_id = os.environ["TEAM_ID"]
+          path = Path("export_presets.cfg")
+          lines = path.read_text().splitlines()
+
+          ios_preset_number = None
+          current_preset = None
+          in_preset_block = False
+          for line in lines:
+              stripped = line.strip()
+              preset_match = re.match(r"\[preset\.(\d+)\]$", stripped)
+              if preset_match:
+                  current_preset = preset_match.group(1)
+                  in_preset_block = True
+                  continue
+              if re.match(r"\[preset\.\d+\.options\]$", stripped):
+                  in_preset_block = False
+              if in_preset_block and stripped == 'platform="iOS"':
+                  ios_preset_number = current_preset
+                  break
+          if ios_preset_number is None:
+              raise SystemExit("iOS preset not found in export_presets.cfg")
+
+          target_options_header = f"[preset.{ios_preset_number}.options]"
+          out = []
+          in_ios_options = False
+          inserted = False
+          for line in lines:
+              stripped = line.strip()
+              if stripped == target_options_header:
+                  in_ios_options = True
+                  out.append(line)
+                  continue
+              if in_ios_options and stripped.startswith("["):
+                  if not inserted:
+                      out.append(f'application/app_store_team_id="{team_id}"')
+                      inserted = True
+                  in_ios_options = False
+              if in_ios_options and line.startswith("application/app_store_team_id="):
+                  out.append(f'application/app_store_team_id="{team_id}"')
+                  inserted = True
+                  continue
+              out.append(line)
+          if in_ios_options and not inserted:
+              out.append(f'application/app_store_team_id="{team_id}"')
+          path.write_text("\n".join(out) + "\n")
+          PY
+        shell: bash
+
       - name: Export iOS Xcode project
         uses: firebelley/godot-export@v7.0.0
         with:

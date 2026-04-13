@@ -446,10 +446,11 @@ jobs:
 
       - name: Flatten Android export output
         run: |
-          # godot-export nests Android output in a preset-named folder.
+          # Godot Export nests Android output in a preset-named folder.
+          # Use `cp -a` so hidden files are preserved while flattening.
           if [ -d "build/android/Android" ]; then
-            mv "build/android/Android/"* build/android/
-            rmdir "build/android/Android"
+            cp -a "build/android/Android/." "build/android/"
+            rm -rf "build/android/Android"
             echo "Flattened build/android/Android/ → build/android/"
           fi
 
@@ -557,10 +558,11 @@ jobs:
 
       - name: Flatten Android AAB export output
         run: |
-          # godot-export nests Android AAB output in a preset-named folder.
+          # Godot Export nests Android AAB output in a preset-named folder.
+          # Use `cp -a` so hidden files are preserved while flattening.
           if [ -d "build/android/Android AAB" ]; then
-            mv "build/android/Android AAB/"* build/android/
-            rmdir "build/android/Android AAB"
+            cp -a "build/android/Android AAB/." "build/android/"
+            rm -rf "build/android/Android AAB"
             echo "Flattened build/android/Android AAB/ → build/android/"
           fi
 
@@ -597,6 +599,66 @@ jobs:
 
       - name: Build C# Assemblies
         run: dotnet build -c ExportRelease
+
+      - name: Inject App Store Team ID into iOS preset
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          # iOS handoff exports still require a non-empty Team ID in preset validation.
+          # 0000000000 is a validation-only sentinel when no secret is configured.
+          TEAM_ID="${APPLE_TEAM_ID:-0000000000}"
+          export TEAM_ID
+          python - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+          team_id = os.environ["TEAM_ID"]
+          path = Path("export_presets.cfg")
+          lines = path.read_text().splitlines()
+
+          ios_preset_number = None
+          current_preset = None
+          in_preset_block = False
+          for line in lines:
+              stripped = line.strip()
+              preset_match = re.match(r"\[preset\.(\d+)\]$", stripped)
+              if preset_match:
+                  current_preset = preset_match.group(1)
+                  in_preset_block = True
+                  continue
+              if re.match(r"\[preset\.\d+\.options\]$", stripped):
+                  in_preset_block = False
+              if in_preset_block and stripped == 'platform="iOS"':
+                  ios_preset_number = current_preset
+                  break
+          if ios_preset_number is None:
+              raise SystemExit("iOS preset not found in export_presets.cfg")
+
+          target_options_header = f"[preset.{ios_preset_number}.options]"
+          out = []
+          in_ios_options = False
+          inserted = False
+          for line in lines:
+              stripped = line.strip()
+              if stripped == target_options_header:
+                  in_ios_options = True
+                  out.append(line)
+                  continue
+              if in_ios_options and stripped.startswith("["):
+                  if not inserted:
+                      out.append(f'application/app_store_team_id="{team_id}"')
+                      inserted = True
+                  in_ios_options = False
+              if in_ios_options and line.startswith("application/app_store_team_id="):
+                  out.append(f'application/app_store_team_id="{team_id}"')
+                  inserted = True
+                  continue
+              out.append(line)
+          if in_ios_options and not inserted:
+              out.append(f'application/app_store_team_id="{team_id}"')
+          path.write_text("\n".join(out) + "\n")
+          PY
+        shell: bash
 
       - name: Export iOS/iPadOS Xcode project
         uses: firebelley/godot-export@v7.0.0
@@ -830,9 +892,14 @@ jobs:
         run: |
           hdiutil verify "$DMG_PATH"
           MOUNT_POINT="$(mktemp -d)"
-          hdiutil attach "$DMG_PATH" -mountpoint "$MOUNT_POINT" -nobrowse -readonly
-          find "$MOUNT_POINT" -maxdepth 2 -name "*.app" -print
-          hdiutil detach "$MOUNT_POINT"
+          ATTACHED=0
+          if hdiutil attach "$DMG_PATH" -mountpoint "$MOUNT_POINT" -nobrowse -readonly; then
+            ATTACHED=1
+            find "$MOUNT_POINT" -maxdepth 2 -name "*.app" -print
+          fi
+          if [ "$ATTACHED" -eq 1 ]; then
+            hdiutil detach "$MOUNT_POINT" || true
+          fi
 
       - name: Upload macOS DMG artifact
         uses: actions/upload-artifact@v4
