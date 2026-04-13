@@ -426,7 +426,7 @@ ls -lh CorditeWars*
 
 For build issues:
 - Check [Build Guide](build-guide.md)
-- Review GitHub Actions logs: https://github.com/KoshkiKode/the-cordite-wars/actions
+- Review GitHub Actions logs: https://github.com/KoshkiKode/cordite/actions
 
 For store submission questions:
 - Google Play: https://support.google.com/googleplay/android-developer

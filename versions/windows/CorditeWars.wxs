@@ -4,7 +4,7 @@
   Build: wix build versions\windows\CorditeWars.wxs -arch x64
            -ext WixToolset.UI.wixext
            -d BuildDir=build\windows
-           -out dist\windows\CorditeWars_0.1.0.msi
+           -out dist\windows\CorditeWars_1.0.0.msi
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
@@ -54,7 +54,7 @@
     <Component Id="RegistryEntries" Guid="B3C4D5E6-F7A8-9012-BCDE-F01234567890" Directory="INSTALLFOLDER">
       <RegistryKey Root="HKLM" Key="Software\CorditeWarsTeam\CorditeWarsSixFronts">
         <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" KeyPath="yes" />
-        <RegistryValue Name="Version" Type="string" Value="0.1.0" />
+        <RegistryValue Name="Version" Type="string" Value="$(var.AppVersion)" />
       </RegistryKey>
     </Component>
 

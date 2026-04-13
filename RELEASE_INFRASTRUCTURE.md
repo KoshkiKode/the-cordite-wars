@@ -127,7 +127,7 @@ The `release.yml` workflow automatically:
 
 ### 4. Verify Release
 
-- Visit: https://github.com/KoshkiKode/the-cordite-wars/releases
+- Visit: https://github.com/KoshkiKode/cordite/releases
 - Download artifacts
 - Verify checksums:
   ```bash
@@ -282,7 +282,7 @@ For signing & distribution (optional, adds automation):
 - Verify paths in `bump-version.py`
 
 ### Export workflow failed
-- Check GitHub Actions logs: https://github.com/KoshkiKode/the-cordite-wars/actions
+- Check GitHub Actions logs: https://github.com/KoshkiKode/cordite/actions
 - Review [Build Guide](docs/build-guide.md)
 
 ### Checksums don't match
@@ -298,5 +298,5 @@ For signing & distribution (optional, adds automation):
 
 ## 📞 Support
 
-- **Issues**: https://github.com/KoshkiKode/the-cordite-wars/issues
-- **Discussions**: https://github.com/KoshkiKode/the-cordite-wars/discussions
+- **Issues**: https://github.com/KoshkiKode/cordite/issues
+- **Discussions**: https://github.com/KoshkiKode/cordite/discussions

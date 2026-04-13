@@ -24,7 +24,7 @@ public class GameDataValidationTests
             dir = Path.GetDirectoryName(dir)!;
         }
         // Fallback to absolute path (CI environment)
-        return "/home/runner/work/the-cordite-wars/the-cordite-wars/data";
+        return "/home/runner/work/cordite/cordite/data";
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()

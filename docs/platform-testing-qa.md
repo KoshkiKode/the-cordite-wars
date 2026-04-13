@@ -336,7 +336,7 @@ Test on:
 
 ## Reporting Bugs
 
-Submit issues to: https://github.com/KoshkiKode/the-cordite-wars/issues
+Submit issues to: https://github.com/KoshkiKode/cordite/issues
 
 Include:
 - **Platform & OS version** (Windows 11 22H2, Android 12, etc.)

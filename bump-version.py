@@ -200,6 +200,48 @@ def update_version_json(project_root: Path, new_version: str) -> None:
     version_file.write_text(json.dumps(data, indent=2) + "\n")
     print(f"✓ Updated versions/shared/version.json → {new_version}")
 
+def update_inno_setup(project_root: Path, new_version: str) -> None:
+    """Update version in versions/windows/inno-setup.iss."""
+    iss_file = project_root / "versions" / "windows" / "inno-setup.iss"
+    if not iss_file.exists():
+        print(f"⚠ {iss_file} not found, skipping")
+        return
+
+    content = iss_file.read_text()
+    updated = re.sub(
+        r'(#define\s+MyAppVersion\s+)"[^"]*"',
+        f'\\g<1>"{new_version}"',
+        content
+    )
+
+    if updated != content:
+        iss_file.write_text(updated)
+        print(f"✓ Updated inno-setup.iss → {new_version}")
+    else:
+        print(f"⚠ No version found in inno-setup.iss")
+
+
+def update_wix(project_root: Path, new_version: str) -> None:
+    """Update version comment in versions/windows/CorditeWars.wxs."""
+    wxs_file = project_root / "versions" / "windows" / "CorditeWars.wxs"
+    if not wxs_file.exists():
+        print(f"⚠ {wxs_file} not found, skipping")
+        return
+
+    content = wxs_file.read_text()
+    updated = re.sub(
+        r'(-out dist\\windows\\CorditeWars_)\S+\.msi',
+        f'\\g<1>{new_version}.msi',
+        content
+    )
+
+    if updated != content:
+        wxs_file.write_text(updated)
+        print(f"✓ Updated CorditeWars.wxs comment → {new_version}")
+    else:
+        print(f"⚠ No version comment found in CorditeWars.wxs")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Bump semantic version across all platform export files"
@@ -256,6 +298,8 @@ def main():
     update_snapcraft_yaml(project_root, new_version)
     update_plist(project_root, new_version)
     update_android_gradle(project_root, new_version)
+    update_inno_setup(project_root, new_version)
+    update_wix(project_root, new_version)
     update_version_json(project_root, new_version)
     
     print(f"\n✓ Version bumped to {new_version}")

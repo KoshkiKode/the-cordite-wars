@@ -4,7 +4,7 @@
 ; Compile: iscc versions/windows/inno-setup.iss
 
 #define MyAppName "Cordite Wars: Six Fronts"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "1.0.0"
 #define MyAppPublisher "Cordite Wars Team"
 #define MyAppURL "https://github.com/corditewars/sixfronts"
 #define MyAppExeName "CorditeWars.exe"
@@ -58,7 +58,7 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 [Registry]
 ; Store install path for launchers / updaters
 Root: HKLM; Subkey: "Software\CorditeWarsTeam\CorditeWarsSixFronts"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "Software\CorditeWarsTeam\CorditeWarsSixFronts"; ValueType: string; ValueName: "Version"; ValueData: "0.1.0"
+Root: HKLM; Subkey: "Software\CorditeWarsTeam\CorditeWarsSixFronts"; ValueType: string; ValueName: "Version"; ValueData: "{#MyAppVersion}"
 
 [Code]
 { ──────────────────────────────────────────────────────────────────
