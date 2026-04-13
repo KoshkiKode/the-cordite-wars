@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  CorditeWars.wxs — WiX v4 MSI installer for Cordite Wars: Six Fronts
+  CorditeWars.wxs — WiX v5 MSI installer for Cordite Wars: Six Fronts
   Build: wix build versions\windows\CorditeWars.wxs -arch x64
            -ext WixToolset.UI.wixext
            -d BuildDir=build\windows
+           -d AppVersion=1.0.0
            -out dist\windows\CorditeWars_1.0.0.msi
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
