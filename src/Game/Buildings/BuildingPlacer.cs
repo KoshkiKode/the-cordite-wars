@@ -22,6 +22,7 @@ public partial class BuildingPlacer : Node
     private Camera3D? _camera;
     private int _localPlayerId;
     private TerrainGrid? _terrainGrid;
+    private TerrainRenderer? _terrainRenderer;
 
     // ── Placement State ──────────────────────────────────────────────
 
@@ -41,8 +42,9 @@ public partial class BuildingPlacer : Node
 
     // Track placed buildings.
     // IDs start at 100_001 to avoid collisions with mobile unit IDs (which
-    // start at 1 in UnitSpawner).  Pre-placed HQ buildings use negative IDs
-    // and are managed directly by GameSession, not stored here.
+    // start at 1 in UnitSpawner).  Pre-placed HQ buildings use negative IDs;
+    // they are created by GameSession and registered here via RegisterExternalBuilding()
+    // so they appear in GetAllBuildings() queries (minimap, objectives, simulation).
     private readonly SortedList<int, BuildingInstance> _buildings = new();
     private int _nextBuildingId = 100_001;
 
@@ -58,7 +60,8 @@ public partial class BuildingPlacer : Node
         BuildingRegistry buildingRegistry,
         BuildingManifest buildingManifest,
         Camera3D camera,
-        TerrainGrid? terrainGrid = null)
+        TerrainGrid? terrainGrid = null,
+        TerrainRenderer? terrainRenderer = null)
     {
         _localPlayerId = localPlayerId;
         _occupancyGrid = occupancyGrid;
@@ -67,6 +70,7 @@ public partial class BuildingPlacer : Node
         _buildingManifest = buildingManifest;
         _camera = camera;
         _terrainGrid = terrainGrid;
+        _terrainRenderer = terrainRenderer;
     }
 
     // ── Public API ───────────────────────────────────────────────────
@@ -113,6 +117,23 @@ public partial class BuildingPlacer : Node
     public IList<BuildingInstance> GetAllBuildings() => _buildings.Values;
 
     /// <summary>
+    /// Registers a building that was created and placed externally (e.g. a pre-placed
+    /// HQ spawned by <see cref="CorditeWars.Game.GameSession"/> before the BuildingPlacer
+    /// was initialised) so it appears in <see cref="GetAllBuildings"/> queries used by
+    /// the minimap, mission-objective context, and simulation tick.
+    /// <para>
+    /// The building node must already be in the scene tree. This method does NOT
+    /// add it to the scene, modify the occupancy grid, or deduct resources.
+    /// </para>
+    /// </summary>
+    public void RegisterExternalBuilding(BuildingInstance building)
+    {
+        if (building == null || !GodotObject.IsInstanceValid(building)) return;
+        if (_buildings.ContainsKey(building.BuildingId)) return;
+        _buildings.Add(building.BuildingId, building);
+    }
+
+    /// <summary>
     /// Restores a building from save data without cost validation or placement checks.
     /// Used during LoadFromSave to rebuild the building list.
     /// </summary>
@@ -137,6 +158,13 @@ public partial class BuildingPlacer : Node
         var instance = new BuildingInstance();
         instance.Initialize(buildingId, buildingTypeId, data, playerId, gridX, gridY);
         instance.RestoreState(health, isConstructed, constructionProgress);
+
+        // Snap to terrain surface
+        if (_terrainRenderer is not null)
+        {
+            float terrainY = _terrainRenderer.GetElevationAtWorld(gridX, gridY);
+            instance.Position = new Vector3(gridX, terrainY, gridY);
+        }
 
         AddChild(instance);
         _buildings.Add(buildingId, instance);
@@ -377,6 +405,13 @@ public partial class BuildingPlacer : Node
             _localPlayerId,
             gridX, gridY,
             modelEntry);
+
+        // Snap to terrain surface so the building sits on the ground mesh
+        if (_terrainRenderer is not null)
+        {
+            float terrainY = _terrainRenderer.GetElevationAtWorld(gridX, gridY);
+            instance.Position = new Vector3(gridX, terrainY, gridY);
+        }
 
         AddChild(instance);
         _buildings.Add(buildingId, instance);

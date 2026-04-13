@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using CorditeWars.Systems.Graphics;
 
 namespace CorditeWars.Game.World;
 
@@ -13,10 +14,13 @@ public partial class WaterRenderer : Node3D
     private const float WaterYOffset = -0.3f;
     private const float WaterPlaneWidth = 8f;
 
-    // Inline water shader with scrolling UV, wave animation, transparency
+    // Full animated water shader for Medium/High quality.
+    // depth_draw_never: transparent water must NOT write to the depth buffer —
+    // using depth_draw_opaque with blend_mix causes transparent surfaces to
+    // incorrectly occlude geometry behind them in the depth test.
     private const string WaterShaderSource = @"
 shader_type spatial;
-render_mode blend_mix, depth_draw_opaque, cull_disabled, specular_schlick_ggx;
+render_mode blend_mix, depth_draw_never, cull_disabled, specular_schlick_ggx;
 
 uniform vec4 water_color : source_color = vec4(0.15, 0.3, 0.55, 0.7);
 uniform vec4 water_color_deep : source_color = vec4(0.08, 0.18, 0.35, 0.85);
@@ -54,17 +58,36 @@ void fragment() {
 }
 ";
 
+    // Simplified static water shader for Potato/Low quality.
+    // No vertex animation, no scrolling UV — minimal GPU cost.
+    private const string WaterShaderSimpleSource = @"
+shader_type spatial;
+render_mode blend_mix, depth_draw_never, cull_disabled, specular_disabled;
+
+uniform vec4 water_color : source_color = vec4(0.15, 0.3, 0.55, 0.65);
+
+void fragment() {
+    ALBEDO = water_color.rgb;
+    ALPHA = water_color.a;
+    ROUGHNESS = 0.5;
+    METALLIC = 0.0;
+}
+";
+
     private ShaderMaterial _waterMaterial = null!;
 
     /// <summary>
     /// Generates water planes for all river features in the map data.
     /// Must be called after TerrainRenderer.Generate() so we can sample elevation.
     /// </summary>
-    public void Generate(MapData mapData, TerrainRenderer terrainRenderer)
+    public void Generate(MapData mapData, TerrainRenderer terrainRenderer, QualityTier tier = QualityTier.Medium)
     {
+        // Choose animated vs static water based on quality tier
+        string shaderSource = tier >= QualityTier.Medium ? WaterShaderSource : WaterShaderSimpleSource;
+
         // Create shared material
         var shader = new Shader();
-        shader.Code = WaterShaderSource;
+        shader.Code = shaderSource;
         _waterMaterial = new ShaderMaterial();
         _waterMaterial.Shader = shader;
 
@@ -172,7 +195,6 @@ void fragment() {
         meshInstance.Mesh = mesh;
         meshInstance.MaterialOverride = _waterMaterial;
         meshInstance.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
-        meshInstance.Transparency = 0.3f;
 
         AddChild(meshInstance);
     }
@@ -242,7 +264,6 @@ void fragment() {
         meshInstance.Mesh = mesh;
         meshInstance.MaterialOverride = _waterMaterial;
         meshInstance.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
-        meshInstance.Transparency = 0.2f; // slightly more opaque than rivers
 
         AddChild(meshInstance);
     }

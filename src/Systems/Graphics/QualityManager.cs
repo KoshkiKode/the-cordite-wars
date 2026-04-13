@@ -299,8 +299,10 @@ namespace CorditeWars.Systems.Graphics
             bool ssao, bool ssr, bool bloom, bool volumetrics, bool toneMapping)
         {
             // Locate environment via autoload or current scene.
+            // WorldEnvironment may live anywhere in the tree (e.g. as a child of Main),
+            // so search recursively rather than relying on a fixed path.
             var worldEnv = Engine.GetMainLoop() is SceneTree tree
-                ? tree.Root.GetNodeOrNull<WorldEnvironment>("WorldEnvironment")
+                ? tree.Root.FindChild("WorldEnvironment", true, false) as WorldEnvironment
                 : null;
 
             if (worldEnv?.Environment == null)

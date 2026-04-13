@@ -5,6 +5,7 @@ using CorditeWars.Game.Tech;
 using CorditeWars.Game.World;
 using CorditeWars.Systems.Audio;
 using CorditeWars.Systems.Graphics;
+using CorditeWars.Systems.Localization;
 
 namespace CorditeWars.UI;
 
@@ -155,7 +156,8 @@ public partial class LoadingScreen : Control
     {
         switch (step)
         {
-            case 0: // Detect hardware
+            case 0: // Detect hardware + load translations
+                LocalizationManager.Instance?.LoadAllTranslations();
                 var qm = QualityManager.Instance;
                 if (qm != null)
                     qm.AutoDetect();

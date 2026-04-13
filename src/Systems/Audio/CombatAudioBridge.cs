@@ -160,13 +160,14 @@ public partial class CombatAudioBridge : Node
         string? file = SoundRegistry.PickVariant(entry);
         if (file == null) return;
 
-        AudioStream? stream = GD.Load<AudioStream>(file);
+        string resPath = file.StartsWith("res://") ? file : "res://" + file;
+        AudioStream? stream = GD.Load<AudioStream>(resPath);
         if (stream == null)
         {
-            GD.PushWarning($"[CombatAudioBridge] Could not load audio file: {file}");
+            GD.PushWarning($"[CombatAudioBridge] Could not load audio file: {resPath}");
             return;
         }
 
-        _audioManager.PlaySfx(stream, position);
+        _audioManager.PlaySfx(stream, position, entry.Volume, SoundRegistry.RandomisedPitch(entry));
     }
 }

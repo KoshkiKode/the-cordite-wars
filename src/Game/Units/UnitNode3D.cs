@@ -135,7 +135,8 @@ public partial class UnitNode3D : Node3D
     public void SyncFromSimulation(FixedVector2 simPos, FixedPoint simFacing, FixedPoint health,
         CorditeWars.Systems.Pathfinding.UnitStance stance = CorditeWars.Systems.Pathfinding.UnitStance.Aggressive,
         int xp = 0,
-        CorditeWars.Systems.Pathfinding.VeterancyLevel veterancy = CorditeWars.Systems.Pathfinding.VeterancyLevel.Recruit)
+        CorditeWars.Systems.Pathfinding.VeterancyLevel veterancy = CorditeWars.Systems.Pathfinding.VeterancyLevel.Recruit,
+        float terrainY = 0f)
     {
         SimPosition = simPos;
         SimFacing = simFacing;
@@ -144,7 +145,7 @@ public partial class UnitNode3D : Node3D
         XP = xp;
         Veterancy = veterancy;
 
-        float height = _isAirUnit ? AirUnitHoverHeight : 0.0f;
+        float height = _isAirUnit ? AirUnitHoverHeight : terrainY;
         Position = new Vector3(simPos.X.ToFloat(), height, simPos.Y.ToFloat());
 
         // Facing: simulation uses radians, Godot Rotation.Y is around the up axis

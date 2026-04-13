@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using CorditeWars.Core;
+using CorditeWars.Systems.Graphics;
 using CorditeWars.Systems.Pathfinding;
 
 namespace CorditeWars.Game.World;
@@ -34,17 +35,20 @@ public partial class PropPlacer : Node3D
     /// Places all props and structures from the map data.
     /// </summary>
     public void PlaceAll(MapData mapData, TerrainManifest manifest,
-        TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid)
+        TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid,
+        QualityTier tier = QualityTier.Medium)
     {
         _destructibles.Clear();
         _nextPropId = 0;
+
+        bool useShadowBlobs = tier >= QualityTier.Medium;
 
         // Place props
         if (mapData.Props != null)
         {
             for (int i = 0; i < mapData.Props.Length; i++)
             {
-                PlaceProp(mapData.Props[i], manifest, terrainRenderer, occupancyGrid);
+                PlaceProp(mapData.Props[i], manifest, terrainRenderer, occupancyGrid, useShadowBlobs);
             }
         }
 
@@ -53,7 +57,7 @@ public partial class PropPlacer : Node3D
         {
             for (int i = 0; i < mapData.Structures.Length; i++)
             {
-                PlaceStructure(mapData.Structures[i], manifest, terrainRenderer, occupancyGrid);
+                PlaceStructure(mapData.Structures[i], manifest, terrainRenderer, occupancyGrid, useShadowBlobs);
             }
         }
 
@@ -89,7 +93,7 @@ public partial class PropPlacer : Node3D
     // ── Placement Logic ────────────────────────────────────────────────────
 
     private void PlaceProp(PropPlacement prop, TerrainManifest manifest,
-        TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid)
+        TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid, bool useShadowBlobs)
     {
         TerrainModelEntry entry;
         try
@@ -126,9 +130,12 @@ public partial class PropPlacer : Node3D
         instance.Scale = new Vector3(finalScale, finalScale, finalScale);
         AddChild(instance);
 
-        // Spawn shadow blob beneath every prop to add ambient ground shadow
-        float shadowRadius = Math.Max(0.3f, entry.CollisionRadius.ToFloat() * finalScale * 1.3f);
-        SpawnShadowBlob(worldX, worldY, worldZ, shadowRadius);
+        // Spawn shadow blob on Medium/High quality (skipped on Potato/Low to save draw calls)
+        if (useShadowBlobs)
+        {
+            float shadowRadius = Math.Max(0.3f, entry.CollisionRadius.ToFloat() * finalScale * 1.3f);
+            SpawnShadowBlob(worldX, worldY, worldZ, shadowRadius);
+        }
 
         int propId = _nextPropId++;
 
@@ -162,7 +169,7 @@ public partial class PropPlacer : Node3D
     }
 
     private void PlaceStructure(StructurePlacement structure, TerrainManifest manifest,
-        TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid)
+        TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid, bool useShadowBlobs)
     {
         TerrainModelEntry entry;
         try
@@ -199,9 +206,12 @@ public partial class PropPlacer : Node3D
         instance.Scale = new Vector3(finalScale, finalScale, finalScale);
         AddChild(instance);
 
-        // Spawn shadow blob beneath every structure for ground shadow effect
-        float structShadowRadius = Math.Max(0.4f, entry.CollisionRadius.ToFloat() * finalScale * 1.4f);
-        SpawnShadowBlob(worldX, worldY, worldZ, structShadowRadius);
+        // Spawn shadow blob on Medium/High quality only
+        if (useShadowBlobs)
+        {
+            float structShadowRadius = Math.Max(0.4f, entry.CollisionRadius.ToFloat() * finalScale * 1.4f);
+            SpawnShadowBlob(worldX, worldY, worldZ, structShadowRadius);
+        }
 
         int propId = _nextPropId++;
 

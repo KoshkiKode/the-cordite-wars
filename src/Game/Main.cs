@@ -4,6 +4,7 @@ using CorditeWars.UI;
 using CorditeWars.UI.HUD;
 using CorditeWars.Systems.Persistence;
 using CorditeWars.Systems.Platform;
+using CorditeWars.Systems.Graphics;
 using CorditeWars.Game.Campaign;
 using System;
 using System.Text.Json;
@@ -224,7 +225,12 @@ public partial class Main : Node3D
 
         environment.TonemapMode = Godot.Environment.ToneMapper.Aces;
         env.Environment = environment;
+        env.Name = "WorldEnvironment";
         AddChild(env);
+
+        // Re-apply quality tier now that WorldEnvironment exists so post-processing
+        // (SSAO, bloom, SSR, volumetric fog) is actually applied to this environment.
+        QualityManager.Instance?.ApplyTier(QualityManager.LoadSavedTier());
     }
 
     private static MatchConfig CreateFallbackConfig()

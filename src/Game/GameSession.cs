@@ -13,6 +13,7 @@ using CorditeWars.Game.Units;
 using CorditeWars.Game.World;
 using CorditeWars.Game.VFX;
 using CorditeWars.Systems.Audio;
+using CorditeWars.Systems.Graphics;
 using CorditeWars.Systems.Networking;
 using CorditeWars.Systems.Pathfinding;
 using CorditeWars.Systems.FogOfWar;
@@ -919,7 +920,10 @@ public partial class GameSession : Node
                 if (node != null && node.IsAlive)
                 {
                     node.SyncFromSimulation(sim.Movement.Position, sim.Movement.Facing, sim.Health,
-                        sim.Stance, sim.XP, sim.Veterancy);
+                        sim.Stance, sim.XP, sim.Veterancy,
+                        _terrainRenderer?.GetElevationAtWorld(
+                            sim.Movement.Position.X.ToFloat(),
+                            sim.Movement.Position.Y.ToFloat()) ?? 0f);
 
                     // Sync stealth visual: own units appear as ghosts, enemy stealthed
                     // units are fully hidden until detected or they fire.
@@ -1421,8 +1425,7 @@ public partial class GameSession : Node
         }
 
         // Notify BuildingPlacer so it can remove the entry from its dict
-        // and vacate the occupancy grid.  This is a no-op for HQ nodes
-        // (which are not in BuildingPlacer._buildings).
+        // and vacate the occupancy grid.
         _buildingPlacer?.OnBuildingDestroyed(b);
 
         // Remove from HQ tracking if this was a player's Command Centre
@@ -2139,7 +2142,8 @@ public partial class GameSession : Node
             _buildingRegistry,
             _buildingManifest,
             _camera,
-            _terrainGrid);
+            _terrainGrid,
+            _terrainRenderer);
         AddChild(_buildingPlacer);
 
         // Register HQ positions for build radius validation
@@ -2162,6 +2166,16 @@ public partial class GameSession : Node
                     }
                 }
             }
+        }
+
+        // Register pre-placed HQ buildings so they appear in GetAllBuildings()
+        // queries — used by the minimap, mission-objective context, and simulation tick.
+        // PlaceStartingBuildings runs before SetupGameplaySystems, so _playerHQNodes is
+        // already populated here.
+        foreach (var kvp in _playerHQNodes)
+        {
+            if (kvp.Value != null && GodotObject.IsInstanceValid(kvp.Value))
+                _buildingPlacer.RegisterExternalBuilding(kvp.Value);
         }
 
         // d. GameHUD
@@ -2521,6 +2535,12 @@ public partial class GameSession : Node
                     startPos.X, startPos.Y, hqModelEntry);
                 // Mark fully constructed so it doesn't animate in during the game start
                 hqNode.RestoreState(hqData.MaxHealth, true, hqData.BuildTime);
+                // Snap to terrain surface so the HQ sits on the ground mesh
+                if (_terrainRenderer is not null)
+                {
+                    float terrainY = _terrainRenderer.GetElevationAtWorld(startPos.X, startPos.Y);
+                    hqNode.Position = new Vector3(startPos.X, terrainY, startPos.Y);
+                }
                 AddChild(hqNode);
 
                 // Track for win-condition checking
@@ -2662,17 +2682,19 @@ public partial class GameSession : Node
     {
         if (ActiveMap is null) return;
 
+        QualityTier tier = QualityManager.Instance?.CurrentTier ?? QualityTier.Medium;
+
         // Terrain mesh
         _terrainRenderer = new TerrainRenderer();
         _terrainRenderer.Name = "TerrainRenderer";
         AddChild(_terrainRenderer);
-        _terrainRenderer.Generate(ActiveMap);
+        _terrainRenderer.Generate(ActiveMap, tier);
 
-        // Animated water planes for rivers / water bodies
+        // Animated (or static, on Potato/Low) water planes for rivers / water bodies
         _waterRenderer = new WaterRenderer();
         _waterRenderer.Name = "WaterRenderer";
         AddChild(_waterRenderer);
-        _waterRenderer.Generate(ActiveMap, _terrainRenderer);
+        _waterRenderer.Generate(ActiveMap, _terrainRenderer, tier);
 
         // Decorative props and structures (trees, rocks, ruins, etc.)
         bool hasProps = (ActiveMap.Props.Length > 0) || (ActiveMap.Structures.Length > 0);
@@ -2692,7 +2714,7 @@ public partial class GameSession : Node
             _propPlacer = new PropPlacer();
             _propPlacer.Name = "PropPlacer";
             AddChild(_propPlacer);
-            _propPlacer.PlaceAll(ActiveMap, terrainManifest, _terrainRenderer, _occupancyGrid);
+            _propPlacer.PlaceAll(ActiveMap, terrainManifest, _terrainRenderer, _occupancyGrid, tier);
         }
     }
 

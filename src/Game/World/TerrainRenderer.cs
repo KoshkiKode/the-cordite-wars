@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using CorditeWars.Core;
+using CorditeWars.Systems.Graphics;
 
 namespace CorditeWars.Game.World;
 
@@ -16,6 +17,7 @@ public partial class TerrainRenderer : Node3D
     private MeshInstance3D _meshInstance = null!;
     private MapData _mapData = null!;
     private float[] _elevationMap = null!;
+    private float _noiseStrength = 0.08f;
 
     // Biome base colors
     private static readonly Color TemperateGrass = new(0.28f, 0.52f, 0.15f);
@@ -51,9 +53,19 @@ void fragment() {
     /// Generates terrain mesh from the provided MapData.
     /// Call once when loading a map.
     /// </summary>
-    public void Generate(MapData mapData)
+    public void Generate(MapData mapData, QualityTier tier = QualityTier.Medium)
     {
         _mapData = mapData;
+
+        // Quality-dependent settings
+        _noiseStrength = tier switch
+        {
+            QualityTier.Potato => 0.0f,  // no noise — flat colors save fill-rate
+            QualityTier.Low    => 0.04f, // half noise
+            _                  => 0.08f  // Medium / High: full variation
+        };
+
+        bool castShadows = tier >= QualityTier.Medium;
 
         // Remove previous mesh if regenerating
         if (_meshInstance != null)
@@ -77,7 +89,9 @@ void fragment() {
 
         _meshInstance = new MeshInstance3D();
         _meshInstance.Mesh = mesh;
-        _meshInstance.CastShadow = GeometryInstance3D.ShadowCastingSetting.On;
+        _meshInstance.CastShadow = castShadows
+            ? GeometryInstance3D.ShadowCastingSetting.On
+            : GeometryInstance3D.ShadowCastingSetting.Off;
 
         // Apply vertex-color shader
         var shader = new Shader();
@@ -91,7 +105,7 @@ void fragment() {
         // Create static collision body for raycasting
         CreateCollisionBody(mesh);
 
-        GD.Print($"[TerrainRenderer] Generated terrain {width}x{height}, biome={_mapData.Biome}");
+        GD.Print($"[TerrainRenderer] Generated terrain {width}x{height}, biome={_mapData.Biome}, quality={tier}");
     }
 
     /// <summary>
@@ -349,11 +363,14 @@ void fragment() {
                 break;
         }
 
-        // Add subtle noise variation based on position
-        float noise = PseudoNoise(x, y) * 0.08f;
-        baseColor.R = Math.Clamp(baseColor.R + noise, 0f, 1f);
-        baseColor.G = Math.Clamp(baseColor.G + noise * 0.7f, 0f, 1f);
-        baseColor.B = Math.Clamp(baseColor.B + noise * 0.5f, 0f, 1f);
+        // Add subtle noise variation based on position (strength 0 on Potato, 0.04 on Low, 0.08 on Medium/High)
+        if (_noiseStrength > 0f)
+        {
+            float noise = PseudoNoise(x, y) * _noiseStrength;
+            baseColor.R = Math.Clamp(baseColor.R + noise, 0f, 1f);
+            baseColor.G = Math.Clamp(baseColor.G + noise * 0.7f, 0f, 1f);
+            baseColor.B = Math.Clamp(baseColor.B + noise * 0.5f, 0f, 1f);
+        }
 
         return baseColor;
     }
