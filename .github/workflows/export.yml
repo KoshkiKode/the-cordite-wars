@@ -742,10 +742,9 @@ jobs:
           path: dist/macos/CorditeWars_${{ env.APP_VERSION }}.dmg
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # 6. Headless smoke test — launch the Linux export, let it run for 60 physics
-  #    frames (2 s at 30 Hz), then assert a clean exit.  Catches crashes at
-  #    startup (missing autoload, bad scene ref, C# assembly load failure, etc.)
-  #    before any artifact is published.
+  # 6a. Headless smoke test — Linux
+  #     Launch the Linux export for 60 physics frames (2 s at 30 Hz) and assert
+  #     a clean exit.  Catches crashes at startup before any artifact is published.
   # ─────────────────────────────────────────────────────────────────────────────
   smoke-test-linux:
     name: Headless Smoke Test (Linux)
@@ -775,6 +774,82 @@ jobs:
           # xvfb-run provides a virtual display so the rendering driver can
           # initialise without a real monitor.  Exit code 0 means the engine
           # started, ran its main loop, and shut down cleanly.
-          xvfb-run -a smoke/CorditeWars.x86_64 --quit-after 60
+          xvfb-run -a smoke/CorditeWars.x86_64 --headless --quit-after 60
+          echo "Smoke test passed — game started and exited cleanly."
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 6b. Headless smoke test — Windows
+  #     Launch the Windows export for 60 physics frames on a real Windows runner.
+  # ─────────────────────────────────────────────────────────────────────────────
+  smoke-test-windows:
+    name: Headless Smoke Test (Windows)
+    runs-on: windows-latest
+    needs: export-windows
+
+    steps:
+      - name: Download Windows export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows
+          path: smoke/
+
+      - name: Verify export and run headless smoke test
+        shell: powershell
+        run: |
+          Write-Host "--- Windows export contents ---"
+          Get-ChildItem smoke\
+          if (-not (Test-Path "smoke\CorditeWars.exe")) {
+            throw "CorditeWars.exe not found in smoke/ artifact."
+          }
+
+          # --headless tells Godot to skip display/audio initialisation.
+          # --quit-after 60 stops the engine after 60 physics frames (≈2 s).
+          $proc = Start-Process -FilePath "smoke\CorditeWars.exe" `
+            -ArgumentList "--headless", "--quit-after", "60" `
+            -NoNewWindow -Wait -PassThru
+          if ($proc.ExitCode -ne 0) {
+            throw "Smoke test FAILED — exit code $($proc.ExitCode)"
+          }
+          Write-Host "Smoke test passed — game started and exited cleanly."
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 6c. Headless smoke test — macOS
+  #     Unzip the macOS .app bundle and run it headlessly on a real macOS runner.
+  # ─────────────────────────────────────────────────────────────────────────────
+  smoke-test-macos:
+    name: Headless Smoke Test (macOS)
+    runs-on: macos-latest
+    needs: export-macos
+
+    steps:
+      - name: Download macOS export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-macOS-Export
+          path: smoke/
+
+      - name: Extract .app bundle
+        run: |
+          unzip -q smoke/CorditeWars.zip -d smoke/app
+          echo "--- macOS export contents ---"
+          ls -la smoke/app/
+
+      - name: Locate game binary
+        id: find_binary
+        run: |
+          BINARY=$(find smoke/app -maxdepth 5 -name "CorditeWars" -type f | head -1)
+          if [ -z "$BINARY" ]; then
+            echo "ERROR: CorditeWars binary not found inside .app bundle"
+            exit 1
+          fi
+          chmod +x "$BINARY"
+          echo "GAME_BINARY=$BINARY" >> "$GITHUB_ENV"
+          echo "Found game binary: $BINARY"
+
+      - name: Run headless smoke test
+        run: |
+          set -euo pipefail
+          # --headless skips display/audio; --quit-after 60 exits after 60 frames.
+          "$GAME_BINARY" --headless --quit-after 60
           echo "Smoke test passed — game started and exited cleanly."
 
