@@ -663,6 +663,16 @@ jobs:
           name: CorditeWars-macOS-Export
           path: build/macos
 
+      - name: Check Apple signing secrets
+        env:
+          _APPLE_DEV_ID: ${{ secrets.APPLE_DEV_ID }}
+          _APPLE_ID: ${{ secrets.APPLE_ID }}
+          _AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+        run: |
+          echo "HAS_APPLE_DEV_ID=${{ secrets.APPLE_DEV_ID != '' }}" >> "$GITHUB_ENV"
+          echo "HAS_APPLE_ID=${{ secrets.APPLE_ID != '' }}" >> "$GITHUB_ENV"
+          echo "HAS_AC_PASSWORD=${{ secrets.AC_PASSWORD != '' }}" >> "$GITHUB_ENV"
+
       - name: Locate .app bundle
         run: |
           mkdir -p dist/macos
@@ -678,7 +688,7 @@ jobs:
           echo "Found app bundle: $APP_PATH"
 
       - name: Code sign app bundle
-        if: ${{ secrets.APPLE_DEV_ID != '' }}
+        if: env.HAS_APPLE_DEV_ID == 'true'
         env:
           APPLE_DEV_ID: ${{ secrets.APPLE_DEV_ID }}
         run: |
@@ -691,7 +701,7 @@ jobs:
           echo "App bundle signed with: $APPLE_DEV_ID"
 
       - name: Ad-hoc sign app bundle (no Apple Developer ID)
-        if: ${{ secrets.APPLE_DEV_ID == '' }}
+        if: env.HAS_APPLE_DEV_ID == 'false'
         run: |
           # Ad-hoc signing (-) satisfies macOS's minimum code-signature requirement,
           # preventing the "app is damaged" Gatekeeper error for unsigned binaries.
@@ -721,13 +731,13 @@ jobs:
           echo "Created DMG: $DMG_PATH"
 
       - name: Sign DMG
-        if: ${{ secrets.APPLE_DEV_ID != '' }}
+        if: env.HAS_APPLE_DEV_ID == 'true'
         env:
           APPLE_DEV_ID: ${{ secrets.APPLE_DEV_ID }}
         run: codesign --sign "$APPLE_DEV_ID" --timestamp "$DMG_PATH"
 
       - name: Notarize and staple DMG
-        if: ${{ secrets.APPLE_DEV_ID != '' && secrets.APPLE_ID != '' && secrets.AC_PASSWORD != '' }}
+        if: env.HAS_APPLE_DEV_ID == 'true' && env.HAS_APPLE_ID == 'true' && env.HAS_AC_PASSWORD == 'true'
         env:
           APPLE_DEV_ID: ${{ secrets.APPLE_DEV_ID }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
