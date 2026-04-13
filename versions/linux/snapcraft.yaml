@@ -41,7 +41,7 @@ apps:
 parts:
   game:
     plugin: dump
-    source: ../../build/linux/
+    source: build/linux/
     stage:
       - CorditeWars
       - CorditeWars.pck
