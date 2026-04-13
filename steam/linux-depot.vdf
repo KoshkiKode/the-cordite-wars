@@ -1,8 +1,8 @@
 "DepotBuild"
 {
     "DepotID"     "YOUR_LINUX_DEPOT_ID"
-    "ContentRoot" "./build/linux/"
-    "BuildOutput" "./build/steam/"
+    "ContentRoot" "../build/linux/"
+    "BuildOutput" "../build/steam/"
 
     "FileMapping"
     {
