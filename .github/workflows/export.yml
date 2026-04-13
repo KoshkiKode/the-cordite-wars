@@ -382,6 +382,40 @@ jobs:
       - name: Build C# Assemblies
         run: dotnet build -c ExportRelease
 
+      - name: Install Android Gradle build template
+        run: |
+          set -euo pipefail
+          GODOT_VERSION="${{ env.GODOT_VERSION }}"
+          # Build the Godot templates version string (e.g. "4.6.2.stable.mono")
+          TEMPLATES_VERSION="$(echo "$GODOT_VERSION" | sed 's/-/./').mono"
+          TEMPLATES_DIR="$HOME/.local/share/godot/export_templates/$TEMPLATES_VERSION"
+          TPZ_URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+
+          echo "Downloading Godot ${GODOT_VERSION} export templates..."
+          curl -L --fail -o /tmp/export_templates.tpz "$TPZ_URL"
+
+          # Pre-populate the templates cache so firebelley/godot-export can skip
+          # re-downloading them and save runner time.
+          echo "Extracting export templates to ${TEMPLATES_DIR}..."
+          mkdir -p "$TEMPLATES_DIR"
+          unzip -q /tmp/export_templates.tpz -d /tmp/godot_tpz/
+          mv /tmp/godot_tpz/templates/* "$TEMPLATES_DIR/"
+
+          # Install the Android Gradle build template into the project directory.
+          # Godot requires android/build/ to contain the Gradle project files when
+          # gradle_build/use_gradle_build=true is set in the export preset.
+          echo "Installing Android Gradle build template to android/build/..."
+          mkdir -p android/build
+          unzip -q "$TEMPLATES_DIR/android_source.zip" -d android/build/
+          # Write the version marker that Godot validates before exporting.
+          echo "$TEMPLATES_VERSION" > android/build/.build_version
+          # Prevent Godot's file scanner from importing Gradle project files.
+          touch android/build/.gdignore
+
+          echo "Android Gradle build template installed (${TEMPLATES_VERSION}):"
+          ls android/build/ | head -20
+          rm -rf /tmp/export_templates.tpz /tmp/godot_tpz/
+
       - name: Generate debug keystore
         run: |
           keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android \
@@ -493,6 +527,40 @@ jobs:
 
       - name: Build C# Assemblies
         run: dotnet build -c ExportRelease
+
+      - name: Install Android Gradle build template
+        run: |
+          set -euo pipefail
+          GODOT_VERSION="${{ env.GODOT_VERSION }}"
+          # Build the Godot templates version string (e.g. "4.6.2.stable.mono")
+          TEMPLATES_VERSION="$(echo "$GODOT_VERSION" | sed 's/-/./').mono"
+          TEMPLATES_DIR="$HOME/.local/share/godot/export_templates/$TEMPLATES_VERSION"
+          TPZ_URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+
+          echo "Downloading Godot ${GODOT_VERSION} export templates..."
+          curl -L --fail -o /tmp/export_templates.tpz "$TPZ_URL"
+
+          # Pre-populate the templates cache so firebelley/godot-export can skip
+          # re-downloading them and save runner time.
+          echo "Extracting export templates to ${TEMPLATES_DIR}..."
+          mkdir -p "$TEMPLATES_DIR"
+          unzip -q /tmp/export_templates.tpz -d /tmp/godot_tpz/
+          mv /tmp/godot_tpz/templates/* "$TEMPLATES_DIR/"
+
+          # Install the Android Gradle build template into the project directory.
+          # Godot requires android/build/ to contain the Gradle project files when
+          # gradle_build/use_gradle_build=true is set in the export preset.
+          echo "Installing Android Gradle build template to android/build/..."
+          mkdir -p android/build
+          unzip -q "$TEMPLATES_DIR/android_source.zip" -d android/build/
+          # Write the version marker that Godot validates before exporting.
+          echo "$TEMPLATES_VERSION" > android/build/.build_version
+          # Prevent Godot's file scanner from importing Gradle project files.
+          touch android/build/.gdignore
+
+          echo "Android Gradle build template installed (${TEMPLATES_VERSION}):"
+          ls android/build/ | head -20
+          rm -rf /tmp/export_templates.tpz /tmp/godot_tpz/
 
       - name: Generate debug keystore
         run: |

@@ -46,6 +46,9 @@ build/
 *.pck
 *.zip
 
+# Android Gradle build template (installed by Godot editor or CI; not committed)
+android/build/
+
 # Logs
 *.log
 
