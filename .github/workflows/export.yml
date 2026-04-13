@@ -146,10 +146,10 @@ jobs:
           path: build/windows/
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # 1b. Package Windows — builds both the Inno Setup .exe and WiX .msi installers
+  # 1b. Package Windows EXE — Inno Setup installer (reliable, always runs)
   # ─────────────────────────────────────────────────────────────────────────────
-  package-windows:
-    name: Windows Installers (EXE + MSI)
+  package-windows-exe:
+    name: Windows EXE Installer
     runs-on: windows-latest
     needs: export-windows
     steps:
@@ -191,7 +191,43 @@ jobs:
           }
           Write-Host "EXE installer: dist\windows\CorditeWars_Setup_${{ env.APP_VERSION }}.exe"
 
-      - name: Install WiX Toolset v4
+      - name: Upload EXE installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Windows-Setup-EXE
+          path: dist/windows/CorditeWars_Setup_${{ env.APP_VERSION }}.exe
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 1c. Package Windows MSI — WiX installer (independent of EXE build)
+  # ─────────────────────────────────────────────────────────────────────────────
+  package-windows-msi:
+    name: Windows MSI Installer
+    runs-on: windows-latest
+    needs: export-windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Windows export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows
+          path: build/windows
+
+      - name: Verify Windows export files
+        shell: powershell
+        run: |
+          Write-Host "Windows export contents:"
+          Get-ChildItem build\windows
+          if (-not (Test-Path "build\windows\CorditeWars.exe")) {
+            throw "CorditeWars.exe missing from Windows export artifact."
+          }
+
+      - name: Create output directory
+        shell: powershell
+        run: New-Item -ItemType Directory -Force -Path dist\windows | Out-Null
+
+      - name: Install WiX Toolset v5
         shell: powershell
         run: dotnet tool install --global wix --version 5.0.2
 
@@ -213,12 +249,6 @@ jobs:
             throw "WiX did not produce CorditeWars_${{ env.APP_VERSION }}.msi"
           }
           Write-Host "MSI installer: dist\windows\CorditeWars_${{ env.APP_VERSION }}.msi"
-
-      - name: Upload EXE installer artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: CorditeWars-Windows-Setup-EXE
-          path: dist/windows/CorditeWars_Setup_${{ env.APP_VERSION }}.exe
 
       - name: Upload MSI installer artifact
         uses: actions/upload-artifact@v4
@@ -708,7 +738,6 @@ jobs:
           # Users will still need to right-click → Open the first time they launch
           # the app (until it is notarized with a real Apple Developer certificate).
           codesign --deep --force \
-            --entitlements versions/macos/entitlements.plist \
             --sign - \
             "$APP_PATH"
           echo "App bundle ad-hoc signed."

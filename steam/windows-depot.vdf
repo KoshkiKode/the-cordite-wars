@@ -1,8 +1,8 @@
 "DepotBuild"
 {
     "DepotID"     "YOUR_WINDOWS_DEPOT_ID"
-    "ContentRoot" "./build/windows/"
-    "BuildOutput" "./build/steam/"
+    "ContentRoot" "../build/windows/"
+    "BuildOutput" "../build/steam/"
 
     "FileMapping"
     {

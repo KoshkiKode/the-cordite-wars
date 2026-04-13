@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  CorditeWars.wxs — WiX v4 MSI installer for Cordite Wars: Six Fronts
+  CorditeWars.wxs — WiX v5 MSI installer for Cordite Wars: Six Fronts
   Build: wix build versions\windows\CorditeWars.wxs -arch x64
            -ext WixToolset.UI.wixext
            -d BuildDir=build\windows
+           -d AppVersion=1.0.0
            -out dist\windows\CorditeWars_1.0.0.msi
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
@@ -26,16 +27,16 @@
     <!-- Install all exported game files into Program Files -->
     <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="INSTALLFOLDER" Name="Cordite Wars Six Fronts">
-        <Files Source="$(BuildDir)\**" />
+        <Files Include="$(var.BuildDir)\**" />
       </Directory>
     </StandardDirectory>
 
     <!-- Start Menu shortcut -->
     <StandardDirectory Id="ProgramMenuFolder">
-      <Directory Id="AppShortcutDir" Name="Cordite Wars: Six Fronts">
+      <Directory Id="AppShortcutDir" Name="Cordite Wars - Six Fronts">
         <Component Id="StartMenuShortcut" Guid="A2B3C4D5-E6F7-8901-ABCD-EF0123456789">
           <Shortcut Id="AppShortcut"
-                    Name="Cordite Wars: Six Fronts"
+                    Name="Cordite Wars - Six Fronts"
                     Description="A cross-platform real-time strategy game"
                     Target="[INSTALLFOLDER]CorditeWars.exe"
                     WorkingDirectory="INSTALLFOLDER" />
