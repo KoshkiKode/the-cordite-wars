@@ -14,17 +14,21 @@ public class GameDataValidationTests
 
     private static string FindDataRoot()
     {
-        // Walk up from the test assembly directory to find the repo root
+        // Walk up from the test assembly directory to find the repo root.
+        // We validate against a known subdirectory so that case-insensitive
+        // file systems (macOS, Windows) don't accidentally match the 'Data/'
+        // C# source folder inside the test project.
         string dir = AppDomain.CurrentDomain.BaseDirectory;
         for (int i = 0; i < 10; i++)
         {
             string candidate = Path.Combine(dir, "data");
-            if (Directory.Exists(candidate))
+            if (Directory.Exists(Path.Combine(candidate, "factions")))
                 return candidate;
             dir = Path.GetDirectoryName(dir)!;
         }
-        // Fallback to absolute path (CI environment)
-        return "/home/runner/work/cordite/cordite/data";
+        throw new DirectoryNotFoundException(
+            "Could not locate the 'data' directory by walking up from the test assembly. " +
+            "Ensure you are running tests from within the repository checkout.");
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()

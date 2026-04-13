@@ -17,7 +17,10 @@ public class SteamAchievementValidationTests
         for (int i = 0; i < 10; i++)
         {
             string candidate = Path.Combine(dir, "data");
-            if (Directory.Exists(candidate))
+            // Check for a subdirectory unique to the real game data root so that
+            // case-insensitive file systems (macOS, Windows) don't accidentally
+            // match the 'Data/' C# source folder inside the test project.
+            if (Directory.Exists(Path.Combine(candidate, "factions")))
                 return candidate;
             dir = Path.GetDirectoryName(dir)!;
         }
