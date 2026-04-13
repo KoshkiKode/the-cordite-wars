@@ -8,7 +8,7 @@
 #define MyAppPublisher "Cordite Wars Team"
 #define MyAppURL "https://github.com/corditewars/sixfronts"
 #define MyAppExeName "CorditeWars.exe"
-#define MyAppId "{com.corditewars.sixfronts}"
+#define MyAppId "{{8F3A6D4E-B2C1-4E7F-9A5D-3B8C12E4F6A2}"
 
 [Setup]
 AppId={#MyAppId}
