@@ -826,9 +826,9 @@ jobs:
             -ArgumentList "--headless", "--quit-after", "60" `
             -NoNewWindow -Wait -PassThru
           if ($proc.ExitCode -ne 0) {
-            throw "Smoke test FAILED — exit code $($proc.ExitCode)"
+            throw "Smoke test FAILED -- exit code $($proc.ExitCode)"
           }
-          Write-Host "Smoke test passed — game started and exited cleanly."
+          Write-Host "Smoke test passed -- game started and exited cleanly."
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 6c. Headless smoke test — macOS
@@ -850,9 +850,14 @@ jobs:
         id: find_binary
         run: |
           # The .app bundle is now extracted directly in the artifact (no zip).
-          BINARY=$(find smoke/ -maxdepth 6 -name "CorditeWars" -type f | head -1)
+          APP=$(find smoke/ -maxdepth 3 -name "*.app" -type d | head -1)
+          if [ -z "$APP" ]; then
+            echo "ERROR: No .app bundle found in smoke/"
+            exit 1
+          fi
+          BINARY=$(find "$APP/Contents/MacOS" -type f | head -1)
           if [ -z "$BINARY" ]; then
-            echo "ERROR: CorditeWars binary not found inside .app bundle"
+            echo "ERROR: No executable found inside .app bundle at $APP/Contents/MacOS"
             exit 1
           fi
           chmod +x "$BINARY"
