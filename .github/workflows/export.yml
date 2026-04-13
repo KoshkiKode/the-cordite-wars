@@ -95,7 +95,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   export-windows:
     name: Windows Export
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: validate-project
     steps:
       - name: Checkout
@@ -112,7 +112,7 @@ jobs:
       - name: Export Windows
         uses: firebelley/godot-export@v7.0.0
         with:
-          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_linux_x86_64.zip
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_win64.exe.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
           archive_output: false
@@ -121,6 +121,7 @@ jobs:
           presets_to_export: "Windows Desktop"
 
       - name: Flatten Windows export output
+        shell: bash
         run: |
           # godot-export copies the internal build dir (named after the preset) into
           # the configured path, producing build/windows/Windows Desktop/*.  Flatten it.
@@ -131,6 +132,7 @@ jobs:
           fi
 
       - name: Verify Windows export
+        shell: bash
         run: |
           echo "Windows export contents:"
           ls -la build/windows/
@@ -628,11 +630,22 @@ jobs:
             exit 1
           fi
 
+      - name: Extract macOS .app bundle from Godot zip
+        run: |
+          # Godot always exports macOS as a zip to preserve the .app bundle
+          # structure with symlinks.  Extract it here so the artifact contains
+          # plain files rather than a zip-inside-a-zip.  macOS's native unzip
+          # preserves symlinks, so the .app bundle remains fully functional.
+          unzip -q build/macos/CorditeWars.zip -d build/macos/
+          rm build/macos/CorditeWars.zip
+          echo "macOS build contents after extraction:"
+          ls -la build/macos/
+
       - name: Upload macOS export artifact
         uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-macOS-Export
-          path: build/macos/CorditeWars.zip
+          path: build/macos/
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 5b. Package macOS — extract .app, optionally sign, create DMG
@@ -652,16 +665,15 @@ jobs:
           name: CorditeWars-macOS-Export
           path: build/macos
 
-      - name: Extract .app bundle
+      - name: Locate .app bundle
         run: |
           mkdir -p dist/macos
-          unzip -q build/macos/CorditeWars.zip -d dist/macos
-          echo "Extracted contents:"
-          ls -la dist/macos/
-          # Locate the .app (Godot may nest it or name it differently)
-          APP_PATH=$(find dist/macos -maxdepth 2 -name "*.app" | head -1)
+          echo "Downloaded macOS build contents:"
+          ls -la build/macos/
+          # The .app bundle is now extracted directly into the artifact (no zip).
+          APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -1)
           if [ -z "$APP_PATH" ]; then
-            echo "ERROR: No .app bundle found after unzip"
+            echo "ERROR: No .app bundle found in build/macos/"
             exit 1
           fi
           echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
@@ -740,10 +752,9 @@ jobs:
           path: dist/macos/CorditeWars_${{ env.APP_VERSION }}.dmg
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # 6. Headless smoke test — launch the Linux export, let it run for 60 physics
-  #    frames (2 s at 30 Hz), then assert a clean exit.  Catches crashes at
-  #    startup (missing autoload, bad scene ref, C# assembly load failure, etc.)
-  #    before any artifact is published.
+  # 6a. Headless smoke test — Linux
+  #     Launch the Linux export for 60 physics frames (2 s at 30 Hz) and assert
+  #     a clean exit.  Catches crashes at startup before any artifact is published.
   # ─────────────────────────────────────────────────────────────────────────────
   smoke-test-linux:
     name: Headless Smoke Test (Linux)
@@ -773,6 +784,77 @@ jobs:
           # xvfb-run provides a virtual display so the rendering driver can
           # initialise without a real monitor.  Exit code 0 means the engine
           # started, ran its main loop, and shut down cleanly.
-          xvfb-run -a smoke/CorditeWars.x86_64 --quit-after 60
+          xvfb-run -a smoke/CorditeWars.x86_64 --headless --quit-after 60
+          echo "Smoke test passed — game started and exited cleanly."
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 6b. Headless smoke test — Windows
+  #     Launch the Windows export for 60 physics frames on a real Windows runner.
+  # ─────────────────────────────────────────────────────────────────────────────
+  smoke-test-windows:
+    name: Headless Smoke Test (Windows)
+    runs-on: windows-latest
+    needs: export-windows
+
+    steps:
+      - name: Download Windows export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows
+          path: smoke/
+
+      - name: Verify export and run headless smoke test
+        shell: powershell
+        run: |
+          Write-Host "--- Windows export contents ---"
+          Get-ChildItem smoke\
+          if (-not (Test-Path "smoke\CorditeWars.exe")) {
+            throw "CorditeWars.exe not found in smoke/ artifact."
+          }
+
+          # --headless tells Godot to skip display/audio initialisation.
+          # --quit-after 60 stops the engine after 60 physics frames (≈2 s).
+          $proc = Start-Process -FilePath "smoke\CorditeWars.exe" `
+            -ArgumentList "--headless", "--quit-after", "60" `
+            -NoNewWindow -Wait -PassThru
+          if ($proc.ExitCode -ne 0) {
+            throw "Smoke test FAILED — exit code $($proc.ExitCode)"
+          }
+          Write-Host "Smoke test passed — game started and exited cleanly."
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 6c. Headless smoke test — macOS
+  #     Unzip the macOS .app bundle and run it headlessly on a real macOS runner.
+  # ─────────────────────────────────────────────────────────────────────────────
+  smoke-test-macos:
+    name: Headless Smoke Test (macOS)
+    runs-on: macos-latest
+    needs: export-macos
+
+    steps:
+      - name: Download macOS export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-macOS-Export
+          path: smoke/
+
+      - name: Locate game binary
+        id: find_binary
+        run: |
+          # The .app bundle is now extracted directly in the artifact (no zip).
+          BINARY=$(find smoke/ -maxdepth 6 -name "CorditeWars" -type f | head -1)
+          if [ -z "$BINARY" ]; then
+            echo "ERROR: CorditeWars binary not found inside .app bundle"
+            exit 1
+          fi
+          chmod +x "$BINARY"
+          echo "GAME_BINARY=$BINARY" >> "$GITHUB_ENV"
+          echo "Found game binary: $BINARY"
+
+      - name: Run headless smoke test
+        run: |
+          set -euo pipefail
+          # --headless skips display/audio; --quit-after 60 exits after 60 frames.
+          "$GAME_BINARY" --headless --quit-after 60
           echo "Smoke test passed — game started and exited cleanly."
 

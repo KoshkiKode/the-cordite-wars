@@ -73,7 +73,7 @@ jobs:
   gog-upload-windows:
     name: GOG Upload (Windows)
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read
 
@@ -88,6 +88,7 @@ jobs:
           path: build/windows/
 
       - name: Patch GOG build config
+        shell: bash
         env:
           GOG_PRODUCT_ID:    ${{ secrets.GOG_PRODUCT_ID }}
           GOG_CLIENT_ID:     ${{ secrets.GOG_CLIENT_ID }}
@@ -100,29 +101,32 @@ jobs:
             gog/build-windows.json
 
       - name: Install GOG Pipeline Builder
+        shell: powershell
         run: |
-          mkdir -p ~/gogpipe
-          curl -sSL \
-            "https://pipeline-builder.gog.com/prod/linux/pipeline_builder" \
-            -o ~/gogpipe/pipeline_builder
-          chmod +x ~/gogpipe/pipeline_builder
-          echo "$HOME/gogpipe" >> "$GITHUB_PATH"
+          New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\gogpipe" | Out-Null
+          Invoke-WebRequest `
+            -Uri "https://pipeline-builder.gog.com/prod/windows/pipeline_builder.exe" `
+            -OutFile "$env:USERPROFILE\gogpipe\pipeline_builder.exe"
+          echo "$env:USERPROFILE\gogpipe" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Upload Windows build to GOG
+        shell: powershell
         env:
           GOG_USERNAME: ${{ secrets.GOG_USERNAME }}
           GOG_PASSWORD: ${{ secrets.GOG_PASSWORD }}
           GOG_BRANCH:   ${{ github.event.inputs.branch || 'master' }}
         run: |
-          pipeline_builder build \
-            --username  "$GOG_USERNAME" \
-            --password  "$GOG_PASSWORD" \
-            --version   "${GITHUB_REF_NAME:-dev}" \
-            --branch    "$GOG_BRANCH" \
-            gog/build-windows.json
+          $refName = if ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { "dev" }
+          pipeline_builder.exe build `
+            --username  $env:GOG_USERNAME `
+            --password  $env:GOG_PASSWORD `
+            --version   $refName `
+            --branch    $env:GOG_BRANCH `
+            gog\build-windows.json
 
       - name: Report result
         if: success()
+        shell: bash
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
           echo "### ✅ GOG Windows Upload Successful" >> "$GITHUB_STEP_SUMMARY"
@@ -203,7 +207,7 @@ jobs:
   gog-upload-macos:
     name: GOG Upload (macOS)
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     permissions:
       contents: read
 
@@ -217,12 +221,17 @@ jobs:
           name: CorditeWars-macOS-Export
           path: build/macos/
 
-      - name: Extract .app bundle from zip
+      - name: Locate .app bundle
         run: |
-          mkdir -p build/macos/app
-          unzip -q build/macos/CorditeWars.zip -d build/macos/app
-          echo "Extracted macOS contents:"
-          ls -la build/macos/app/
+          echo "Downloaded macOS build contents:"
+          ls -la build/macos/
+          # The .app bundle is extracted directly in the artifact (no zip).
+          APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: No .app bundle found in build/macos/"
+            exit 1
+          fi
+          echo "Found .app bundle: $APP_PATH"
 
       - name: Patch GOG build config
         env:
@@ -230,7 +239,7 @@ jobs:
           GOG_CLIENT_ID:     ${{ secrets.GOG_CLIENT_ID }}
           GOG_CLIENT_SECRET: ${{ secrets.GOG_CLIENT_SECRET }}
         run: |
-          sed -i \
+          sed -i '' \
             -e "s/YOUR_GOG_PRODUCT_ID/${GOG_PRODUCT_ID}/g" \
             -e "s/YOUR_GOG_CLIENT_ID/${GOG_CLIENT_ID}/g" \
             -e "s/YOUR_GOG_CLIENT_SECRET/${GOG_CLIENT_SECRET}/g" \
@@ -240,7 +249,7 @@ jobs:
         run: |
           mkdir -p ~/gogpipe
           curl -sSL \
-            "https://pipeline-builder.gog.com/prod/linux/pipeline_builder" \
+            "https://pipeline-builder.gog.com/prod/osx/pipeline_builder" \
             -o ~/gogpipe/pipeline_builder
           chmod +x ~/gogpipe/pipeline_builder
           echo "$HOME/gogpipe" >> "$GITHUB_PATH"
