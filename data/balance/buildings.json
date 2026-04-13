@@ -418,5 +418,33 @@
     "cost": 1500,
     "hp": 1500,
     "build_time": 30.0
+  },
+  {
+    "id": "arcloft_orbital_relay",
+    "faction": "arcloft",
+    "cost": 3000,
+    "hp": 1200,
+    "build_time": 60.0
+  },
+  {
+    "id": "bastion_missile_battery",
+    "faction": "bastion",
+    "cost": 2800,
+    "hp": 1500,
+    "build_time": 55.0
+  },
+  {
+    "id": "ironmarch_siege_works",
+    "faction": "ironmarch",
+    "cost": 3200,
+    "hp": 2000,
+    "build_time": 65.0
+  },
+  {
+    "id": "valkyr_launch_bay",
+    "faction": "valkyr",
+    "cost": 3000,
+    "hp": 1000,
+    "build_time": 60.0
   }
 ]

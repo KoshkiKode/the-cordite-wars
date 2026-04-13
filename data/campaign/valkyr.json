@@ -290,7 +290,9 @@
       "twist": "Arcloft Vigilant jets are detector aircraft \u2014 they will instantly reveal any moving Windrunner. Use stationary stealth positioning: advance Windrunners one at a time, holding still to stay hidden between movements.",
       "win_condition": "destroy_hq",
       "requires_mission": "valkyr_06",
-      "unlocks_buildings": [],
+      "unlocks_buildings": [
+        "valkyr_launch_bay"
+      ],
       "typed_objectives": [
         {
           "type": "maintain_unit_type",

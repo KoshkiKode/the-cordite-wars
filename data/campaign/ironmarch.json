@@ -365,7 +365,9 @@
       "twist": "Valkyr Interceptors will harass your armour columns \u2014 deploy anti-air support to protect the advance.",
       "win_condition": "destroy_hq",
       "requires_mission": "ironmarch_07",
-      "unlocks_buildings": [],
+      "unlocks_buildings": [
+        "ironmarch_siege_works"
+      ],
       "typed_objectives": [
         {
           "type": "destroy_building_type",

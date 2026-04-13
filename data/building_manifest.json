@@ -658,5 +658,49 @@
     "ModelRotation": 0.0,
     "Category": "Production",
     "ModelPath": "assets/models/quaternius/space_House_Open_cohesive.glb"
+  },
+  "arcloft_orbital_relay": {
+    "ModelPath": "assets/models/quaternius/space_Roof_Opening_cohesive.glb",
+    "CollisionWidth": 3,
+    "CollisionHeight": 3,
+    "CollisionRadius": 2.0,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.0,
+    "ModelRotation": 0.0,
+    "Category": "Superweapon"
+  },
+  "bastion_missile_battery": {
+    "ModelPath": "assets/models/quaternius/space_Connector_cohesive.glb",
+    "CollisionWidth": 4,
+    "CollisionHeight": 3,
+    "CollisionRadius": 2.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.2,
+    "ModelRotation": 0.0,
+    "Category": "Superweapon"
+  },
+  "ironmarch_siege_works": {
+    "ModelPath": "assets/models/quaternius/space_House_Door_cohesive.glb",
+    "CollisionWidth": 4,
+    "CollisionHeight": 4,
+    "CollisionRadius": 3.0,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.2,
+    "ModelRotation": 0.0,
+    "Category": "Superweapon"
+  },
+  "valkyr_launch_bay": {
+    "ModelPath": "assets/models/quaternius/space_Roof_VentL_cohesive.glb",
+    "CollisionWidth": 4,
+    "CollisionHeight": 3,
+    "CollisionRadius": 2.5,
+    "Mass": 999,
+    "Passable": false,
+    "ModelScale": 2.0,
+    "ModelRotation": 0.0,
+    "Category": "Superweapon"
   }
 }

@@ -27,7 +27,8 @@
     "arcloft_tech_lab",
     "arcloft_supply_depot",
     "arcloft_vehicle_factory",
-    "arcloft_shipyard"
+    "arcloft_shipyard",
+    "arcloft_orbital_relay"
   ],
   "TechTreeUnlocks": {
     "arcloft_expanded_overwatch": 1800,

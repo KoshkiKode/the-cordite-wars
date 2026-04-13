@@ -2,7 +2,7 @@
   "Id": "bastion",
   "DisplayName": "Bastion",
   "Archetype": "DefensePrimary",
-  "Description": "The Bastion Protectorate believes the world is fundamentally hostile and survival demands layers of protection. They don't conquer — they endure.",
+  "Description": "The Bastion Protectorate believes the world is fundamentally hostile and survival demands layers of protection. They don't conquer \u2014 they endure.",
   "AestheticTheme": "geometric_fortified",
   "ColorIndex": 2,
   "PrimaryColor": "#F9A825",
@@ -27,7 +27,8 @@
     "bastion_tech_lab",
     "bastion_supply_depot",
     "bastion_command_hub",
-    "bastion_shipyard"
+    "bastion_shipyard",
+    "bastion_missile_battery"
   ],
   "TechTreeUnlocks": {
     "bastion_redundant_systems": 2000,

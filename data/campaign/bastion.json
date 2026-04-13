@@ -357,7 +357,9 @@
       "twist": "Ironmarch heavy armour and Stormrend air strikes attack from opposite flanks \u2014 hold the centre at all costs.",
       "win_condition": "destroy_hq",
       "requires_mission": "bastion_07",
-      "unlocks_buildings": [],
+      "unlocks_buildings": [
+        "bastion_missile_battery"
+      ],
       "typed_objectives": [
         {
           "type": "survive_timer",
