@@ -338,6 +338,13 @@ jobs:
           echo "Linux build contents:"
           ls -la build/linux/
 
+      - name: Stage Linux export for Snapcraft
+        run: |
+          mkdir -p versions/linux/build/linux
+          cp -R build/linux/. versions/linux/build/linux/
+          echo "Snapcraft staged source contents:"
+          ls -la versions/linux/build/linux/
+
       - name: Build Snap
         id: snapcraft
         uses: snapcore/action-build@v1
@@ -436,6 +443,15 @@ jobs:
           GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ./release.keystore
           GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
           GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+
+      - name: Flatten Android export output
+        run: |
+          # godot-export nests Android output in a preset-named folder.
+          if [ -d "build/android/Android" ]; then
+            mv "build/android/Android/"* build/android/
+            rmdir "build/android/Android"
+            echo "Flattened build/android/Android/ → build/android/"
+          fi
 
       - name: Verify Android APK
         run: |
@@ -538,6 +554,15 @@ jobs:
           GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ./release.keystore
           GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
           GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+
+      - name: Flatten Android AAB export output
+        run: |
+          # godot-export nests Android AAB output in a preset-named folder.
+          if [ -d "build/android/Android AAB" ]; then
+            mv "build/android/Android AAB/"* build/android/
+            rmdir "build/android/Android AAB"
+            echo "Flattened build/android/Android AAB/ → build/android/"
+          fi
 
       - name: Verify Android AAB
         run: |
@@ -780,6 +805,10 @@ jobs:
           APPLE_DEV_ID: ${{ secrets.APPLE_DEV_ID }}
         run: codesign --sign "$APPLE_DEV_ID" --timestamp "$DMG_PATH"
 
+      - name: Ad-hoc sign DMG (no Apple Developer ID)
+        if: env.HAS_APPLE_DEV_ID == 'false'
+        run: codesign --force --sign - "$DMG_PATH"
+
       - name: Notarize and staple DMG
         if: env.HAS_APPLE_DEV_ID == 'true' && env.HAS_APPLE_ID == 'true' && env.HAS_AC_PASSWORD == 'true'
         env:
@@ -796,6 +825,14 @@ jobs:
           xcrun stapler staple "$DMG_PATH"
           xcrun stapler validate "$DMG_PATH"
           echo "DMG notarized and stapled."
+
+      - name: Verify DMG integrity
+        run: |
+          hdiutil verify "$DMG_PATH"
+          MOUNT_POINT="$(mktemp -d)"
+          hdiutil attach "$DMG_PATH" -mountpoint "$MOUNT_POINT" -nobrowse -readonly
+          find "$MOUNT_POINT" -maxdepth 2 -name "*.app" -print
+          hdiutil detach "$MOUNT_POINT"
 
       - name: Upload macOS DMG artifact
         uses: actions/upload-artifact@v4
@@ -914,4 +951,3 @@ jobs:
           # --headless skips display/audio; --quit-after 60 exits after 60 frames.
           "$GAME_BINARY" --headless --quit-after 60
           echo "Smoke test passed — game started and exited cleanly."
-
