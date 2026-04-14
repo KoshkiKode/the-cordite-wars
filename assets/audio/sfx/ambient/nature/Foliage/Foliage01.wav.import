@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://bat84a0ytjxep"
-path="res://.godot/imported/Foliage01.wav-21e605517ca2d38693cdb93954535cba.sample"
+uid="uid://9t84azytjxep"
+path="res://.godot/imported/Foliage01.wav-7bdf189f6c3a28f3347f52c6cb3a0c0e.sample"
 
 [deps]
 
 source_file="res://assets/audio/sfx/ambient/nature/Foliage/Foliage01.wav"
-dest_files=["res://.godot/imported/Foliage01.wav-21e605517ca2d38693cdb93954535cba.sample"]
+dest_files=["res://.godot/imported/Foliage01.wav-7bdf189f6c3a28f3347f52c6cb3a0c0e.sample"]
 
 [params]
 

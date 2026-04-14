@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://he7ur23gdppq"
-path="res://.godot/imported/FootstepGrass01.wav-d97640dfd34a716d69dad3049d0cd7c7.sample"
+path="res://.godot/imported/FootstepGrass01.wav-b2f7f7759330c9e670ed376d08978cee.sample"
 
 [deps]
 
 source_file="res://assets/audio/sfx/ambient/nature/Footstep/FootstepGrass01.wav"
-dest_files=["res://.godot/imported/FootstepGrass01.wav-d97640dfd34a716d69dad3049d0cd7c7.sample"]
+dest_files=["res://.godot/imported/FootstepGrass01.wav-b2f7f7759330c9e670ed376d08978cee.sample"]
 
 [params]
 

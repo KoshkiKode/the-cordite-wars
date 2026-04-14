@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://8mdd4v30uant"
-path="res://.godot/imported/AmbientNatureOutside.wav-b13b28f200f9022df0091c51e87fa11a.sample"
+uid="uid://8mdd4v30t9nt"
+path="res://.godot/imported/AmbientNatureOutside.wav-bb4460dc268f1f63bf41ba81a6ddf1f4.sample"
 
 [deps]
 
 source_file="res://assets/audio/sfx/ambient/nature/Ambient/AmbientNatureOutside.wav"
-dest_files=["res://.godot/imported/AmbientNatureOutside.wav-b13b28f200f9022df0091c51e87fa11a.sample"]
+dest_files=["res://.godot/imported/AmbientNatureOutside.wav-bb4460dc268f1f63bf41ba81a6ddf1f4.sample"]
 
 [params]
 
