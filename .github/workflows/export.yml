@@ -590,6 +590,12 @@ jobs:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ./debug.keystore
           GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
           GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+          # The preset has package/signed=true, so Godot requires a release keystore
+          # path even when no real release certificate exists.  Fall back to the debug
+          # keystore so the export succeeds in CI without production secrets.
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ./debug.keystore
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: android
 
       - name: Export Android AAB (release-signed)
         if: steps.release_keystore.outputs.has_release_keystore == 'true'
