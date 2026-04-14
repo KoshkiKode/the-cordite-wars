@@ -1063,7 +1063,7 @@ public partial class GameSession : Node
                         // SteamManager.Instance?.RecordUnitsDestroyed(1); // disabled until Steam integration is re-enabled
                     }
                 }
-                _unitSpawner.DespawnUnit(destroyedId);
+                _unitSpawner?.DespawnUnit(destroyedId);
             }
         }
 

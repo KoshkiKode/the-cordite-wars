@@ -9,6 +9,7 @@
 
   <PropertyGroup>
     <LangVersion>12.0</LangVersion>
+    <GodotProjectDir>$(MSBuildProjectDirectory)/../..</GodotProjectDir>
   </PropertyGroup>
 
   <ItemGroup>

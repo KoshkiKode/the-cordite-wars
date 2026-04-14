@@ -958,7 +958,12 @@ jobs:
           # (not its internals) at the root of the DMG volume.
           STAGING_DIR="dist/macos/staging"
           mkdir -p "$STAGING_DIR"
-          cp -R "$APP_PATH" "$STAGING_DIR/"
+          # Use ditto (not cp -R) so app bundle metadata and symlinks are
+          # preserved exactly; this prevents broken signatures/app bundles
+          # that can trigger "app is damaged" on downloaded DMGs.
+          STAGED_APP_PATH="$STAGING_DIR/$(basename "$APP_PATH")"
+          ditto "$APP_PATH" "$STAGED_APP_PATH"
+          codesign --verify --deep --strict --verbose=2 "$STAGED_APP_PATH"
           hdiutil create \
             -volname "Cordite Wars" \
             -srcfolder "$STAGING_DIR" \

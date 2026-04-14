@@ -350,7 +350,8 @@ public partial class SkirmishAI : Node
             {
                 // Production complete — spawn unit
                 _productionTimers.Remove(building.BuildingId);
-                if (_productionUnitType.TryGetValue(building.BuildingId, out string completedUnitId))
+                if (_productionUnitType.TryGetValue(building.BuildingId, out string? completedUnitId) &&
+                    !string.IsNullOrEmpty(completedUnitId))
                 {
                     _productionUnitType.Remove(building.BuildingId);
                     _unitSpawner?.SpawnUnit(completedUnitId, FactionId, PlayerId,
