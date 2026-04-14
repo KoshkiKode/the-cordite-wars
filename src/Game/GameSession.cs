@@ -1078,7 +1078,7 @@ public partial class GameSession : Node
         {
             var ctx = new CorditeWars.Game.Campaign.MissionSessionContext();
             ctx.AllBuildings  = _buildingPlacer?.GetAllBuildings() ?? (System.Collections.Generic.IList<BuildingInstance>)System.Array.Empty<BuildingInstance>();
-            ctx.AliveUnits    = _unitSpawner.GetAllUnits();
+            ctx.AliveUnits    = _unitSpawner?.GetAllUnits() ?? (System.Collections.Generic.IList<UnitNode3D>)System.Array.Empty<UnitNode3D>();
             ctx.PlayerCordite = _economyManager.GetPlayer(_localPlayerId)?.Cordite ?? FixedPoint.Zero;
             _objectiveTracker.Tick(_localPlayerId, ctx, currentTick);
             if (_objectiveTracker.AllPrimaryObjectivesComplete)

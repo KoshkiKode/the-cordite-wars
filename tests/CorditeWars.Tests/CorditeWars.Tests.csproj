@@ -5,11 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CS8785</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
     <LangVersion>12.0</LangVersion>
-    <GodotProjectDir>$(MSBuildProjectDirectory)/../..</GodotProjectDir>
+    <GodotProjectDir>$(MSBuildThisFileDirectory)..\..\</GodotProjectDir>
+    <GodotDisabledSourceGenerators>ScriptPathAttributeGenerator</GodotDisabledSourceGenerators>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CorditeWars.csproj" />
+    <ProjectReference Include="..\..\CorditeWars.csproj" ExcludeAssets="analyzers" />
   </ItemGroup>
 
   <ItemGroup>
