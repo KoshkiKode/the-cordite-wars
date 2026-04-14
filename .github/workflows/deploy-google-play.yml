@@ -98,6 +98,9 @@ jobs:
           mkdir -p android/build
           unzip -q "$TEMPLATES_DIR/android_source.zip" -d android/build/
           # Write the version marker that Godot validates before exporting.
+          # Godot checks res://android/.build_version for Gradle template exports.
+          echo "$TEMPLATES_VERSION" > android/.build_version
+          # Keep the marker under android/build as well for compatibility.
           echo "$TEMPLATES_VERSION" > android/build/.build_version
           # Prevent Godot's file scanner from importing Gradle project files.
           touch android/build/.gdignore
