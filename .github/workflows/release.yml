@@ -11,6 +11,7 @@ jobs:
   build-all-platforms:
     name: Build All Platforms
     uses: ./.github/workflows/export.yml
+    secrets: inherit
 
   create-release:
     name: Create GitHub Release

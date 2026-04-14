@@ -115,7 +115,12 @@ jobs:
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
           archive_output: false
-          export_debug: false
+          # export_debug: true avoids a Godot-level xcodebuild signing conflict:
+          # release mode writes CODE_SIGN_IDENTITY="Apple Distribution" but also
+          # triggers automatic signing, causing an immediate archive failure.
+          # Debug mode generates the Xcode project files only; the Release build
+          # configuration is enforced by the xcodebuild archive step below.
+          export_debug: true
           use_preset_export_path: true
           presets_to_export: "iOS"
 

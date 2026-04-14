@@ -64,6 +64,7 @@ jobs:
     name: Build All Platforms
     needs: validate-secrets
     uses: ./.github/workflows/export.yml
+    secrets: inherit
     permissions:
       contents: read
 

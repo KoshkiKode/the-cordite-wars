@@ -54,7 +54,7 @@ parts:
       GodotSharp/: bin/GodotSharp/
     override-build: |
       craftctl default
-      chmod +x "$CRAFTPARTS_INSTALL/bin/CorditeWars" || true
+      chmod +x "$SNAPCRAFT_PART_INSTALL/bin/CorditeWars" || true
     stage-packages:
       - libgles2
       - libopenal1

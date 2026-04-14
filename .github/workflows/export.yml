@@ -443,6 +443,23 @@ jobs:
             "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" \
             > ~/.config/godot/editor_settings-4.tres
 
+      - name: Disable custom Android Gradle build in CI
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("export_presets.cfg")
+          original = path.read_text()
+          needle = "gradle_build/use_gradle_build=true"
+          count = original.count(needle)
+          if count == 0:
+              raise SystemExit(
+                  "Expected at least one Android gradle_build/use_gradle_build=true setting in export_presets.cfg; "
+                  "ensure Android export presets exist and are configured."
+              )
+          path.write_text(original.replace(needle, "gradle_build/use_gradle_build=false"))
+          print(f"Disabled custom Android Gradle build in {count} preset(s).")
+          PY
+
       - name: Export Android (debug-signed)
         if: steps.release_keystore.outputs.has_release_keystore != 'true'
         uses: firebelley/godot-export@v7.0.0
@@ -588,6 +605,23 @@ jobs:
           printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\n' \
             "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" \
             > ~/.config/godot/editor_settings-4.tres
+
+      - name: Disable custom Android Gradle build in CI
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("export_presets.cfg")
+          original = path.read_text()
+          needle = "gradle_build/use_gradle_build=true"
+          count = original.count(needle)
+          if count == 0:
+              raise SystemExit(
+                  "Expected at least one Android gradle_build/use_gradle_build=true setting in export_presets.cfg; "
+                  "ensure Android export presets exist and are configured."
+              )
+          path.write_text(original.replace(needle, "gradle_build/use_gradle_build=false"))
+          print(f"Disabled custom Android Gradle build in {count} preset(s).")
+          PY
 
       - name: Export Android AAB (debug-signed)
         if: steps.release_keystore.outputs.has_release_keystore != 'true'
@@ -735,7 +769,12 @@ jobs:
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
           relative_project_path: ./
           archive_output: false
-          export_debug: false
+          # export_debug: true avoids a Godot-level xcodebuild signing conflict:
+          # release mode writes CODE_SIGN_IDENTITY="Apple Distribution" but also
+          # triggers automatic signing, causing an immediate archive failure.
+          # Debug mode generates the Xcode project files only; the Release build
+          # configuration is enforced by the caller's own xcodebuild step.
+          export_debug: true
           use_preset_export_path: true
           presets_to_export: "iOS"
 

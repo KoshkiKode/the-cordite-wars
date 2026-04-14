@@ -56,6 +56,12 @@ jobs:
         env:
           ANDROID_RELEASE_KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
         run: |
+          if [ -z "$ANDROID_RELEASE_KEYSTORE_B64" ]; then
+            echo "::error::ANDROID_RELEASE_KEYSTORE_B64 secret is required for Google Play deployment."
+            echo "::error::Encode your .jks keystore with: base64 < release.jks | tr -d '\\n'"
+            echo "::error::Then add the output as the ANDROID_RELEASE_KEYSTORE_B64 repository secret."
+            exit 1
+          fi
           echo "$ANDROID_RELEASE_KEYSTORE_B64" | base64 --decode > release.keystore
 
       - name: Configure Godot Android SDK path
@@ -64,6 +70,23 @@ jobs:
           printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\n' \
             "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" \
             > ~/.config/godot/editor_settings-4.tres
+
+      - name: Disable custom Android Gradle build in CI
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("export_presets.cfg")
+          original = path.read_text()
+          needle = "gradle_build/use_gradle_build=true"
+          count = original.count(needle)
+          if count == 0:
+              raise SystemExit(
+                  "Expected at least one Android gradle_build/use_gradle_build=true setting in export_presets.cfg; "
+                  "ensure Android export presets exist and are configured."
+              )
+          path.write_text(original.replace(needle, "gradle_build/use_gradle_build=false"))
+          print(f"Disabled custom Android Gradle build in {count} preset(s).")
+          PY
 
       - name: Export Android AAB (release-signed)
         uses: firebelley/godot-export@v7.0.0
@@ -82,6 +105,16 @@ jobs:
           GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ./release.keystore
           GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
           GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+
+      - name: Flatten Android AAB export output
+        run: |
+          # firebelley/godot-export nests the AAB in a preset-named subfolder.
+          # Flatten build/android/Android AAB/ → build/android/ so paths are predictable.
+          if [ -d "build/android/Android AAB" ]; then
+            cp -a "build/android/Android AAB/." "build/android/"
+            rm -rf "build/android/Android AAB"
+            echo "Flattened build/android/Android AAB/ → build/android/"
+          fi
 
       - name: Verify AAB
         run: |
