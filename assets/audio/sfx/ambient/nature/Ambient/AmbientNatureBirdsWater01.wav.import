@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://xaji0y6dpbhs"
-path="res://.godot/imported/AmbientNatureBirdsWater01.wav-f65dd4418a94ed3976fb1c974ca3b45c.sample"
+path="res://.godot/imported/AmbientNatureBirdsWater01.wav-a13b61ba6ada4de14e95b29420c383ac.sample"
 
 [deps]
 
 source_file="res://assets/audio/sfx/ambient/nature/Ambient/AmbientNatureBirdsWater01.wav"
-dest_files=["res://.godot/imported/AmbientNatureBirdsWater01.wav-f65dd4418a94ed3976fb1c974ca3b45c.sample"]
+dest_files=["res://.godot/imported/AmbientNatureBirdsWater01.wav-a13b61ba6ada4de14e95b29420c383ac.sample"]
 
 [params]
 

@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://5lxo6qjiujv6"
-path="res://.godot/imported/StreamAndBirds02.wav-013ef48f945bc02814fcd8b2f388915e.sample"
+path="res://.godot/imported/StreamAndBirds02.wav-de6e817ac9ef901c97c0f676b17109c2.sample"
 
 [deps]
 
 source_file="res://assets/audio/sfx/ambient/nature/Stream/StreamAndBirds02.wav"
-dest_files=["res://.godot/imported/StreamAndBirds02.wav-013ef48f945bc02814fcd8b2f388915e.sample"]
+dest_files=["res://.godot/imported/StreamAndBirds02.wav-de6e817ac9ef901c97c0f676b17109c2.sample"]
 
 [params]
 
