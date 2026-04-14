@@ -43,15 +43,13 @@ parts:
     plugin: dump
     source: build/linux/
     stage:
-      - CorditeWars
-      - CorditeWars.pck
-      - CorditeWars.dll
-      - GodotSharp/
+      - bin/CorditeWars
+      - bin/CorditeWars.pck
+      - bin/data_CorditeWars_linuxbsd_x86_64/
     organize:
       CorditeWars: bin/CorditeWars
       CorditeWars.pck: bin/CorditeWars.pck
-      CorditeWars.dll: bin/CorditeWars.dll
-      GodotSharp/: bin/GodotSharp/
+      data_CorditeWars_linuxbsd_x86_64/: bin/data_CorditeWars_linuxbsd_x86_64/
     override-build: |
       craftctl default
       chmod +x "$SNAPCRAFT_PART_INSTALL/bin/CorditeWars" || true
