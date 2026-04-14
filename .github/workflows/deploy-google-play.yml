@@ -72,22 +72,39 @@ jobs:
             "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" \
             > ~/.config/godot/editor_settings-4.tres
 
-      - name: Disable custom Android Gradle build in CI
+      - name: Install Android Gradle build template
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          path = Path("export_presets.cfg")
-          original = path.read_text()
-          needle = "gradle_build/use_gradle_build=true"
-          count = original.count(needle)
-          if count == 0:
-              raise SystemExit(
-                  "Expected at least one Android preset with gradle_build/use_gradle_build=true in export_presets.cfg; "
-                  "if presets are already set to false, this CI replacement step is not needed."
-              )
-          path.write_text(original.replace(needle, "gradle_build/use_gradle_build=false"))
-          print(f"Disabled custom Android Gradle build in {count} preset(s).")
-          PY
+          set -euo pipefail
+          GODOT_VERSION="${{ env.GODOT_VERSION }}"
+          # Build the Godot templates version string (e.g. "4.6.2.stable.mono")
+          TEMPLATES_VERSION="$(echo "$GODOT_VERSION" | sed 's/-/./').mono"
+          TEMPLATES_DIR="$HOME/.local/share/godot/export_templates/$TEMPLATES_VERSION"
+          TPZ_URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+
+          echo "Downloading Godot ${GODOT_VERSION} export templates..."
+          curl -L --fail -o /tmp/export_templates.tpz "$TPZ_URL"
+
+          # Pre-populate the templates cache so firebelley/godot-export can skip
+          # re-downloading them and save runner time.
+          echo "Extracting export templates to ${TEMPLATES_DIR}..."
+          mkdir -p "$TEMPLATES_DIR"
+          unzip -q /tmp/export_templates.tpz -d /tmp/godot_tpz/
+          mv /tmp/godot_tpz/templates/* "$TEMPLATES_DIR/"
+
+          # Install the Android Gradle build template into the project directory.
+          # Godot requires android/build/ to contain the Gradle project files when
+          # gradle_build/use_gradle_build=true is set in the export preset.
+          echo "Installing Android Gradle build template to android/build/..."
+          mkdir -p android/build
+          unzip -q "$TEMPLATES_DIR/android_source.zip" -d android/build/
+          # Write the version marker that Godot validates before exporting.
+          echo "$TEMPLATES_VERSION" > android/build/.build_version
+          # Prevent Godot's file scanner from importing Gradle project files.
+          touch android/build/.gdignore
+
+          echo "Android Gradle build template installed (${TEMPLATES_VERSION}):"
+          ls android/build/ | head -20
+          rm -rf /tmp/export_templates.tpz /tmp/godot_tpz/
 
       - name: Export Android AAB (release-signed)
         uses: firebelley/godot-export@v7.0.0
