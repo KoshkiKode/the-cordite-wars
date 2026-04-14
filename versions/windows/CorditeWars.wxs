@@ -27,7 +27,7 @@
     <!-- Install all exported game files into Program Files -->
     <StandardDirectory Id="ProgramFiles6432Folder">
       <Directory Id="INSTALLFOLDER" Name="Cordite Wars Six Fronts">
-        <Files Include="$(var.BuildDir)\**" />
+        <Files Include="$(var.BuildDir)\**\*" />
       </Directory>
     </StandardDirectory>
 
