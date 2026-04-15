@@ -315,6 +315,17 @@ jobs:
             echo "ERROR: CorditeWars.x86_64 not found after export"
             exit 1
           fi
+          if [ ! -f build/linux/CorditeWars.pck ]; then
+            echo "ERROR: CorditeWars.pck not found after export"
+            exit 1
+          fi
+          # Godot .NET exports may ship either:
+          # - legacy GodotSharp/ runtime layout, or
+          # - data_<app>_linux_<arch>/ runtime layout.
+          if [ ! -d build/linux/GodotSharp ] && ! compgen -G "build/linux/data_*_linux*" > /dev/null; then
+            echo "ERROR: No .NET runtime data directory found (expected GodotSharp or data_*_linux*)"
+            exit 1
+          fi
 
       - name: Upload Linux export artifact
         uses: actions/upload-artifact@v4
