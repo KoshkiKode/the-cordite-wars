@@ -2434,11 +2434,13 @@ public partial class GameSession : Node
             PlayerConfig pc = config.PlayerConfigs[i];
             if (!pc.IsAI) continue;
 
-            // Find starting position for this AI
+            // Find starting position for this AI.
+            // Map StartingPosition.PlayerId uses 0-based indices while PlayerConfig.PlayerId
+            // is 1-based, so we match against pc.PlayerId - 1.
             FixedVector2 basePos = FixedVector2.Zero;
             for (int s = 0; s < ActiveMap.StartingPositions.Length; s++)
             {
-                if (ActiveMap.StartingPositions[s].PlayerId == pc.PlayerId)
+                if (ActiveMap.StartingPositions[s].PlayerId == pc.PlayerId - 1)
                 {
                     basePos = new FixedVector2(
                         FixedPoint.FromInt(ActiveMap.StartingPositions[s].X),
@@ -2662,11 +2664,13 @@ public partial class GameSession : Node
         {
             PlayerConfig pc = config.PlayerConfigs[i];
 
-            // Find matching starting position
+            // Find matching starting position.
+            // Map StartingPosition.PlayerId uses 0-based indices while PlayerConfig.PlayerId
+            // is 1-based, so we match against pc.PlayerId - 1.
             StartingPosition? startPos = null;
             for (int s = 0; s < ActiveMap.StartingPositions.Length; s++)
             {
-                if (ActiveMap.StartingPositions[s].PlayerId == pc.PlayerId)
+                if (ActiveMap.StartingPositions[s].PlayerId == pc.PlayerId - 1)
                 {
                     startPos = ActiveMap.StartingPositions[s];
                     break;
@@ -2750,11 +2754,13 @@ public partial class GameSession : Node
         {
             PlayerConfig pc = config.PlayerConfigs[i];
 
-            // Find starting position
+            // Find starting position.
+            // Map StartingPosition.PlayerId uses 0-based indices while PlayerConfig.PlayerId
+            // is 1-based, so we match against pc.PlayerId - 1.
             StartingPosition? startPos = null;
             for (int s = 0; s < ActiveMap.StartingPositions.Length; s++)
             {
-                if (ActiveMap.StartingPositions[s].PlayerId == pc.PlayerId)
+                if (ActiveMap.StartingPositions[s].PlayerId == pc.PlayerId - 1)
                 {
                     startPos = ActiveMap.StartingPositions[s];
                     break;
@@ -2812,8 +2818,8 @@ public partial class GameSession : Node
         {
             CorditeNodeData node = ActiveMap.CorditeNodes[i];
             FixedVector2 pos = new FixedVector2(
-                FixedPoint.FromInt(node.X),
-                FixedPoint.FromInt(node.Y));
+                FixedPoint.FromFloat(node.X),
+                FixedPoint.FromFloat(node.Y));
             _harvesterSystem.RegisterCorditeNode(i, pos, node.Amount);
         }
 

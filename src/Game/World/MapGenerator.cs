@@ -216,8 +216,8 @@ public sealed class MapGenerator
                 nodes.Add(new CorditeNodeData
                 {
                     NodeId = nextId,
-                    X = (int)Math.Round(nx),
-                    Y = (int)Math.Round(ny),
+                    X = (float)nx,
+                    Y = (float)ny,
                     Amount = amount,
                 });
                 nextId++;
@@ -232,8 +232,8 @@ public sealed class MapGenerator
             nodes.Add(new CorditeNodeData
             {
                 NodeId = nextId,
-                X = (int)Math.Round(cx + offset),
-                Y = (int)Math.Round(cy + (rng.NextInt(10) - 5)),
+                X = (float)(cx + offset),
+                Y = (float)(cy + (rng.NextInt(10) - 5)),
                 Amount = 12000,
             });
             nextId++;

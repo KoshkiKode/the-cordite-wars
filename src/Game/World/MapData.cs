@@ -46,12 +46,14 @@ public sealed class StartingPosition
 
 /// <summary>
 /// A cordite resource node placement on the map.
+/// X and Y are stored as floats in JSON for sub-cell precision;
+/// gameplay code rounds them to the nearest grid cell as needed.
 /// </summary>
 public sealed class CorditeNodeData
 {
     public int NodeId { get; init; }
-    public int X { get; init; }
-    public int Y { get; init; }
+    public float X { get; init; }
+    public float Y { get; init; }
     public int Amount { get; init; }
 }
 
