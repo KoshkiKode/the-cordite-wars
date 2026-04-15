@@ -14,10 +14,10 @@ namespace CorditeWars.Game.World;
 /// </summary>
 public partial class TerrainRenderer : Node3D
 {
-    private MeshInstance3D _meshInstance = null!;
     private MapData _mapData = null!;
     private float[] _elevationMap = null!;
     private float _noiseStrength = 0.08f;
+    private const int ChunkCellSize = 120;
 
     // Biome base colors
     private static readonly Color TemperateGrass = new(0.28f, 0.52f, 0.15f);
@@ -67,12 +67,9 @@ void fragment() {
 
         bool castShadows = tier >= QualityTier.Medium;
 
-        // Remove previous mesh if regenerating
-        if (_meshInstance != null)
-        {
-            _meshInstance.QueueFree();
-            _meshInstance = null!;
-        }
+        // Remove previous generated content if regenerating
+        foreach (Node child in GetChildren())
+            child.QueueFree();
 
         int width = _mapData.Width;
         int height = _mapData.Height;
@@ -84,28 +81,18 @@ void fragment() {
         // Apply river carving
         ApplyRiverCarving(width, height);
 
-        // Generate mesh
-        var mesh = BuildTerrainMesh(width, height);
-
-        _meshInstance = new MeshInstance3D();
-        _meshInstance.Mesh = mesh;
-        _meshInstance.CastShadow = castShadows
-            ? GeometryInstance3D.ShadowCastingSetting.On
-            : GeometryInstance3D.ShadowCastingSetting.Off;
-
         // Apply vertex-color shader
         var shader = new Shader();
         shader.Code = TerrainShaderSource;
         var material = new ShaderMaterial();
         material.Shader = shader;
-        _meshInstance.MaterialOverride = material;
 
-        AddChild(_meshInstance);
+        // Build river/path overlays once and generate chunked terrain meshes
+        bool[] isRiver = BuildRiverMap(width, height);
+        bool[] isPath = BuildPathMap(width, height);
+        int chunkCount = GenerateTerrainChunks(width, height, isRiver, isPath, material, castShadows);
 
-        // Create static collision body for raycasting
-        CreateCollisionBody(mesh);
-
-        GD.Print($"[TerrainRenderer] Generated terrain {width}x{height}, biome={_mapData.Biome}, quality={tier}");
+        GD.Print($"[TerrainRenderer] Generated terrain {width}x{height} ({chunkCount} chunks), biome={_mapData.Biome}, quality={tier}");
     }
 
     /// <summary>
@@ -259,44 +246,77 @@ void fragment() {
 
     // ── Mesh Generation ────────────────────────────────────────────────────
 
-    private ArrayMesh BuildTerrainMesh(int width, int height)
+    private int GenerateTerrainChunks(int width, int height, bool[] isRiver, bool[] isPath, Material material, bool castShadows)
     {
-        // Build river proximity map for coloring
-        bool[] isRiver = BuildRiverMap(width, height);
-        bool[] isPath = BuildPathMap(width, height);
+        int chunkCount = 0;
+        for (int y0 = 0; y0 < height - 1; y0 += ChunkCellSize)
+        {
+            int y1 = Math.Min(height - 1, y0 + ChunkCellSize);
+            for (int x0 = 0; x0 < width - 1; x0 += ChunkCellSize)
+            {
+                int x1 = Math.Min(width - 1, x0 + ChunkCellSize);
+                var mesh = BuildTerrainChunkMesh(width, height, x0, y0, x1, y1, isRiver, isPath);
+
+                var meshInstance = new MeshInstance3D();
+                meshInstance.Mesh = mesh;
+                meshInstance.CastShadow = castShadows
+                    ? GeometryInstance3D.ShadowCastingSetting.On
+                    : GeometryInstance3D.ShadowCastingSetting.Off;
+                meshInstance.MaterialOverride = material;
+                AddChild(meshInstance);
+
+                CreateCollisionBody(mesh);
+                chunkCount++;
+            }
+        }
+        return chunkCount;
+    }
+
+    private ArrayMesh BuildTerrainChunkMesh(
+        int globalWidth,
+        int globalHeight,
+        int x0,
+        int y0,
+        int x1,
+        int y1,
+        bool[] isRiver,
+        bool[] isPath)
+    {
+        int chunkWidth = x1 - x0 + 1;
+        int chunkHeight = y1 - y0 + 1;
 
         var st = new SurfaceTool();
         st.Begin(Mesh.PrimitiveType.Triangles);
 
-        // Generate vertices
-        for (int y = 0; y < height; y++)
+        // Generate chunk vertices in world-space positions
+        for (int y = y0; y <= y1; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = x0; x <= x1; x++)
             {
-                float elev = _elevationMap[y * width + x];
+                float elev = _elevationMap[y * globalWidth + x];
 
                 // Compute vertex color based on biome + features
-                Color color = GetVertexColor(x, y, width, height, isRiver, isPath);
+                Color color = GetVertexColor(x, y, globalWidth, globalHeight, isRiver, isPath);
 
                 st.SetColor(color);
 
                 // Compute normal from neighboring elevations
-                Vector3 normal = ComputeNormal(x, y, width, height);
+                Vector3 normal = ComputeNormal(x, y, globalWidth, globalHeight);
                 st.SetNormal(normal);
 
-                st.SetUV(new Vector2((float)x / width, (float)y / height));
+                st.SetUV(new Vector2((float)x / globalWidth, (float)y / globalHeight));
                 st.AddVertex(new Vector3(x, elev, y));
             }
         }
 
-        // Generate indices (two triangles per cell)
-        for (int y = 0; y < height - 1; y++)
+        // Generate indices (two triangles per cell) for this chunk-local grid
+        for (int y = 0; y < chunkHeight - 1; y++)
         {
-            for (int x = 0; x < width - 1; x++)
+            for (int x = 0; x < chunkWidth - 1; x++)
             {
-                int topLeft = y * width + x;
+                int topLeft = y * chunkWidth + x;
                 int topRight = topLeft + 1;
-                int bottomLeft = (y + 1) * width + x;
+                int bottomLeft = (y + 1) * chunkWidth + x;
                 int bottomRight = bottomLeft + 1;
 
                 // Triangle 1
