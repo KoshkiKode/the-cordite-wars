@@ -17,6 +17,10 @@ public partial class TerrainRenderer : Node3D
     private MapData _mapData = null!;
     private float[] _elevationMap = null!;
     private float _noiseStrength = 0.08f;
+    // Chunk size used when splitting the terrain mesh. 120 cells gives
+    // ~14 400 quads per chunk (28 800 triangles, ~86 400 indices), safely
+    // within the 65 535 vertex limit of a 16-bit index buffer used by
+    // some GPU drivers, and keeps collision trimesh sizes manageable.
     private const int ChunkCellSize = 120;
 
     // Biome base colors

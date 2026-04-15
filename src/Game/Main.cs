@@ -26,6 +26,7 @@ public partial class Main : Node3D
 
     private GameSession? _session;
     private PauseMenu? _pauseMenu;
+    private CorditeWars.UI.HUD.DebugOverlay? _debugOverlay;
     private DateTime _matchStartTime;
 
     public override void _Ready()
@@ -59,12 +60,25 @@ public partial class Main : Node3D
         _pauseMenu.Name = "PauseMenu";
         AddChild(_pauseMenu);
 
+        // Create F3 debug overlay (hidden by default)
+        _debugOverlay = new CorditeWars.UI.HUD.DebugOverlay(_session);
+        AddChild(_debugOverlay);
+
         // Clear the config so it doesn't accidentally restart later
         PendingConfig = null;
     }
 
     public override void _Input(InputEvent @event)
     {
+        // F3 — toggle debug overlay
+        if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo
+            && keyEvent.Keycode == Key.F3)
+        {
+            _debugOverlay?.Toggle();
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
         if (@event.IsActionPressed("ui_cancel") && _session is not null)
         {
             if (_session.CurrentMatchState == MatchState.Playing)
