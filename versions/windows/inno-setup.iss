@@ -38,14 +38,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-; Main executable
-Source: "..\..\build\windows\CorditeWars.exe"; DestDir: "{app}"; Flags: ignoreversion
-; .NET runtime DLLs and support files
-Source: "..\..\build\windows\*.dll"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "..\..\build\windows\*.pck"; DestDir: "{app}"; Flags: ignoreversion skipifsourcedoesntexist
-; Game data
-Source: "..\..\build\windows\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
-Source: "..\..\build\windows\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
+; Include the full Godot export tree so launch-critical runtime files
+; (e.g., .pck, GodotSharp/, managed assemblies, data/assets) are always packaged.
+Source: "..\..\build\windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.pdb,*.dbg,*.ilk,*.exp,*.lib,*.iobj,*.ipdb,*.tmp,*.log"
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

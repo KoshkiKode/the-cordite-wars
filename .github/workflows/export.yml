@@ -138,6 +138,14 @@ jobs:
             echo "ERROR: CorditeWars.exe not found after export"
             exit 1
           fi
+          if [ ! -f build/windows/CorditeWars.pck ]; then
+            echo "ERROR: CorditeWars.pck not found after export"
+            exit 1
+          fi
+          if [ ! -d build/windows/GodotSharp ]; then
+            echo "ERROR: build/windows/GodotSharp directory not found after export"
+            exit 1
+          fi
 
       - name: Upload Windows export artifact
         uses: actions/upload-artifact@v4
