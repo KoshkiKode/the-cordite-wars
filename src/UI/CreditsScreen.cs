@@ -15,7 +15,14 @@ public partial class CreditsScreen : Control
 
 
 Design & Development
-Game Studio
+KoshkiKode
+
+
+Music
+Not Jam (notjam.itch.io) — CC0
+KleptoLinda (opengameart.org) — CC0
+Caleb Blood (opengameart.org) — CC0
+Subspace Audio (opengameart.org) — CC0
 
 
 3D Models
@@ -30,6 +37,7 @@ Sound Effects
 Antoine Goumain (antoinegoumain.fr) — CC-BY 4.0
 Kenney (kenney.nl) — CC0
 
+
 Built With
 Godot Engine 4.6
 C# / .NET 9
@@ -39,7 +47,7 @@ Special Thanks
 The open-source game development community
 
 
-© 2026 Cordite Wars. All rights reserved.";
+© 2026 KoshkiKode. All rights reserved.";
 
     private Label _creditsLabel = null!;
     private float _scrollOffset;
