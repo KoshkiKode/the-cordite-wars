@@ -1396,8 +1396,8 @@
       "music_menu": {
         "Files": [
           "assets/audio/music/new oggs/ChillMenu_Loopable.ogg",
-          "assets/audio/music/new oggs/safe_space_loopable.ogg",
-          "assets/audio/music/new oggs/KleptoLindaTitles_Loopable.ogg",
+          "assets/audio/music/new oggs/KleptoLindaMountainA_Loopable.ogg",
+          "assets/audio/music/new oggs/KleptoLindaMountainB_Loopable.ogg",
           "assets/audio/music/new oggs/SwitchWithMeTheme_Loopable.ogg"
         ],
         "Volume": 0.55,
@@ -1408,9 +1408,8 @@
       },
       "music_loading": {
         "Files": [
-          "assets/audio/music/new oggs/let_us_begin.ogg",
-          "assets/audio/music/new oggs/baroque_chips_loopable.ogg",
-          "assets/audio/music/new oggs/really_long_arms_loopable.ogg"
+          "assets/audio/music/new oggs/KleptoLindaCavernsA_Loopable.ogg",
+          "assets/audio/music/new oggs/HaroldParanormalInstigatorTheme_Loopable.ogg"
         ],
         "Volume": 0.5,
         "PitchVariation": 0.0,
@@ -1420,11 +1419,10 @@
       },
       "music_battle_calm": {
         "Files": [
-          "assets/audio/music/new oggs/solemn_advance_loopable.ogg",
-          "assets/audio/music/new oggs/the_wall_loopable.ogg",
-          "assets/audio/music/new oggs/rainy_foothills_loopable.ogg",
           "assets/audio/music/new oggs/DescendGameplay_Loopable.ogg",
-          "assets/audio/music/new oggs/lazy_river_rally_loopable.ogg"
+          "assets/audio/music/new oggs/KleptoLindaCavernsB_Loopable.ogg",
+          "assets/audio/music/new oggs/DarkCavern_PhoneHome.ogg",
+          "assets/audio/music/new oggs/peak_performance.ogg"
         ],
         "Volume": 0.55,
         "PitchVariation": 0.0,
@@ -1436,9 +1434,9 @@
         "Files": [
           "assets/audio/music/new oggs/battle_commences_loopable.ogg",
           "assets/audio/music/new oggs/leading_the_charge_loopable.ogg",
-          "assets/audio/music/new oggs/CriticalTheme_Loopable.ogg",
+          "assets/audio/music/new oggs/MeltdownTheme_Loopable.ogg",
           "assets/audio/music/new oggs/locrian_chipdoom_loopable.ogg",
-          "assets/audio/music/new oggs/MeltdownTheme_Loopable.ogg"
+          "assets/audio/music/new oggs/CriticalTheme.ogg"
         ],
         "Volume": 0.68,
         "PitchVariation": 0.0,
@@ -1448,8 +1446,8 @@
       },
       "music_victory": {
         "Files": [
-          "assets/audio/music/new oggs/VictoryLap_Loopable.ogg",
-          "assets/audio/music/new oggs/PitcherPerfectTheme_Loopable.ogg"
+          "assets/audio/music/new oggs/pool_party_loopable.ogg",
+          "assets/audio/music/new oggs/PitcherPerfectTheme.ogg"
         ],
         "Volume": 0.72,
         "PitchVariation": 0.0,
@@ -1459,9 +1457,8 @@
       },
       "music_defeat": {
         "Files": [
-          "assets/audio/music/new oggs/you_died.ogg",
-          "assets/audio/music/new oggs/CrashingOut_Loopable.ogg",
-          "assets/audio/music/new oggs/DragAndDreadTheme_Loopable.ogg"
+          "assets/audio/music/new oggs/DragAndDreadTheme_Loopable.ogg",
+          "assets/audio/music/new oggs/waltz_of_the_lich_king.ogg"
         ],
         "Volume": 0.72,
         "PitchVariation": 0.0,
