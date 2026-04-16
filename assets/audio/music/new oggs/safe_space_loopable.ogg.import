@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://s7zomriruwvux"
+path="res://.godot/imported/safe_space_loopable.ogg-f0eeb44e4547fbd4a0f34d653fdd18e3.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/safe_space_loopable.ogg"
+dest_files=["res://.godot/imported/safe_space_loopable.ogg-f0eeb44e4547fbd4a0f34d653fdd18e3.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://uh74eggj07144"
+path="res://.godot/imported/DragAndDreadTheme.ogg-10d7de5a5f2f537570c276c079496ac9.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/DragAndDreadTheme.ogg"
+dest_files=["res://.godot/imported/DragAndDreadTheme.ogg-10d7de5a5f2f537570c276c079496ac9.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

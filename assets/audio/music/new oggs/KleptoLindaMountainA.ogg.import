@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://09bof1wganiio"
+path="res://.godot/imported/KleptoLindaMountainA.ogg-70732cd70fab8eae55a503b49f697650.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/KleptoLindaMountainA.ogg"
+dest_files=["res://.godot/imported/KleptoLindaMountainA.ogg-70732cd70fab8eae55a503b49f697650.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

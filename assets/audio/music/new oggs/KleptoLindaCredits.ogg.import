@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://1fob3imq5exhb"
+path="res://.godot/imported/KleptoLindaCredits.ogg-f9acc7c4843e2cc9643f661ff17ab8ae.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/KleptoLindaCredits.ogg"
+dest_files=["res://.godot/imported/KleptoLindaCredits.ogg-f9acc7c4843e2cc9643f661ff17ab8ae.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

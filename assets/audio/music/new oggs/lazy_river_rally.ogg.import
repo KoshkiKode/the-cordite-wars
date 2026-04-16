@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://m8za99q2guk8b"
+path="res://.godot/imported/lazy_river_rally.ogg-77317531b1e3e562fafc1461ece1d063.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/lazy_river_rally.ogg"
+dest_files=["res://.godot/imported/lazy_river_rally.ogg-77317531b1e3e562fafc1461ece1d063.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://s4sx65ctcgq7l"
+path="res://.godot/imported/battle_commences.ogg-c0968ed7f1f84894c43f5980aa0a47de.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/battle_commences.ogg"
+dest_files=["res://.godot/imported/battle_commences.ogg-c0968ed7f1f84894c43f5980aa0a47de.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

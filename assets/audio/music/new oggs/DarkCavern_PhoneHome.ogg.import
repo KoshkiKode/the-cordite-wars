@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://3vfdcmvz486tc"
+path="res://.godot/imported/DarkCavern_PhoneHome.ogg-700a41a8ac4521fc77b96663a6b24a20.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/DarkCavern_PhoneHome.ogg"
+dest_files=["res://.godot/imported/DarkCavern_PhoneHome.ogg-700a41a8ac4521fc77b96663a6b24a20.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://kh5964slu0ieh"
+path="res://.godot/imported/ChillMenu.ogg-1853e904e0ac0818ce6db03c11da8c0a.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/ChillMenu.ogg"
+dest_files=["res://.godot/imported/ChillMenu.ogg-1853e904e0ac0818ce6db03c11da8c0a.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

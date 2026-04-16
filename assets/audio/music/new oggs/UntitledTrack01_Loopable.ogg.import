@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://2qdjxagdxozjd"
+path="res://.godot/imported/UntitledTrack01_Loopable.ogg-28c19c3306d55cd949ca3de0235c7d58.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/UntitledTrack01_Loopable.ogg"
+dest_files=["res://.godot/imported/UntitledTrack01_Loopable.ogg-28c19c3306d55cd949ca3de0235c7d58.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://xbbivffvpett8"
+path="res://.godot/imported/KleptoLindaTitles_Loopable.ogg-df03c59376a35e232dbfb1ddca7e0a93.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/KleptoLindaTitles_Loopable.ogg"
+dest_files=["res://.godot/imported/KleptoLindaTitles_Loopable.ogg-df03c59376a35e232dbfb1ddca7e0a93.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://oq6yxgbwxfw1r"
+path="res://.godot/imported/KleptoLindaMountainB_Loopable.ogg-21977d1efd43a959c9dccdf95ed4ee0a.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/KleptoLindaMountainB_Loopable.ogg"
+dest_files=["res://.godot/imported/KleptoLindaMountainB_Loopable.ogg-21977d1efd43a959c9dccdf95ed4ee0a.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

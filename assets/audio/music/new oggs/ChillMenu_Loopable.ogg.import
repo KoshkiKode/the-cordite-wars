@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://we1fdaosagjcr"
+path="res://.godot/imported/ChillMenu_Loopable.ogg-d72030fbfa6a0499a30224d3b0aa237f.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/ChillMenu_Loopable.ogg"
+dest_files=["res://.godot/imported/ChillMenu_Loopable.ogg-d72030fbfa6a0499a30224d3b0aa237f.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
