@@ -1395,12 +1395,12 @@
     "music": {
       "music_menu": {
         "Files": [
-          "assets/audio/music/jingles_PIZZI00.ogg",
-          "assets/audio/music/jingles_PIZZI01.ogg",
-          "assets/audio/music/jingles_PIZZI02.ogg",
-          "assets/audio/music/jingles_PIZZI03.ogg"
+          "assets/audio/music/new oggs/ChillMenu_Loopable.ogg",
+          "assets/audio/music/new oggs/KleptoLindaMountainA_Loopable.ogg",
+          "assets/audio/music/new oggs/KleptoLindaMountainB_Loopable.ogg",
+          "assets/audio/music/new oggs/SwitchWithMeTheme_Loopable.ogg"
         ],
-        "Volume": 0.6,
+        "Volume": 0.55,
         "PitchVariation": 0.0,
         "MaxDistance": 0.0,
         "Priority": 1,
@@ -1408,9 +1408,8 @@
       },
       "music_loading": {
         "Files": [
-          "assets/audio/music/jingles_PIZZI04.ogg",
-          "assets/audio/music/jingles_PIZZI05.ogg",
-          "assets/audio/music/jingles_PIZZI06.ogg"
+          "assets/audio/music/new oggs/KleptoLindaCavernsA_Loopable.ogg",
+          "assets/audio/music/new oggs/HaroldParanormalInstigatorTheme_Loopable.ogg"
         ],
         "Volume": 0.5,
         "PitchVariation": 0.0,
@@ -1420,11 +1419,10 @@
       },
       "music_battle_calm": {
         "Files": [
-          "assets/audio/music/jingles_SAX00.ogg",
-          "assets/audio/music/jingles_SAX01.ogg",
-          "assets/audio/music/jingles_SAX02.ogg",
-          "assets/audio/music/jingles_NES00.ogg",
-          "assets/audio/music/jingles_NES01.ogg"
+          "assets/audio/music/new oggs/DescendGameplay_Loopable.ogg",
+          "assets/audio/music/new oggs/KleptoLindaCavernsB_Loopable.ogg",
+          "assets/audio/music/new oggs/DarkCavern_PhoneHome.ogg",
+          "assets/audio/music/new oggs/peak_performance.ogg"
         ],
         "Volume": 0.55,
         "PitchVariation": 0.0,
@@ -1434,13 +1432,13 @@
       },
       "music_battle_intense": {
         "Files": [
-          "assets/audio/music/jingles_HIT00.ogg",
-          "assets/audio/music/jingles_HIT01.ogg",
-          "assets/audio/music/jingles_HIT02.ogg",
-          "assets/audio/music/jingles_STEEL00.ogg",
-          "assets/audio/music/jingles_STEEL01.ogg"
+          "assets/audio/music/new oggs/battle_commences_loopable.ogg",
+          "assets/audio/music/new oggs/leading_the_charge_loopable.ogg",
+          "assets/audio/music/new oggs/MeltdownTheme_Loopable.ogg",
+          "assets/audio/music/new oggs/locrian_chipdoom_loopable.ogg",
+          "assets/audio/music/new oggs/CriticalTheme.ogg"
         ],
-        "Volume": 0.65,
+        "Volume": 0.68,
         "PitchVariation": 0.0,
         "MaxDistance": 0.0,
         "Priority": 1,
@@ -1448,11 +1446,10 @@
       },
       "music_victory": {
         "Files": [
-          "assets/audio/music/jingles_STEEL02.ogg",
-          "assets/audio/music/jingles_STEEL03.ogg",
-          "assets/audio/music/jingles_SAX03.ogg"
+          "assets/audio/music/new oggs/pool_party_loopable.ogg",
+          "assets/audio/music/new oggs/PitcherPerfectTheme.ogg"
         ],
-        "Volume": 0.7,
+        "Volume": 0.72,
         "PitchVariation": 0.0,
         "MaxDistance": 0.0,
         "Priority": 1,
@@ -1460,11 +1457,10 @@
       },
       "music_defeat": {
         "Files": [
-          "assets/audio/music/jingles_NES02.ogg",
-          "assets/audio/music/jingles_NES03.ogg",
-          "assets/audio/music/jingles_PIZZI07.ogg"
+          "assets/audio/music/new oggs/DragAndDreadTheme_Loopable.ogg",
+          "assets/audio/music/new oggs/waltz_of_the_lich_king.ogg"
         ],
-        "Volume": 0.6,
+        "Volume": 0.72,
         "PitchVariation": 0.0,
         "MaxDistance": 0.0,
         "Priority": 1,

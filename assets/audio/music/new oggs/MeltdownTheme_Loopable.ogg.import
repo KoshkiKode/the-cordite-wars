@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://vcwsf4dlz51cy"
+path="res://.godot/imported/MeltdownTheme_Loopable.ogg-a6073ca22f31cd20f91e221eee8ac228.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/MeltdownTheme_Loopable.ogg"
+dest_files=["res://.godot/imported/MeltdownTheme_Loopable.ogg-a6073ca22f31cd20f91e221eee8ac228.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

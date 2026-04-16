@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://obx5k4d8111e0"
+path="res://.godot/imported/SwitchWithMeTheme_Loopable.ogg-da906f3d0147c88ccd920ee523107d59.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/SwitchWithMeTheme_Loopable.ogg"
+dest_files=["res://.godot/imported/SwitchWithMeTheme_Loopable.ogg-da906f3d0147c88ccd920ee523107d59.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

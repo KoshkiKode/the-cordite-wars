@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://oir5mvuogvnkh"
+path="res://.godot/imported/grumpy_shopkeep_loopable.ogg-62b147e60d3ec317c05d9c5110a4ef9b.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/grumpy_shopkeep_loopable.ogg"
+dest_files=["res://.godot/imported/grumpy_shopkeep_loopable.ogg-62b147e60d3ec317c05d9c5110a4ef9b.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

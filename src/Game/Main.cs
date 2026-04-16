@@ -228,16 +228,51 @@ public partial class Main : Node3D
         sun.LightEnergy = sunConfig.Energy;
         AddChild(sun);
 
+        // ── Procedural sky ───────────────────────────────────────────────
+        // Use a biome-appropriate ProceduralSkyMaterial rather than a flat
+        // ClearColor so the player sees a convincing horizon and the sun disc.
+        var skyMat = new ProceduralSkyMaterial();
+
+        // Derive sky palette from the map's SkyColor hint.  We construct a
+        // full gradient: deep-sky at zenith → warm horizon → dark ground.
+        Color skyBase = new Color(sunConfig.SkyColor);
+        // Use the Value (brightness) component to detect dark/night maps.
+        bool isDark = (skyBase.R + skyBase.G + skyBase.B) / 3f < 0.25f;
+
+        if (isDark)
+        {
+            // Night / volcanic — deep indigo zenith, dark grey horizon
+            skyMat.SkyTopColor     = new Color(0.04f, 0.04f, 0.14f);
+            skyMat.SkyHorizonColor = new Color(0.14f, 0.10f, 0.18f);
+        }
+        else
+        {
+            // Daytime — shift sky zenith toward skyBase and lighten the horizon
+            skyMat.SkyTopColor     = skyBase.Darkened(0.15f);
+            skyMat.SkyHorizonColor = skyBase.Lightened(0.25f);
+        }
+
+        skyMat.GroundBottomColor  = new Color(0.12f, 0.10f, 0.08f);
+        skyMat.GroundHorizonColor = skyMat.SkyHorizonColor.Darkened(0.35f);
+        skyMat.SunAngleMax        = 35f;
+        skyMat.SunCurve           = 0.15f;
+
+        var sky = new Sky();
+        sky.SkyMaterial = skyMat;
+
         var env = new WorldEnvironment();
         var environment = new Godot.Environment();
-        environment.BackgroundMode = Godot.Environment.BGMode.ClearColor;
-        environment.BackgroundColor = new Color(sunConfig.SkyColor);
+        environment.BackgroundMode = Godot.Environment.BGMode.Sky;
+        environment.Sky = sky;
 
-        environment.AmbientLightSource = Godot.Environment.AmbientSource.Color;
-        environment.AmbientLightColor = new Color(sunConfig.AmbientColor);
+        environment.AmbientLightSource = Godot.Environment.AmbientSource.Sky;
         environment.AmbientLightEnergy = sunConfig.AmbientEnergy;
 
+        // Subtle tonemap for colour grading
         environment.TonemapMode = Godot.Environment.ToneMapper.Aces;
+        environment.TonemapExposure = 1.0f;
+        environment.TonemapWhite = 1.0f;
+
         env.Environment = environment;
         env.Name = "WorldEnvironment";
         AddChild(env);

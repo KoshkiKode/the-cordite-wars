@@ -35,21 +35,91 @@ public partial class TerrainRenderer : Node3D
     private static readonly Color RiverBlue = new(0.2f, 0.35f, 0.55f);
     private static readonly Color PathColor = new(0.6f, 0.55f, 0.42f);
 
-    // Terrain shader source — vertex-color based with simple directional lighting
+    // Terrain shader source — vertex-color biome tint + procedural multi-octave noise detail.
+    // No external texture files required: all detail is generated analytically in the shader.
+    // The noise produces micro-variation that reads like grass blades, sand grains, or rock
+    // facets depending on the underlying biome colour.
     private const string TerrainShaderSource = @"
 shader_type spatial;
-render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_lambert, specular_disabled;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
-varying vec3 v_color;
+varying vec3 v_world_pos;
+varying vec3 v_biome_color;
+varying vec3 v_vertex_normal;
 
-void vertex() {
-    v_color = COLOR.rgb;
+// --- Procedural noise helpers -------------------------------------------------
+
+// Hash function that maps a 2D integer coordinate to a pseudo-random float [0,1].
+float hash(vec2 p) {
+    p = fract(p * vec2(127.1, 311.7));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
 }
 
+// Smooth value noise — bicubic interpolation between hashed corners.
+float valueNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+// Fractional Brownian Motion — 4 octaves for natural surface variation.
+float fbm(vec2 p) {
+    return valueNoise(p)        * 0.500
+         + valueNoise(p * 2.1)  * 0.250
+         + valueNoise(p * 4.3)  * 0.125
+         + valueNoise(p * 8.7)  * 0.063;
+}
+
+// --- Vertex stage -------------------------------------------------------------
+
+void vertex() {
+    v_world_pos    = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    v_biome_color  = COLOR.rgb;
+    v_vertex_normal = (MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz;
+}
+
+// --- Fragment stage -----------------------------------------------------------
+
 void fragment() {
-    ALBEDO = v_color;
-    ROUGHNESS = 0.9;
-    METALLIC = 0.0;
+    vec2 pos = v_world_pos.xz;
+
+    // Multi-scale noise: fine detail (micro-surface) + coarse (patches)
+    float n_fine   = fbm(pos * 10.0);   // grass-blade / grain scale
+    float n_coarse = fbm(pos * 1.8);    // soil patch / dune scale
+
+    // Weighted blend: fine detail dominant, coarse provides large-area variation
+    float n = n_fine * 0.55 + n_coarse * 0.45;
+
+    // Remap to [0,1] with smooth S-curve
+    float surface = smoothstep(0.25, 0.75, n);
+
+    // --- AO simulation: troughs between blades/grains appear darker
+    float ao = mix(0.50, 1.00, surface);
+
+    // --- Specular bright peaks simulate dew / quartz / mica glints
+    float glint = pow(surface, 6.0) * 0.18;
+
+    // --- Colour from biome vertex colour
+    vec3 base = v_biome_color;
+
+    // Slightly desaturate at troughs (dirt visible between grass tufts)
+    float lum = dot(base, vec3(0.299, 0.587, 0.114));
+    vec3 desaturated = mix(vec3(lum), base, 0.65);
+    base = mix(desaturated, base, surface);
+
+    vec3 final_color = base * ao + glint * base;
+
+    ALBEDO    = clamp(final_color, 0.0, 1.0);
+    ROUGHNESS = mix(0.95, 0.68, surface);   // troughs rough, peaks slightly smoother
+    METALLIC  = 0.0;
+    SPECULAR  = 0.07;
+    NORMAL_MAP_DEPTH = 0.0;  // no normal map — lighting comes from mesh normals
 }
 ";
 

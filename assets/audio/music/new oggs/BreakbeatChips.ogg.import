@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://scolgecdkqg6n"
+path="res://.godot/imported/BreakbeatChips.ogg-3057e11559db9ce5056f42a09be1d45c.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/BreakbeatChips.ogg"
+dest_files=["res://.godot/imported/BreakbeatChips.ogg-3057e11559db9ce5056f42a09be1d45c.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

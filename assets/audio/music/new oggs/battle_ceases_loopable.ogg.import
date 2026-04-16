@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://x6g44pyhf71at"
+path="res://.godot/imported/battle_ceases_loopable.ogg-64a962158ccb9888feabe2d46b32c077.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/battle_ceases_loopable.ogg"
+dest_files=["res://.godot/imported/battle_ceases_loopable.ogg-64a962158ccb9888feabe2d46b32c077.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

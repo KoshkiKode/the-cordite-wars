@@ -99,6 +99,7 @@ public partial class GameSession : Node
     private TerrainRenderer? _terrainRenderer;
     private WaterRenderer? _waterRenderer;
     private PropPlacer? _propPlacer;
+    private FogRenderer3D? _fogRenderer3D;
 
     // ── Camera ──────────────────────────────────────────────────────
 
@@ -173,6 +174,27 @@ public partial class GameSession : Node
     private const ulong AutosaveIntervalTicks = 1800;
     private const float TickDeltaSeconds = 1f / 30f; // 30 Hz simulation rate
     private const int DefaultDepotSupplyCapacity = 20; // Used when registry lookup fails during save restore
+
+    // ── Music intensity management ───────────────────────────────────
+
+    /// <summary>
+    /// Number of consecutive ticks with significant combat activity required
+    /// to transition from calm to intense battle music.
+    /// </summary>
+    private const int CombatIntensityRiseThreshold = 12;   // ~0.4 s at 30 tps
+
+    /// <summary>
+    /// Number of consecutive ticks with no combat required to fall back from
+    /// intense to calm music.
+    /// </summary>
+    private const int CombatIntensityFallThreshold = 90;   // ~3 s at 30 tps
+
+    /// <summary>Minimum hits per tick considered "heavy" combat.</summary>
+    private const int CombatHitsPerTickHeavy = 3;
+
+    private int  _combatIntenseConsecutiveTicks;
+    private int  _combatCalmConsecutiveTicks;
+    private bool _playingIntenseMusic;
 
     /// <summary>
     /// HQ BuildingInstance nodes for each player (keyed by PlayerId).
@@ -463,6 +485,9 @@ public partial class GameSession : Node
 
         // k4. Spawn visual cordite node markers on the map
         SpawnCorditeNodeMarkers();
+
+        // k5. Set up fog-of-war 3D overlay (fog grids must be initialised first)
+        SetupFogRenderer();
 
         // l. Wire up GameManager
         _gameManager = GetNodeOrNull<GameManager>("/root/GameManager");
@@ -940,6 +965,9 @@ public partial class GameSession : Node
 
         // ── 2. Process Tick ────────────────────────────────────────────────
         TickResult tickResult = _unitInteractionSystem.ProcessTick(simUnits, _terrainGrid, currentTick);
+
+        // ── 2b. Update combat music intensity ─────────────────────────────
+        UpdateCombatMusicIntensity(tickResult);
 
         // ── 3. Emit combat audio (before despawn so nodes are still alive) ──
         EmitCombatAudioEvents(tickResult, simUnits);
@@ -2651,6 +2679,18 @@ public partial class GameSession : Node
         _buildingRegistry.Load("res://data/buildings");
         _upgradeRegistry.Load("res://data/upgrades");
         _assetRegistry.Load("res://data/asset_manifest.json");
+
+        // Load the sound manifest so AudioManager and CombatAudioBridge can play sounds.
+        // Without this call SoundRegistry.Instance.IsLoaded stays false and all audio
+        // (music, SFX, combat sounds) is silently skipped every frame.
+        try
+        {
+            SoundRegistry.Instance.Load("res://data/sound_manifest.json");
+        }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[GameSession] Could not load sound_manifest.json — audio will be silent. ({ex.Message})");
+        }
     }
 
     /// <summary>
@@ -2900,6 +2940,10 @@ public partial class GameSession : Node
             AddChild(_propPlacer);
             _propPlacer.PlaceAll(ActiveMap, terrainManifest, _terrainRenderer, _occupancyGrid, tier);
         }
+
+        // Fog of war overlay — set up after terrain so it renders on top.
+        // We defer wiring the FogGrid until SetupFogRenderer() which is called
+        // after fog grids are initialised in StartMatch().
     }
 
     /// <summary>
@@ -2920,6 +2964,27 @@ public partial class GameSession : Node
             _camera);
 
         GD.Print("[GameSession] Minimap wired to live terrain data.");
+    }
+
+    /// <summary>
+    /// Creates and sets up the <see cref="FogRenderer3D"/> overlay once fog grids
+    /// are available.  Must be called after <see cref="SetupTerrainRendering"/> and
+    /// after fog grids are initialised (i.e. at the end of
+    /// <see cref="StartMatch(MatchConfig)"/>).
+    /// </summary>
+    private void SetupFogRenderer()
+    {
+        if (ActiveMap is null) return;
+
+        _fogRenderer3D = new FogRenderer3D();
+        _fogRenderer3D.Name = "FogRenderer3D";
+        AddChild(_fogRenderer3D);
+
+        // Use the local player's fog grid (null when fog-of-war is disabled).
+        FogGrid? localFog = GetPlayerFog(_localPlayerId);
+        _fogRenderer3D.Setup(localFog, ActiveMap.Width, ActiveMap.Height);
+
+        GD.Print($"[GameSession] FogRenderer3D set up (fog = {(localFog != null ? "enabled" : "disabled")}).");
     }
 
     /// <summary>
@@ -3189,6 +3254,7 @@ public partial class GameSession : Node
         _terrainRenderer = null;
         _waterRenderer = null;
         _propPlacer = null;
+        _fogRenderer3D = null;
         _selectionManager = null;
         _commandInput = null;
         _buildingPlacer = null;
@@ -3198,7 +3264,47 @@ public partial class GameSession : Node
         _playerFogs = null;
         _playerFogSnapshots = null;
         _visionComponents.Clear();
+        _combatIntenseConsecutiveTicks = 0;
+        _combatCalmConsecutiveTicks    = 0;
+        _playingIntenseMusic           = false;
 
         CurrentMatchState = MatchState.Setup;
+    }
+
+    // ── Combat music intensity ────────────────────────────────────────────────
+
+    /// <summary>
+    /// Checks the number of hits this tick and transitions between
+    /// <c>music_battle_calm</c> and <c>music_battle_intense</c> based on
+    /// sustained combat activity.
+    /// </summary>
+    private void UpdateCombatMusicIntensity(TickResult tickResult)
+    {
+        if (_audioManager == null) return;
+
+        int totalHits = tickResult.Attacks?.Count ?? 0;
+        bool heavyCombat = totalHits >= CombatHitsPerTickHeavy;
+
+        if (heavyCombat)
+        {
+            _combatIntenseConsecutiveTicks++;
+            _combatCalmConsecutiveTicks = 0;
+        }
+        else
+        {
+            _combatCalmConsecutiveTicks++;
+            _combatIntenseConsecutiveTicks = 0;
+        }
+
+        if (!_playingIntenseMusic && _combatIntenseConsecutiveTicks >= CombatIntensityRiseThreshold)
+        {
+            _playingIntenseMusic = true;
+            _audioManager.PlayMusicById("music_battle_intense");
+        }
+        else if (_playingIntenseMusic && _combatCalmConsecutiveTicks >= CombatIntensityFallThreshold)
+        {
+            _playingIntenseMusic = false;
+            _audioManager.PlayMusicById("music_battle_calm");
+        }
     }
 }

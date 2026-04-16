@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://edx493gw0zbsv"
+path="res://.godot/imported/rainy_foothills.ogg-39ccbff93a335fd5ae5726d39e570908.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/rainy_foothills.ogg"
+dest_files=["res://.godot/imported/rainy_foothills.ogg-39ccbff93a335fd5ae5726d39e570908.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

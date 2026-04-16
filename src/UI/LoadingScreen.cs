@@ -23,39 +23,39 @@ public partial class LoadingScreen : Control
     private int _currentStep;
     private bool _loadingComplete;
 
-    private static readonly string[] LoadingTips =
+    private static readonly string[] LoadingTipKeys =
     {
-        "Valkyr jets must return to Airstrips to rearm.",
-        "Kragmore's Horde Protocol rewards grouping 5+ units together.",
-        "Bastion Refineries generate passive Cordite income.",
-        "Arcloft can designate up to 3 Overwatch Zones on the map.",
-        "Ironmarch FOB Trucks deploy into forward operating bases.",
-        "Stormrend's Momentum Gauge fills when dealing damage.",
-        "Use WASD to pan the camera, scroll wheel to zoom.",
-        "Right-click to move or attack. Shift+click to queue orders.",
-        "Ctrl+1-9 assigns control groups. Press the number to recall.",
-        "Destroying enemy Reactors cripples their tech production."
+        "TIP_VALKYR_REARM",
+        "TIP_KRAGMORE_HORDE",
+        "TIP_BASTION_REFINERY",
+        "TIP_ARCLOFT_OVERWATCH",
+        "TIP_IRONMARCH_FOB",
+        "TIP_STORMREND_MOMENTUM",
+        "TIP_CAMERA_CONTROLS",
+        "TIP_COMMAND_UNITS",
+        "TIP_CONTROL_GROUPS",
+        "TIP_DESTROY_REACTORS",
     };
 
     private struct LoadStep
     {
-        public string StatusText;
+        public string StatusKey;
         public float TargetPercent;
     }
 
     private static readonly LoadStep[] Steps =
     {
-        new() { StatusText = "Detecting hardware...",       TargetPercent = 5 },
-        new() { StatusText = "Loading unit data...",        TargetPercent = 15 },
-        new() { StatusText = "Loading building data...",    TargetPercent = 25 },
-        new() { StatusText = "Loading asset manifest...",   TargetPercent = 35 },
-        new() { StatusText = "Loading building manifest...", TargetPercent = 45 },
-        new() { StatusText = "Loading terrain manifest...", TargetPercent = 55 },
-        new() { StatusText = "Loading upgrade data...",     TargetPercent = 65 },
-        new() { StatusText = "Loading maps...",             TargetPercent = 75 },
-        new() { StatusText = "Loading sound manifest...",   TargetPercent = 85 },
-        new() { StatusText = "Loading faction data...",     TargetPercent = 95 },
-        new() { StatusText = "Ready!",                     TargetPercent = 100 },
+        new() { StatusKey = "LOADING_DETECTING_HARDWARE",  TargetPercent = 5 },
+        new() { StatusKey = "LOADING_UNIT_DATA",           TargetPercent = 15 },
+        new() { StatusKey = "LOADING_BUILDING_DATA",       TargetPercent = 25 },
+        new() { StatusKey = "LOADING_ASSET_MANIFEST",      TargetPercent = 35 },
+        new() { StatusKey = "LOADING_BUILDING_MANIFEST",   TargetPercent = 45 },
+        new() { StatusKey = "LOADING_TERRAIN_MANIFEST",    TargetPercent = 55 },
+        new() { StatusKey = "LOADING_UPGRADE_DATA",        TargetPercent = 65 },
+        new() { StatusKey = "LOADING_MAPS",                TargetPercent = 75 },
+        new() { StatusKey = "LOADING_SOUND_MANIFEST",      TargetPercent = 85 },
+        new() { StatusKey = "LOADING_FACTION_DATA",        TargetPercent = 95 },
+        new() { StatusKey = "LOADING_READY",               TargetPercent = 100 },
     };
 
     public override void _Ready()
@@ -84,7 +84,7 @@ public partial class LoadingScreen : Control
 
         // LOADING text
         var loadingLabel = new Label();
-        loadingLabel.Text = "LOADING...";
+        loadingLabel.Text = Tr("LOADING_TITLE");
         loadingLabel.HorizontalAlignment = HorizontalAlignment.Center;
         UITheme.StyleLabel(loadingLabel, UITheme.FontSizeHeading, UITheme.TextPrimary);
         vbox.AddChild(loadingLabel);
@@ -113,7 +113,7 @@ public partial class LoadingScreen : Control
 
         // Tip text at bottom
         _tipLabel = new Label();
-        _tipLabel.Text = Tr("LOADING_TIP_PREFIX") + " " + LoadingTips[GD.RandRange(0, LoadingTips.Length - 1)];
+        _tipLabel.Text = Tr("LOADING_TIP_PREFIX") + " " + Tr(LoadingTipKeys[GD.RandRange(0, LoadingTipKeys.Length - 1)]);
         _tipLabel.HorizontalAlignment = HorizontalAlignment.Center;
         _tipLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         UITheme.StyleLabel(_tipLabel, UITheme.FontSizeSmall, UITheme.TextMuted);
@@ -131,7 +131,7 @@ public partial class LoadingScreen : Control
     {
         for (_currentStep = 0; _currentStep < Steps.Length; _currentStep++)
         {
-            _statusLabel.Text = Steps[_currentStep].StatusText;
+            _statusLabel.Text = Tr(Steps[_currentStep].StatusKey);
 
             // Animate progress bar
             var tween = CreateTween();

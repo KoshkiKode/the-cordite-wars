@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://y36c8okqzfrub"
+path="res://.godot/imported/the_wall_loopable.ogg-6caa7bb3e62f46e7a5abd5df92e829bf.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/the_wall_loopable.ogg"
+dest_files=["res://.godot/imported/the_wall_loopable.ogg-6caa7bb3e62f46e7a5abd5df92e829bf.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://k7mp9m2btod0l"
+path="res://.godot/imported/DescendGameplay_Loopable.ogg-dbf3c1d36829d2049d30c2159c3b7f5c.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/DescendGameplay_Loopable.ogg"
+dest_files=["res://.godot/imported/DescendGameplay_Loopable.ogg-dbf3c1d36829d2049d30c2159c3b7f5c.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

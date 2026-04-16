@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://icq6k6imh9n58"
+path="res://.godot/imported/let_us_begin.ogg-e2ac4d4db6451717d7f81c306d1a6bb5.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/let_us_begin.ogg"
+dest_files=["res://.godot/imported/let_us_begin.ogg-e2ac4d4db6451717d7f81c306d1a6bb5.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

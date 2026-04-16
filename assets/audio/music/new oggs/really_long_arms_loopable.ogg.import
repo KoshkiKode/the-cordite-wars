@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://n1sh0badaiymo"
+path="res://.godot/imported/really_long_arms_loopable.ogg-77c5f626c0787d1bfb04a6dd2e9d84e4.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/really_long_arms_loopable.ogg"
+dest_files=["res://.godot/imported/really_long_arms_loopable.ogg-77c5f626c0787d1bfb04a6dd2e9d84e4.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

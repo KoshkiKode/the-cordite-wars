@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://vu77xgtwa5rq1"
+path="res://.godot/imported/baroque_chips_loopable.ogg-399953c1293d91ef88272ad694e9c200.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/baroque_chips_loopable.ogg"
+dest_files=["res://.godot/imported/baroque_chips_loopable.ogg-399953c1293d91ef88272ad694e9c200.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

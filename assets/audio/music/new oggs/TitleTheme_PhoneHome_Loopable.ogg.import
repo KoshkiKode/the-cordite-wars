@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://ml54zifsenco8"
+path="res://.godot/imported/TitleTheme_PhoneHome_Loopable.ogg-8908ac4b076e485e2537aa0b60452789.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/TitleTheme_PhoneHome_Loopable.ogg"
+dest_files=["res://.godot/imported/TitleTheme_PhoneHome_Loopable.ogg-8908ac4b076e485e2537aa0b60452789.oggvorbisstr"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

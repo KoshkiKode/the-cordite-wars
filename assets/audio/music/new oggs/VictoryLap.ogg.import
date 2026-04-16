@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://kzhy2uiggkl0k"
+path="res://.godot/imported/VictoryLap.ogg-1e7cdcefa1d7e2e3908b5465a5283bea.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/VictoryLap.ogg"
+dest_files=["res://.godot/imported/VictoryLap.ogg-1e7cdcefa1d7e2e3908b5465a5283bea.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

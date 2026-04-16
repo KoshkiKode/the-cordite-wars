@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://n2vkhtkim1237"
+path="res://.godot/imported/peak_performance.ogg-0ec8b9513cdf78317f029c73daaf4451.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/new oggs/peak_performance.ogg"
+dest_files=["res://.godot/imported/peak_performance.ogg-0ec8b9513cdf78317f029c73daaf4451.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -54,6 +54,17 @@ public partial class UnitNode3D : Node3D
     private bool _isAirUnit;
     private float _collisionRadius;
 
+    // ── Health Bar ───────────────────────────────────────────────────
+    // A pair of thin quads above the unit: dark background + coloured foreground.
+    // Only visible when the unit has taken damage.
+    private Node3D?       _healthBarRoot;
+    private MeshInstance3D? _healthBarFg;   // foreground — scales with health %
+    private const float HealthBarWidth  = 1.2f;
+    private const float HealthBarHeight = 0.12f;
+    private const float HealthBarYOffset = 2.2f; // above unit centre
+    /// <summary>Health fraction at or above which the bar is hidden (effectively full health).</summary>
+    private const float FullHealthThreshold = 0.999f;
+
     /// <summary>
     /// Initializes the unit node with model, collision shape, and selection circle.
     /// Call once after instantiation, before adding to the scene tree.
@@ -126,6 +137,9 @@ public partial class UnitNode3D : Node3D
         _selectionCircle.Name = "SelectionCircle";
         AddChild(_selectionCircle);
         _selectionCircle.Initialize(_collisionRadius, teamColor);
+
+        // ── Health Bar ─────────────────────────────────────────────────
+        CreateHealthBar();
     }
 
     /// <summary>
@@ -150,6 +164,10 @@ public partial class UnitNode3D : Node3D
 
         // Facing: simulation uses radians, Godot Rotation.Y is around the up axis
         Rotation = new Vector3(0.0f, simFacing.ToFloat(), 0.0f);
+
+        // Update health bar to reflect current health percentage
+        if (MaxHealth > FixedPoint.Zero)
+            UpdateHealthBar(Health.ToFloat() / MaxHealth.ToFloat());
     }
 
     /// <summary>
@@ -161,6 +179,89 @@ public partial class UnitNode3D : Node3D
         {
             _selectionCircle.SetSelected(selected);
         }
+    }
+
+    // ── Health Bar ────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Builds the two-quad health bar (background + foreground) above the unit.
+    /// The bar is initially hidden; it becomes visible once the unit takes damage.
+    /// </summary>
+    private void CreateHealthBar()
+    {
+        _healthBarRoot = new Node3D();
+        _healthBarRoot.Name = "HealthBarRoot";
+        // Place bar above the unit.  The root is unrotated so billboard Y-axis
+        // always points up; we use a billboarded material on the mesh instead.
+        _healthBarRoot.Position = new Vector3(0f, HealthBarYOffset, 0f);
+        _healthBarRoot.Visible  = false; // hidden until unit takes damage
+        AddChild(_healthBarRoot);
+
+        // Background: slightly wider/taller dark bar
+        var bgMesh = new QuadMesh();
+        bgMesh.Size = new Vector2(HealthBarWidth + 0.06f, HealthBarHeight + 0.06f);
+
+        var bgMat = new StandardMaterial3D();
+        bgMat.AlbedoColor   = new Color(0.10f, 0.10f, 0.10f, 0.85f);
+        bgMat.ShadingMode   = BaseMaterial3D.ShadingModeEnum.Unshaded;
+        bgMat.Transparency  = BaseMaterial3D.TransparencyEnum.Alpha;
+        bgMat.BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled;
+        bgMat.BillboardKeepScale = true;
+
+        var bgInst = new MeshInstance3D();
+        bgInst.Mesh             = bgMesh;
+        bgInst.MaterialOverride = bgMat;
+        bgInst.CastShadow       = GeometryInstance3D.ShadowCastingSetting.Off;
+        _healthBarRoot.AddChild(bgInst);
+
+        // Foreground: coloured bar — width scaled per health %
+        var fgMesh = new QuadMesh();
+        fgMesh.Size = new Vector2(HealthBarWidth, HealthBarHeight);
+
+        var fgMat = new StandardMaterial3D();
+        fgMat.AlbedoColor   = new Color(0.15f, 0.85f, 0.2f, 0.92f);
+        fgMat.ShadingMode   = BaseMaterial3D.ShadingModeEnum.Unshaded;
+        fgMat.Transparency  = BaseMaterial3D.TransparencyEnum.Alpha;
+        fgMat.BillboardMode = BaseMaterial3D.BillboardModeEnum.Enabled;
+        fgMat.BillboardKeepScale = true;
+
+        _healthBarFg = new MeshInstance3D();
+        _healthBarFg.Mesh             = fgMesh;
+        _healthBarFg.MaterialOverride = fgMat;
+        _healthBarFg.CastShadow       = GeometryInstance3D.ShadowCastingSetting.Off;
+        _healthBarRoot.AddChild(_healthBarFg);
+    }
+
+    /// <summary>
+    /// Updates the health bar colour and scale to match <paramref name="healthPct"/>.
+    /// The bar is hidden when at full health and shown once any damage is taken.
+    /// </summary>
+    /// <param name="healthPct">Health fraction in [0, 1].</param>
+    private void UpdateHealthBar(float healthPct)
+    {
+        if (_healthBarRoot == null || _healthBarFg == null) return;
+
+        // Hide the bar at full health
+        _healthBarRoot.Visible = healthPct < FullHealthThreshold;
+        if (!_healthBarRoot.Visible) return;
+
+        healthPct = Mathf.Clamp(healthPct, 0f, 1f);
+
+        // Scale foreground width and offset so it stays left-aligned
+        float scaledWidth = HealthBarWidth * healthPct;
+        float xOffset     = (scaledWidth - HealthBarWidth) * 0.5f;
+        _healthBarFg.Scale    = new Vector3(healthPct, 1f, 1f);
+        _healthBarFg.Position = new Vector3(xOffset, 0f, 0f);
+
+        // Colour: green → yellow → red
+        Color barColor = healthPct > 0.6f
+            ? new Color(0.15f, 0.85f, 0.20f, 0.92f)  // green
+            : healthPct > 0.3f
+                ? new Color(0.90f, 0.80f, 0.10f, 0.92f)  // yellow
+                : new Color(0.90f, 0.15f, 0.10f, 0.92f); // red
+
+        if (_healthBarFg.MaterialOverride is StandardMaterial3D mat)
+            mat.AlbedoColor = barColor;
     }
 
     /// <summary>
