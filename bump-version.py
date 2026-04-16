@@ -200,6 +200,18 @@ def update_version_json(project_root: Path, new_version: str) -> None:
     version_file.write_text(json.dumps(data, indent=2) + "\n")
     print(f"✓ Updated versions/shared/version.json → {new_version}")
 
+def read_canonical_version(project_root: Path) -> str:
+    """Read canonical semantic version from versions/shared/version.json."""
+    version_file = project_root / "versions" / "shared" / "version.json"
+    if not version_file.exists():
+        raise FileNotFoundError(f"{version_file} not found")
+
+    data = json.loads(version_file.read_text())
+    major = int(data["major"])
+    minor = int(data["minor"])
+    patch = int(data["patch"])
+    return format_version(major, minor, patch)
+
 def update_inno_setup(project_root: Path, new_version: str) -> None:
     """Update version in versions/windows/inno-setup.iss."""
     iss_file = project_root / "versions" / "windows" / "inno-setup.iss"
@@ -266,19 +278,12 @@ def main():
     args = parser.parse_args()
     project_root = args.project_root.resolve()
     
-    # Read current version from project.godot
-    godot_file = project_root / "project.godot"
-    if not godot_file.exists():
-        print(f"✗ project.godot not found in {project_root}")
+    try:
+        current_version = read_canonical_version(project_root)
+    except Exception as exc:
+        print(f"✗ Could not read canonical version from versions/shared/version.json: {exc}")
         sys.exit(1)
-    
-    content = godot_file.read_text()
-    match = re.search(r'config/version\s*=\s*"([^"]*)"', content)
-    if not match:
-        print("✗ Could not find version in project.godot")
-        sys.exit(1)
-    
-    current_version = match.group(1)
+
     print(f"Current version: {current_version}")
     
     # Determine new version
