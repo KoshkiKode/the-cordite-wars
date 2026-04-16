@@ -156,9 +156,9 @@ public partial class RTSCamera : Camera3D
         Vector3 move = Vector3.Zero;
 
         if (mousePos.X < EdgeScrollMargin)
-            move -= right;
-        else if (mousePos.X > viewportSize.X - EdgeScrollMargin)
             move += right;
+        else if (mousePos.X > viewportSize.X - EdgeScrollMargin)
+            move -= right;
 
         if (mousePos.Y < EdgeScrollMargin)
             move -= forward;

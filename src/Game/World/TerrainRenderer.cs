@@ -323,12 +323,12 @@ void fragment() {
     private int GenerateTerrainChunks(int width, int height, bool[] isRiver, bool[] isPath, Material material, bool castShadows)
     {
         int chunkCount = 0;
-        for (int y0 = 0; y0 < height - 1; y0 += ChunkCellSize)
+        for (int y0 = 0; y0 < height; y0 += ChunkCellSize)
         {
-            int y1 = Math.Min(height - 1, y0 + ChunkCellSize);
-            for (int x0 = 0; x0 < width - 1; x0 += ChunkCellSize)
+            int y1 = Math.Min(height, y0 + ChunkCellSize);
+            for (int x0 = 0; x0 < width; x0 += ChunkCellSize)
             {
-                int x1 = Math.Min(width - 1, x0 + ChunkCellSize);
+                int x1 = Math.Min(width, x0 + ChunkCellSize);
                 var mesh = BuildTerrainChunkMesh(width, height, x0, y0, x1, y1, isRiver, isPath);
 
                 var meshInstance = new MeshInstance3D();
@@ -367,15 +367,17 @@ void fragment() {
         {
             for (int x = x0; x <= x1; x++)
             {
-                float elev = _elevationMap[y * globalWidth + x];
+                int sampleX = Math.Clamp(x, 0, globalWidth - 1);
+                int sampleY = Math.Clamp(y, 0, globalHeight - 1);
+                float elev = _elevationMap[sampleY * globalWidth + sampleX];
 
                 // Compute vertex color based on biome + features
-                Color color = GetVertexColor(x, y, globalWidth, globalHeight, isRiver, isPath);
+                Color color = GetVertexColor(sampleX, sampleY, globalWidth, globalHeight, isRiver, isPath);
 
                 st.SetColor(color);
 
                 // Compute normal from neighboring elevations
-                Vector3 normal = ComputeNormal(x, y, globalWidth, globalHeight);
+                Vector3 normal = ComputeNormal(sampleX, sampleY, globalWidth, globalHeight);
                 st.SetNormal(normal);
 
                 st.SetUV(new Vector2((float)x / globalWidth, (float)y / globalHeight));
