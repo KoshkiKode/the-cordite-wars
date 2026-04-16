@@ -24,7 +24,7 @@ async function startCheckout(product) {
   });
 
   if (!response.ok) {
-    paywallMessage.textContent = "Payment session failed to start. Check Stripe API wiring.";
+    paywallMessage.textContent = `Unable to start payment (HTTP ${response.status}). Please try again or contact support.`;
     return;
   }
 
@@ -36,6 +36,7 @@ async function tryUnlockFromSession() {
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get("session_id");
   if (!sessionId) return;
+  if (!/^cs_(test_|live_)?[A-Za-z0-9_]+$/.test(sessionId)) return;
 
   // Backend endpoint expected:
   // GET /api/download-entitlements?session_id=...

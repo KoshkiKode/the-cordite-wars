@@ -107,10 +107,21 @@ jobs:
           set -euo pipefail
           APP_VERSION="$(python - <<'PY'
           import json
+          import sys
           from pathlib import Path
           path = Path("versions/shared/version.json")
-          data = json.loads(path.read_text())
-          print(f"{data['major']}.{data['minor']}.{data['patch']}")
+          if not path.exists():
+              print("ERROR: versions/shared/version.json not found in repository root", file=sys.stderr)
+              raise SystemExit(1)
+          try:
+              data = json.loads(path.read_text())
+              major = int(data["major"])
+              minor = int(data["minor"])
+              patch = int(data["patch"])
+          except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+              print(f"ERROR: Invalid versions/shared/version.json: {exc}", file=sys.stderr)
+              raise SystemExit(1)
+          print(f"{major}.{minor}.{patch}")
           PY
           )"
           echo "app_version=$APP_VERSION" >> "$GITHUB_OUTPUT"

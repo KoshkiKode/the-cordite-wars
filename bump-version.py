@@ -207,9 +207,9 @@ def read_canonical_version(project_root: Path) -> str:
         raise FileNotFoundError(f"{version_file} not found")
 
     data = json.loads(version_file.read_text())
-    major = int(data.get("major"))
-    minor = int(data.get("minor"))
-    patch = int(data.get("patch"))
+    major = int(data["major"])
+    minor = int(data["minor"])
+    patch = int(data["patch"])
     return format_version(major, minor, patch)
 
 def update_inno_setup(project_root: Path, new_version: str) -> None:
