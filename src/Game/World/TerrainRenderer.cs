@@ -380,7 +380,7 @@ void fragment() {
                 Vector3 normal = ComputeNormal(sampleX, sampleY, globalWidth, globalHeight);
                 st.SetNormal(normal);
 
-                st.SetUV(new Vector2((float)x / globalWidth, (float)y / globalHeight));
+                st.SetUV(new Vector2((float)sampleX / globalWidth, (float)sampleY / globalHeight));
                 st.AddVertex(new Vector3(x, elev, y));
             }
         }
