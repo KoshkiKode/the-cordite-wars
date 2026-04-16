@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cordite Wars — Official Site</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://js.stripe.com/v3/"></script>
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="top-nav">
+        <h1>Cordite Wars</h1>
+        <a href="#downloads" class="btn btn-primary">Get Downloads</a>
+      </nav>
+      <div class="hero-content">
+        <p class="eyebrow">Six Fronts. One War.</p>
+        <h2>Command massive RTS battles across land, sea, and sky.</h2>
+        <p>Use this section for your key trailer callout and release messaging.</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="section">
+        <h3>Featured Videos</h3>
+        <div class="media-grid">
+          <article class="card video-slot">Trailer slot (embed YouTube/Vimeo here)</article>
+          <article class="card video-slot">Gameplay deep dive slot</article>
+          <article class="card video-slot">Faction spotlight slot</article>
+        </div>
+      </section>
+
+      <section class="section background-showcase">
+        <h3>World & Screenshots</h3>
+        <p>Replace these placeholders with faction art, in-game screenshots, and map backgrounds.</p>
+        <div class="media-grid">
+          <article class="card image-slot">Image slot 1</article>
+          <article class="card image-slot">Image slot 2</article>
+          <article class="card image-slot">Image slot 3</article>
+        </div>
+      </section>
+
+      <section id="downloads" class="section">
+        <h3>Downloads (Paywalled)</h3>
+        <p>Downloads unlock only after successful Stripe payment.</p>
+        <div id="paywall-message" class="status">🔒 Locked — purchase required.</div>
+        <div class="download-grid">
+          <article class="card download-card">
+            <h4>Windows</h4>
+            <button class="btn btn-primary" data-product="windows">Unlock via Stripe</button>
+            <a class="download-link" data-download="windows" href="#" aria-disabled="true">Download Windows Build</a>
+          </article>
+          <article class="card download-card">
+            <h4>macOS</h4>
+            <button class="btn btn-primary" data-product="macos">Unlock via Stripe</button>
+            <a class="download-link" data-download="macos" href="#" aria-disabled="true">Download macOS Build</a>
+          </article>
+          <article class="card download-card">
+            <h4>Linux</h4>
+            <button class="btn btn-primary" data-product="linux">Unlock via Stripe</button>
+            <a class="download-link" data-download="linux" href="#" aria-disabled="true">Download Linux Build</a>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+  </html>
