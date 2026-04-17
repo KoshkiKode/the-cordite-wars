@@ -27,7 +27,7 @@ public class CommandSystemTests
         {
             GetUnit = id => units.TryGetValue(id, out var unit) ? unit : null,
             IssueOrder = (unitId, order) => issued.Add((unitId, order)),
-            Terrain = default,
+            Terrain = null!,
             CurrentTick = 0,
             Rng = new DeterministicRng(1)
         };
@@ -213,7 +213,7 @@ public class CommandSystemTests
         {
             PlayerId = 1,
             UnitIds = new List<int> { 8 },
-            Stance = UnitStance.HoldPosition
+            Stance = UnitStance.Defensive
         }.Execute(ctx);
 
         Assert.Equal(2, issued.Count);
@@ -221,7 +221,62 @@ public class CommandSystemTests
         Assert.Equal(heldUnit.Position, issued[0].Order.TargetPosition);
         Assert.Equal(UnitOrderType.SetStance, issued[1].Order.Type);
         Assert.Equal(stanceUnit.Position, issued[1].Order.TargetPosition);
-        Assert.Equal(UnitStance.HoldPosition, issued[1].Order.Stance);
+        Assert.Equal(UnitStance.Defensive, issued[1].Order.Stance);
+    }
+
+    [Fact]
+    public void AttackMoveAndStop_Execute_IssueExpectedOrdersForOwnedUnitsOnly()
+    {
+        var units = new Dictionary<int, UnitCommandView>
+        {
+            [2] = Unit(2, playerId: 1, x: 1, y: 2),
+            [4] = Unit(4, playerId: 1, x: 4, y: 5),
+            [9] = Unit(9, playerId: 2, x: 9, y: 9)
+        };
+        var issued = new List<(int UnitId, UnitOrder Order)>();
+        var ctx = BuildContext(units, issued);
+
+        var target = Vec(100, 200);
+        new AttackMoveCommand
+        {
+            PlayerId = 1,
+            UnitIds = new List<int> { 9, 4, 2, 999 },
+            TargetPosition = target
+        }.Execute(ctx);
+
+        new StopCommand
+        {
+            PlayerId = 1,
+            UnitIds = new List<int> { 4, 9, 2 }
+        }.Execute(ctx);
+
+        Assert.Equal(4, issued.Count);
+        Assert.Collection(
+            issued,
+            first =>
+            {
+                Assert.Equal(2, first.UnitId);
+                Assert.Equal(UnitOrderType.AttackMove, first.Order.Type);
+                Assert.Equal(target, first.Order.TargetPosition);
+            },
+            second =>
+            {
+                Assert.Equal(4, second.UnitId);
+                Assert.Equal(UnitOrderType.AttackMove, second.Order.Type);
+                Assert.Equal(target, second.Order.TargetPosition);
+            },
+            third =>
+            {
+                Assert.Equal(2, third.UnitId);
+                Assert.Equal(UnitOrderType.Stop, third.Order.Type);
+                Assert.Equal(FixedVector2.Zero, third.Order.TargetPosition);
+                Assert.Equal(-1, third.Order.TargetUnitId);
+            },
+            fourth =>
+            {
+                Assert.Equal(4, fourth.UnitId);
+                Assert.Equal(UnitOrderType.Stop, fourth.Order.Type);
+            });
     }
 
     [Fact]
