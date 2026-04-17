@@ -4316,14 +4316,14 @@
       "ModelId": "bridge_stoneRound",
       "X": 160.0,
       "Y": 80.0,
-      "Rotation": 360.0,
+      "Rotation": 0.0,
       "Scale": 1.0
     },
     {
       "ModelId": "bridge_stoneRound",
       "X": 229.3,
       "Y": 120.0,
-      "Rotation": 420.0,
+      "Rotation": 60.0,
       "Scale": 1.0
     }
   ],

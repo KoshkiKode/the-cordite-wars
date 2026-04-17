@@ -666,6 +666,160 @@
       "Y": 81.882292,
       "Rotation": 82.998715,
       "Scale": 0.9376
+    },
+    {
+      "ModelId": "rock_smallD",
+      "X": 134.662,
+      "Y": 60.841,
+      "Rotation": 69.5,
+      "Scale": 1.22
+    },
+    {
+      "ModelId": "cactus_tall",
+      "X": 55.603,
+      "Y": 158.675,
+      "Rotation": 85.6,
+      "Scale": 1.028
+    },
+    {
+      "ModelId": "rock_smallFlatA",
+      "X": 113.135,
+      "Y": 10.378,
+      "Rotation": 10.2,
+      "Scale": 1.229
+    },
+    {
+      "ModelId": "rocks_sand_b",
+      "X": 36.938,
+      "Y": 136.883,
+      "Rotation": 359.1,
+      "Scale": 0.944
+    },
+    {
+      "ModelId": "rocks_sand_c",
+      "X": 61.712,
+      "Y": 28.3,
+      "Rotation": 280.3,
+      "Scale": 1.017
+    },
+    {
+      "ModelId": "desert_well",
+      "X": 97.376,
+      "Y": 78.272,
+      "Rotation": 193.9,
+      "Scale": 0.8
+    },
+    {
+      "ModelId": "rock_largeC",
+      "X": 43.078,
+      "Y": 61.305,
+      "Rotation": 34.2,
+      "Scale": 0.981
+    },
+    {
+      "ModelId": "rocks_sand_c",
+      "X": 22.376,
+      "Y": 131.925,
+      "Rotation": 350.3,
+      "Scale": 0.886
+    },
+    {
+      "ModelId": "rock_largeD",
+      "X": 107.823,
+      "Y": 153.478,
+      "Rotation": 126.5,
+      "Scale": 1.015
+    },
+    {
+      "ModelId": "cactus_tall",
+      "X": 73.035,
+      "Y": 100.873,
+      "Rotation": 191.1,
+      "Scale": 0.86
+    },
+    {
+      "ModelId": "stone_smallA",
+      "X": 83.677,
+      "Y": 125.151,
+      "Rotation": 4.6,
+      "Scale": 1.242
+    },
+    {
+      "ModelId": "stone_largeB",
+      "X": 18.148,
+      "Y": 108.665,
+      "Rotation": 273.6,
+      "Scale": 0.966
+    },
+    {
+      "ModelId": "cactus_short",
+      "X": 49.942,
+      "Y": 88.626,
+      "Rotation": 247.7,
+      "Scale": 0.778
+    },
+    {
+      "ModelId": "rock_largeD",
+      "X": 83.557,
+      "Y": 117.945,
+      "Rotation": 53.1,
+      "Scale": 1.016
+    },
+    {
+      "ModelId": "stone_largeB",
+      "X": 12.678,
+      "Y": 85.741,
+      "Rotation": 332.4,
+      "Scale": 1.125
+    },
+    {
+      "ModelId": "rocks_sand_a",
+      "X": 99.791,
+      "Y": 19.703,
+      "Rotation": 52.7,
+      "Scale": 1.164
+    },
+    {
+      "ModelId": "rock_smallD",
+      "X": 151.159,
+      "Y": 119.356,
+      "Rotation": 31.7,
+      "Scale": 1.212
+    },
+    {
+      "ModelId": "rocks_sand_a",
+      "X": 27.699,
+      "Y": 70.88,
+      "Rotation": 37.1,
+      "Scale": 1.178
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 140.669,
+      "Y": 35.198,
+      "Rotation": 9.0,
+      "Scale": 1.229
+    },
+    {
+      "ModelId": "stone_smallA",
+      "X": 46.402,
+      "Y": 88.236,
+      "Rotation": 348.0,
+      "Scale": 1.038
+    },
+    {
+      "ModelId": "rocks_sand_b",
+      "X": 124.228,
+      "Y": 75.101,
+      "Rotation": 96.4,
+      "Scale": 1.17
+    },
+    {
+      "ModelId": "rock_smallFlatB",
+      "X": 26.077,
+      "Y": 106.999,
+      "Rotation": 194.7,
+      "Scale": 0.894
     }
   ],
   "Structures": [
