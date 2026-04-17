@@ -60,6 +60,12 @@ jobs:
           name: CorditeWars-Windows-MSI
           path: dist/
 
+      - name: Download Windows MSIX package
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows-MSIX
+          path: dist/
+
       - name: Download Linux export
         uses: actions/download-artifact@v8
         with:
@@ -72,6 +78,18 @@ jobs:
           name: CorditeWars-Linux-Snap
           path: dist/
 
+      - name: Download Linux DEB
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux-DEB
+          path: dist/
+
+      - name: Download Linux Flatpak
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux-Flatpak
+          path: dist/
+
       - name: Download macOS DMG
         uses: actions/download-artifact@v8
         with:
@@ -82,6 +100,18 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Android
+          path: dist/
+
+      - name: Download Android AAB
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Android-AAB
+          path: dist/
+
+      - name: Download iOS IPA (or Xcode zip fallback)
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-iOS-IPA
           path: dist/
 
       - name: Archive Linux export
@@ -148,12 +178,17 @@ jobs:
             for (const file of files) {
               const filePath    = path.join(distDir, file);
               const fileContent = fs.readFileSync(filePath);
-              const mimeType    = file.endsWith(".exe") ? "application/octet-stream"
-                                : file.endsWith(".msi") ? "application/octet-stream"
-                                : file.endsWith(".dmg") ? "application/octet-stream"
-                                : file.endsWith(".apk") ? "application/vnd.android.package-archive"
-                                : file.endsWith(".snap") ? "application/octet-stream"
-                                : file.endsWith(".tar.gz") ? "application/gzip"
+              const mimeType    = file.endsWith(".exe")      ? "application/octet-stream"
+                                : file.endsWith(".msi")      ? "application/octet-stream"
+                                : file.endsWith(".msix")     ? "application/octet-stream"
+                                : file.endsWith(".dmg")      ? "application/octet-stream"
+                                : file.endsWith(".apk")      ? "application/vnd.android.package-archive"
+                                : file.endsWith(".aab")      ? "application/octet-stream"
+                                : file.endsWith(".ipa")      ? "application/octet-stream"
+                                : file.endsWith(".snap")     ? "application/octet-stream"
+                                : file.endsWith(".deb")      ? "application/vnd.debian.binary-package"
+                                : file.endsWith(".flatpak")  ? "application/octet-stream"
+                                : file.endsWith(".tar.gz")   ? "application/gzip"
                                 : "application/octet-stream";
 
               console.log(`Uploading ${file} (${fileContent.length} bytes) …`);

@@ -1,0 +1,52 @@
+# com.koshkikode.CorditeWars.yml — Flatpak manifest for Cordite Wars: Six Fronts
+# Version strings are kept in sync by bump-version.py.
+#
+# Build (from project root):
+#   flatpak-builder --force-clean --repo=flatpak-repo \
+#     flatpak-build-dir versions/linux/flatpak/com.koshkikode.CorditeWars.yml
+#   flatpak build-bundle flatpak-repo CorditeWars_X.Y.Z.flatpak com.koshkikode.CorditeWars
+#
+# The CI job copies the Linux export into versions/linux/flatpak/build/linux/
+# before running flatpak-builder so that "path: build/linux" below resolves
+# relative to this manifest file's directory.
+
+id: com.koshkikode.CorditeWars
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: CorditeWars
+
+finish-args:
+  # Shared memory (IPC) for X11 MIT-SHM
+  - --share=ipc
+  # Multiplayer networking
+  - --share=network
+  # Display: X11 and Wayland
+  - --socket=x11
+  - --socket=wayland
+  # Audio: PulseAudio / PipeWire-PulseAudio
+  - --socket=pulseaudio
+  # GPU rendering
+  - --device=dri
+  # Save files in user home directory
+  - --filesystem=home
+
+modules:
+  - name: cordite-wars
+    buildsystem: simple
+    build-commands:
+      # Install the main Godot binary
+      - install -Dm755 CorditeWars /app/bin/CorditeWars
+      # Install the PCK data file (always present since embed_pck=false)
+      - install -Dm644 CorditeWars.pck /app/bin/CorditeWars.pck || true
+      # Install the .NET runtime data directories (GodotSharp or data_*)
+      - cp -rp GodotSharp /app/bin/ 2>/dev/null || true
+      - find . -maxdepth 1 -name "data_*" -type d -exec cp -rp {} /app/bin/ \; 2>/dev/null || true
+      # Install desktop entry (filename must match app ID for Flathub validation)
+      - install -Dm644 com.koshkikode.CorditeWars.desktop /app/share/applications/com.koshkikode.CorditeWars.desktop
+      # Install scalable icon (SVG from project assets)
+      - install -Dm644 com.koshkikode.CorditeWars.svg /app/share/icons/hicolor/scalable/apps/com.koshkikode.CorditeWars.svg
+    sources:
+      # CI stages the Linux export into build/linux/ next to this manifest.
+      - type: dir
+        path: build/linux

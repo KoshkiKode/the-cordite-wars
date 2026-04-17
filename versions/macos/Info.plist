@@ -31,7 +31,7 @@
   <string>1.0.0</string>
 
   <key>CFBundleVersion</key>
-  <string>100</string>
+  <string>10000</string>
 
   <!-- macOS deployment target (Monterey 12.0+) -->
   <key>LSMinimumSystemVersion</key>

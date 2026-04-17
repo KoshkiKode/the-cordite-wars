@@ -85,10 +85,10 @@ def update_export_presets(project_root: Path, new_version: str) -> None:
             updated
         )
 
-        # Android: package/version (integer)
-        # For Android, use major*100 + minor*10 + patch (e.g., 0.1.0 → 10)
+        # Android/iOS: integer build number.
+        # Formula: major*10000 + minor*100 + patch — supports minor/patch 0–99.
         major, minor, patch = parse_version(new_version)
-        android_version = major * 100 + minor * 10 + patch
+        android_version = major * 10000 + minor * 100 + patch
         updated = re.sub(
             r'(package/version\s*=\s*)(\d+)',
             f'\\g<1>{android_version}',
@@ -112,6 +112,24 @@ def update_export_presets(project_root: Path, new_version: str) -> None:
             print(f"✓ Updated {presets_file.relative_to(project_root)} → {new_version}")
 
 
+def update_android_manifest(project_root: Path, new_version: str) -> None:
+    """Update version in versions/android/AndroidManifest.xml."""
+    manifest_file = project_root / "versions" / "android" / "AndroidManifest.xml"
+    if not manifest_file.exists():
+        print(f"⚠ {manifest_file} not found, skipping")
+        return
+
+    major, minor, patch = parse_version(new_version)
+    android_version = major * 10000 + minor * 100 + patch
+    content = manifest_file.read_text()
+    updated = re.sub(r'(android:versionCode=")[^"]*"', f'\\g<1>{android_version}"', content)
+    updated = re.sub(r'(android:versionName=")[^"]*"', f'\\g<1>{new_version}"', updated)
+
+    if updated != content:
+        manifest_file.write_text(updated)
+        print(f"✓ Updated versions/android/AndroidManifest.xml → {new_version}")
+
+
 def update_android_gradle(project_root: Path, new_version: str) -> None:
     """Update version in Android build.gradle."""
     gradle_file = project_root / "versions" / "android" / "build.gradle"
@@ -120,7 +138,7 @@ def update_android_gradle(project_root: Path, new_version: str) -> None:
         return
 
     major, minor, patch = parse_version(new_version)
-    android_version = major * 100 + minor * 10 + patch
+    android_version = major * 10000 + minor * 100 + patch
     content = gradle_file.read_text()
     updated = re.sub(r'(versionCode\s+)\d+', f'\\g<1>{android_version}', content)
     updated = re.sub(r'(versionName\s+")[^"]*"', f'\\g<1>{new_version}"', updated)
@@ -150,7 +168,7 @@ def update_snapcraft_yaml(project_root: Path, new_version: str) -> None:
 def update_plist(project_root: Path, new_version: str) -> None:
     """Update version in macOS Info.plist and iOS ios-info.plist."""
     major, minor, patch = parse_version(new_version)
-    bundle_version = major * 100 + minor * 10 + patch
+    bundle_version = major * 10000 + minor * 100 + patch
 
     plist_files = [
         project_root / "versions" / "macos" / "Info.plist",
@@ -211,6 +229,49 @@ def read_canonical_version(project_root: Path) -> str:
     minor = int(data["minor"])
     patch = int(data["patch"])
     return format_version(major, minor, patch)
+
+def update_appxmanifest(project_root: Path, new_version: str) -> None:
+    """Update version in versions/windows/AppxManifest.xml (MSIX, 4-part: X.Y.Z.0)."""
+    manifest_file = project_root / "versions" / "windows" / "AppxManifest.xml"
+    if not manifest_file.exists():
+        print(f"⚠ {manifest_file} not found, skipping")
+        return
+
+    msix_version = f"{new_version}.0"
+    content = manifest_file.read_text()
+    updated = re.sub(
+        r'(Version=")[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(")',
+        f'\\g<1>{msix_version}\\g<2>',
+        content
+    )
+
+    if updated != content:
+        manifest_file.write_text(updated)
+        print(f"✓ Updated AppxManifest.xml → {msix_version}")
+    else:
+        print(f"⚠ No version found in AppxManifest.xml")
+
+
+def update_deb_control(project_root: Path, new_version: str) -> None:
+    """Update version in versions/linux/debian/control."""
+    control_file = project_root / "versions" / "linux" / "debian" / "control"
+    if not control_file.exists():
+        print(f"⚠ {control_file} not found, skipping")
+        return
+
+    content = control_file.read_text()
+    updated = re.sub(
+        r'(Version:\s*)[0-9]+\.[0-9]+\.[0-9]+',
+        f'\\g<1>{new_version}',
+        content
+    )
+
+    if updated != content:
+        control_file.write_text(updated)
+        print(f"✓ Updated debian/control → {new_version}")
+    else:
+        print(f"⚠ No version found in debian/control")
+
 
 def update_inno_setup(project_root: Path, new_version: str) -> None:
     """Update version in versions/windows/inno-setup.iss."""
@@ -303,6 +364,9 @@ def main():
     update_snapcraft_yaml(project_root, new_version)
     update_plist(project_root, new_version)
     update_android_gradle(project_root, new_version)
+    update_android_manifest(project_root, new_version)
+    update_appxmanifest(project_root, new_version)
+    update_deb_control(project_root, new_version)
     update_inno_setup(project_root, new_version)
     update_wix(project_root, new_version)
     update_version_json(project_root, new_version)
