@@ -193,14 +193,51 @@ jobs:
         id: release_keystore
         env:
           ANDROID_RELEASE_KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
+          ANDROID_RELEASE_KEYSTORE_ALIAS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
+          ANDROID_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
         run: |
-          if [ -n "$ANDROID_RELEASE_KEYSTORE_B64" ]; then
-            echo "$ANDROID_RELEASE_KEYSTORE_B64" | base64 --decode > release.keystore
-            echo "has_release_keystore=true" >> "$GITHUB_OUTPUT"
-            echo "Release keystore ready — Android builds will be release-signed."
-          else
+          if [ -z "$ANDROID_RELEASE_KEYSTORE_B64" ]; then
+            rm -f release.keystore
             echo "has_release_keystore=false" >> "$GITHUB_OUTPUT"
             echo "No release keystore secret set — Android builds will use debug signing."
+          elif [ -z "$ANDROID_RELEASE_KEYSTORE_ALIAS" ] || [ -z "$ANDROID_RELEASE_KEYSTORE_PASSWORD" ]; then
+            rm -f release.keystore
+            echo "has_release_keystore=false" >> "$GITHUB_OUTPUT"
+            echo "Release keystore alias/password secret missing — Android builds will use debug signing."
+          else
+            echo "$ANDROID_RELEASE_KEYSTORE_B64" | base64 --decode > release.keystore
+            OLD_UMASK="$(umask)"
+            umask 077
+            STOREPASS_FILE="$(mktemp)"
+            umask "$OLD_UMASK"
+            printf '%s' "$ANDROID_RELEASE_KEYSTORE_PASSWORD" > "$STOREPASS_FILE"
+            cleanup_storepass_file() {
+              if [ -f "$STOREPASS_FILE" ]; then
+                if command -v shred >/dev/null 2>&1; then
+                  shred -u "$STOREPASS_FILE" || rm -f "$STOREPASS_FILE"
+                else
+                  rm -f "$STOREPASS_FILE"
+                fi
+              fi
+            }
+            trap cleanup_storepass_file EXIT
+            HAS_VALID_RELEASE_KEYSTORE=false
+            if keytool -list \
+              -keystore release.keystore \
+              -storepass:file "$STOREPASS_FILE" \
+              -alias "$ANDROID_RELEASE_KEYSTORE_ALIAS" >/dev/null 2>&1; then
+              HAS_VALID_RELEASE_KEYSTORE=true
+            fi
+            trap - EXIT
+            cleanup_storepass_file
+            if [ "$HAS_VALID_RELEASE_KEYSTORE" = "true" ]; then
+              echo "has_release_keystore=true" >> "$GITHUB_OUTPUT"
+              echo "Release keystore credentials validated — Android builds will be release-signed."
+            else
+              rm -f release.keystore
+              echo "has_release_keystore=false" >> "$GITHUB_OUTPUT"
+              echo "Release keystore credentials are invalid for this keystore — Android builds will use debug signing."
+            fi
           fi
 
       - name: Configure Godot Android SDK path

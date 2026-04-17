@@ -248,8 +248,7 @@ Configure these repository secrets before release packaging:
 |--------|----------|
 | `ANDROID_RELEASE_KEYSTORE_B64` | Base64-encoded Android release keystore (`.jks` / `.keystore`) |
 | `ANDROID_RELEASE_KEYSTORE_ALIAS` | Android release key alias |
-| `ANDROID_RELEASE_KEYSTORE_PASSWORD` | Android keystore password |
-| `ANDROID_RELEASE_KEY_PASSWORD` | Android key password |
+| `ANDROID_RELEASE_KEYSTORE_PASSWORD` | Android keystore password (also used as the key password — create your keystore with the same value for both) |
 | `APPLE_DEV_ID` | `Developer ID Application: Name (TEAMID)` signing identity |
 | `APPLE_TEAM_ID` | Apple 10-character team identifier |
 | `APPLE_ID` | Apple ID email for notarization |
