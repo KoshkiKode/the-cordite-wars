@@ -504,37 +504,37 @@ jobs:
           fi
 
       - name: Upload Windows export artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Windows
           path: build/windows/
 
       - name: Upload Linux export artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Linux
           path: build/linux/
 
       - name: Upload Android APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Android
           path: build/android/CorditeWars.apk
 
       - name: Upload Android AAB artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Android-AAB
           path: build/android/CorditeWars.aab
 
       - name: Upload iOS/iPadOS Handoff artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-iOS-iPadOS-Handoff
           path: build/ios/
 
       - name: Upload macOS export artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-macOS-Export
           path: build/macos/
@@ -586,7 +586,7 @@ jobs:
           Write-Host "EXE installer: dist\windows\CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe"
 
       - name: Upload EXE installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Windows-Setup-EXE
           path: dist/windows/CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe
@@ -645,7 +645,7 @@ jobs:
           Write-Host "MSI installer: dist\windows\CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi"
 
       - name: Upload MSI installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Windows-MSI
           path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi
@@ -700,7 +700,7 @@ jobs:
           path: versions/linux
 
       - name: Upload Snap artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Linux-Snap
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -833,7 +833,7 @@ jobs:
           fi
 
       - name: Upload macOS DMG artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-macOS-DMG
           path: dist/macos/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.dmg
