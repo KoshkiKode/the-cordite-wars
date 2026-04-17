@@ -58,7 +58,10 @@ jobs:
           # Platform packaging assets
           check_file versions/windows/inno-setup.iss
           check_file versions/windows/CorditeWars.wxs
+          check_file versions/windows/AppxManifest.xml
           check_file versions/linux/snapcraft.yaml
+          check_file versions/linux/debian/control
+          check_file versions/linux/flatpak/com.koshkikode.CorditeWars.yml
           check_file versions/macos/entitlements.plist
           check_file versions/ios/ios-info.plist
           check_file versions/ios/ios-export-options.plist
@@ -704,6 +707,282 @@ jobs:
         with:
           name: CorditeWars-Linux-Snap
           path: ${{ steps.snapcraft.outputs.snap }}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 2b. Package Linux DEB
+  # ─────────────────────────────────────────────────────────────────────────────
+  package-linux-deb:
+    name: Linux DEB Package
+    runs-on: ubuntu-latest
+    needs: [export-all, resolve-version]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Linux export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux
+          path: build/linux
+
+      - name: Install packaging tools
+        run: sudo apt-get install -y librsvg2-bin
+
+      - name: Build DEB package
+        run: |
+          set -euo pipefail
+          APP_VERSION="${{ needs.resolve-version.outputs.app_version }}"
+          PKG_DIR="cordite-wars_${APP_VERSION}_amd64"
+
+          # ── Directory skeleton ──────────────────────────────────────────────
+          mkdir -p "${PKG_DIR}/DEBIAN"
+          mkdir -p "${PKG_DIR}/opt/cordite-wars"
+          mkdir -p "${PKG_DIR}/usr/share/applications"
+          mkdir -p "${PKG_DIR}/usr/share/icons/hicolor/512x512/apps"
+          mkdir -p "${PKG_DIR}/usr/bin"
+
+          # ── Game binary ─────────────────────────────────────────────────────
+          if [ -f build/linux/CorditeWars.x86_64 ]; then
+            cp build/linux/CorditeWars.x86_64 "${PKG_DIR}/opt/cordite-wars/CorditeWars"
+          else
+            cp build/linux/CorditeWars "${PKG_DIR}/opt/cordite-wars/CorditeWars"
+          fi
+          chmod +x "${PKG_DIR}/opt/cordite-wars/CorditeWars"
+
+          # ── Game data files ─────────────────────────────────────────────────
+          [ -f build/linux/CorditeWars.pck ] && cp build/linux/CorditeWars.pck "${PKG_DIR}/opt/cordite-wars/"
+          [ -d build/linux/GodotSharp ]       && cp -rp build/linux/GodotSharp "${PKG_DIR}/opt/cordite-wars/"
+          find build/linux -maxdepth 1 -name "data_*" -type d | while read -r dir; do
+            cp -rp "$dir" "${PKG_DIR}/opt/cordite-wars/"
+          done
+
+          # ── Launcher symlink ────────────────────────────────────────────────
+          ln -s /opt/cordite-wars/CorditeWars "${PKG_DIR}/usr/bin/cordite-wars"
+
+          # ── Desktop entry (patch Icon= to freedesktop standard path) ────────
+          sed 's|Icon=.*|Icon=cordite-wars|' versions/linux/cordite-wars.desktop \
+            > "${PKG_DIR}/usr/share/applications/cordite-wars.desktop"
+
+          # ── Icon (convert SVG → PNG for the hicolor icon theme) ─────────────
+          if command -v rsvg-convert &>/dev/null && [ -f assets/icons/icon.svg ]; then
+            rsvg-convert -w 512 -h 512 assets/icons/icon.svg \
+              -o "${PKG_DIR}/usr/share/icons/hicolor/512x512/apps/cordite-wars.png"
+          fi
+
+          # ── DEBIAN/control: inject version + computed Installed-Size ─────────
+          sed "s/^Version: .*/Version: ${APP_VERSION}/" versions/linux/debian/control \
+            > "${PKG_DIR}/DEBIAN/control"
+          INSTALLED_KB=$(du -sk "${PKG_DIR}/opt" | awk '{print $1}')
+          sed -i "s/^Installed-Size: .*/Installed-Size: ${INSTALLED_KB}/" "${PKG_DIR}/DEBIAN/control"
+
+          # ── Build ────────────────────────────────────────────────────────────
+          mkdir -p dist/linux
+          dpkg-deb --build --root-owner-group "${PKG_DIR}" \
+            "dist/linux/CorditeWars_${APP_VERSION}_amd64.deb"
+          echo "Built: dist/linux/CorditeWars_${APP_VERSION}_amd64.deb"
+          ls -lh dist/linux/
+
+      - name: Upload DEB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Linux-DEB
+          path: dist/linux/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_amd64.deb
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 2c. Package Linux Flatpak bundle
+  # ─────────────────────────────────────────────────────────────────────────────
+  package-linux-flatpak:
+    name: Linux Flatpak Bundle
+    runs-on: ubuntu-latest
+    needs: [export-all, resolve-version]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Linux export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux
+          path: build/linux
+
+      - name: Stage game files for flatpak-builder
+        run: |
+          # flatpak-builder resolves "path: build/linux" relative to the manifest
+          # directory (versions/linux/flatpak/), so we stage everything there.
+          mkdir -p versions/linux/flatpak/build/linux
+          cp -R build/linux/. versions/linux/flatpak/build/linux/
+
+          # Normalise the binary name (Godot exports as CorditeWars.x86_64)
+          if [ -f versions/linux/flatpak/build/linux/CorditeWars.x86_64 ] && \
+             [ ! -f versions/linux/flatpak/build/linux/CorditeWars ]; then
+            cp versions/linux/flatpak/build/linux/CorditeWars.x86_64 \
+               versions/linux/flatpak/build/linux/CorditeWars
+          fi
+          chmod +x versions/linux/flatpak/build/linux/CorditeWars
+
+          # Copy desktop entry (rename to app-ID form for Flathub validation)
+          sed 's|Exec=.*|Exec=CorditeWars|; s|Icon=.*|Icon=com.koshkikode.CorditeWars|' \
+            versions/linux/cordite-wars.desktop \
+            > versions/linux/flatpak/build/linux/com.koshkikode.CorditeWars.desktop
+
+          # Copy icon (SVG) — Flatpak installs it to hicolor/scalable/apps/
+          if [ -f assets/icons/icon.svg ]; then
+            cp assets/icons/icon.svg \
+              versions/linux/flatpak/build/linux/com.koshkikode.CorditeWars.svg
+          fi
+
+      - name: Build Flatpak bundle
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: CorditeWars_${{ needs.resolve-version.outputs.app_version }}.flatpak
+          manifest-path: versions/linux/flatpak/com.koshkikode.CorditeWars.yml
+          cache-key: flatpak-builder-${{ hashFiles('versions/linux/flatpak/com.koshkikode.CorditeWars.yml') }}
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Linux-Flatpak
+          path: CorditeWars_${{ needs.resolve-version.outputs.app_version }}.flatpak
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 1d. Package Windows MSIX
+  #     Self-signed dev cert in CI (sideload-ready).
+  #     For Store distribution add WINDOWS_CERT_B64 / WINDOWS_CERT_PASSWORD
+  #     secrets; the job will use them automatically.
+  # ─────────────────────────────────────────────────────────────────────────────
+  package-windows-msix:
+    name: Windows MSIX Package
+    runs-on: windows-latest
+    needs: [export-all, resolve-version]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Windows export
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows
+          path: build/windows
+
+      - name: Verify Windows export
+        shell: powershell
+        run: |
+          if (-not (Test-Path "build\windows\CorditeWars.exe")) {
+            throw "CorditeWars.exe missing from Windows export artifact."
+          }
+          Write-Host "Windows export contents:"
+          Get-ChildItem build\windows
+
+      - name: Patch version into AppxManifest.xml
+        shell: powershell
+        run: |
+          $semver   = "${{ needs.resolve-version.outputs.app_version }}"
+          $msixVer  = "$semver.0"   # MSIX requires 4-part version
+          $path     = "versions\windows\AppxManifest.xml"
+          $xml      = Get-Content $path -Raw
+          $xml      = $xml -replace 'Version="[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"', "Version=`"$msixVer`""
+          Set-Content $path $xml -Encoding UTF8
+          Write-Host "AppxManifest.xml version set to: $msixVer"
+
+      - name: Generate placeholder MSIX icon assets
+        shell: powershell
+        run: |
+          # Creates minimal solid-colour PNG placeholders.
+          # Replace Assets\ with real game icons before Store submission.
+          Add-Type -AssemblyName System.Drawing
+          function New-SolidPng($W, $H, $Dest) {
+            $bmp = New-Object System.Drawing.Bitmap($W, $H)
+            $g   = [System.Drawing.Graphics]::FromImage($bmp)
+            $g.Clear([System.Drawing.Color]::FromArgb(255, 16, 32, 64))
+            $g.Dispose()
+            New-Item -Force -ItemType Directory -Path (Split-Path $Dest) | Out-Null
+            $bmp.Save($Dest, [System.Drawing.Imaging.ImageFormat]::Png)
+            $bmp.Dispose()
+          }
+          New-SolidPng  44  44  "msix_assets\Square44x44Logo.png"
+          New-SolidPng 150 150  "msix_assets\Square150x150Logo.png"
+          New-SolidPng  50  50  "msix_assets\StoreLogo.png"
+          Write-Host "MSIX icon assets created."
+
+      - name: Stage MSIX package contents
+        shell: powershell
+        run: |
+          New-Item -Force -ItemType Directory -Path msix_stage | Out-Null
+          Copy-Item -Recurse "build\windows\*" msix_stage\
+          Copy-Item versions\windows\AppxManifest.xml msix_stage\AppxManifest.xml
+          New-Item -Force -ItemType Directory -Path "msix_stage\Assets" | Out-Null
+          Copy-Item "msix_assets\*" "msix_stage\Assets\"
+          Write-Host "MSIX stage contents:"
+          Get-ChildItem msix_stage -Recurse | Select-Object FullName
+
+      - name: Locate makeappx.exe
+        id: sdk_tools
+        shell: powershell
+        run: |
+          $makeappx = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" `
+            -Recurse -Filter "makeappx.exe" |
+            Where-Object { $_.FullName -match "x64" } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $makeappx) { throw "makeappx.exe not found — Windows SDK missing?" }
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" `
+            -Recurse -Filter "signtool.exe" |
+            Where-Object { $_.FullName -match "x64" } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $signtool) { throw "signtool.exe not found — Windows SDK missing?" }
+          "MAKEAPPX=$($makeappx.FullName)" | Out-File -Append $env:GITHUB_ENV
+          "SIGNTOOL=$($signtool.FullName)"  | Out-File -Append $env:GITHUB_ENV
+          Write-Host "makeappx: $($makeappx.FullName)"
+          Write-Host "signtool:  $($signtool.FullName)"
+
+      - name: Build MSIX package
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = "${{ needs.resolve-version.outputs.app_version }}"
+          New-Item -Force -ItemType Directory -Path dist\windows | Out-Null
+          & $env:MAKEAPPX pack /d msix_stage /p "dist\windows\CorditeWars_${version}.msix" /overwrite
+          if (-not (Test-Path "dist\windows\CorditeWars_${version}.msix")) {
+            throw "makeappx did not produce the MSIX package."
+          }
+          Write-Host "MSIX package: dist\windows\CorditeWars_${version}.msix"
+
+      - name: Sign MSIX (production cert or self-signed dev cert)
+        shell: powershell
+        env:
+          WINDOWS_CERT_B64: ${{ secrets.WINDOWS_CERT_B64 }}
+          WINDOWS_CERT_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = "${{ needs.resolve-version.outputs.app_version }}"
+          $msix    = "dist\windows\CorditeWars_${version}.msix"
+
+          if ($env:WINDOWS_CERT_B64) {
+            # Use the production code-signing certificate from secrets.
+            Write-Host "Using production signing certificate from secret."
+            $certBytes = [Convert]::FromBase64String($env:WINDOWS_CERT_B64)
+            [IO.File]::WriteAllBytes("signing.pfx", $certBytes)
+            & $env:SIGNTOOL sign /fd SHA256 /p "$env:WINDOWS_CERT_PASSWORD" /f signing.pfx $msix
+            Remove-Item signing.pfx -Force
+          } else {
+            # Generate a temporary self-signed cert for CI / developer sideloading.
+            # The Publisher CN in AppxManifest.xml must match this subject.
+            Write-Host "No WINDOWS_CERT_B64 secret — generating self-signed dev cert."
+            $cert = New-SelfSignedCertificate `
+              -Type Custom `
+              -Subject "CN=CorditeWarsTeam" `
+              -KeyUsage DigitalSignature `
+              -FriendlyName "Cordite Wars Dev Cert" `
+              -CertStoreLocation "Cert:\CurrentUser\My" `
+              -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3","2.5.29.19={text}")
+            & $env:SIGNTOOL sign /fd SHA256 /sha1 $cert.Thumbprint $msix
+            Write-Host "MSIX self-signed (dev cert — sideload only)."
+          }
+
+      - name: Upload MSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Windows-MSIX
+          path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msix
 
   #     Code signing and notarization run only when Apple secrets are set.
   # ─────────────────────────────────────────────────────────────────────────────

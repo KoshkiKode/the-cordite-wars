@@ -60,6 +60,12 @@ jobs:
           name: CorditeWars-Windows-MSI
           path: dist/
 
+      - name: Download Windows MSIX package
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Windows-MSIX
+          path: dist/
+
       - name: Download Linux export
         uses: actions/download-artifact@v4
         with:
@@ -70,6 +76,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Linux-Snap
+          path: dist/
+
+      - name: Download Linux DEB
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux-DEB
+          path: dist/
+
+      - name: Download Linux Flatpak
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Linux-Flatpak
           path: dist/
 
       - name: Download macOS DMG
@@ -84,11 +102,31 @@ jobs:
           name: CorditeWars-Android
           path: dist/
 
+      - name: Download Android AAB
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-Android-AAB
+          path: dist/
+
+      - name: Download iOS Xcode project handoff
+        uses: actions/download-artifact@v4
+        with:
+          name: CorditeWars-iOS-iPadOS-Handoff
+          path: dist/ios/
+
       - name: Archive Linux export
         run: |
           cd dist/linux
           tar -czf "../CorditeWars_${{ steps.version.outputs.version }}_linux_x86_64.tar.gz" .
           echo "Created Linux archive."
+
+      - name: Archive iOS Xcode project handoff
+        run: |
+          # The iOS artifact is an Xcode project directory — archive it so it
+          # can be attached as a single file to the GitHub Release.
+          cd dist/ios
+          tar -czf "../CorditeWars_${{ steps.version.outputs.version }}_ios_xcode_handoff.tar.gz" .
+          echo "Created iOS Xcode handoff archive."
 
       - name: List release assets
         run: ls -lh dist/
@@ -148,12 +186,16 @@ jobs:
             for (const file of files) {
               const filePath    = path.join(distDir, file);
               const fileContent = fs.readFileSync(filePath);
-              const mimeType    = file.endsWith(".exe") ? "application/octet-stream"
-                                : file.endsWith(".msi") ? "application/octet-stream"
-                                : file.endsWith(".dmg") ? "application/octet-stream"
-                                : file.endsWith(".apk") ? "application/vnd.android.package-archive"
-                                : file.endsWith(".snap") ? "application/octet-stream"
-                                : file.endsWith(".tar.gz") ? "application/gzip"
+              const mimeType    = file.endsWith(".exe")      ? "application/octet-stream"
+                                : file.endsWith(".msi")      ? "application/octet-stream"
+                                : file.endsWith(".msix")     ? "application/octet-stream"
+                                : file.endsWith(".dmg")      ? "application/octet-stream"
+                                : file.endsWith(".apk")      ? "application/vnd.android.package-archive"
+                                : file.endsWith(".aab")      ? "application/octet-stream"
+                                : file.endsWith(".snap")     ? "application/octet-stream"
+                                : file.endsWith(".deb")      ? "application/vnd.debian.binary-package"
+                                : file.endsWith(".flatpak")  ? "application/octet-stream"
+                                : file.endsWith(".tar.gz")   ? "application/gzip"
                                 : "application/octet-stream";
 
               console.log(`Uploading ${file} (${fileContent.length} bytes) …`);

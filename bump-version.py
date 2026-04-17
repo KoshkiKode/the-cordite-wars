@@ -230,6 +230,49 @@ def read_canonical_version(project_root: Path) -> str:
     patch = int(data["patch"])
     return format_version(major, minor, patch)
 
+def update_appxmanifest(project_root: Path, new_version: str) -> None:
+    """Update version in versions/windows/AppxManifest.xml (MSIX, 4-part: X.Y.Z.0)."""
+    manifest_file = project_root / "versions" / "windows" / "AppxManifest.xml"
+    if not manifest_file.exists():
+        print(f"⚠ {manifest_file} not found, skipping")
+        return
+
+    msix_version = f"{new_version}.0"
+    content = manifest_file.read_text()
+    updated = re.sub(
+        r'(Version=")[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(")',
+        f'\\g<1>{msix_version}\\g<2>',
+        content
+    )
+
+    if updated != content:
+        manifest_file.write_text(updated)
+        print(f"✓ Updated AppxManifest.xml → {msix_version}")
+    else:
+        print(f"⚠ No version found in AppxManifest.xml")
+
+
+def update_deb_control(project_root: Path, new_version: str) -> None:
+    """Update version in versions/linux/debian/control."""
+    control_file = project_root / "versions" / "linux" / "debian" / "control"
+    if not control_file.exists():
+        print(f"⚠ {control_file} not found, skipping")
+        return
+
+    content = control_file.read_text()
+    updated = re.sub(
+        r'(Version:\s*)[0-9]+\.[0-9]+\.[0-9]+',
+        f'\\g<1>{new_version}',
+        content
+    )
+
+    if updated != content:
+        control_file.write_text(updated)
+        print(f"✓ Updated debian/control → {new_version}")
+    else:
+        print(f"⚠ No version found in debian/control")
+
+
 def update_inno_setup(project_root: Path, new_version: str) -> None:
     """Update version in versions/windows/inno-setup.iss."""
     iss_file = project_root / "versions" / "windows" / "inno-setup.iss"
@@ -322,6 +365,8 @@ def main():
     update_plist(project_root, new_version)
     update_android_gradle(project_root, new_version)
     update_android_manifest(project_root, new_version)
+    update_appxmanifest(project_root, new_version)
+    update_deb_control(project_root, new_version)
     update_inno_setup(project_root, new_version)
     update_wix(project_root, new_version)
     update_version_json(project_root, new_version)

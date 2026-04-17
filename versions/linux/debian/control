@@ -1,0 +1,18 @@
+Package: cordite-wars
+Version: 1.0.0
+Architecture: amd64
+Section: games
+Priority: optional
+Installed-Size: 0
+Depends: libgles2 | libgles2-mesa, libvulkan1, libx11-6, libxrandr2, libxinerama1, libxcursor1, libxi6, libpulse0, libopenal1
+Recommends: xdg-utils
+Maintainer: KoshkiKode <support@koshkikode.com>
+Homepage: https://github.com/KoshkiKode/cordite
+Description: Cordite Wars: Six Fronts
+ Command six distinct factions across land, air, and sea in a real-time
+ strategy game inspired by Command & Conquer and Tempest Rising.
+ .
+ Features deterministic multiplayer, full cross-platform support, and four
+ graphical quality tiers for broad hardware compatibility.
+ .
+ Minimum spec: 4 GB RAM, OpenGL ES 3.0 or Vulkan.

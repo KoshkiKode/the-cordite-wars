@@ -14,12 +14,18 @@ versions/
 │
 ├── windows/
 │   ├── inno-setup.iss              ← Inno Setup 6 installer script (produces CorditeWars_Setup.exe)
+│   ├── CorditeWars.wxs             ← WiX v7 MSI installer script (produces CorditeWars.msi)
+│   ├── AppxManifest.xml            ← MSIX package manifest (produces CorditeWars.msix)
 │   └── build-windows.sh            ← Headless Godot export + Inno Setup compile
 │
 ├── linux/
 │   ├── snapcraft.yaml              ← Snap package manifest (strict confinement)
-│   ├── cordite-wars.desktop        ← XDG desktop entry (freedesktop.org spec)
-│   └── build-linux.sh              ← Headless Godot export + snapcraft build
+│   ├── cordite-wars.desktop        ← XDG desktop entry base (used by Snap, DEB, Flatpak)
+│   ├── build-linux.sh              ← Headless Godot export + snapcraft build
+│   ├── debian/
+│   │   └── control                 ← Debian/Ubuntu DEB package control file
+│   └── flatpak/
+│       └── com.koshkikode.CorditeWars.yml  ← Flatpak manifest (org.freedesktop.Platform 24.08)
 │
 ├── macos/
 │   ├── Info.plist                  ← macOS app bundle metadata (CFBundle keys)
@@ -36,7 +42,7 @@ versions/
 │   └── ios-export-options.plist    ← Xcode export options for xcodebuild -exportArchive
 │
 └── shared/
-    ├── export_presets.cfg          ← Godot export presets for all five platforms
+    ├── export_presets.cfg          ← Godot export presets for all platforms (reference copy)
     └── version.json                ← Current version info (semver + protocol number)
 ```
 
@@ -54,6 +60,22 @@ Inno Setup 6 installer script. Running `iscc versions/windows/inno-setup.iss` pr
 - Registers an uninstaller
 - Sets minimum Windows version to Windows 10 (build 17763, version 1809)
 
+### `windows/AppxManifest.xml`
+
+MSIX package manifest. Used with `makeappx pack` to produce a `CorditeWars.msix` package that can be:
+
+- **Sideloaded** on developer machines using the CI-generated self-signed dev cert (`CN=CorditeWarsTeam`).
+- **Distributed via the Microsoft Store** after re-signing with a real EV code-signing certificate (update `Publisher` to match your cert subject).
+
+Key settings:
+
+| Field | Value |
+|-------|-------|
+| `Identity/Name` | `KoshkiKode.CorditeWarsSixFronts` |
+| `MinVersion` | `10.0.17763.0` (Windows 10 1809) |
+| `EntryPoint` | `Windows.FullTrustApplication` |
+| `Capabilities` | `internetClient`, `privateNetworkClientServer`, `runFullTrust` |
+
 ### `windows/build-windows.sh`
 
 Bash script (run via Git Bash / WSL / CI). Calls `$GODOT4 --headless --export-release "Windows Desktop"`, then invokes `iscc` to produce the installer. Output goes to `dist/windows/`.
@@ -70,9 +92,28 @@ Snap package manifest using `core22` base and `strict` confinement. Plugs reques
 | `network` + `network-bind` | Multiplayer |
 | `home` | Save files in user home (fallback) |
 
+### `linux/debian/control`
+
+Debian/Ubuntu package control file. The CI job (`package-linux-deb`) injects the current version and computed `Installed-Size` at build time. Installing the produced `.deb` package places the game at `/opt/cordite-wars/` with a `/usr/bin/cordite-wars` launcher symlink.
+
+### `linux/flatpak/com.koshkikode.CorditeWars.yml`
+
+Flatpak manifest using `org.freedesktop.Platform//24.08` runtime. The CI job (`package-linux-flatpak`) stages the Linux export into `build/linux/` next to the manifest and runs `flatpak-builder` to produce a self-contained `.flatpak` bundle.
+
+Finish-args granted:
+
+| Arg | Purpose |
+|-----|---------|
+| `--share=ipc` | X11 MIT-SHM shared memory |
+| `--share=network` | Multiplayer |
+| `--socket=x11` / `--socket=wayland` | Display |
+| `--socket=pulseaudio` | Audio |
+| `--device=dri` | GPU rendering |
+| `--filesystem=home` | Save files |
+
 ### `linux/cordite-wars.desktop`
 
-XDG `.desktop` file. Categories: `Game;StrategyGame;`. Used by desktop environments to display the game in application launchers.
+XDG `.desktop` file base. Categories: `Game;StrategyGame;`. Used directly by Snap; patched by the DEB and Flatpak CI jobs to set the correct `Icon=` path for each format.
 
 ### `linux/build-linux.sh`
 
