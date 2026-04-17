@@ -101,7 +101,8 @@ void fragment() {
             {
                 CreateRiverWater(feature, terrainRenderer);
             }
-            else if (feature.Type == "water_body" && feature.Points != null && feature.Points.Length >= 2)
+            else if ((feature.Type == "water_body" || feature.Type == "oasis" || feature.Type == "sea_edge")
+                     && feature.Points != null && feature.Points.Length >= 2)
             {
                 CreateWaterBodyPlane(feature, terrainRenderer);
             }

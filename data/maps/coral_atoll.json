@@ -1,7 +1,7 @@
 {
   "Id": "coral_atoll",
   "DisplayName": "Coral Atoll",
-  "Description": "A tropical atoll built on centuries of coral growth. A shimmering central lagoon splits land access, forcing all advances through narrow coastal corridors and across shallow reefs. Naval supremacy here is not a luxury — it is a prerequisite for victory.",
+  "Description": "A tropical atoll built on centuries of coral growth. A shimmering central lagoon splits land access, forcing all advances through narrow coastal corridors and across shallow reefs. Naval supremacy here is not a luxury \u2014 it is a prerequisite for victory.",
   "Author": "Cordite Wars Team",
   "MaxPlayers": 4,
   "Width": 220,
@@ -34,81 +34,195 @@
     }
   ],
   "CorditeNodes": [
-    { "NodeId": 0,  "X": 36,  "Y": 36,  "Amount": 10000 },
-    { "NodeId": 1,  "X": 50,  "Y": 28,  "Amount": 8000 },
-    { "NodeId": 2,  "X": 184, "Y": 36,  "Amount": 10000 },
-    { "NodeId": 3,  "X": 170, "Y": 28,  "Amount": 8000 },
-    { "NodeId": 4,  "X": 184, "Y": 184, "Amount": 10000 },
-    { "NodeId": 5,  "X": 170, "Y": 192, "Amount": 8000 },
-    { "NodeId": 6,  "X": 36,  "Y": 184, "Amount": 10000 },
-    { "NodeId": 7,  "X": 50,  "Y": 192, "Amount": 8000 },
-    { "NodeId": 8,  "X": 110, "Y": 48,  "Amount": 12000 },
-    { "NodeId": 9,  "X": 110, "Y": 172, "Amount": 12000 },
-    { "NodeId": 10, "X": 48,  "Y": 110, "Amount": 12000 },
-    { "NodeId": 11, "X": 172, "Y": 110, "Amount": 12000 }
+    {
+      "NodeId": 0,
+      "X": 36,
+      "Y": 36,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 1,
+      "X": 50,
+      "Y": 28,
+      "Amount": 8000
+    },
+    {
+      "NodeId": 2,
+      "X": 184,
+      "Y": 36,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 3,
+      "X": 170,
+      "Y": 28,
+      "Amount": 8000
+    },
+    {
+      "NodeId": 4,
+      "X": 184,
+      "Y": 184,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 5,
+      "X": 170,
+      "Y": 192,
+      "Amount": 8000
+    },
+    {
+      "NodeId": 6,
+      "X": 36,
+      "Y": 184,
+      "Amount": 10000
+    },
+    {
+      "NodeId": 7,
+      "X": 50,
+      "Y": 192,
+      "Amount": 8000
+    },
+    {
+      "NodeId": 8,
+      "X": 110,
+      "Y": 48,
+      "Amount": 12000
+    },
+    {
+      "NodeId": 9,
+      "X": 110,
+      "Y": 172,
+      "Amount": 12000
+    },
+    {
+      "NodeId": 10,
+      "X": 48,
+      "Y": 110,
+      "Amount": 12000
+    },
+    {
+      "NodeId": 11,
+      "X": 172,
+      "Y": 110,
+      "Amount": 12000
+    }
   ],
   "TerrainFeatures": [
     {
       "Type": "water_body",
       "Points": [
-        [ 72, 72 ],
-        [ 148, 148 ]
+        [
+          72,
+          72
+        ],
+        [
+          148,
+          148
+        ]
       ]
     },
     {
       "Type": "sea_edge",
       "Points": [
-        [ 0, 0 ],
-        [ 220, 18 ]
+        [
+          0,
+          0
+        ],
+        [
+          220,
+          18
+        ]
       ]
     },
     {
       "Type": "sea_edge",
       "Points": [
-        [ 0, 202 ],
-        [ 220, 220 ]
+        [
+          0,
+          202
+        ],
+        [
+          220,
+          220
+        ]
       ]
     },
     {
       "Type": "sea_edge",
       "Points": [
-        [ 0, 0 ],
-        [ 18, 220 ]
+        [
+          0,
+          0
+        ],
+        [
+          18,
+          220
+        ]
       ]
     },
     {
       "Type": "sea_edge",
       "Points": [
-        [ 202, 0 ],
-        [ 220, 220 ]
+        [
+          202,
+          0
+        ],
+        [
+          220,
+          220
+        ]
       ]
     },
     {
       "Type": "river",
       "Points": [
-        [ 72, 110 ],
-        [ 0,  110 ]
+        [
+          72,
+          110
+        ],
+        [
+          0,
+          110
+        ]
       ]
     },
     {
       "Type": "river",
       "Points": [
-        [ 148, 110 ],
-        [ 220, 110 ]
+        [
+          148,
+          110
+        ],
+        [
+          220,
+          110
+        ]
       ]
     },
     {
       "Type": "river",
       "Points": [
-        [ 110, 72 ],
-        [ 110, 0  ]
+        [
+          110,
+          72
+        ],
+        [
+          110,
+          0
+        ]
       ]
     },
     {
       "Type": "river",
       "Points": [
-        [ 110, 148 ],
-        [ 110, 220 ]
+        [
+          110,
+          148
+        ],
+        [
+          110,
+          220
+        ]
       ]
     }
   ],
@@ -121,5 +235,1660 @@
     "AmbientColor": "#40A8C8",
     "AmbientEnergy": 0.55,
     "SkyColor": "#0A4C78"
-  }
+  },
+  "Props": [
+    {
+      "ModelId": "tree_palm",
+      "X": 56.1,
+      "Y": 29.1,
+      "Rotation": 50.2,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 32.5,
+      "Y": 60.6,
+      "Rotation": 151.9,
+      "Scale": 0.88
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 50.2,
+      "Y": 29.2,
+      "Rotation": 252.5,
+      "Scale": 1.1
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 46.5,
+      "Y": 47.8,
+      "Rotation": 2.3,
+      "Scale": 1.13
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 63.5,
+      "Y": 58.7,
+      "Rotation": 77.5,
+      "Scale": 0.95
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 61.6,
+      "Y": 32.5,
+      "Rotation": 305.1,
+      "Scale": 0.88
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 54.6,
+      "Y": 63.5,
+      "Rotation": 350.3,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "tree_palmTall",
+      "X": 44.7,
+      "Y": 52.3,
+      "Rotation": 130.2,
+      "Scale": 1.16
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 57.1,
+      "Y": 62.0,
+      "Rotation": 311.9,
+      "Scale": 1.15
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 44.7,
+      "Y": 48.0,
+      "Rotation": 127.9,
+      "Scale": 0.91
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 57.5,
+      "Y": 58.9,
+      "Rotation": 61.6,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 60.1,
+      "Y": 35.2,
+      "Rotation": 333.1,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 58.3,
+      "Y": 37.7,
+      "Rotation": 279.4,
+      "Scale": 1.14
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 41.9,
+      "Y": 39.8,
+      "Rotation": 204.2,
+      "Scale": 1.17
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 170.0,
+      "Y": 66.9,
+      "Rotation": 50.3,
+      "Scale": 0.9
+    },
+    {
+      "ModelId": "tree_palmTall",
+      "X": 180.8,
+      "Y": 51.7,
+      "Rotation": 210.1,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 163.9,
+      "Y": 71.9,
+      "Rotation": 32.7,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 150.1,
+      "Y": 32.8,
+      "Rotation": 152.0,
+      "Scale": 1.13
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 150.8,
+      "Y": 44.8,
+      "Rotation": 349.6,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 179.7,
+      "Y": 58.0,
+      "Rotation": 276.7,
+      "Scale": 1.11
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 163.0,
+      "Y": 40.9,
+      "Rotation": 343.4,
+      "Scale": 1.01
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 170.0,
+      "Y": 35.9,
+      "Rotation": 107.4,
+      "Scale": 1.15
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 176.1,
+      "Y": 54.8,
+      "Rotation": 58.2,
+      "Scale": 0.98
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 190.0,
+      "Y": 68.6,
+      "Rotation": 175.9,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 152.9,
+      "Y": 44.0,
+      "Rotation": 86.7,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 173.0,
+      "Y": 31.5,
+      "Rotation": 352.1,
+      "Scale": 1.14
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 171.4,
+      "Y": 33.5,
+      "Rotation": 59.4,
+      "Scale": 1.18
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 171.2,
+      "Y": 54.7,
+      "Rotation": 271.9,
+      "Scale": 1.18
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 178.4,
+      "Y": 179.4,
+      "Rotation": 234.0,
+      "Scale": 1.2
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 167.3,
+      "Y": 170.8,
+      "Rotation": 23.0,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "tree_palmTall",
+      "X": 148.9,
+      "Y": 172.4,
+      "Rotation": 25.6,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 175.8,
+      "Y": 158.1,
+      "Rotation": 25.5,
+      "Scale": 1.15
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 158.5,
+      "Y": 177.4,
+      "Rotation": 260.4,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 186.8,
+      "Y": 173.4,
+      "Rotation": 290.7,
+      "Scale": 1.12
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 156.4,
+      "Y": 152.3,
+      "Rotation": 148.0,
+      "Scale": 0.97
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 186.0,
+      "Y": 150.4,
+      "Rotation": 262.2,
+      "Scale": 0.87
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 183.2,
+      "Y": 152.8,
+      "Rotation": 161.5,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 166.6,
+      "Y": 160.3,
+      "Rotation": 27.1,
+      "Scale": 1.16
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 152.3,
+      "Y": 176.7,
+      "Rotation": 348.8,
+      "Scale": 1.14
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 155.3,
+      "Y": 169.4,
+      "Rotation": 324.9,
+      "Scale": 1.15
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 155.2,
+      "Y": 148.1,
+      "Rotation": 282.3,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 168.0,
+      "Y": 166.6,
+      "Rotation": 175.2,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 36.4,
+      "Y": 157.6,
+      "Rotation": 195.2,
+      "Scale": 1.05
+    },
+    {
+      "ModelId": "tree_palmTall",
+      "X": 60.9,
+      "Y": 150.5,
+      "Rotation": 331.0,
+      "Scale": 1.02
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 51.4,
+      "Y": 150.5,
+      "Rotation": 66.9,
+      "Scale": 0.88
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 54.2,
+      "Y": 177.7,
+      "Rotation": 339.0,
+      "Scale": 0.99
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 53.1,
+      "Y": 173.5,
+      "Rotation": 150.9,
+      "Scale": 1.07
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 53.7,
+      "Y": 171.0,
+      "Rotation": 257.8,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 38.5,
+      "Y": 165.4,
+      "Rotation": 334.4,
+      "Scale": 1.01
+    },
+    {
+      "ModelId": "tree_palmTall",
+      "X": 69.2,
+      "Y": 148.4,
+      "Rotation": 358.6,
+      "Scale": 1.2
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 31.2,
+      "Y": 157.4,
+      "Rotation": 125.6,
+      "Scale": 0.9
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 31.0,
+      "Y": 158.7,
+      "Rotation": 300.1,
+      "Scale": 0.91
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 59.0,
+      "Y": 174.9,
+      "Rotation": 294.2,
+      "Scale": 0.85
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 41.2,
+      "Y": 177.2,
+      "Rotation": 320.3,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 60.7,
+      "Y": 154.8,
+      "Rotation": 258.3,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 37.0,
+      "Y": 175.9,
+      "Rotation": 90.4,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 27.9,
+      "Y": 80.0,
+      "Rotation": 229.4,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 97.0,
+      "Y": 21.7,
+      "Rotation": 340.2,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 46.8,
+      "Y": 26.5,
+      "Rotation": 209.7,
+      "Scale": 0.89
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 195.7,
+      "Y": 165.9,
+      "Rotation": 8.9,
+      "Scale": 1.07
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 79.8,
+      "Y": 187.5,
+      "Rotation": 96.1,
+      "Scale": 1.09
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 61.0,
+      "Y": 24.3,
+      "Rotation": 143.4,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 32.5,
+      "Y": 159.2,
+      "Rotation": 230.9,
+      "Scale": 0.97
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 196.6,
+      "Y": 116.5,
+      "Rotation": 41.5,
+      "Scale": 1.14
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 52.1,
+      "Y": 193.3,
+      "Rotation": 13.8,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 98.6,
+      "Y": 197.2,
+      "Rotation": 138.7,
+      "Scale": 1.02
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 85.6,
+      "Y": 32.6,
+      "Rotation": 224.3,
+      "Scale": 1.05
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 192.8,
+      "Y": 152.5,
+      "Rotation": 102.2,
+      "Scale": 1.05
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 191.4,
+      "Y": 62.3,
+      "Rotation": 80.9,
+      "Scale": 0.91
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 24.4,
+      "Y": 64.1,
+      "Rotation": 220.1,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 120.3,
+      "Y": 185.1,
+      "Rotation": 164.3,
+      "Scale": 1.09
+    },
+    {
+      "ModelId": "tree_palmTall",
+      "X": 140.2,
+      "Y": 197.8,
+      "Rotation": 114.2,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 34.5,
+      "Y": 47.1,
+      "Rotation": 249.8,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 31.6,
+      "Y": 93.4,
+      "Rotation": 167.7,
+      "Scale": 0.87
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 158.6,
+      "Y": 190.3,
+      "Rotation": 308.4,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 88.5,
+      "Y": 21.1,
+      "Rotation": 107.5,
+      "Scale": 0.97
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 191.2,
+      "Y": 95.9,
+      "Rotation": 169.3,
+      "Scale": 1.07
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 60.4,
+      "Y": 32.4,
+      "Rotation": 271.5,
+      "Scale": 1.13
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 55.9,
+      "Y": 23.7,
+      "Rotation": 85.9,
+      "Scale": 0.99
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 193.5,
+      "Y": 149.3,
+      "Rotation": 347.3,
+      "Scale": 0.88
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 24.6,
+      "Y": 76.2,
+      "Rotation": 142.8,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 33.7,
+      "Y": 144.3,
+      "Rotation": 36.7,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "tree_palm",
+      "X": 152.1,
+      "Y": 193.8,
+      "Rotation": 221.7,
+      "Scale": 1.13
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 188.2,
+      "Y": 70.2,
+      "Rotation": 87.8,
+      "Scale": 0.99
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 25.2,
+      "Y": 173.2,
+      "Rotation": 175.5,
+      "Scale": 0.96
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 23.1,
+      "Y": 73.0,
+      "Rotation": 249.0,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 72.7,
+      "Y": 53.1,
+      "Rotation": 192.9,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 143.7,
+      "Y": 181.5,
+      "Rotation": 36.2,
+      "Scale": 0.96
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 61.9,
+      "Y": 37.1,
+      "Rotation": 350.7,
+      "Scale": 0.95
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 53.9,
+      "Y": 165.3,
+      "Rotation": 206.7,
+      "Scale": 1.07
+    },
+    {
+      "ModelId": "CommonTree_3",
+      "X": 62.7,
+      "Y": 42.7,
+      "Rotation": 296.0,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 95.1,
+      "Y": 46.1,
+      "Rotation": 53.7,
+      "Scale": 0.91
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 184.1,
+      "Y": 52.8,
+      "Rotation": 284.7,
+      "Scale": 1.02
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 164.0,
+      "Y": 183.5,
+      "Rotation": 219.5,
+      "Scale": 1.02
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 146.0,
+      "Y": 177.1,
+      "Rotation": 237.8,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 58.6,
+      "Y": 61.1,
+      "Rotation": 162.2,
+      "Scale": 0.9
+    },
+    {
+      "ModelId": "tree_palmTall",
+      "X": 138.1,
+      "Y": 173.6,
+      "Rotation": 238.0,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 175.1,
+      "Y": 98.8,
+      "Rotation": 327.0,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 159.0,
+      "Y": 45.7,
+      "Rotation": 269.6,
+      "Scale": 0.96
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 53.7,
+      "Y": 138.3,
+      "Rotation": 180.2,
+      "Scale": 1.09
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 109.1,
+      "Y": 47.1,
+      "Rotation": 116.0,
+      "Scale": 0.99
+    },
+    {
+      "ModelId": "TwistedTree_1",
+      "X": 72.6,
+      "Y": 48.7,
+      "Rotation": 207.1,
+      "Scale": 1.07
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 41.0,
+      "Y": 148.4,
+      "Rotation": 329.8,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 48.7,
+      "Y": 87.2,
+      "Rotation": 308.8,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "tree_palmTall",
+      "X": 78.2,
+      "Y": 176.8,
+      "Rotation": 163.7,
+      "Scale": 1.01
+    },
+    {
+      "ModelId": "tree_palmDetailedShort",
+      "X": 180.5,
+      "Y": 95.6,
+      "Rotation": 236.8,
+      "Scale": 1.1
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 117.4,
+      "Y": 174.2,
+      "Rotation": 43.7,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 181.0,
+      "Y": 126.3,
+      "Rotation": 198.3,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "TwistedTree_2",
+      "X": 117.8,
+      "Y": 49.0,
+      "Rotation": 166.1,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 52.6,
+      "Y": 159.8,
+      "Rotation": 183.2,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "TwistedTree_2",
+      "X": 76.0,
+      "Y": 160.2,
+      "Rotation": 198.5,
+      "Scale": 0.95
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 92.5,
+      "Y": 173.3,
+      "Rotation": 311.0,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 97.2,
+      "Y": 175.1,
+      "Rotation": 101.8,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "palm_detailed_bend",
+      "X": 184.8,
+      "Y": 108.4,
+      "Rotation": 124.2,
+      "Scale": 1.01
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 151.3,
+      "Y": 41.5,
+      "Rotation": 292.1,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 158.1,
+      "Y": 182.1,
+      "Rotation": 180.8,
+      "Scale": 0.91
+    },
+    {
+      "ModelId": "CommonTree_1",
+      "X": 123.5,
+      "Y": 165.5,
+      "Rotation": 189.3,
+      "Scale": 0.99
+    },
+    {
+      "ModelId": "TwistedTree_1",
+      "X": 58.2,
+      "Y": 105.4,
+      "Rotation": 249.4,
+      "Scale": 0.97
+    },
+    {
+      "ModelId": "tree_palmTall",
+      "X": 132.5,
+      "Y": 162.8,
+      "Rotation": 136.8,
+      "Scale": 1.07
+    },
+    {
+      "ModelId": "palm_bend",
+      "X": 148.9,
+      "Y": 165.9,
+      "Rotation": 227.2,
+      "Scale": 0.91
+    },
+    {
+      "ModelId": "tree_palmShort",
+      "X": 173.1,
+      "Y": 184.6,
+      "Rotation": 35.4,
+      "Scale": 0.99
+    },
+    {
+      "ModelId": "tree_palmBend",
+      "X": 130.1,
+      "Y": 165.9,
+      "Rotation": 325.2,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "palm_straight",
+      "X": 41.9,
+      "Y": 154.4,
+      "Rotation": 52.4,
+      "Scale": 0.97
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 46.8,
+      "Y": 165.6,
+      "Rotation": 328.6,
+      "Scale": 0.95
+    },
+    {
+      "ModelId": "palm_detailed_straight",
+      "X": 56.5,
+      "Y": 104.2,
+      "Rotation": 3.4,
+      "Scale": 0.95
+    },
+    {
+      "ModelId": "tree_palmDetailedTall",
+      "X": 155.7,
+      "Y": 170.2,
+      "Rotation": 159.0,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 67.5,
+      "Y": 168.7,
+      "Rotation": 307.2,
+      "Scale": 1.25
+    },
+    {
+      "ModelId": "rocks_sand_a",
+      "X": 43.1,
+      "Y": 89.8,
+      "Rotation": 357.4,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "rocks_sand_b",
+      "X": 75.2,
+      "Y": 191.3,
+      "Rotation": 203.7,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "rock_largeA",
+      "X": 141.6,
+      "Y": 151.6,
+      "Rotation": 268.3,
+      "Scale": 1.21
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 166.6,
+      "Y": 178.5,
+      "Rotation": 126.8,
+      "Scale": 1.07
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 137.1,
+      "Y": 167.5,
+      "Rotation": 232.7,
+      "Scale": 1.21
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 123.5,
+      "Y": 149.5,
+      "Rotation": 117.6,
+      "Scale": 1.21
+    },
+    {
+      "ModelId": "Pebble_Round_1",
+      "X": 95.6,
+      "Y": 59.1,
+      "Rotation": 131.7,
+      "Scale": 1.19
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 110.3,
+      "Y": 71.3,
+      "Rotation": 296.9,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "rocks_sand_a",
+      "X": 106.9,
+      "Y": 162.1,
+      "Rotation": 168.6,
+      "Scale": 1.16
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 37.8,
+      "Y": 153.2,
+      "Rotation": 260.7,
+      "Scale": 1.19
+    },
+    {
+      "ModelId": "rocks_sand_b",
+      "X": 161.8,
+      "Y": 87.2,
+      "Rotation": 193.2,
+      "Scale": 0.81
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 164.8,
+      "Y": 184.8,
+      "Rotation": 169.7,
+      "Scale": 1.1
+    },
+    {
+      "ModelId": "rocks_sand_a",
+      "X": 130.3,
+      "Y": 185.3,
+      "Rotation": 79.7,
+      "Scale": 1.21
+    },
+    {
+      "ModelId": "rock_smallC",
+      "X": 35.7,
+      "Y": 165.1,
+      "Rotation": 42.0,
+      "Scale": 1.09
+    },
+    {
+      "ModelId": "rocks_sand_b",
+      "X": 64.9,
+      "Y": 116.4,
+      "Rotation": 241.4,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "rocks_sand_b",
+      "X": 151.3,
+      "Y": 185.8,
+      "Rotation": 261.6,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "rocks_sand_c",
+      "X": 175.5,
+      "Y": 136.3,
+      "Rotation": 338.1,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "rock_smallB",
+      "X": 61.9,
+      "Y": 100.6,
+      "Rotation": 35.8,
+      "Scale": 1.18
+    },
+    {
+      "ModelId": "rocks_sand_b",
+      "X": 191.2,
+      "Y": 86.0,
+      "Rotation": 348.6,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 186.3,
+      "Y": 165.1,
+      "Rotation": 231.0,
+      "Scale": 1.1
+    },
+    {
+      "ModelId": "rocks_sand_a",
+      "X": 126.5,
+      "Y": 28.6,
+      "Rotation": 45.3,
+      "Scale": 0.91
+    },
+    {
+      "ModelId": "Pebble_Round_1",
+      "X": 121.0,
+      "Y": 36.7,
+      "Rotation": 77.7,
+      "Scale": 0.89
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 172.8,
+      "Y": 80.9,
+      "Rotation": 214.6,
+      "Scale": 1.15
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 72.1,
+      "Y": 192.3,
+      "Rotation": 287.5,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 43.7,
+      "Y": 172.3,
+      "Rotation": 284.4,
+      "Scale": 0.81
+    },
+    {
+      "ModelId": "rock_smallA",
+      "X": 65.4,
+      "Y": 80.0,
+      "Rotation": 45.6,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "rock_largeB",
+      "X": 96.6,
+      "Y": 44.3,
+      "Rotation": 280.1,
+      "Scale": 1.01
+    },
+    {
+      "ModelId": "hanging_moss",
+      "X": 112.3,
+      "Y": 41.2,
+      "Rotation": 221.4,
+      "Scale": 0.87
+    },
+    {
+      "ModelId": "pirate_grass_patch",
+      "X": 150.0,
+      "Y": 181.9,
+      "Rotation": 164.9,
+      "Scale": 0.96
+    },
+    {
+      "ModelId": "plant_bush",
+      "X": 36.2,
+      "Y": 129.1,
+      "Rotation": 224.8,
+      "Scale": 0.84
+    },
+    {
+      "ModelId": "plant_bush",
+      "X": 97.7,
+      "Y": 161.6,
+      "Rotation": 234.3,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "plant_bushLarge",
+      "X": 157.3,
+      "Y": 148.9,
+      "Rotation": 319.7,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 94.8,
+      "Y": 167.6,
+      "Rotation": 34.2,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 87.9,
+      "Y": 48.9,
+      "Rotation": 299.4,
+      "Scale": 0.82
+    },
+    {
+      "ModelId": "hanging_moss",
+      "X": 152.0,
+      "Y": 164.9,
+      "Rotation": 344.4,
+      "Scale": 0.82
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 94.3,
+      "Y": 175.8,
+      "Rotation": 259.6,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "grass_leafsLarge",
+      "X": 192.4,
+      "Y": 127.7,
+      "Rotation": 182.7,
+      "Scale": 0.83
+    },
+    {
+      "ModelId": "plant_bush",
+      "X": 49.2,
+      "Y": 106.9,
+      "Rotation": 200.3,
+      "Scale": 0.91
+    },
+    {
+      "ModelId": "plant_bushLarge",
+      "X": 42.2,
+      "Y": 71.0,
+      "Rotation": 304.3,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "pirate_grass",
+      "X": 193.5,
+      "Y": 166.0,
+      "Rotation": 200.4,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "grass_leafs",
+      "X": 144.1,
+      "Y": 27.1,
+      "Rotation": 111.2,
+      "Scale": 1.01
+    },
+    {
+      "ModelId": "plant_bushSmall",
+      "X": 81.8,
+      "Y": 23.1,
+      "Rotation": 144.3,
+      "Scale": 0.97
+    },
+    {
+      "ModelId": "Fern_1",
+      "X": 47.0,
+      "Y": 133.4,
+      "Rotation": 191.0,
+      "Scale": 0.83
+    },
+    {
+      "ModelId": "grass_leafsLarge",
+      "X": 49.7,
+      "Y": 76.8,
+      "Rotation": 204.3,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "pirate_grass_patch",
+      "X": 49.7,
+      "Y": 130.7,
+      "Rotation": 159.5,
+      "Scale": 0.82
+    },
+    {
+      "ModelId": "hanging_moss",
+      "X": 94.9,
+      "Y": 59.9,
+      "Rotation": 154.8,
+      "Scale": 0.83
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 71.9,
+      "Y": 141.4,
+      "Rotation": 111.0,
+      "Scale": 0.96
+    },
+    {
+      "ModelId": "Fern_1",
+      "X": 60.8,
+      "Y": 195.3,
+      "Rotation": 108.5,
+      "Scale": 0.8
+    },
+    {
+      "ModelId": "grass_leafs",
+      "X": 59.2,
+      "Y": 46.2,
+      "Rotation": 43.2,
+      "Scale": 0.89
+    },
+    {
+      "ModelId": "plant_bushLarge",
+      "X": 44.7,
+      "Y": 115.7,
+      "Rotation": 300.0,
+      "Scale": 0.95
+    },
+    {
+      "ModelId": "pirate_grass_plant",
+      "X": 163.9,
+      "Y": 34.7,
+      "Rotation": 6.7,
+      "Scale": 0.81
+    },
+    {
+      "ModelId": "pirate_grass",
+      "X": 184.1,
+      "Y": 173.7,
+      "Rotation": 145.6,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "plant_bushSmall",
+      "X": 93.3,
+      "Y": 192.1,
+      "Rotation": 222.5,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "plant_bush",
+      "X": 168.4,
+      "Y": 183.9,
+      "Rotation": 38.1,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "pirate_grass_plant",
+      "X": 35.8,
+      "Y": 175.2,
+      "Rotation": 119.9,
+      "Scale": 0.9
+    },
+    {
+      "ModelId": "plant_bush",
+      "X": 51.6,
+      "Y": 111.8,
+      "Rotation": 69.8,
+      "Scale": 0.96
+    },
+    {
+      "ModelId": "pirate_grass_patch",
+      "X": 158.6,
+      "Y": 83.8,
+      "Rotation": 85.1,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "pirate_grass",
+      "X": 47.8,
+      "Y": 56.7,
+      "Rotation": 273.3,
+      "Scale": 0.85
+    },
+    {
+      "ModelId": "pirate_grass_patch",
+      "X": 141.9,
+      "Y": 177.2,
+      "Rotation": 224.8,
+      "Scale": 0.99
+    },
+    {
+      "ModelId": "plant_bushSmall",
+      "X": 174.1,
+      "Y": 132.4,
+      "Rotation": 168.8,
+      "Scale": 0.93
+    },
+    {
+      "ModelId": "pirate_grass",
+      "X": 133.1,
+      "Y": 162.2,
+      "Rotation": 182.6,
+      "Scale": 0.82
+    },
+    {
+      "ModelId": "plant_bush",
+      "X": 32.0,
+      "Y": 168.4,
+      "Rotation": 351.9,
+      "Scale": 0.99
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 37.9,
+      "Y": 126.6,
+      "Rotation": 199.6,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 161.4,
+      "Y": 179.7,
+      "Rotation": 205.8,
+      "Scale": 1.07
+    },
+    {
+      "ModelId": "hanging_moss",
+      "X": 55.1,
+      "Y": 128.5,
+      "Rotation": 22.3,
+      "Scale": 0.85
+    },
+    {
+      "ModelId": "plant_bushLarge",
+      "X": 110.8,
+      "Y": 52.4,
+      "Rotation": 356.8,
+      "Scale": 1.01
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 86.0,
+      "Y": 183.6,
+      "Rotation": 121.8,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "pirate_grass_patch",
+      "X": 127.2,
+      "Y": 160.9,
+      "Rotation": 118.7,
+      "Scale": 0.9
+    },
+    {
+      "ModelId": "pirate_grass",
+      "X": 66.4,
+      "Y": 171.9,
+      "Rotation": 120.0,
+      "Scale": 1.06
+    },
+    {
+      "ModelId": "grass_leafsLarge",
+      "X": 124.6,
+      "Y": 46.9,
+      "Rotation": 236.2,
+      "Scale": 0.89
+    },
+    {
+      "ModelId": "pirate_grass_plant",
+      "X": 138.5,
+      "Y": 44.7,
+      "Rotation": 111.4,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "plant_bushSmall",
+      "X": 88.3,
+      "Y": 161.3,
+      "Rotation": 298.4,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "hanging_moss",
+      "X": 152.0,
+      "Y": 142.6,
+      "Rotation": 241.4,
+      "Scale": 0.83
+    },
+    {
+      "ModelId": "grass_leafs",
+      "X": 111.5,
+      "Y": 25.2,
+      "Rotation": 77.1,
+      "Scale": 0.85
+    },
+    {
+      "ModelId": "plant_bushLarge",
+      "X": 188.8,
+      "Y": 107.6,
+      "Rotation": 55.8,
+      "Scale": 1.1
+    },
+    {
+      "ModelId": "hanging_moss",
+      "X": 74.1,
+      "Y": 160.7,
+      "Rotation": 300.6,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "plant_bushSmall",
+      "X": 81.3,
+      "Y": 156.9,
+      "Rotation": 55.5,
+      "Scale": 0.98
+    },
+    {
+      "ModelId": "pirate_grass",
+      "X": 53.8,
+      "Y": 143.9,
+      "Rotation": 59.6,
+      "Scale": 1.04
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 141.0,
+      "Y": 63.8,
+      "Rotation": 270.9,
+      "Scale": 0.98
+    },
+    {
+      "ModelId": "plant_bushLarge",
+      "X": 159.9,
+      "Y": 63.2,
+      "Rotation": 291.1,
+      "Scale": 0.89
+    },
+    {
+      "ModelId": "grass_leafsLarge",
+      "X": 104.5,
+      "Y": 169.0,
+      "Rotation": 205.4,
+      "Scale": 1.0
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 99.5,
+      "Y": 157.4,
+      "Rotation": 150.7,
+      "Scale": 0.95
+    },
+    {
+      "ModelId": "pirate_grass",
+      "X": 50.5,
+      "Y": 57.1,
+      "Rotation": 90.0,
+      "Scale": 0.84
+    },
+    {
+      "ModelId": "hanging_moss",
+      "X": 134.8,
+      "Y": 175.8,
+      "Rotation": 256.1,
+      "Scale": 1.08
+    },
+    {
+      "ModelId": "plant_bush",
+      "X": 112.8,
+      "Y": 43.9,
+      "Rotation": 98.2,
+      "Scale": 1.03
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 181.3,
+      "Y": 47.9,
+      "Rotation": 327.8,
+      "Scale": 0.83
+    },
+    {
+      "ModelId": "Fern_1",
+      "X": 165.7,
+      "Y": 177.7,
+      "Rotation": 142.7,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 74.2,
+      "Y": 147.6,
+      "Rotation": 114.7,
+      "Scale": 0.77
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 135.8,
+      "Y": 76.2,
+      "Rotation": 103.3,
+      "Scale": 0.74
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 143.5,
+      "Y": 82.5,
+      "Rotation": 1.9,
+      "Scale": 0.83
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 73.4,
+      "Y": 74.1,
+      "Rotation": 261.8,
+      "Scale": 0.86
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 146.4,
+      "Y": 93.9,
+      "Rotation": 85.8,
+      "Scale": 0.74
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 146.7,
+      "Y": 135.6,
+      "Rotation": 5.9,
+      "Scale": 0.88
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 126.6,
+      "Y": 145.5,
+      "Rotation": 86.6,
+      "Scale": 0.88
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 146.1,
+      "Y": 122.8,
+      "Rotation": 189.4,
+      "Scale": 0.72
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 101.7,
+      "Y": 75.4,
+      "Rotation": 91.3,
+      "Scale": 0.99
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 99.1,
+      "Y": 73.3,
+      "Rotation": 226.2,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 73.7,
+      "Y": 98.8,
+      "Rotation": 63.0,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 142.1,
+      "Y": 108.4,
+      "Rotation": 22.7,
+      "Scale": 0.94
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 146.8,
+      "Y": 87.3,
+      "Rotation": 113.6,
+      "Scale": 0.97
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 75.6,
+      "Y": 147.2,
+      "Rotation": 271.2,
+      "Scale": 0.78
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 93.7,
+      "Y": 142.7,
+      "Rotation": 119.5,
+      "Scale": 0.96
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 132.8,
+      "Y": 75.2,
+      "Rotation": 322.1,
+      "Scale": 0.92
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 145.3,
+      "Y": 86.2,
+      "Rotation": 287.0,
+      "Scale": 0.81
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 77.0,
+      "Y": 127.3,
+      "Rotation": 358.2,
+      "Scale": 0.83
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 113.5,
+      "Y": 145.4,
+      "Rotation": 106.4,
+      "Scale": 0.8
+    },
+    {
+      "ModelId": "lily_small",
+      "X": 144.0,
+      "Y": 104.4,
+      "Rotation": 15.2,
+      "Scale": 0.81
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 76.1,
+      "Y": 105.1,
+      "Rotation": 229.5,
+      "Scale": 0.72
+    },
+    {
+      "ModelId": "lily_large",
+      "X": 75.6,
+      "Y": 129.0,
+      "Rotation": 51.4,
+      "Scale": 0.99
+    }
+  ],
+  "Structures": []
 }
