@@ -318,13 +318,21 @@ public sealed partial class SaveManager : Node
         for (int i = MaxAutoSaves - 2; i >= 0; i--)
         {
             string fromPath = $"{SaveDirectory}/autosave_{i}{SaveFileExtension}";
+            string toPath = $"{SaveDirectory}/autosave_{i + 1}{SaveFileExtension}";
+            string fromFileName = $"autosave_{i}{SaveFileExtension}";
+            string toFileName = $"autosave_{i + 1}{SaveFileExtension}";
 
             if (FileAccess.FileExists(fromPath))
             {
+                if (FileAccess.FileExists(toPath))
+                {
+                    DirAccess.RemoveAbsolute(toPath);
+                }
+
                 using var dir = DirAccess.Open(SaveDirectory);
                 if (dir is not null)
                 {
-                    dir.Rename($"autosave_{i}{SaveFileExtension}", $"autosave_{i + 1}{SaveFileExtension}");
+                    dir.Rename(fromFileName, toFileName);
                 }
             }
         }
