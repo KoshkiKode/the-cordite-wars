@@ -428,11 +428,13 @@ jobs:
             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
           unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
 
-          GODOT_APP_PATH="$(find "$GODOT_EXTRACT_DIR" -type d -name 'Godot.app' | head -n 1)"
-          if [ -z "$GODOT_APP_PATH" ]; then
-            echo "ERROR: Godot.app not found after extraction."
+          mapfile -t GODOT_APP_MATCHES < <(find "$GODOT_EXTRACT_DIR" -type d -name 'Godot.app')
+          if [ "${#GODOT_APP_MATCHES[@]}" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 Godot.app after extraction, found ${#GODOT_APP_MATCHES[@]}."
+            printf '%s\n' "${GODOT_APP_MATCHES[@]}"
             exit 1
           fi
+          GODOT_APP_PATH="${GODOT_APP_MATCHES[0]}"
           GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
@@ -442,11 +444,13 @@ jobs:
             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
           unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
 
-          TEMPLATES_SRC_DIR="$(find "$TEMPLATES_EXTRACT_DIR" -type d -name templates | head -n 1)"
-          if [ -z "$TEMPLATES_SRC_DIR" ]; then
-            echo "ERROR: templates directory not found in export template archive."
+          mapfile -t TEMPLATES_MATCHES < <(find "$TEMPLATES_EXTRACT_DIR" -type d -name templates)
+          if [ "${#TEMPLATES_MATCHES[@]}" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 templates directory in export template archive, found ${#TEMPLATES_MATCHES[@]}."
+            printf '%s\n' "${TEMPLATES_MATCHES[@]}"
             exit 1
           fi
+          TEMPLATES_SRC_DIR="${TEMPLATES_MATCHES[0]}"
 
           TEMPLATES_VERSION="$(echo "$GODOT_VERSION" | sed 's/-/./').mono"
           TEMPLATES_DEST_DIR="$HOME/Library/Application Support/Godot/export_templates/$TEMPLATES_VERSION"
@@ -457,10 +461,10 @@ jobs:
         if: matrix.target == 'ios'
         run: |
           # Debug export avoids an Xcode signing conflict during project generation.
-          "$GODOT_BIN" --headless --path ./ --export-debug "iOS"
+          "$GODOT_BIN" --headless --path ./ --export-debug "${{ matrix.preset }}"
 
-      - name: Export Android (debug-signed)
-        if: matrix.target == 'android' && steps.release_keystore.outputs.has_release_keystore != 'true'
+      - name: Export Android (APK + AAB)
+        if: matrix.target == 'android'
         run: |
           set -euo pipefail
           IFS=',' read -ra PRESETS <<< "${{ matrix.preset }}"
@@ -474,26 +478,9 @@ jobs:
           GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
           # AAB preset has package/signed=true; fall back to debug keystore when no
           # release certificate is configured so the export succeeds in CI.
-          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ./debug.keystore
-          GODOT_ANDROID_KEYSTORE_RELEASE_USER: androiddebugkey
-          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: android
-
-      - name: Export Android (release-signed)
-        if: matrix.target == 'android' && steps.release_keystore.outputs.has_release_keystore == 'true'
-        run: |
-          set -euo pipefail
-          IFS=',' read -ra PRESETS <<< "${{ matrix.preset }}"
-          for PRESET in "${PRESETS[@]}"; do
-            PRESET_TRIMMED="$(echo "$PRESET" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
-            "$GODOT_BIN" --headless --path ./ --export-release "$PRESET_TRIMMED"
-          done
-        env:
-          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ./debug.keystore
-          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
-          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
-          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ./release.keystore
-          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
-          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD || secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && './release.keystore' || './debug.keystore' }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && secrets.ANDROID_RELEASE_KEYSTORE_ALIAS || 'androiddebugkey' }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && (secrets.ANDROID_RELEASE_KEY_PASSWORD || secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD) || 'android' }}
 
       - name: Export platform (Windows / Linux / macOS)
         if: matrix.target != 'android' && matrix.target != 'ios'
@@ -640,42 +627,42 @@ jobs:
 
       - name: Upload Windows export artifact
         if: matrix.target == 'windows'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Windows
           path: build/windows/
 
       - name: Upload Linux export artifact
         if: matrix.target == 'linux'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Linux
           path: build/linux/
 
       - name: Upload Android APK artifact
         if: matrix.target == 'android'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Android
           path: build/android/CorditeWars.apk
 
       - name: Upload Android AAB artifact
         if: matrix.target == 'android'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Android-AAB
           path: build/android/CorditeWars.aab
 
       - name: Upload iOS/iPadOS Handoff artifact
         if: matrix.target == 'ios'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-iOS-iPadOS-Handoff
           path: build/ios/
 
       - name: Upload macOS export artifact
         if: matrix.target == 'macos'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-macOS-Export
           path: build/macos/
@@ -727,7 +714,7 @@ jobs:
           Write-Host "EXE installer: dist\windows\CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe"
 
       - name: Upload EXE installer artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Windows-Setup-EXE
           path: dist/windows/CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe
@@ -786,7 +773,7 @@ jobs:
           Write-Host "MSI installer: dist\windows\CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi"
 
       - name: Upload MSI installer artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Windows-MSI
           path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi
@@ -841,7 +828,7 @@ jobs:
           path: versions/linux
 
       - name: Upload Snap artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Linux-Snap
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -855,10 +842,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download Linux export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Linux
           path: build/linux
@@ -921,7 +908,7 @@ jobs:
           ls -lh dist/linux/
 
       - name: Upload DEB artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Linux-DEB
           path: dist/linux/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_amd64.deb
@@ -935,10 +922,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download Linux export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Linux
           path: build/linux
@@ -977,7 +964,7 @@ jobs:
           cache-key: flatpak-builder-${{ hashFiles('versions/linux/flatpak/com.koshkikode.CorditeWars.yml') }}
 
       - name: Upload Flatpak artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Linux-Flatpak
           path: CorditeWars_${{ needs.resolve-version.outputs.app_version }}.flatpak
@@ -994,10 +981,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download Windows export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Windows
           path: build/windows
@@ -1117,7 +1104,7 @@ jobs:
           }
 
       - name: Upload MSIX artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-Windows-MSIX
           path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msix
@@ -1250,7 +1237,7 @@ jobs:
           fi
 
       - name: Upload macOS DMG artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-macOS-DMG
           path: dist/macos/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.dmg
@@ -1270,10 +1257,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download iOS Xcode project
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-iOS-iPadOS-Handoff
           path: build/ios
@@ -1409,7 +1396,7 @@ jobs:
 
       - name: Upload iOS IPA artifact
         if: steps.ios_secrets.outputs.has_signing == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-iOS-IPA
           path: build/ipa/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_ios.ipa
@@ -1427,7 +1414,7 @@ jobs:
 
       - name: Upload iOS Xcode zip artifact (fallback)
         if: steps.ios_secrets.outputs.has_signing != 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v8
         with:
           name: CorditeWars-iOS-IPA
           path: build/ios-zip/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_ios_xcode.zip

@@ -61,7 +61,7 @@ jobs:
           path: dist/
 
       - name: Download Windows MSIX package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Windows-MSIX
           path: dist/
@@ -79,13 +79,13 @@ jobs:
           path: dist/
 
       - name: Download Linux DEB
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Linux-DEB
           path: dist/
 
       - name: Download Linux Flatpak
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Linux-Flatpak
           path: dist/
@@ -103,13 +103,13 @@ jobs:
           path: dist/
 
       - name: Download Android AAB
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Android-AAB
           path: dist/
 
       - name: Download iOS IPA (or Xcode zip fallback)
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-iOS-IPA
           path: dist/
