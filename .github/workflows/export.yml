@@ -51,6 +51,8 @@ jobs:
           check_file src/Core/GameManager.cs
           check_file src/Core/EventBus.cs
           check_file src/Systems/Audio/AudioManager.cs
+          check_file src/Systems/Localization/LocalizationManager.cs
+          check_file src/Systems/Localization/SubtitleManager.cs
 
           # C# project
           check_file CorditeWars.csproj
@@ -62,9 +64,11 @@ jobs:
           check_file versions/linux/snapcraft.yaml
           check_file versions/linux/debian/control
           check_file versions/linux/flatpak/com.koshkikode.CorditeWars.yml
+          check_file versions/linux/cordite-wars.desktop
           check_file versions/macos/entitlements.plist
           check_file versions/ios/ios-info.plist
           check_file versions/ios/ios-export-options.plist
+          check_file assets/icons/icon.svg
 
           # Confirm Boot.tscn is the main scene
           if ! grep -q 'run/main_scene.*Boot\.tscn' project.godot; then
