@@ -4,7 +4,12 @@
     <DataCollectors>
       <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
-          <ExcludeByFile>**/.godot/**/*.cs,**/src/UI/**/*.cs,**/src/Game/GameSession.cs,**/src/Game/World/MapEditor.cs</ExcludeByFile>
+          <ExcludeByFile>
+            **/.godot/**/*.cs,
+            **/src/UI/**/*.cs,
+            **/src/Game/GameSession.cs,
+            **/src/Game/World/MapEditor.cs
+          </ExcludeByFile>
         </Configuration>
       </DataCollector>
     </DataCollectors>

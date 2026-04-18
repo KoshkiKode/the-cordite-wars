@@ -47,21 +47,25 @@ jobs:
         run: |
           python - <<'PY'
           import glob
+          import os
           import sys
           import xml.etree.ElementTree as ET
           
+          COBERTURA_RATE_MULTIPLIER = 100.0
+          MINIMUM_COVERAGE = 35.0
+
           matches = glob.glob("tests/CorditeWars.Tests/TestResults/**/coverage.cobertura.xml", recursive=True)
           if not matches:
               print("No coverage.cobertura.xml file found.")
               sys.exit(1)
           
-          coverage_file = max(matches)
+          coverage_file = max(matches, key=os.path.getmtime)
           root = ET.parse(coverage_file).getroot()
-          line_rate = float(root.attrib.get("line-rate", "0")) * 100.0
+          line_rate = float(root.attrib.get("line-rate", "0")) * COBERTURA_RATE_MULTIPLIER
           print(f"Line coverage: {line_rate:.2f}%")
           
-          if line_rate < 35.0:
-              print("Line coverage below required threshold of 35%.")
+          if line_rate < MINIMUM_COVERAGE:
+              print(f"Line coverage below required threshold of {MINIMUM_COVERAGE:.0f}%.")
               sys.exit(1)
           PY
 
