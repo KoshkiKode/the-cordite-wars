@@ -170,7 +170,7 @@ public class ProceduralModelDataTests
     }
 
     [Fact]
-    public void ProceduralModelData_JsonPropertyNames_UseSnakeCase()
+    public void ProceduralModelData_JsonPropertyNames_AreCorrect()
     {
         var model = new ProceduralModelData { Id = "test", DisplayName = "Test", Category = "misc" };
         string json = JsonSerializer.Serialize(model, JsonOptions);
@@ -182,7 +182,7 @@ public class ProceduralModelDataTests
     }
 
     [Fact]
-    public void ProceduralPrimitive_JsonPropertyNames_UseSnakeCase()
+    public void ProceduralPrimitive_JsonPropertyNames_AreCorrect()
     {
         var prim = new ProceduralPrimitive();
         string json = JsonSerializer.Serialize(prim, JsonOptions);
