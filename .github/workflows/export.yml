@@ -131,20 +131,51 @@ jobs:
           echo "Resolved app version: $APP_VERSION"
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # 1. Export all platforms in one job on a macOS runner:
-  #    Windows Desktop, Linux/X11, Android APK, Android AAB, iOS, macOS
+  # Workflow flowchart (Mermaid)
+  #
+  # flowchart TD
+  #   V[Validate Project] --> E[Export Matrix (parallel)]
+  #   P[Packaging Jobs]
+  #   E --> P
+  #   E --> S[Smoke Tests]
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 1. Export targets concurrently on macOS runners via a job matrix.
   #    iOS uses export_debug:true to avoid an xcodebuild signing conflict;
-  #    all other platforms use export_debug:false.
+  #    all other targets use export_debug:false.
   # ─────────────────────────────────────────────────────────────────────────────
   export-all:
-    name: Export All (Windows / Linux / Android / iOS / macOS)
+    name: Export Platform (${{ matrix.target_name }})
     runs-on: macos-latest
     needs: validate-project
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: windows
+            target_name: Windows
+            preset: "Windows Desktop"
+          - target: linux
+            target_name: Linux
+            preset: "Linux/X11"
+          - target: android
+            target_name: Android
+            # Android produces both APK and AAB artifacts from one prepared environment.
+            preset: "Android,Android AAB"
+          - target: ios
+            target_name: iOS
+            preset: "iOS"
+          - target: macos
+            target_name: macOS
+            preset: "macOS"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
       - name: Set up JDK 21
+        if: matrix.target == 'android'
         uses: actions/setup-java@v5
         with:
           java-version: '21'
@@ -159,6 +190,7 @@ jobs:
         run: dotnet build -c ExportRelease
 
       - name: Install Android Gradle build template
+        if: matrix.target == 'android'
         run: |
           set -euo pipefail
           GODOT_VERSION="${{ env.GODOT_VERSION }}"
@@ -184,12 +216,19 @@ jobs:
           rm -rf /tmp/export_templates.tpz /tmp/godot_tpz/
 
       - name: Generate debug keystore
+        if: matrix.target == 'android'
         run: |
-          keytool -keyalg RSA -genkeypair -alias androiddebugkey -keypass android \
-            -keystore debug.keystore -storepass android \
-            -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -deststoretype pkcs12
+          keytool -keyalg RSA -genkeypair \
+            -alias androiddebugkey \
+            -keypass android \
+            -keystore debug.keystore \
+            -storepass android \
+            -dname "CN=Android Debug,O=Android,C=US" \
+            -validity 9999 \
+            -deststoretype pkcs12
 
       - name: Prepare release keystore
+        if: matrix.target == 'android'
         id: release_keystore
         env:
           ANDROID_RELEASE_KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
@@ -253,6 +292,7 @@ jobs:
           fi
 
       - name: Configure Godot Android SDK path
+        if: matrix.target == 'android'
         run: |
           mkdir -p "$HOME/Library/Application Support/Godot"
           printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\nexport/android/shutdown_adb_on_exit = false\n' \
@@ -260,6 +300,7 @@ jobs:
             > "$HOME/Library/Application Support/Godot/editor_settings-4.tres"
 
       - name: Disable custom Gradle build for Android APK preset only
+        if: matrix.target == 'android'
         run: |
           python - <<'PY'
           # Disable gradle_build/use_gradle_build only for the "Android" (APK) preset.
@@ -291,8 +332,12 @@ jobs:
                   if m:
                       current_preset_name = m.group(1)
               if in_android_apk_options and stripped == 'gradle_build/use_gradle_build=true':
-                  out.append(line.replace('gradle_build/use_gradle_build=true',
-                                          'gradle_build/use_gradle_build=false'))
+                  out.append(
+                      line.replace(
+                          'gradle_build/use_gradle_build=true',
+                          'gradle_build/use_gradle_build=false'
+                      )
+                  )
                   modified += 1
                   continue
               out.append(line)
@@ -306,6 +351,7 @@ jobs:
           PY
 
       - name: Inject App Store Team ID into iOS preset
+        if: matrix.target == 'ios'
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
@@ -366,6 +412,7 @@ jobs:
         shell: bash
 
       - name: Export iOS/iPadOS Xcode project
+        if: matrix.target == 'ios'
         uses: firebelley/godot-export@v7.0.0
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_macos.universal.zip
@@ -381,8 +428,8 @@ jobs:
           use_preset_export_path: true
           presets_to_export: "iOS"
 
-      - name: Export all platforms (debug-signed Android)
-        if: steps.release_keystore.outputs.has_release_keystore != 'true'
+      - name: Export Android (debug-signed)
+        if: matrix.target == 'android' && steps.release_keystore.outputs.has_release_keystore != 'true'
         uses: firebelley/godot-export@v7.0.0
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_macos.universal.zip
@@ -391,7 +438,7 @@ jobs:
           archive_output: false
           export_debug: false
           use_preset_export_path: true
-          presets_to_export: "Windows Desktop,Linux/X11,Android,Android AAB,macOS"
+          presets_to_export: "${{ matrix.preset }}"
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ./debug.keystore
           GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
@@ -402,8 +449,8 @@ jobs:
           GODOT_ANDROID_KEYSTORE_RELEASE_USER: androiddebugkey
           GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: android
 
-      - name: Export all platforms (release-signed Android)
-        if: steps.release_keystore.outputs.has_release_keystore == 'true'
+      - name: Export Android (release-signed)
+        if: matrix.target == 'android' && steps.release_keystore.outputs.has_release_keystore == 'true'
         uses: firebelley/godot-export@v7.0.0
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_macos.universal.zip
@@ -412,7 +459,7 @@ jobs:
           archive_output: false
           export_debug: false
           use_preset_export_path: true
-          presets_to_export: "Windows Desktop,Linux/X11,Android,Android AAB,macOS"
+          presets_to_export: "${{ matrix.preset }}"
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ./debug.keystore
           GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
@@ -421,33 +468,53 @@ jobs:
           GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
           GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD || secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
 
-      - name: Flatten export outputs
+      - name: Export platform (Windows / Linux / macOS)
+        if: matrix.target != 'android' && matrix.target != 'ios'
+        uses: firebelley/godot-export@v7.0.0
+        with:
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_macos.universal.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_mono_export_templates.tpz
+          relative_project_path: ./
+          archive_output: false
+          export_debug: false
+          use_preset_export_path: true
+          presets_to_export: "${{ matrix.preset }}"
+
+      - name: Flatten Windows export output
+        if: matrix.target == 'windows'
         run: |
-          # Windows Desktop → build/windows/
           if [ -d "build/windows/Windows Desktop" ]; then
             mv "build/windows/Windows Desktop/"* build/windows/
             rmdir "build/windows/Windows Desktop"
             echo "Flattened build/windows/Windows Desktop/ → build/windows/"
           fi
-          # Linux/X11 → build/linux/
+
+      - name: Flatten Linux export output
+        if: matrix.target == 'linux'
+        run: |
           if [ -d "build/linux/LinuxX11" ]; then
             mv "build/linux/LinuxX11/"* build/linux/
             rmdir "build/linux/LinuxX11"
             echo "Flattened build/linux/LinuxX11/ → build/linux/"
           fi
-          # Android APK → build/android/
+
+      - name: Flatten Android export outputs
+        if: matrix.target == 'android'
+        run: |
           if [ -d "build/android/Android" ]; then
             cp -a "build/android/Android/." "build/android/"
             rm -rf "build/android/Android"
             echo "Flattened build/android/Android/ → build/android/"
           fi
-          # Android AAB → build/android/  (different filename, no collision with APK)
           if [ -d "build/android/Android AAB" ]; then
             cp -a "build/android/Android AAB/." "build/android/"
             rm -rf "build/android/Android AAB"
             echo "Flattened build/android/Android AAB/ → build/android/"
           fi
-          # macOS → build/macos/
+
+      - name: Flatten macOS export output
+        if: matrix.target == 'macos'
+        run: |
           if [ -d "build/macos/macOS" ]; then
             mv "build/macos/macOS/"* build/macos/
             rmdir "build/macos/macOS"
@@ -455,6 +522,7 @@ jobs:
           fi
 
       - name: Verify Windows export
+        if: matrix.target == 'windows'
         run: |
           echo "Windows export contents:"
           ls -la build/windows/
@@ -472,6 +540,7 @@ jobs:
           fi
 
       - name: Verify Linux export
+        if: matrix.target == 'linux'
         run: |
           echo "Linux export contents:"
           ls -la build/linux/
@@ -489,6 +558,7 @@ jobs:
           fi
 
       - name: Verify Android exports
+        if: matrix.target == 'android'
         run: |
           echo "Android build contents:"
           ls -la build/android/
@@ -502,6 +572,7 @@ jobs:
           fi
 
       - name: Verify macOS export
+        if: matrix.target == 'macos'
         run: |
           echo "macOS export contents:"
           ls -la build/macos/
@@ -511,23 +582,16 @@ jobs:
           fi
 
       - name: Extract macOS .app bundle from Godot zip
+        if: matrix.target == 'macos'
         run: |
-          # Godot always exports macOS as a zip to preserve the .app bundle
-          # structure with symlinks.  Extract it here so the artifact contains
-          # plain files rather than a zip-inside-a-zip.  macOS's native unzip
-          # preserves symlinks, so the .app bundle remains fully functional.
           unzip -q build/macos/CorditeWars.zip -d build/macos/
           rm build/macos/CorditeWars.zip
           echo "macOS build contents after extraction:"
           ls -la build/macos/
 
       - name: Ad-hoc sign macOS .app bundle
+        if: matrix.target == 'macos'
         run: |
-          # Ad-hoc signing (-) satisfies macOS's minimum code-signature
-          # requirement and prevents Gatekeeper from showing the "app is
-          # damaged" error when users download and open the artifact directly.
-          # Users will still need to right-click → Open on first launch until
-          # the app is notarized with a real Apple Developer certificate.
           APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -1)
           if [ -n "$APP_PATH" ]; then
             codesign --deep --force --sign - "$APP_PATH"
@@ -537,16 +601,15 @@ jobs:
           fi
 
       - name: Verify iOS export
+        if: matrix.target == 'ios'
         run: |
           echo "iOS export contents:"
           ls -la build/ios/ 2>/dev/null || echo "WARNING: build/ios/ not found"
           find . -maxdepth 4 \( -name "*.xcodeproj" -o -name "*.xcworkspace" \) 2>/dev/null | head -20
 
       - name: Bundle iOS config into export
+        if: matrix.target == 'ios'
         run: |
-          # Copy iOS platform configuration files into the exported Xcode project
-          # so developers who download the artifact have everything they need to sign
-          # and submit to the App Store without diving into the repo.
           if [ -d build/ios ]; then
             cp versions/ios/ios-info.plist build/ios/ios-info.plist
             cp versions/ios/ios-export-options.plist build/ios/ios-export-options.plist
@@ -556,36 +619,42 @@ jobs:
           fi
 
       - name: Upload Windows export artifact
+        if: matrix.target == 'windows'
         uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Windows
           path: build/windows/
 
       - name: Upload Linux export artifact
+        if: matrix.target == 'linux'
         uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Linux
           path: build/linux/
 
       - name: Upload Android APK artifact
+        if: matrix.target == 'android'
         uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Android
           path: build/android/CorditeWars.apk
 
       - name: Upload Android AAB artifact
+        if: matrix.target == 'android'
         uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Android-AAB
           path: build/android/CorditeWars.aab
 
       - name: Upload iOS/iPadOS Handoff artifact
+        if: matrix.target == 'ios'
         uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-iOS-iPadOS-Handoff
           path: build/ios/
 
       - name: Upload macOS export artifact
+        if: matrix.target == 'macos'
         uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-macOS-Export
