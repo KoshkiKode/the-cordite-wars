@@ -145,41 +145,225 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # 1. Export targets concurrently on macOS runners via a job matrix.
-  #    iOS uses export_debug:true to avoid an xcodebuild signing conflict;
-  #    all other targets use export_debug:false.
+  # 1. Export each target with dedicated target-specific jobs.
   # ─────────────────────────────────────────────────────────────────────────────
-  export-all:
-    name: Export Platform (${{ matrix.target_name }})
+  export-windows:
+    name: Export Platform (Windows)
     runs-on: macos-latest
     needs: validate-project
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: windows
-            target_name: Windows
-            preset: "Windows Desktop"
-          - target: linux
-            target_name: Linux
-            preset: "Linux/X11"
-          - target: android
-            target_name: Android
-            # Android produces both APK and AAB artifacts from one prepared environment.
-            preset: "Android,Android AAB"
-          - target: ios
-            target_name: iOS
-            preset: "iOS"
-          - target: macos
-            target_name: macOS
-            preset: "macOS"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Build C# Assemblies
+        run: dotnet build -c ExportRelease
+
+      - name: Install Godot editor and export templates
+        run: |
+          set -euo pipefail
+          GODOT_VERSION="${{ env.GODOT_VERSION }}"
+          GODOT_ZIP="$RUNNER_TEMP/godot-mono.zip"
+          TEMPLATES_TPZ="$RUNNER_TEMP/export-templates.tpz"
+          GODOT_EXTRACT_DIR="$RUNNER_TEMP/godot-extract"
+          TEMPLATES_EXTRACT_DIR="$RUNNER_TEMP/templates-extract"
+          GODOT_APP_MATCHES_FILE=""
+          TEMPLATES_MATCHES_FILE=""
+          cleanup_temp_match_files() {
+            [ -n "$GODOT_APP_MATCHES_FILE" ] && rm -f "$GODOT_APP_MATCHES_FILE"
+            [ -n "$TEMPLATES_MATCHES_FILE" ] && rm -f "$TEMPLATES_MATCHES_FILE"
+          }
+          trap cleanup_temp_match_files EXIT
+
+          rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
+          mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
+
+          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
+
+          GODOT_APP_MATCHES_FILE="$(mktemp)"
+          find "$GODOT_EXTRACT_DIR" -type d -name '*.app' > "$GODOT_APP_MATCHES_FILE"
+          GODOT_APP_COUNT="$(wc -l < "$GODOT_APP_MATCHES_FILE" | tr -d ' ')"
+          if [ "$GODOT_APP_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 .app bundle after extraction, found $GODOT_APP_COUNT."
+            cat "$GODOT_APP_MATCHES_FILE"
+            exit 1
+          fi
+          GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
+          GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
+          chmod +x "$GODOT_BIN"
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
+
+          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
+
+          TEMPLATES_MATCHES_FILE="$(mktemp)"
+          find "$TEMPLATES_EXTRACT_DIR" -type d -name templates > "$TEMPLATES_MATCHES_FILE"
+          TEMPLATES_COUNT="$(wc -l < "$TEMPLATES_MATCHES_FILE" | tr -d ' ')"
+          if [ "$TEMPLATES_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 templates directory in export template archive, found $TEMPLATES_COUNT."
+            cat "$TEMPLATES_MATCHES_FILE"
+            exit 1
+          fi
+          TEMPLATES_SRC_DIR="$(sed -n '1p' "$TEMPLATES_MATCHES_FILE")"
+
+          TEMPLATES_VERSION="$(echo "$GODOT_VERSION" | sed 's/-/./').mono"
+          TEMPLATES_DEST_DIR="$HOME/Library/Application Support/Godot/export_templates/$TEMPLATES_VERSION"
+          mkdir -p "$TEMPLATES_DEST_DIR"
+          cp -R "$TEMPLATES_SRC_DIR/." "$TEMPLATES_DEST_DIR/"
+
+      - name: Export Windows
+        run: |
+          "$GODOT_BIN" --headless --path ./ --export-release "Windows Desktop"
+
+      - name: Flatten Windows export output
+        run: |
+          if [ -d "build/windows/Windows Desktop" ]; then
+            mv "build/windows/Windows Desktop/"* build/windows/
+            rmdir "build/windows/Windows Desktop"
+            echo "Flattened build/windows/Windows Desktop/ → build/windows/"
+          fi
+
+      - name: Verify Windows export
+        run: |
+          echo "Windows export contents:"
+          ls -la build/windows/
+          if [ ! -f build/windows/CorditeWars.exe ]; then
+            echo "ERROR: CorditeWars.exe not found after export"
+            exit 1
+          fi
+          if [ ! -f build/windows/CorditeWars.pck ]; then
+            echo "ERROR: CorditeWars.pck not found after export"
+            exit 1
+          fi
+          if [ ! -d build/windows/GodotSharp ] && ! compgen -G "build/windows/data_*_windows_*" > /dev/null; then
+            echo "ERROR: No .NET runtime data directory found (expected GodotSharp or data_*_windows_*)"
+            exit 1
+          fi
+
+      - name: Upload Windows export artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Windows
+          path: build/windows/
+
+  export-linux:
+    name: Export Platform (Linux)
+    runs-on: macos-latest
+    needs: validate-project
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Build C# Assemblies
+        run: dotnet build -c ExportRelease
+
+      - name: Install Godot editor and export templates
+        run: |
+          set -euo pipefail
+          GODOT_VERSION="${{ env.GODOT_VERSION }}"
+          GODOT_ZIP="$RUNNER_TEMP/godot-mono.zip"
+          TEMPLATES_TPZ="$RUNNER_TEMP/export-templates.tpz"
+          GODOT_EXTRACT_DIR="$RUNNER_TEMP/godot-extract"
+          TEMPLATES_EXTRACT_DIR="$RUNNER_TEMP/templates-extract"
+          GODOT_APP_MATCHES_FILE=""
+          TEMPLATES_MATCHES_FILE=""
+          cleanup_temp_match_files() {
+            [ -n "$GODOT_APP_MATCHES_FILE" ] && rm -f "$GODOT_APP_MATCHES_FILE"
+            [ -n "$TEMPLATES_MATCHES_FILE" ] && rm -f "$TEMPLATES_MATCHES_FILE"
+          }
+          trap cleanup_temp_match_files EXIT
+
+          rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
+          mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
+
+          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
+
+          GODOT_APP_MATCHES_FILE="$(mktemp)"
+          find "$GODOT_EXTRACT_DIR" -type d -name '*.app' > "$GODOT_APP_MATCHES_FILE"
+          GODOT_APP_COUNT="$(wc -l < "$GODOT_APP_MATCHES_FILE" | tr -d ' ')"
+          if [ "$GODOT_APP_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 .app bundle after extraction, found $GODOT_APP_COUNT."
+            cat "$GODOT_APP_MATCHES_FILE"
+            exit 1
+          fi
+          GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
+          GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
+          chmod +x "$GODOT_BIN"
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
+
+          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
+
+          TEMPLATES_MATCHES_FILE="$(mktemp)"
+          find "$TEMPLATES_EXTRACT_DIR" -type d -name templates > "$TEMPLATES_MATCHES_FILE"
+          TEMPLATES_COUNT="$(wc -l < "$TEMPLATES_MATCHES_FILE" | tr -d ' ')"
+          if [ "$TEMPLATES_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 templates directory in export template archive, found $TEMPLATES_COUNT."
+            cat "$TEMPLATES_MATCHES_FILE"
+            exit 1
+          fi
+          TEMPLATES_SRC_DIR="$(sed -n '1p' "$TEMPLATES_MATCHES_FILE")"
+
+          TEMPLATES_VERSION="$(echo "$GODOT_VERSION" | sed 's/-/./').mono"
+          TEMPLATES_DEST_DIR="$HOME/Library/Application Support/Godot/export_templates/$TEMPLATES_VERSION"
+          mkdir -p "$TEMPLATES_DEST_DIR"
+          cp -R "$TEMPLATES_SRC_DIR/." "$TEMPLATES_DEST_DIR/"
+
+      - name: Export Linux
+        run: |
+          "$GODOT_BIN" --headless --path ./ --export-release "Linux/X11"
+
+      - name: Flatten Linux export output
+        run: |
+          if [ -d "build/linux/LinuxX11" ]; then
+            mv "build/linux/LinuxX11/"* build/linux/
+            rmdir "build/linux/LinuxX11"
+            echo "Flattened build/linux/LinuxX11/ → build/linux/"
+          fi
+
+      - name: Verify Linux export
+        run: |
+          echo "Linux export contents:"
+          ls -la build/linux/
+          if [ ! -f build/linux/CorditeWars.x86_64 ]; then
+            echo "ERROR: CorditeWars.x86_64 not found after export"
+            exit 1
+          fi
+          if [ ! -f build/linux/CorditeWars.pck ]; then
+            echo "ERROR: CorditeWars.pck not found after export"
+            exit 1
+          fi
+          if [ ! -d build/linux/GodotSharp ] && ! compgen -G "build/linux/data_*_linux*" > /dev/null; then
+            echo "ERROR: No .NET runtime data directory found (expected GodotSharp or data_*_linux*)"
+            exit 1
+          fi
+
+      - name: Upload Linux export artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Linux
+          path: build/linux/
+
+  export-android:
+    name: Export Platform (Android)
+    runs-on: macos-latest
+    needs: validate-project
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
       - name: Set up JDK 21
-        if: matrix.target == 'android'
         uses: actions/setup-java@v5
         with:
           java-version: '21'
@@ -194,7 +378,6 @@ jobs:
         run: dotnet build -c ExportRelease
 
       - name: Install Android Gradle build template
-        if: matrix.target == 'android'
         run: |
           set -euo pipefail
           GODOT_VERSION="${{ env.GODOT_VERSION }}"
@@ -220,19 +403,10 @@ jobs:
           rm -rf /tmp/export_templates.tpz /tmp/godot_tpz/
 
       - name: Generate debug keystore
-        if: matrix.target == 'android'
         run: |
-          keytool -keyalg RSA -genkeypair \
-            -alias androiddebugkey \
-            -keypass android \
-            -keystore "$GITHUB_WORKSPACE/debug.keystore" \
-            -storepass android \
-            -dname "CN=Android Debug,O=Android,C=US" \
-            -validity 9999 \
-            -deststoretype pkcs12
+          keytool -keyalg RSA -genkeypair             -alias androiddebugkey             -keypass android             -keystore "$GITHUB_WORKSPACE/debug.keystore"             -storepass android             -dname "CN=Android Debug,O=Android,C=US"             -validity 9999             -deststoretype pkcs12
 
       - name: Prepare release keystore
-        if: matrix.target == 'android'
         id: release_keystore
         env:
           ANDROID_RELEASE_KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
@@ -276,11 +450,7 @@ jobs:
             }
             trap cleanup_password_files EXIT
             HAS_VALID_RELEASE_KEYSTORE=false
-            if keytool -list \
-              -keystore "$GITHUB_WORKSPACE/release.keystore" \
-              -storepass:file "$STOREPASS_FILE" \
-              -alias "$ANDROID_RELEASE_KEYSTORE_ALIAS" \
-              -keypass:file "$KEYPASS_FILE" >/dev/null 2>&1; then
+            if keytool -list               -keystore "$GITHUB_WORKSPACE/release.keystore"               -storepass:file "$STOREPASS_FILE"               -alias "$ANDROID_RELEASE_KEYSTORE_ALIAS"               -keypass:file "$KEYPASS_FILE" >/dev/null 2>&1; then
               HAS_VALID_RELEASE_KEYSTORE=true
             fi
             trap - EXIT
@@ -296,7 +466,6 @@ jobs:
           fi
 
       - name: Configure Godot Android SDK path
-        if: matrix.target == 'android'
         run: |
           mkdir -p "$HOME/Library/Application Support/Godot"
           printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\nexport/android/shutdown_adb_on_exit = false\n' \
@@ -304,7 +473,6 @@ jobs:
             > "$HOME/Library/Application Support/Godot/editor_settings-4.tres"
 
       - name: Disable custom Gradle build for Android APK preset only
-        if: matrix.target == 'android'
         run: |
           python - <<'PY'
           # Disable gradle_build/use_gradle_build only for the "Android" (APK) preset.
@@ -354,8 +522,140 @@ jobs:
           print(f"Disabled Gradle build in {modified} Android APK preset option(s).")
           PY
 
+      - name: Install Godot editor and export templates
+        run: |
+          set -euo pipefail
+          GODOT_VERSION="${{ env.GODOT_VERSION }}"
+          GODOT_ZIP="$RUNNER_TEMP/godot-mono.zip"
+          TEMPLATES_TPZ="$RUNNER_TEMP/export-templates.tpz"
+          GODOT_EXTRACT_DIR="$RUNNER_TEMP/godot-extract"
+          TEMPLATES_EXTRACT_DIR="$RUNNER_TEMP/templates-extract"
+          GODOT_APP_MATCHES_FILE=""
+          TEMPLATES_MATCHES_FILE=""
+          cleanup_temp_match_files() {
+            [ -n "$GODOT_APP_MATCHES_FILE" ] && rm -f "$GODOT_APP_MATCHES_FILE"
+            [ -n "$TEMPLATES_MATCHES_FILE" ] && rm -f "$TEMPLATES_MATCHES_FILE"
+          }
+          trap cleanup_temp_match_files EXIT
+
+          rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
+          mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
+
+          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
+
+          GODOT_APP_MATCHES_FILE="$(mktemp)"
+          find "$GODOT_EXTRACT_DIR" -type d -name '*.app' > "$GODOT_APP_MATCHES_FILE"
+          GODOT_APP_COUNT="$(wc -l < "$GODOT_APP_MATCHES_FILE" | tr -d ' ')"
+          if [ "$GODOT_APP_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 .app bundle after extraction, found $GODOT_APP_COUNT."
+            cat "$GODOT_APP_MATCHES_FILE"
+            exit 1
+          fi
+          GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
+          GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
+          chmod +x "$GODOT_BIN"
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
+
+          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
+
+          TEMPLATES_MATCHES_FILE="$(mktemp)"
+          find "$TEMPLATES_EXTRACT_DIR" -type d -name templates > "$TEMPLATES_MATCHES_FILE"
+          TEMPLATES_COUNT="$(wc -l < "$TEMPLATES_MATCHES_FILE" | tr -d ' ')"
+          if [ "$TEMPLATES_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 templates directory in export template archive, found $TEMPLATES_COUNT."
+            cat "$TEMPLATES_MATCHES_FILE"
+            exit 1
+          fi
+          TEMPLATES_SRC_DIR="$(sed -n '1p' "$TEMPLATES_MATCHES_FILE")"
+
+          TEMPLATES_VERSION="$(echo "$GODOT_VERSION" | sed 's/-/./').mono"
+          TEMPLATES_DEST_DIR="$HOME/Library/Application Support/Godot/export_templates/$TEMPLATES_VERSION"
+          mkdir -p "$TEMPLATES_DEST_DIR"
+          cp -R "$TEMPLATES_SRC_DIR/." "$TEMPLATES_DEST_DIR/"
+
+      - name: Export Android (APK + AAB)
+        run: |
+          set -euo pipefail
+          HAS_RELEASE="${{ steps.release_keystore.outputs.has_release_keystore }}"
+          IFS=',' read -ra PRESETS <<< "Android,Android AAB"
+          for PRESET in "${PRESETS[@]}"; do
+            PRESET_TRIMMED="$(echo "$PRESET" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+            if [ "$HAS_RELEASE" != "true" ] && [ "$PRESET_TRIMMED" = "Android" ]; then
+              # APK preset without a release keystore: export-debug uses the debug
+              # keystore directly and skips release-keystore validation entirely.
+              "$GODOT_BIN" --headless --path ./ --export-debug "$PRESET_TRIMMED"
+            else
+              "$GODOT_BIN" --headless --path ./ --export-release "$PRESET_TRIMMED"
+            fi
+          done
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+          # When there is no release keystore the AAB preset (package/signed=true)
+          # still requires a valid release keystore entry; fall back to the debug
+          # keystore using its absolute path so Godot can locate the file.
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && format('{0}/release.keystore', github.workspace) || format('{0}/debug.keystore', github.workspace) }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && secrets.ANDROID_RELEASE_KEYSTORE_ALIAS || 'androiddebugkey' }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && (secrets.ANDROID_RELEASE_KEY_PASSWORD || secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD) || 'android' }}
+
+      - name: Flatten Android export outputs
+        run: |
+          if [ -d "build/android/Android" ]; then
+            cp -a "build/android/Android/." "build/android/"
+            rm -rf "build/android/Android"
+            echo "Flattened build/android/Android/ → build/android/"
+          fi
+          if [ -d "build/android/Android AAB" ]; then
+            cp -a "build/android/Android AAB/." "build/android/"
+            rm -rf "build/android/Android AAB"
+            echo "Flattened build/android/Android AAB/ → build/android/"
+          fi
+
+      - name: Verify Android exports
+        run: |
+          echo "Android build contents:"
+          ls -la build/android/
+          if [ ! -f build/android/CorditeWars.apk ]; then
+            echo "ERROR: CorditeWars.apk not found"
+            exit 1
+          fi
+          if [ ! -f build/android/CorditeWars.aab ]; then
+            echo "ERROR: CorditeWars.aab not found"
+            exit 1
+          fi
+
+      - name: Upload Android APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Android
+          path: build/android/CorditeWars.apk
+
+      - name: Upload Android AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorditeWars-Android-AAB
+          path: build/android/CorditeWars.aab
+
+  export-ios:
+    name: Export Platform (iOS)
+    runs-on: macos-latest
+    needs: validate-project
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Build C# Assemblies
+        run: dotnet build -c ExportRelease
+
       - name: Inject App Store Team ID into iOS preset
-        if: matrix.target == 'ios'
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
@@ -411,7 +711,7 @@ jobs:
               out.append(line)
           if in_ios_options and not inserted:
               out.append(f'application/app_store_team_id="{team_id}"')
-          path.write_text("\n".join(out) + "\n")
+          path.write_text("\\n".join(out) + "\\n")
           PY
         shell: bash
 
@@ -434,16 +734,14 @@ jobs:
           rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
           mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
 
-          curl -L --fail \
-            -o "$GODOT_ZIP" \
-            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
           unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
 
           GODOT_APP_MATCHES_FILE="$(mktemp)"
-          find "$GODOT_EXTRACT_DIR" -type d -name 'Godot.app' > "$GODOT_APP_MATCHES_FILE"
+          find "$GODOT_EXTRACT_DIR" -type d -name '*.app' > "$GODOT_APP_MATCHES_FILE"
           GODOT_APP_COUNT="$(wc -l < "$GODOT_APP_MATCHES_FILE" | tr -d ' ')"
           if [ "$GODOT_APP_COUNT" -ne 1 ]; then
-            echo "ERROR: Expected exactly 1 Godot.app after extraction, found $GODOT_APP_COUNT."
+            echo "ERROR: Expected exactly 1 .app bundle after extraction, found $GODOT_APP_COUNT."
             cat "$GODOT_APP_MATCHES_FILE"
             exit 1
           fi
@@ -452,9 +750,7 @@ jobs:
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
-          curl -L --fail \
-            -o "$TEMPLATES_TPZ" \
-            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
           unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
 
           TEMPLATES_MATCHES_FILE="$(mktemp)"
@@ -473,172 +769,17 @@ jobs:
           cp -R "$TEMPLATES_SRC_DIR/." "$TEMPLATES_DEST_DIR/"
 
       - name: Export iOS/iPadOS Xcode project
-        if: matrix.target == 'ios'
         run: |
           # Debug export avoids an Xcode signing conflict during project generation.
-          "$GODOT_BIN" --headless --path ./ --export-debug "${{ matrix.preset }}"
-
-      - name: Export Android (APK + AAB)
-        if: matrix.target == 'android'
-        run: |
-          set -euo pipefail
-          HAS_RELEASE="${{ steps.release_keystore.outputs.has_release_keystore }}"
-          IFS=',' read -ra PRESETS <<< "${{ matrix.preset }}"
-          for PRESET in "${PRESETS[@]}"; do
-            PRESET_TRIMMED="$(echo "$PRESET" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
-            if [ "$HAS_RELEASE" != "true" ] && [ "$PRESET_TRIMMED" = "Android" ]; then
-              # APK preset without a release keystore: export-debug uses the debug
-              # keystore directly and skips release-keystore validation entirely.
-              "$GODOT_BIN" --headless --path ./ --export-debug "$PRESET_TRIMMED"
-            else
-              "$GODOT_BIN" --headless --path ./ --export-release "$PRESET_TRIMMED"
-            fi
-          done
-        env:
-          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/debug.keystore
-          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
-          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
-          # When there is no release keystore the AAB preset (package/signed=true)
-          # still requires a valid release keystore entry; fall back to the debug
-          # keystore using its absolute path so Godot can locate the file.
-          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && format('{0}/release.keystore', github.workspace) || format('{0}/debug.keystore', github.workspace) }}
-          GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && secrets.ANDROID_RELEASE_KEYSTORE_ALIAS || 'androiddebugkey' }}
-          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && (secrets.ANDROID_RELEASE_KEY_PASSWORD || secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD) || 'android' }}
-
-      - name: Export platform (Windows / Linux / macOS)
-        if: matrix.target != 'android' && matrix.target != 'ios'
-        run: |
-          "$GODOT_BIN" --headless --path ./ --export-release "${{ matrix.preset }}"
-
-      - name: Flatten Windows export output
-        if: matrix.target == 'windows'
-        run: |
-          if [ -d "build/windows/Windows Desktop" ]; then
-            mv "build/windows/Windows Desktop/"* build/windows/
-            rmdir "build/windows/Windows Desktop"
-            echo "Flattened build/windows/Windows Desktop/ → build/windows/"
-          fi
-
-      - name: Flatten Linux export output
-        if: matrix.target == 'linux'
-        run: |
-          if [ -d "build/linux/LinuxX11" ]; then
-            mv "build/linux/LinuxX11/"* build/linux/
-            rmdir "build/linux/LinuxX11"
-            echo "Flattened build/linux/LinuxX11/ → build/linux/"
-          fi
-
-      - name: Flatten Android export outputs
-        if: matrix.target == 'android'
-        run: |
-          if [ -d "build/android/Android" ]; then
-            cp -a "build/android/Android/." "build/android/"
-            rm -rf "build/android/Android"
-            echo "Flattened build/android/Android/ → build/android/"
-          fi
-          if [ -d "build/android/Android AAB" ]; then
-            cp -a "build/android/Android AAB/." "build/android/"
-            rm -rf "build/android/Android AAB"
-            echo "Flattened build/android/Android AAB/ → build/android/"
-          fi
-
-      - name: Flatten macOS export output
-        if: matrix.target == 'macos'
-        run: |
-          if [ -d "build/macos/macOS" ]; then
-            mv "build/macos/macOS/"* build/macos/
-            rmdir "build/macos/macOS"
-            echo "Flattened build/macos/macOS/ → build/macos/"
-          fi
-
-      - name: Verify Windows export
-        if: matrix.target == 'windows'
-        run: |
-          echo "Windows export contents:"
-          ls -la build/windows/
-          if [ ! -f build/windows/CorditeWars.exe ]; then
-            echo "ERROR: CorditeWars.exe not found after export"
-            exit 1
-          fi
-          if [ ! -f build/windows/CorditeWars.pck ]; then
-            echo "ERROR: CorditeWars.pck not found after export"
-            exit 1
-          fi
-          if [ ! -d build/windows/GodotSharp ] && ! compgen -G "build/windows/data_*_windows_*" > /dev/null; then
-            echo "ERROR: No .NET runtime data directory found (expected GodotSharp or data_*_windows_*)"
-            exit 1
-          fi
-
-      - name: Verify Linux export
-        if: matrix.target == 'linux'
-        run: |
-          echo "Linux export contents:"
-          ls -la build/linux/
-          if [ ! -f build/linux/CorditeWars.x86_64 ]; then
-            echo "ERROR: CorditeWars.x86_64 not found after export"
-            exit 1
-          fi
-          if [ ! -f build/linux/CorditeWars.pck ]; then
-            echo "ERROR: CorditeWars.pck not found after export"
-            exit 1
-          fi
-          if [ ! -d build/linux/GodotSharp ] && ! compgen -G "build/linux/data_*_linux*" > /dev/null; then
-            echo "ERROR: No .NET runtime data directory found (expected GodotSharp or data_*_linux*)"
-            exit 1
-          fi
-
-      - name: Verify Android exports
-        if: matrix.target == 'android'
-        run: |
-          echo "Android build contents:"
-          ls -la build/android/
-          if [ ! -f build/android/CorditeWars.apk ]; then
-            echo "ERROR: CorditeWars.apk not found"
-            exit 1
-          fi
-          if [ ! -f build/android/CorditeWars.aab ]; then
-            echo "ERROR: CorditeWars.aab not found"
-            exit 1
-          fi
-
-      - name: Verify macOS export
-        if: matrix.target == 'macos'
-        run: |
-          echo "macOS export contents:"
-          ls -la build/macos/
-          if [ ! -f build/macos/CorditeWars.zip ]; then
-            echo "ERROR: CorditeWars.zip not found after macOS export"
-            exit 1
-          fi
-
-      - name: Extract macOS .app bundle from Godot zip
-        if: matrix.target == 'macos'
-        run: |
-          unzip -q build/macos/CorditeWars.zip -d build/macos/
-          rm build/macos/CorditeWars.zip
-          echo "macOS build contents after extraction:"
-          ls -la build/macos/
-
-      - name: Ad-hoc sign macOS .app bundle
-        if: matrix.target == 'macos'
-        run: |
-          APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -1)
-          if [ -n "$APP_PATH" ]; then
-            codesign --deep --force --sign - "$APP_PATH"
-            echo "Ad-hoc signed: $APP_PATH"
-          else
-            echo "WARNING: No .app bundle found to sign"
-          fi
+          "$GODOT_BIN" --headless --path ./ --export-debug "iOS"
 
       - name: Verify iOS export
-        if: matrix.target == 'ios'
         run: |
           echo "iOS export contents:"
           ls -la build/ios/ 2>/dev/null || echo "WARNING: build/ios/ not found"
           find . -maxdepth 4 \( -name "*.xcodeproj" -o -name "*.xcworkspace" \) 2>/dev/null | head -20
 
       - name: Bundle iOS config into export
-        if: matrix.target == 'ios'
         run: |
           if [ -d build/ios ]; then
             cp versions/ios/ios-info.plist build/ios/ios-info.plist
@@ -648,47 +789,137 @@ jobs:
             echo "WARNING: build/ios/ not found — skipping config bundle."
           fi
 
-      - name: Upload Windows export artifact
-        if: matrix.target == 'windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: CorditeWars-Windows
-          path: build/windows/
-
-      - name: Upload Linux export artifact
-        if: matrix.target == 'linux'
-        uses: actions/upload-artifact@v4
-        with:
-          name: CorditeWars-Linux
-          path: build/linux/
-
-      - name: Upload Android APK artifact
-        if: matrix.target == 'android'
-        uses: actions/upload-artifact@v4
-        with:
-          name: CorditeWars-Android
-          path: build/android/CorditeWars.apk
-
-      - name: Upload Android AAB artifact
-        if: matrix.target == 'android'
-        uses: actions/upload-artifact@v4
-        with:
-          name: CorditeWars-Android-AAB
-          path: build/android/CorditeWars.aab
-
       - name: Upload iOS/iPadOS Handoff artifact
-        if: matrix.target == 'ios'
         uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-iOS-iPadOS-Handoff
           path: build/ios/
 
+  export-macos:
+    name: Export Platform (macOS)
+    runs-on: macos-latest
+    needs: validate-project
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Build C# Assemblies
+        run: dotnet build -c ExportRelease
+
+      - name: Install Godot editor and export templates
+        run: |
+          set -euo pipefail
+          GODOT_VERSION="${{ env.GODOT_VERSION }}"
+          GODOT_ZIP="$RUNNER_TEMP/godot-mono.zip"
+          TEMPLATES_TPZ="$RUNNER_TEMP/export-templates.tpz"
+          GODOT_EXTRACT_DIR="$RUNNER_TEMP/godot-extract"
+          TEMPLATES_EXTRACT_DIR="$RUNNER_TEMP/templates-extract"
+          GODOT_APP_MATCHES_FILE=""
+          TEMPLATES_MATCHES_FILE=""
+          cleanup_temp_match_files() {
+            [ -n "$GODOT_APP_MATCHES_FILE" ] && rm -f "$GODOT_APP_MATCHES_FILE"
+            [ -n "$TEMPLATES_MATCHES_FILE" ] && rm -f "$TEMPLATES_MATCHES_FILE"
+          }
+          trap cleanup_temp_match_files EXIT
+
+          rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
+          mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
+
+          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
+
+          GODOT_APP_MATCHES_FILE="$(mktemp)"
+          find "$GODOT_EXTRACT_DIR" -type d -name '*.app' > "$GODOT_APP_MATCHES_FILE"
+          GODOT_APP_COUNT="$(wc -l < "$GODOT_APP_MATCHES_FILE" | tr -d ' ')"
+          if [ "$GODOT_APP_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 .app bundle after extraction, found $GODOT_APP_COUNT."
+            cat "$GODOT_APP_MATCHES_FILE"
+            exit 1
+          fi
+          GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
+          GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
+          chmod +x "$GODOT_BIN"
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
+
+          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
+
+          TEMPLATES_MATCHES_FILE="$(mktemp)"
+          find "$TEMPLATES_EXTRACT_DIR" -type d -name templates > "$TEMPLATES_MATCHES_FILE"
+          TEMPLATES_COUNT="$(wc -l < "$TEMPLATES_MATCHES_FILE" | tr -d ' ')"
+          if [ "$TEMPLATES_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 templates directory in export template archive, found $TEMPLATES_COUNT."
+            cat "$TEMPLATES_MATCHES_FILE"
+            exit 1
+          fi
+          TEMPLATES_SRC_DIR="$(sed -n '1p' "$TEMPLATES_MATCHES_FILE")"
+
+          TEMPLATES_VERSION="$(echo "$GODOT_VERSION" | sed 's/-/./').mono"
+          TEMPLATES_DEST_DIR="$HOME/Library/Application Support/Godot/export_templates/$TEMPLATES_VERSION"
+          mkdir -p "$TEMPLATES_DEST_DIR"
+          cp -R "$TEMPLATES_SRC_DIR/." "$TEMPLATES_DEST_DIR/"
+
+      - name: Export macOS
+        run: |
+          "$GODOT_BIN" --headless --path ./ --export-release "macOS"
+
+      - name: Flatten macOS export output
+        run: |
+          if [ -d "build/macos/macOS" ]; then
+            mv "build/macos/macOS/"* build/macos/
+            rmdir "build/macos/macOS"
+            echo "Flattened build/macos/macOS/ → build/macos/"
+          fi
+
+      - name: Verify macOS export
+        run: |
+          echo "macOS export contents:"
+          ls -la build/macos/
+          if [ ! -f build/macos/CorditeWars.zip ]; then
+            echo "ERROR: CorditeWars.zip not found after macOS export"
+            exit 1
+          fi
+
+      - name: Extract macOS .app bundle from Godot zip
+        run: |
+          unzip -q build/macos/CorditeWars.zip -d build/macos/
+          rm build/macos/CorditeWars.zip
+          echo "macOS build contents after extraction:"
+          ls -la build/macos/
+
+      - name: Ad-hoc sign macOS .app bundle
+        run: |
+          APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -1)
+          if [ -n "$APP_PATH" ]; then
+            codesign --deep --force --sign - "$APP_PATH"
+            echo "Ad-hoc signed: $APP_PATH"
+          else
+            echo "WARNING: No .app bundle found to sign"
+          fi
+
       - name: Upload macOS export artifact
-        if: matrix.target == 'macos'
         uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-macOS-Export
           path: build/macos/
+
+  export-all:
+    name: Export Platform (All Targets)
+    runs-on: ubuntu-latest
+    needs:
+      - export-windows
+      - export-linux
+      - export-android
+      - export-ios
+      - export-macos
+    steps:
+      - name: Confirm all target exports completed
+        run: echo "All target-specific export jobs completed successfully."
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 1b. Package Windows EXE — Inno Setup installer (reliable, always runs)
