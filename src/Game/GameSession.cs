@@ -2145,7 +2145,8 @@ public partial class GameSession : Node
                 {
                     PlayerId = pc.PlayerId,
                     FactionId = pc.FactionId,
-                    PlayerName = pc.PlayerName,
+                    // Never persist player-identifying names in save files.
+                    PlayerName = string.Empty,
                     IsAI = pc.IsAI,
                     AIDifficulty = pc.AIDifficulty,
                     Cordite = economy?.Cordite.Raw ?? 0,

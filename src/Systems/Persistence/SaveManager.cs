@@ -43,6 +43,8 @@ public sealed class FixedPointSaveJsonConverter : JsonConverter<FixedPoint>
 public sealed partial class SaveManager : Node
 {
     private const string SaveDirectory = "user://saves";
+    private const string SaveFileExtension = ".cwsave";
+    private const string LegacySaveFileExtension = ".json";
     private const int MaxAutoSaves = 3;
 
     private static readonly JsonSerializerOptions SaveJsonOptions = CreateSaveJsonOptions();
@@ -76,18 +78,25 @@ public sealed partial class SaveManager : Node
     }
 
     /// <summary>
-    /// Serializes the given save data to JSON and writes it to user://saves/{slotName}.json.
+    /// Serializes the given save data and writes it to user://saves/{slotName}.cwsave.
     /// Returns true on success.
     /// </summary>
     public bool SaveGame(string slotName, SaveGameData data)
     {
+        if (!IsValidSlotName(slotName))
+        {
+            GD.PushError($"[SaveManager] Invalid save slot name: '{slotName}'.");
+            return false;
+        }
+
         EnsureSaveDirectory();
 
-        string filePath = $"{SaveDirectory}/{slotName}.json";
+        string filePath = GetProprietarySavePath(slotName);
+        string legacyPath = GetLegacySavePath(slotName);
 
         try
         {
-            string json = JsonSerializer.Serialize(data, SaveJsonOptions);
+            byte[] payload = SaveFileCodec.Encode(data, SaveJsonOptions);
 
             using var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Write);
             if (file is null)
@@ -96,8 +105,14 @@ public sealed partial class SaveManager : Node
                 return false;
             }
 
-            file.StoreString(json);
+            file.StoreBuffer(payload);
             file.Flush();
+
+            // Keep a single canonical file per slot.
+            if (FileAccess.FileExists(legacyPath))
+            {
+                DirAccess.RemoveAbsolute(legacyPath);
+            }
 
             EventBus.Instance?.EmitGameSaved(slotName);
             GD.Print($"[SaveManager] Game saved to slot '{slotName}'.");
@@ -116,7 +131,13 @@ public sealed partial class SaveManager : Node
     /// </summary>
     public SaveGameData? LoadGame(string slotName)
     {
-        string filePath = $"{SaveDirectory}/{slotName}.json";
+        if (!IsValidSlotName(slotName))
+        {
+            GD.PushError($"[SaveManager] Invalid save slot name: '{slotName}'.");
+            return null;
+        }
+
+        string filePath = ResolveLoadPath(slotName);
 
         if (!FileAccess.FileExists(filePath))
         {
@@ -133,8 +154,8 @@ public sealed partial class SaveManager : Node
                 return null;
             }
 
-            string json = file.GetAsText();
-            SaveGameData? data = JsonSerializer.Deserialize<SaveGameData>(json, SaveJsonOptions);
+            byte[] payload = file.GetBuffer(file.GetLength());
+            SaveGameData? data = SaveFileCodec.Decode(payload, SaveJsonOptions);
 
             if (data != null)
             {
@@ -156,18 +177,42 @@ public sealed partial class SaveManager : Node
     /// </summary>
     public bool DeleteSave(string slotName)
     {
-        string filePath = $"{SaveDirectory}/{slotName}.json";
-
-        if (!FileAccess.FileExists(filePath))
+        if (!IsValidSlotName(slotName))
         {
-            GD.PushWarning($"[SaveManager] Cannot delete — file not found: '{filePath}'.");
+            GD.PushError($"[SaveManager] Invalid save slot name: '{slotName}'.");
             return false;
         }
 
-        var err = DirAccess.RemoveAbsolute(filePath);
-        if (err != Error.Ok)
+        string primaryPath = GetProprietarySavePath(slotName);
+        string legacyPath = GetLegacySavePath(slotName);
+
+        bool removedAny = false;
+
+        if (FileAccess.FileExists(primaryPath))
         {
-            GD.PushError($"[SaveManager] Failed to delete '{filePath}': {err}");
+            var err = DirAccess.RemoveAbsolute(primaryPath);
+            if (err != Error.Ok)
+            {
+                GD.PushError($"[SaveManager] Failed to delete '{primaryPath}': {err}");
+                return false;
+            }
+            removedAny = true;
+        }
+
+        if (FileAccess.FileExists(legacyPath))
+        {
+            var err = DirAccess.RemoveAbsolute(legacyPath);
+            if (err != Error.Ok)
+            {
+                GD.PushError($"[SaveManager] Failed to delete '{legacyPath}': {err}");
+                return false;
+            }
+            removedAny = true;
+        }
+
+        if (!removedAny)
+        {
+            GD.PushWarning($"[SaveManager] Cannot delete — file not found for slot '{slotName}'.");
             return false;
         }
 
@@ -197,9 +242,13 @@ public sealed partial class SaveManager : Node
 
         while (!string.IsNullOrEmpty(fileName))
         {
-            if (!dir.CurrentIsDir() && fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+            if (!dir.CurrentIsDir()
+                && (fileName.EndsWith(SaveFileExtension, StringComparison.OrdinalIgnoreCase)
+                    || fileName.EndsWith(LegacySaveFileExtension, StringComparison.OrdinalIgnoreCase)))
             {
-                string slotName = fileName.Substring(0, fileName.Length - 5); // strip .json
+                bool isLegacy = fileName.EndsWith(LegacySaveFileExtension, StringComparison.OrdinalIgnoreCase);
+                int extensionLength = isLegacy ? LegacySaveFileExtension.Length : SaveFileExtension.Length;
+                string slotName = fileName.Substring(0, fileName.Length - extensionLength);
                 string filePath = $"{SaveDirectory}/{fileName}";
 
                 try
@@ -207,11 +256,23 @@ public sealed partial class SaveManager : Node
                     using var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Read);
                     if (file is not null)
                     {
-                        string json = file.GetAsText();
-                        SaveGameData? data = JsonSerializer.Deserialize<SaveGameData>(json, SaveJsonOptions);
+                        byte[] payload = file.GetBuffer(file.GetLength());
+                        SaveGameData? data = SaveFileCodec.Decode(payload, SaveJsonOptions);
 
                         if (data != null)
                         {
+                            if (slots.ContainsKey(slotName))
+                            {
+                                // Prefer proprietary saves if both legacy and proprietary files are present.
+                                if (isLegacy)
+                                {
+                                    fileName = dir.GetNext();
+                                    continue;
+                                }
+
+                                slots.Remove(slotName);
+                            }
+
                             var info = new SaveSlotInfo
                             {
                                 SlotName = slotName,
@@ -248,7 +309,7 @@ public sealed partial class SaveManager : Node
         EnsureSaveDirectory();
 
         // Rotate: delete oldest, shift others
-        string oldestPath = $"{SaveDirectory}/autosave_{MaxAutoSaves - 1}.json";
+        string oldestPath = $"{SaveDirectory}/autosave_{MaxAutoSaves - 1}{SaveFileExtension}";
         if (FileAccess.FileExists(oldestPath))
         {
             DirAccess.RemoveAbsolute(oldestPath);
@@ -256,15 +317,14 @@ public sealed partial class SaveManager : Node
 
         for (int i = MaxAutoSaves - 2; i >= 0; i--)
         {
-            string fromPath = $"{SaveDirectory}/autosave_{i}.json";
-            string toPath = $"{SaveDirectory}/autosave_{i + 1}.json";
+            string fromPath = $"{SaveDirectory}/autosave_{i}{SaveFileExtension}";
 
             if (FileAccess.FileExists(fromPath))
             {
                 using var dir = DirAccess.Open(SaveDirectory);
                 if (dir is not null)
                 {
-                    dir.Rename($"autosave_{i}.json", $"autosave_{i + 1}.json");
+                    dir.Rename($"autosave_{i}{SaveFileExtension}", $"autosave_{i + 1}{SaveFileExtension}");
                 }
             }
         }
@@ -296,5 +356,40 @@ public sealed partial class SaveManager : Node
         }
 
         return data;
+    }
+
+    private static string GetProprietarySavePath(string slotName) => $"{SaveDirectory}/{slotName}{SaveFileExtension}";
+
+    private static string GetLegacySavePath(string slotName) => $"{SaveDirectory}/{slotName}{LegacySaveFileExtension}";
+
+    private static string ResolveLoadPath(string slotName)
+    {
+        string proprietaryPath = GetProprietarySavePath(slotName);
+        if (FileAccess.FileExists(proprietaryPath))
+        {
+            return proprietaryPath;
+        }
+
+        return GetLegacySavePath(slotName);
+    }
+
+    private static bool IsValidSlotName(string slotName)
+    {
+        if (string.IsNullOrWhiteSpace(slotName))
+        {
+            return false;
+        }
+
+        for (int i = 0; i < slotName.Length; i++)
+        {
+            char c = slotName[i];
+            bool ok = char.IsLetterOrDigit(c) || c is '_' or '-';
+            if (!ok)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
