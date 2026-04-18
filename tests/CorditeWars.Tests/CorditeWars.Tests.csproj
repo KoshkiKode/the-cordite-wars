@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <NoWarn>$(NoWarn);CS8785</NoWarn>
+    <RunSettingsFilePath>coverage.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 
   <PropertyGroup>
