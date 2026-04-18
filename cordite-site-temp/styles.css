@@ -28,6 +28,25 @@ body {
   align-items: center;
 }
 
+.top-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.language-label {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.language-select {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #223244;
+  border-radius: 8px;
+  padding: .45rem .6rem;
+}
+
 .hero-content { margin-top: 5rem; max-width: 760px; }
 .eyebrow { color: var(--accent); letter-spacing: .08em; text-transform: uppercase; }
 

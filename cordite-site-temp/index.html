@@ -11,54 +11,58 @@
     <header class="hero">
       <nav class="top-nav">
         <h1>Cordite Wars</h1>
-        <a href="#downloads" class="btn btn-primary">Get Downloads</a>
+        <div class="top-nav-actions">
+          <label for="language-select" class="language-label" data-i18n="languageLabel">Language</label>
+          <select id="language-select" class="language-select" aria-label="Language selector"></select>
+          <a href="#downloads" class="btn btn-primary" data-i18n="getDownloads">Get Downloads</a>
+        </div>
       </nav>
       <div class="hero-content">
-        <p class="eyebrow">Six Fronts. One War.</p>
-        <h2>Command massive RTS battles across land, sea, and sky.</h2>
-        <p>Use this section for your key trailer callout and release messaging.</p>
+        <p class="eyebrow" data-i18n="heroEyebrow">Six Fronts. One War.</p>
+        <h2 data-i18n="heroTitle">Command massive RTS battles across land, sea, and sky.</h2>
+        <p data-i18n="heroBody">Use this section for your key trailer callout and release messaging.</p>
       </div>
     </header>
 
     <main>
       <section class="section">
-        <h3>Featured Videos</h3>
+        <h3 data-i18n="featuredVideosTitle">Featured Videos</h3>
         <div class="media-grid">
-          <article class="card video-slot">Trailer slot (embed YouTube/Vimeo here)</article>
-          <article class="card video-slot">Gameplay deep dive slot</article>
-          <article class="card video-slot">Faction spotlight slot</article>
+          <article class="card video-slot" data-i18n="videoSlot1">Trailer slot (embed YouTube/Vimeo here)</article>
+          <article class="card video-slot" data-i18n="videoSlot2">Gameplay deep dive slot</article>
+          <article class="card video-slot" data-i18n="videoSlot3">Faction spotlight slot</article>
         </div>
       </section>
 
       <section class="section background-showcase">
-        <h3>World & Screenshots</h3>
-        <p>Replace these placeholders with faction art, in-game screenshots, and map backgrounds.</p>
+        <h3 data-i18n="worldScreenshotsTitle">World & Screenshots</h3>
+        <p data-i18n="worldScreenshotsBody">Replace these placeholders with faction art, in-game screenshots, and map backgrounds.</p>
         <div class="media-grid">
-          <article class="card image-slot">Image slot 1</article>
-          <article class="card image-slot">Image slot 2</article>
-          <article class="card image-slot">Image slot 3</article>
+          <article class="card image-slot" data-i18n="imageSlot1">Image slot 1</article>
+          <article class="card image-slot" data-i18n="imageSlot2">Image slot 2</article>
+          <article class="card image-slot" data-i18n="imageSlot3">Image slot 3</article>
         </div>
       </section>
 
       <section id="downloads" class="section">
-        <h3>Downloads (Paywalled)</h3>
-        <p>Downloads unlock only after successful Stripe payment.</p>
-        <div id="paywall-message" class="status">🔒 Locked — purchase required.</div>
+        <h3 data-i18n="downloadsTitle">Downloads (Paywalled)</h3>
+        <p data-i18n="downloadsBody">Downloads unlock only after successful Stripe payment.</p>
+        <div id="paywall-message" class="status" data-i18n="paywallLocked">🔒 Locked — purchase required.</div>
         <div class="download-grid">
           <article class="card download-card">
-            <h4>Windows</h4>
-            <button class="btn btn-primary" data-product="windows">Unlock via Stripe</button>
-            <a class="download-link" data-download="windows" href="#" aria-disabled="true">Download Windows Build</a>
+            <h4 data-i18n="platformWindows">Windows</h4>
+            <button class="btn btn-primary" data-product="windows" data-i18n="unlockViaStripe">Unlock via Stripe</button>
+            <a class="download-link" data-download="windows" href="#" aria-disabled="true" data-i18n="downloadWindows">Download Windows Build</a>
           </article>
           <article class="card download-card">
-            <h4>macOS</h4>
-            <button class="btn btn-primary" data-product="macos">Unlock via Stripe</button>
-            <a class="download-link" data-download="macos" href="#" aria-disabled="true">Download macOS Build</a>
+            <h4 data-i18n="platformMacOS">macOS</h4>
+            <button class="btn btn-primary" data-product="macos" data-i18n="unlockViaStripe">Unlock via Stripe</button>
+            <a class="download-link" data-download="macos" href="#" aria-disabled="true" data-i18n="downloadMacOS">Download macOS Build</a>
           </article>
           <article class="card download-card">
-            <h4>Linux</h4>
-            <button class="btn btn-primary" data-product="linux">Unlock via Stripe</button>
-            <a class="download-link" data-download="linux" href="#" aria-disabled="true">Download Linux Build</a>
+            <h4 data-i18n="platformLinux">Linux</h4>
+            <button class="btn btn-primary" data-product="linux" data-i18n="unlockViaStripe">Unlock via Stripe</button>
+            <a class="download-link" data-download="linux" href="#" aria-disabled="true" data-i18n="downloadLinux">Download Linux Build</a>
           </article>
         </div>
       </section>
