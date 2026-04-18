@@ -447,4 +447,144 @@ public class CollisionResolverTests
             Assert.Equal(pairsA[i].Overlap,  pairsB[i].Overlap);
         }
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ResolveCollisions — B crushes A (reverse crush direction)
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void ResolveCollisions_BCrushesA_ATakesDamage()
+    {
+        // B is the heavy crusher (mass 20), A is the light victim (mass 1)
+        var pairs = new List<CollisionPair>
+        {
+            new CollisionPair
+            {
+                UnitIdA = 1, UnitIdB = 2,
+                PositionA = FixedVector2.Zero,
+                PositionB = new FixedVector2(FixedPoint.One, FixedPoint.Zero),
+                RadiusA = FixedPoint.One, RadiusB = FixedPoint.One,
+                MassA = FixedPoint.One,          // light — A is the victim
+                MassB = FixedPoint.FromInt(20),  // heavy — B is the crusher
+                Overlap = FixedPoint.One,
+                Normal = new FixedVector2(FixedPoint.One, FixedPoint.Zero),
+                IsCrush = true
+            }
+        };
+        var results = new List<UnitCollisionResult>();
+        _resolver.ResolveCollisions(pairs, results);
+
+        Assert.Equal(2, results.Count);
+        var rA = results.Find(r => r.UnitId == 1)!;
+        var rB = results.Find(r => r.UnitId == 2)!;
+
+        Assert.True(rA.WasCrushed,  "A (the lighter unit) should be crushed by B");
+        Assert.False(rB.WasCrushed, "B (the crusher) should not be crushed");
+        Assert.True(rA.DamageTaken > FixedPoint.Zero, "Crushed unit A should take crush damage");
+        Assert.Equal(FixedPoint.Zero, rB.DamageTaken);
+    }
+
+    [Fact]
+    public void ResolveCollisions_Crush_NeitherMeetsRatio_FallsBackToPush()
+    {
+        // Both units have the same mass — neither meets the 2× crush mass ratio,
+        // so the collision should fall back to normal push resolution.
+        var posA = FixedVector2.Zero;
+        var posB = new FixedVector2(FixedPoint.One, FixedPoint.Zero);
+        var pairs = new List<CollisionPair>
+        {
+            new CollisionPair
+            {
+                UnitIdA = 1, UnitIdB = 2,
+                PositionA = posA, PositionB = posB,
+                RadiusA = FixedPoint.One, RadiusB = FixedPoint.One,
+                MassA = FixedPoint.FromInt(5), MassB = FixedPoint.FromInt(5), // equal mass
+                Overlap = FixedPoint.One,
+                Normal = new FixedVector2(FixedPoint.One, FixedPoint.Zero),
+                IsCrush = true  // flagged as crush but mass ratio not met
+            }
+        };
+        var results = new List<UnitCollisionResult>();
+        _resolver.ResolveCollisions(pairs, results);
+
+        Assert.Equal(2, results.Count);
+        // Both units should be pushed (push resolution), neither WasCrushed
+        Assert.All(results, r => Assert.False(r.WasCrushed));
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ResolveCollisions — degenerate zero mass
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void ResolveCollisions_BothZeroMass_EqualPush()
+    {
+        var posA = FixedVector2.Zero;
+        var posB = new FixedVector2(FixedPoint.One, FixedPoint.Zero);
+        var pairs = new List<CollisionPair>
+        {
+            new CollisionPair
+            {
+                UnitIdA = 1, UnitIdB = 2,
+                PositionA = posA, PositionB = posB,
+                RadiusA = FixedPoint.One, RadiusB = FixedPoint.One,
+                MassA = FixedPoint.Zero, MassB = FixedPoint.Zero,
+                Overlap = FixedPoint.One,
+                Normal = new FixedVector2(FixedPoint.One, FixedPoint.Zero),
+                IsCrush = false
+            }
+        };
+        var results = new List<UnitCollisionResult>();
+        _resolver.ResolveCollisions(pairs, results);
+
+        Assert.Equal(2, results.Count);
+        // With zero mass both units pushed equally
+        var rA = results.Find(r => r.UnitId == 1)!;
+        var rB = results.Find(r => r.UnitId == 2)!;
+        FixedPoint pushA = FixedPoint.Abs(rA.NewPosition.X - posA.X);
+        FixedPoint pushB = FixedPoint.Abs(rB.NewPosition.X - posB.X);
+        Assert.Equal(pushA, pushB);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // CheckCrush — via DetectCollisions (indirect test of private method)
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void DetectCollisions_HeavyArmoredTargetNoCrush_ArmedInfantryNoCrush()
+    {
+        // A heavy vehicle (crushStrength > 0) cannot crush a Heavy-armored target
+        // Only Unarmored and Light can be crushed.
+        var heavyVehicle = MakeUnit(1, FixedVector2.Zero,
+            mass: FixedPoint.FromInt(20), crushStrength: FixedPoint.FromInt(10));
+        var heavyArmored = MakeUnit(2, new FixedVector2(FixedPoint.One, FixedPoint.Zero),
+            mass: FixedPoint.One, armor: ArmorType.Heavy);
+
+        var units = new List<UnitCollisionInfo> { heavyVehicle, heavyArmored };
+        var spatial = BuildSpatialHash(units);
+        var pairs = new List<CollisionPair>();
+        _resolver.DetectCollisions(units, spatial, pairs);
+
+        // If any pair was detected, it should NOT be a crush
+        foreach (var pair in pairs)
+            Assert.False(pair.IsCrush, "Heavy-armored target should not be crushable");
+    }
+
+    [Fact]
+    public void DetectCollisions_LightInfantryCanBeCrushed()
+    {
+        // Heavy vehicle (crushStrength 10, mass 20) runs over infantry (unarmored, mass 1)
+        var heavyVehicle = MakeUnit(1, FixedVector2.Zero,
+            mass: FixedPoint.FromInt(20), crushStrength: FixedPoint.FromInt(10));
+        var infantry = MakeUnit(2, new FixedVector2(FixedPoint.One, FixedPoint.Zero),
+            mass: FixedPoint.One, armor: ArmorType.Unarmored);
+
+        var units = new List<UnitCollisionInfo> { heavyVehicle, infantry };
+        var spatial = BuildSpatialHash(units);
+        var pairs = new List<CollisionPair>();
+        _resolver.DetectCollisions(units, spatial, pairs);
+
+        Assert.True(pairs.Count > 0, "Heavy vehicle overlapping infantry should produce a pair");
+        Assert.True(pairs[0].IsCrush, "Heavy vehicle should be able to crush unarmored infantry");
+    }
 }

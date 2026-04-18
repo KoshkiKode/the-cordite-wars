@@ -42,7 +42,7 @@ jobs:
       - name: Run tests
         run: dotnet test tests/CorditeWars.Tests/CorditeWars.Tests.csproj --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage" --settings tests/CorditeWars.Tests/coverage.runsettings
 
-      - name: Enforce minimum line coverage (35%)
+      - name: Enforce minimum line coverage (75%)
         if: matrix.os == 'ubuntu-latest'
         run: |
           python - <<'PY'
@@ -52,7 +52,7 @@ jobs:
           import xml.etree.ElementTree as ET
           
           COBERTURA_RATE_MULTIPLIER = 100.0
-          MINIMUM_COVERAGE = 35.0
+          MINIMUM_COVERAGE = 75.0
 
           matches = glob.glob("tests/CorditeWars.Tests/TestResults/**/coverage.cobertura.xml", recursive=True)
           if not matches:
