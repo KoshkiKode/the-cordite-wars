@@ -221,7 +221,7 @@ jobs:
           keytool -keyalg RSA -genkeypair \
             -alias androiddebugkey \
             -keypass android \
-            -keystore debug.keystore \
+            -keystore "$GITHUB_WORKSPACE/debug.keystore" \
             -storepass android \
             -dname "CN=Android Debug,O=Android,C=US" \
             -validity 9999 \
@@ -237,15 +237,15 @@ jobs:
           ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
         run: |
           if [ -z "$ANDROID_RELEASE_KEYSTORE_B64" ]; then
-            rm -f release.keystore
+            rm -f "$GITHUB_WORKSPACE/release.keystore"
             echo "has_release_keystore=false" >> "$GITHUB_OUTPUT"
             echo "No release keystore secret set — Android builds will use debug signing."
           elif [ -z "$ANDROID_RELEASE_KEYSTORE_ALIAS" ] || [ -z "$ANDROID_RELEASE_KEYSTORE_PASSWORD" ]; then
-            rm -f release.keystore
+            rm -f "$GITHUB_WORKSPACE/release.keystore"
             echo "has_release_keystore=false" >> "$GITHUB_OUTPUT"
             echo "Release keystore alias/password secret missing — Android builds will use debug signing."
           else
-            echo "$ANDROID_RELEASE_KEYSTORE_B64" | base64 --decode > release.keystore
+            echo "$ANDROID_RELEASE_KEYSTORE_B64" | base64 --decode > "$GITHUB_WORKSPACE/release.keystore"
             OLD_UMASK="$(umask)"
             umask 077
             STOREPASS_FILE="$(mktemp)"
@@ -273,7 +273,7 @@ jobs:
             trap cleanup_password_files EXIT
             HAS_VALID_RELEASE_KEYSTORE=false
             if keytool -list \
-              -keystore release.keystore \
+              -keystore "$GITHUB_WORKSPACE/release.keystore" \
               -storepass:file "$STOREPASS_FILE" \
               -alias "$ANDROID_RELEASE_KEYSTORE_ALIAS" \
               -keypass:file "$KEYPASS_FILE" >/dev/null 2>&1; then
@@ -285,7 +285,7 @@ jobs:
               echo "has_release_keystore=true" >> "$GITHUB_OUTPUT"
               echo "Release keystore credentials validated — Android builds will be release-signed."
             else
-              rm -f release.keystore
+              rm -f "$GITHUB_WORKSPACE/release.keystore"
               echo "has_release_keystore=false" >> "$GITHUB_OUTPUT"
               echo "Release keystore credentials are invalid for this keystore — Android builds will use debug signing."
             fi
@@ -467,18 +467,26 @@ jobs:
         if: matrix.target == 'android'
         run: |
           set -euo pipefail
+          HAS_RELEASE="${{ steps.release_keystore.outputs.has_release_keystore }}"
           IFS=',' read -ra PRESETS <<< "${{ matrix.preset }}"
           for PRESET in "${PRESETS[@]}"; do
             PRESET_TRIMMED="$(echo "$PRESET" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
-            "$GODOT_BIN" --headless --path ./ --export-release "$PRESET_TRIMMED"
+            if [ "$HAS_RELEASE" != "true" ] && [ "$PRESET_TRIMMED" = "Android" ]; then
+              # APK preset without a release keystore: export-debug uses the debug
+              # keystore directly and skips release-keystore validation entirely.
+              "$GODOT_BIN" --headless --path ./ --export-debug "$PRESET_TRIMMED"
+            else
+              "$GODOT_BIN" --headless --path ./ --export-release "$PRESET_TRIMMED"
+            fi
           done
         env:
-          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ./debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/debug.keystore
           GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
           GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
-          # AAB preset has package/signed=true; fall back to debug keystore when no
-          # release certificate is configured so the export succeeds in CI.
-          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && './release.keystore' || './debug.keystore' }}
+          # When there is no release keystore the AAB preset (package/signed=true)
+          # still requires a valid release keystore entry; fall back to the debug
+          # keystore using its absolute path so Godot can locate the file.
+          GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && format('{0}/release.keystore', github.workspace) || format('{0}/debug.keystore', github.workspace) }}
           GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && secrets.ANDROID_RELEASE_KEYSTORE_ALIAS || 'androiddebugkey' }}
           GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ steps.release_keystore.outputs.has_release_keystore == 'true' && (secrets.ANDROID_RELEASE_KEY_PASSWORD || secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD) || 'android' }}
 
