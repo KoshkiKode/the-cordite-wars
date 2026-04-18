@@ -434,7 +434,7 @@ jobs:
 
           GODOT_APP_MATCHES_FILE="$(mktemp)"
           find "$GODOT_EXTRACT_DIR" -type d -name 'Godot.app' > "$GODOT_APP_MATCHES_FILE"
-          GODOT_APP_COUNT="$(grep -c . "$GODOT_APP_MATCHES_FILE" || true)"
+          GODOT_APP_COUNT="$(wc -l < "$GODOT_APP_MATCHES_FILE" | tr -d ' ')"
           if [ "$GODOT_APP_COUNT" -ne 1 ]; then
             echo "ERROR: Expected exactly 1 Godot.app after extraction, found $GODOT_APP_COUNT."
             cat "$GODOT_APP_MATCHES_FILE"
@@ -454,7 +454,7 @@ jobs:
 
           TEMPLATES_MATCHES_FILE="$(mktemp)"
           find "$TEMPLATES_EXTRACT_DIR" -type d -name templates > "$TEMPLATES_MATCHES_FILE"
-          TEMPLATES_COUNT="$(grep -c . "$TEMPLATES_MATCHES_FILE" || true)"
+          TEMPLATES_COUNT="$(wc -l < "$TEMPLATES_MATCHES_FILE" | tr -d ' ')"
           if [ "$TEMPLATES_COUNT" -ne 1 ]; then
             echo "ERROR: Expected exactly 1 templates directory in export template archive, found $TEMPLATES_COUNT."
             cat "$TEMPLATES_MATCHES_FILE"
