@@ -182,7 +182,9 @@ jobs:
           rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
           mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
 
-          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          curl -L --fail \
+            -o "$GODOT_ZIP" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
           unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
 
           GODOT_APP_MATCHES_FILE="$(mktemp)"
@@ -198,7 +200,9 @@ jobs:
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
-          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          curl -L --fail \
+            -o "$TEMPLATES_TPZ" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
           unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
 
           TEMPLATES_MATCHES_FILE="$(mktemp)"
@@ -286,7 +290,9 @@ jobs:
           rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
           mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
 
-          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          curl -L --fail \
+            -o "$GODOT_ZIP" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
           unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
 
           GODOT_APP_MATCHES_FILE="$(mktemp)"
@@ -302,7 +308,9 @@ jobs:
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
-          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          curl -L --fail \
+            -o "$TEMPLATES_TPZ" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
           unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
 
           TEMPLATES_MATCHES_FILE="$(mktemp)"
@@ -404,7 +412,14 @@ jobs:
 
       - name: Generate debug keystore
         run: |
-          keytool -keyalg RSA -genkeypair             -alias androiddebugkey             -keypass android             -keystore "$GITHUB_WORKSPACE/debug.keystore"             -storepass android             -dname "CN=Android Debug,O=Android,C=US"             -validity 9999             -deststoretype pkcs12
+          keytool -keyalg RSA -genkeypair \
+            -alias androiddebugkey \
+            -keypass android \
+            -keystore "$GITHUB_WORKSPACE/debug.keystore" \
+            -storepass android \
+            -dname "CN=Android Debug,O=Android,C=US" \
+            -validity 9999 \
+            -deststoretype pkcs12
 
       - name: Prepare release keystore
         id: release_keystore
@@ -450,7 +465,11 @@ jobs:
             }
             trap cleanup_password_files EXIT
             HAS_VALID_RELEASE_KEYSTORE=false
-            if keytool -list               -keystore "$GITHUB_WORKSPACE/release.keystore"               -storepass:file "$STOREPASS_FILE"               -alias "$ANDROID_RELEASE_KEYSTORE_ALIAS"               -keypass:file "$KEYPASS_FILE" >/dev/null 2>&1; then
+            if keytool -list \
+              -keystore "$GITHUB_WORKSPACE/release.keystore" \
+              -storepass:file "$STOREPASS_FILE" \
+              -alias "$ANDROID_RELEASE_KEYSTORE_ALIAS" \
+              -keypass:file "$KEYPASS_FILE" >/dev/null 2>&1; then
               HAS_VALID_RELEASE_KEYSTORE=true
             fi
             trap - EXIT
@@ -541,7 +560,9 @@ jobs:
           rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
           mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
 
-          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          curl -L --fail \
+            -o "$GODOT_ZIP" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
           unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
 
           GODOT_APP_MATCHES_FILE="$(mktemp)"
@@ -557,7 +578,9 @@ jobs:
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
-          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          curl -L --fail \
+            -o "$TEMPLATES_TPZ" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
           unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
 
           TEMPLATES_MATCHES_FILE="$(mktemp)"
@@ -711,7 +734,7 @@ jobs:
               out.append(line)
           if in_ios_options and not inserted:
               out.append(f'application/app_store_team_id="{team_id}"')
-          path.write_text("\\n".join(out) + "\\n")
+          path.write_text("\n".join(out) + "\n")
           PY
         shell: bash
 
@@ -734,7 +757,9 @@ jobs:
           rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
           mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
 
-          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          curl -L --fail \
+            -o "$GODOT_ZIP" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
           unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
 
           GODOT_APP_MATCHES_FILE="$(mktemp)"
@@ -750,7 +775,9 @@ jobs:
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
-          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          curl -L --fail \
+            -o "$TEMPLATES_TPZ" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
           unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
 
           TEMPLATES_MATCHES_FILE="$(mktemp)"
@@ -830,7 +857,9 @@ jobs:
           rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
           mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
 
-          curl -L --fail             -o "$GODOT_ZIP"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
+          curl -L --fail \
+            -o "$GODOT_ZIP" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
           unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
 
           GODOT_APP_MATCHES_FILE="$(mktemp)"
@@ -846,7 +875,9 @@ jobs:
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
-          curl -L --fail             -o "$TEMPLATES_TPZ"             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
+          curl -L --fail \
+            -o "$TEMPLATES_TPZ" \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
           unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
 
           TEMPLATES_MATCHES_FILE="$(mktemp)"
