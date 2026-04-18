@@ -195,6 +195,7 @@ jobs:
           ANDROID_RELEASE_KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
           ANDROID_RELEASE_KEYSTORE_ALIAS: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
           ANDROID_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+          ANDROID_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
         run: |
           if [ -z "$ANDROID_RELEASE_KEYSTORE_B64" ]; then
             rm -f release.keystore
@@ -209,8 +210,11 @@ jobs:
             OLD_UMASK="$(umask)"
             umask 077
             STOREPASS_FILE="$(mktemp)"
+            KEYPASS_FILE="$(mktemp)"
             umask "$OLD_UMASK"
+            RELEASE_KEY_PASSWORD="${ANDROID_RELEASE_KEY_PASSWORD:-$ANDROID_RELEASE_KEYSTORE_PASSWORD}"
             printf '%s' "$ANDROID_RELEASE_KEYSTORE_PASSWORD" > "$STOREPASS_FILE"
+            printf '%s' "$RELEASE_KEY_PASSWORD" > "$KEYPASS_FILE"
             cleanup_storepass_file() {
               if [ -f "$STOREPASS_FILE" ]; then
                 if command -v shred >/dev/null 2>&1; then
@@ -219,13 +223,21 @@ jobs:
                   rm -f "$STOREPASS_FILE"
                 fi
               fi
+              if [ -f "$KEYPASS_FILE" ]; then
+                if command -v shred >/dev/null 2>&1; then
+                  shred -u "$KEYPASS_FILE" || rm -f "$KEYPASS_FILE"
+                else
+                  rm -f "$KEYPASS_FILE"
+                fi
+              fi
             }
             trap cleanup_storepass_file EXIT
             HAS_VALID_RELEASE_KEYSTORE=false
             if keytool -list \
               -keystore release.keystore \
               -storepass:file "$STOREPASS_FILE" \
-              -alias "$ANDROID_RELEASE_KEYSTORE_ALIAS" >/dev/null 2>&1; then
+              -alias "$ANDROID_RELEASE_KEYSTORE_ALIAS" \
+              -keypass:file "$KEYPASS_FILE" >/dev/null 2>&1; then
               HAS_VALID_RELEASE_KEYSTORE=true
             fi
             trap - EXIT
@@ -407,7 +419,7 @@ jobs:
           GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
           GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ./release.keystore
           GODOT_ANDROID_KEYSTORE_RELEASE_USER: ${{ secrets.ANDROID_RELEASE_KEYSTORE_ALIAS }}
-          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+          GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD || secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
 
       - name: Flatten export outputs
         run: |
