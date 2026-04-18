@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Check boot scene and required project files
         run: |
@@ -51,6 +51,8 @@ jobs:
           check_file src/Core/GameManager.cs
           check_file src/Core/EventBus.cs
           check_file src/Systems/Audio/AudioManager.cs
+          check_file src/Systems/Localization/LocalizationManager.cs
+          check_file src/Systems/Localization/SubtitleManager.cs
 
           # C# project
           check_file CorditeWars.csproj
@@ -62,9 +64,11 @@ jobs:
           check_file versions/linux/snapcraft.yaml
           check_file versions/linux/debian/control
           check_file versions/linux/flatpak/com.koshkikode.CorditeWars.yml
+          check_file versions/linux/cordite-wars.desktop
           check_file versions/macos/entitlements.plist
           check_file versions/ios/ios-info.plist
           check_file versions/ios/ios-export-options.plist
+          check_file assets/icons/icon.svg
 
           # Confirm Boot.tscn is the main scene
           if ! grep -q 'run/main_scene.*Boot\.tscn' project.godot; then
@@ -102,7 +106,7 @@ jobs:
       app_version: ${{ steps.read_version.outputs.app_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Read app version from versions/shared/version.json
         id: read_version
@@ -172,7 +176,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
         if: matrix.target == 'android'
@@ -635,42 +639,42 @@ jobs:
 
       - name: Upload Windows export artifact
         if: matrix.target == 'windows'
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Windows
           path: build/windows/
 
       - name: Upload Linux export artifact
         if: matrix.target == 'linux'
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Linux
           path: build/linux/
 
       - name: Upload Android APK artifact
         if: matrix.target == 'android'
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Android
           path: build/android/CorditeWars.apk
 
       - name: Upload Android AAB artifact
         if: matrix.target == 'android'
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Android-AAB
           path: build/android/CorditeWars.aab
 
       - name: Upload iOS/iPadOS Handoff artifact
         if: matrix.target == 'ios'
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-iOS-iPadOS-Handoff
           path: build/ios/
 
       - name: Upload macOS export artifact
         if: matrix.target == 'macos'
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-macOS-Export
           path: build/macos/
@@ -684,10 +688,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download Windows export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Windows
           path: build/windows
@@ -722,7 +726,7 @@ jobs:
           Write-Host "EXE installer: dist\windows\CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe"
 
       - name: Upload EXE installer artifact
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Windows-Setup-EXE
           path: dist/windows/CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe
@@ -736,10 +740,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download Windows export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Windows
           path: build/windows
@@ -781,7 +785,7 @@ jobs:
           Write-Host "MSI installer: dist\windows\CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi"
 
       - name: Upload MSI installer artifact
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Windows-MSI
           path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi
@@ -795,10 +799,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download Linux export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Linux
           path: build/linux
@@ -836,7 +840,7 @@ jobs:
           path: versions/linux
 
       - name: Upload Snap artifact
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Linux-Snap
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -850,10 +854,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download Linux export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Linux
           path: build/linux
@@ -916,7 +920,7 @@ jobs:
           ls -lh dist/linux/
 
       - name: Upload DEB artifact
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Linux-DEB
           path: dist/linux/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_amd64.deb
@@ -930,10 +934,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download Linux export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Linux
           path: build/linux
@@ -972,7 +976,7 @@ jobs:
           cache-key: flatpak-builder-${{ hashFiles('versions/linux/flatpak/com.koshkikode.CorditeWars.yml') }}
 
       - name: Upload Flatpak artifact
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Linux-Flatpak
           path: CorditeWars_${{ needs.resolve-version.outputs.app_version }}.flatpak
@@ -989,10 +993,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download Windows export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Windows
           path: build/windows
@@ -1112,7 +1116,7 @@ jobs:
           }
 
       - name: Upload MSIX artifact
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-Windows-MSIX
           path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msix
@@ -1125,10 +1129,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download macOS export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-macOS-Export
           path: build/macos
@@ -1245,7 +1249,7 @@ jobs:
           fi
 
       - name: Upload macOS DMG artifact
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-macOS-DMG
           path: dist/macos/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.dmg
@@ -1265,10 +1269,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Download iOS Xcode project
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-iOS-iPadOS-Handoff
           path: build/ios
@@ -1404,7 +1408,7 @@ jobs:
 
       - name: Upload iOS IPA artifact
         if: steps.ios_secrets.outputs.has_signing == 'true'
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-iOS-IPA
           path: build/ipa/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_ios.ipa
@@ -1422,7 +1426,7 @@ jobs:
 
       - name: Upload iOS Xcode zip artifact (fallback)
         if: steps.ios_secrets.outputs.has_signing != 'true'
-        uses: actions/upload-artifact@v8
+        uses: actions/upload-artifact@v4
         with:
           name: CorditeWars-iOS-IPA
           path: build/ios-zip/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_ios_xcode.zip
@@ -1439,7 +1443,7 @@ jobs:
 
     steps:
       - name: Download Linux export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Linux
           path: smoke/
@@ -1474,7 +1478,7 @@ jobs:
 
     steps:
       - name: Download Windows export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-Windows
           path: smoke/
@@ -1509,7 +1513,7 @@ jobs:
 
     steps:
       - name: Download macOS export
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: CorditeWars-macOS-Export
           path: smoke/
