@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check boot scene and required project files
         run: |
@@ -106,7 +106,7 @@ jobs:
       app_version: ${{ steps.read_version.outputs.app_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Read app version from versions/shared/version.json
         id: read_version
@@ -176,7 +176,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 21
         if: matrix.target == 'android'
@@ -423,6 +423,13 @@ jobs:
           TEMPLATES_TPZ="$RUNNER_TEMP/export-templates.tpz"
           GODOT_EXTRACT_DIR="$RUNNER_TEMP/godot-extract"
           TEMPLATES_EXTRACT_DIR="$RUNNER_TEMP/templates-extract"
+          GODOT_APP_MATCHES_FILE=""
+          TEMPLATES_MATCHES_FILE=""
+          cleanup_temp_match_files() {
+            [ -n "$GODOT_APP_MATCHES_FILE" ] && rm -f "$GODOT_APP_MATCHES_FILE"
+            [ -n "$TEMPLATES_MATCHES_FILE" ] && rm -f "$TEMPLATES_MATCHES_FILE"
+          }
+          trap cleanup_temp_match_files EXIT
 
           rm -rf "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
           mkdir -p "$GODOT_EXTRACT_DIR" "$TEMPLATES_EXTRACT_DIR"
@@ -432,13 +439,15 @@ jobs:
             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_macos.universal.zip"
           unzip -q "$GODOT_ZIP" -d "$GODOT_EXTRACT_DIR"
 
-          mapfile -t GODOT_APP_MATCHES < <(find "$GODOT_EXTRACT_DIR" -type d -name 'Godot.app')
-          if [ "${#GODOT_APP_MATCHES[@]}" -ne 1 ]; then
-            echo "ERROR: Expected exactly 1 Godot.app after extraction, found ${#GODOT_APP_MATCHES[@]}."
-            printf '%s\n' "${GODOT_APP_MATCHES[@]}"
+          GODOT_APP_MATCHES_FILE="$(mktemp)"
+          find "$GODOT_EXTRACT_DIR" -type d -name 'Godot.app' > "$GODOT_APP_MATCHES_FILE"
+          GODOT_APP_COUNT="$(wc -l < "$GODOT_APP_MATCHES_FILE" | tr -d ' ')"
+          if [ "$GODOT_APP_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 Godot.app after extraction, found $GODOT_APP_COUNT."
+            cat "$GODOT_APP_MATCHES_FILE"
             exit 1
           fi
-          GODOT_APP_PATH="${GODOT_APP_MATCHES[0]}"
+          GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
           GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
@@ -448,13 +457,15 @@ jobs:
             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_mono_export_templates.tpz"
           unzip -q "$TEMPLATES_TPZ" -d "$TEMPLATES_EXTRACT_DIR"
 
-          mapfile -t TEMPLATES_MATCHES < <(find "$TEMPLATES_EXTRACT_DIR" -type d -name templates)
-          if [ "${#TEMPLATES_MATCHES[@]}" -ne 1 ]; then
-            echo "ERROR: Expected exactly 1 templates directory in export template archive, found ${#TEMPLATES_MATCHES[@]}."
-            printf '%s\n' "${TEMPLATES_MATCHES[@]}"
+          TEMPLATES_MATCHES_FILE="$(mktemp)"
+          find "$TEMPLATES_EXTRACT_DIR" -type d -name templates > "$TEMPLATES_MATCHES_FILE"
+          TEMPLATES_COUNT="$(wc -l < "$TEMPLATES_MATCHES_FILE" | tr -d ' ')"
+          if [ "$TEMPLATES_COUNT" -ne 1 ]; then
+            echo "ERROR: Expected exactly 1 templates directory in export template archive, found $TEMPLATES_COUNT."
+            cat "$TEMPLATES_MATCHES_FILE"
             exit 1
           fi
-          TEMPLATES_SRC_DIR="${TEMPLATES_MATCHES[0]}"
+          TEMPLATES_SRC_DIR="$(sed -n '1p' "$TEMPLATES_MATCHES_FILE")"
 
           TEMPLATES_VERSION="$(echo "$GODOT_VERSION" | sed 's/-/./').mono"
           TEMPLATES_DEST_DIR="$HOME/Library/Application Support/Godot/export_templates/$TEMPLATES_VERSION"
@@ -688,7 +699,7 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Windows export
         uses: actions/download-artifact@v4
@@ -740,7 +751,7 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Windows export
         uses: actions/download-artifact@v4
@@ -799,7 +810,7 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Linux export
         uses: actions/download-artifact@v4
@@ -854,7 +865,7 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Linux export
         uses: actions/download-artifact@v4
@@ -934,7 +945,7 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Linux export
         uses: actions/download-artifact@v4
@@ -993,7 +1004,7 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Windows export
         uses: actions/download-artifact@v4
@@ -1129,7 +1140,7 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download macOS export
         uses: actions/download-artifact@v4
@@ -1269,7 +1280,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download iOS Xcode project
         uses: actions/download-artifact@v4
