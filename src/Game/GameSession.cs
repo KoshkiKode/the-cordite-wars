@@ -113,6 +113,7 @@ public partial class GameSession : Node
     private BuildingManifest _buildingManifest = new();
     private GameHUD? _gameHUD;
     private readonly List<SkirmishAI> _skirmishAIs = new();
+    private CommandBuffer? _sharedCommandBuffer;
 
     // ── Session State ───────────────────────────────────────────────
 
@@ -502,7 +503,7 @@ public partial class GameSession : Node
             _gameManager.HarvesterSystem = _harvesterSystem;
             _gameManager.TechTreeManager = _techTreeManager;
             _gameManager.MapLoader = _mapLoader;
-            _gameManager.CommandBuffer = new CommandBuffer();
+            _gameManager.CommandBuffer = _sharedCommandBuffer ??= new CommandBuffer();
             _gameManager.OnSimulationTick += HandleSimulationTick;
 
             // m. If multiplayer: initialize LockstepManager + NetworkTransport
@@ -2084,7 +2085,7 @@ public partial class GameSession : Node
             _gameManager.HarvesterSystem = _harvesterSystem;
             _gameManager.TechTreeManager = _techTreeManager;
             _gameManager.MapLoader = _mapLoader;
-            _gameManager.CommandBuffer = new CommandBuffer();
+            _gameManager.CommandBuffer = _sharedCommandBuffer ??= new CommandBuffer();
             _gameManager.OnSimulationTick += HandleSimulationTick;
 
             // Initialize RNG with saved seed and restore full state
@@ -2315,7 +2316,8 @@ public partial class GameSession : Node
         AddChild(_selectionManager);
 
         // b. CommandInput — needs CommandBuffer from GameManager
-        var commandBuffer = new CommandBuffer();
+        _sharedCommandBuffer = new CommandBuffer();
+        var commandBuffer = _sharedCommandBuffer;
         // Share this CommandBuffer with GameManager so HandleSimulationTick can consume commands
         if (_gameManager != null)
             _gameManager.CommandBuffer = commandBuffer;
@@ -2332,9 +2334,10 @@ public partial class GameSession : Node
         AddChild(_commandInput);
 
         // c. BuildingPlacer
-        var occupancyGrid = new OccupancyGrid(
+        var occupancyGrid = _occupancyGrid ?? new OccupancyGrid(
             ActiveMap?.Width ?? 256,
             ActiveMap?.Height ?? 256);
+        _occupancyGrid = occupancyGrid;
 
         _buildingPlacer = new BuildingPlacer();
         _buildingPlacer.Name = "BuildingPlacer";
@@ -2880,6 +2883,7 @@ public partial class GameSession : Node
         _camera = new RTSCamera();
         _camera.Name = "RTSCamera";
         AddChild(_camera);
+        _camera.Current = true;
 
         // Focus camera on the human player's starting position (first non-AI slot).
         // Map starting positions use 0-based PlayerId; player configs use 1-based PlayerId.
