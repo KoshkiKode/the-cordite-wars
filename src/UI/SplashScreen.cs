@@ -11,7 +11,8 @@ public partial class SplashScreen : Control
     private const float FadeInDuration  = 0.5f;
     private const float HoldDuration    = 1.5f;
     private const float FadeOutDuration = 0.5f;
-    private const string NextScene      = "res://scenes/UI/LoadingScreen.tscn";
+    private const string EulaScene      = "res://scenes/UI/EulaAgreementScreen.tscn";
+    private const string LoadingScene   = "res://scenes/UI/LoadingScreen.tscn";
 
     private static string VersionString
     {
@@ -130,6 +131,7 @@ public partial class SplashScreen : Control
 
     private void GoToNextScene()
     {
-        GetTree().ChangeSceneToFile(NextScene);
+        string nextScene = EulaAgreementScreen.IsAcceptanceRequired() ? EulaScene : LoadingScene;
+        GetTree().ChangeSceneToFile(nextScene);
     }
 }

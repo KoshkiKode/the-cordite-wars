@@ -298,5 +298,5 @@ For signing & distribution (optional, adds automation):
 
 ## 📞 Support
 
-- **Issues**: https://github.com/KoshkiKode/cordite/issues
-- **Discussions**: https://github.com/KoshkiKode/cordite/discussions
+- **Issues**: https://koshkikode.com
+- **Discussions**: https://koshkikode.com

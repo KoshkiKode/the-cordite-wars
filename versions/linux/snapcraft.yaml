@@ -7,11 +7,11 @@ base: core22
 version: 1.0.0
 title: "Cordite Wars: Six Fronts"
 summary: Cordite Wars — Six Fronts real-time strategy
-contact: https://github.com/KoshkiKode/cordite/issues
+contact: https://koshkikode.com
 license: Proprietary
-website: https://github.com/KoshkiKode/cordite
+website: https://koshkikode.com
 source-code: https://github.com/KoshkiKode/cordite
-issues: https://github.com/KoshkiKode/cordite/issues
+issues: https://koshkikode.com
 donation: https://patreon.com/KoshkiKode
 description: |
   Command six distinct factions across land, air, and sea in Cordite Wars:

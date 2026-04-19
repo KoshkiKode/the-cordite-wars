@@ -58,3 +58,5 @@ A cross-platform real-time strategy game inspired by Command & Conquer and Tempe
 
 All rights reserved. This source code is proprietary and confidential.
 Unauthorized copying, distribution, or modification is strictly prohibited.
+The End User License Agreement (EULA) is the primary governing license for
+installation and use: `EULA.txt`.

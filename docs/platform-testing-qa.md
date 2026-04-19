@@ -336,7 +336,7 @@ Test on:
 
 ## Reporting Bugs
 
-Submit issues to: https://github.com/KoshkiKode/cordite/issues
+Submit issues to: https://koshkikode.com
 
 Include:
 - **Platform & OS version** (Windows 11 22H2, Android 12, etc.)
