@@ -31,7 +31,6 @@ architectures:
 apps:
   cordite-wars:
     command: CorditeWars
-    command-chain: []
     extensions: [gnome]
     plugs:
       - audio-playback

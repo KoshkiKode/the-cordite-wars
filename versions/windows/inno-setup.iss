@@ -6,7 +6,7 @@
 #define MyAppName "Cordite Wars: Six Fronts"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "Cordite Wars Team"
-#define MyAppURL "https://github.com/corditewars/sixfronts"
+#define MyAppURL "https://github.com/KoshkiKode/cordite"
 #define MyAppExeName "CorditeWars.exe"
 #define MyAppId "{{8F3A6D4E-B2C1-4E7F-9A5D-3B8C12E4F6A2}"
 
