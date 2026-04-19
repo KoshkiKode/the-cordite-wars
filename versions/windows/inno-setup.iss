@@ -62,15 +62,14 @@ Root: HKLM; Subkey: "Software\CorditeWarsTeam\CorditeWarsSixFronts"; ValueType: 
    .NET 9 installer writes on Windows.
 ────────────────────────────────────────────────────────────────── }
 
-function IsDotNet9Installed: Boolean;
+function HasDotNet9SharedFramework(const Architecture, FrameworkName: String): Boolean;
 var
   KeyPath: String;
-  SubKey: String;
   Names: TArrayOfString;
   i: Integer;
 begin
   Result := False;
-  KeyPath := 'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.NETCore.App';
+  KeyPath := 'SOFTWARE\dotnet\Setup\InstalledVersions\' + Architecture + '\sharedfx\' + FrameworkName;
   if RegGetSubkeyNames(HKLM, KeyPath, Names) then
   begin
     for i := 0 to GetArrayLength(Names) - 1 do
@@ -83,6 +82,15 @@ begin
       end;
     end;
   end;
+end;
+
+function IsDotNet9Installed: Boolean;
+begin
+  Result :=
+    HasDotNet9SharedFramework('x64', 'Microsoft.NETCore.App') or
+    HasDotNet9SharedFramework('x64', 'Microsoft.WindowsDesktop.App') or
+    HasDotNet9SharedFramework('arm64', 'Microsoft.NETCore.App') or
+    HasDotNet9SharedFramework('arm64', 'Microsoft.WindowsDesktop.App');
 end;
 
 procedure InitializeWizard;

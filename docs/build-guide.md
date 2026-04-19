@@ -326,12 +326,32 @@ Filename: "{app}\CorditeWars.exe"; Description: "Launch Cordite Wars: Six Fronts
 
 ```iss
 [Code]
-function IsDotNet9Installed: Boolean;
+function HasDotNet9SharedFramework(const Architecture, FrameworkName: String): Boolean;
 var
   Key: String;
+  Names: TArrayOfString;
+  i: Integer;
 begin
-  Key := 'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.NETCore.App';
-  Result := RegKeyExists(HKLM, Key);
+  Result := False;
+  Key := 'SOFTWARE\dotnet\Setup\InstalledVersions\' + Architecture + '\sharedfx\' + FrameworkName;
+  if RegGetSubkeyNames(HKLM, Key, Names) then
+  begin
+    for i := 0 to GetArrayLength(Names) - 1 do
+      if Pos('9.', Names[i]) = 1 then
+      begin
+        Result := True;
+        Exit;
+      end;
+  end;
+end;
+
+function IsDotNet9Installed: Boolean;
+begin
+  Result :=
+    HasDotNet9SharedFramework('x64', 'Microsoft.NETCore.App') or
+    HasDotNet9SharedFramework('x64', 'Microsoft.WindowsDesktop.App') or
+    HasDotNet9SharedFramework('arm64', 'Microsoft.NETCore.App') or
+    HasDotNet9SharedFramework('arm64', 'Microsoft.WindowsDesktop.App');
 end;
 
 procedure InitializeWizard;
