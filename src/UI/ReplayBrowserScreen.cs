@@ -183,7 +183,10 @@ public partial class ReplayBrowserScreen : Control
                 }
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            GD.PushWarning($"[ReplayBrowserScreen] Could not read replay details from '{filePath}': {ex.Message}");
+        }
 
         return $"{timestamp}  —  {mapId}{extra}";
     }

@@ -11,6 +11,7 @@ namespace CorditeWars.Systems.Persistence;
 /// Custom JSON converter that serializes FixedPoint as its raw int value (lossless).
 /// The standard FixedPointJsonConverter in FactionRegistry writes floats for human-readable
 /// data files; saves need exact round-trip fidelity, so we write the raw integer instead.
+/// Available for use when SaveGameData fields include FixedPoint values directly.
 /// </summary>
 public sealed class FixedPointSaveJsonConverter : JsonConverter<FixedPoint>
 {

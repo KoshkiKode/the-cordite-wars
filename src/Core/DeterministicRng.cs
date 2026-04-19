@@ -71,7 +71,7 @@ public class DeterministicRng
     public int NextInt(int max)
     {
         if (max <= 0) return 0;
-        ulong threshold = (ulong)(-(long)max % max);
+        ulong threshold = (ulong)(-(long)max) % (ulong)max;
         ulong r;
         do { r = NextUlong(); } while (r < threshold);
         return (int)(r % (ulong)max);

@@ -594,7 +594,7 @@ public static class MovementSimulator
     }
 
     /// <summary>
-    /// Normalizes an angle to [-π, π).
+    /// Normalizes an angle to (-π, π].
     /// </summary>
     private static FixedPoint NormalizeAngleSigned(FixedPoint angle)
     {
@@ -606,7 +606,7 @@ public static class MovementSimulator
     }
 
     /// <summary>
-    /// Normalizes an angle delta to [-π, π) — the shortest rotation.
+    /// Normalizes an angle delta to (-π, π] — the shortest rotation.
     /// </summary>
     private static FixedPoint NormalizeAngleDelta(FixedPoint delta)
     {

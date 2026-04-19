@@ -335,6 +335,11 @@ public partial class GameSession : Node
                     mapId = available[0];
                     GD.PushWarning($"[GameSession] Map '{config.MapId}' not found — falling back to '{mapId}'.");
                 }
+                else
+                {
+                    GD.PushError($"[GameSession] Map '{config.MapId}' not found and no maps are loaded — cannot start match.");
+                    return;
+                }
             }
             ActiveMap = _mapLoader.GetMap(mapId);
         }

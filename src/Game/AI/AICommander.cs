@@ -39,6 +39,7 @@ public partial class AICommander : Node
 
     private readonly SortedList<int, Squad> _squads = new();
     private int _nextSquadId;
+    private int _tickCount;
 
     // Attack thresholds (supply percentage)
     private int _attackThresholdPercent;
@@ -85,6 +86,8 @@ public partial class AICommander : Node
     public void Update(AIState currentAIState)
     {
         if (_unitSpawner is null) return;
+
+        _tickCount++;
 
         // Assign unassigned units to squads
         AssignUnitsToSquads();
@@ -244,13 +247,10 @@ public partial class AICommander : Node
     {
         if (squad.UnitIds.Count == 0) return;
 
-        // Scout explores map — move to random positions around the map
-        // Simple exploration: spiral outward from base
-        FixedPoint radius = FixedPoint.FromInt(20) + FixedPoint.FromInt(_nextSquadId % 40);
-        FixedPoint angle = FixedPoint.FromInt((_nextSquadId * 37) % 360);
-
-        // Simple position offset (approximate without trig — grid pattern)
-        int gridStep = (_nextSquadId * 7) % 8;
+        // Scout explores map — move to different positions around the map over time.
+        // Direction rotates every 150 ticks (~5 s at 30 ticks/s) to cover all quadrants.
+        int gridStep = (_tickCount / 150) % 8;
+        FixedPoint radius = FixedPoint.FromInt(20) + FixedPoint.FromInt((_tickCount / 1200) % 40);
         FixedPoint dx = FixedPoint.Zero;
         FixedPoint dy = FixedPoint.Zero;
 

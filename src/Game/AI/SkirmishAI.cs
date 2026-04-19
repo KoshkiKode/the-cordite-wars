@@ -226,7 +226,9 @@ public partial class SkirmishAI : Node
 
     private void ExecuteState()
     {
-        if (_economyManager is null || _buildOrder is null || _commander is null) return;
+        if (_economyManager is null || _buildOrder is null || _commander is null
+            || _buildingPlacer is null || _buildingRegistry is null
+            || _unitDataRegistry is null || _unitSpawner is null) return;
 
         PlayerEconomy? economy = _economyManager.GetPlayer(PlayerId);
         if (economy is null) return;

@@ -445,8 +445,9 @@ void fragment() {
             return PathColor;
 
         // Feature-specific override (sea_edge, oasis, ridgeline)
-        if (_featureOverrides[idx].HasValue)
-            return _featureOverrides[idx].Value;
+        var featureOverride = _featureOverrides[idx];
+        if (featureOverride.HasValue)
+            return featureOverride.Value;
 
         // Biome-based coloring
         string biome = _mapData.Biome ?? "temperate";

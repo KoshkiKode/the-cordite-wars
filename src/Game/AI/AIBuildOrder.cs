@@ -275,6 +275,7 @@ public partial class AIBuildOrder : Node
             if (!buildingRegistry.HasBuilding(generic))
             {
                 // Skip this step — building type doesn't exist
+                GD.PushWarning($"[AIBuildOrder] Building '{step.TargetId}' not found in registry — skipping build step.");
                 return true;
             }
             buildingId = generic;
@@ -322,7 +323,10 @@ public partial class AIBuildOrder : Node
                 generic = generic.Substring(underscoreIdx + 1);
 
             if (!unitDataRegistry.HasUnit(generic))
+            {
+                GD.PushWarning($"[AIBuildOrder] Unit '{step.TargetId}' not found in registry — skipping produce step.");
                 return true; // Skip
+            }
             unitId = generic;
         }
 
