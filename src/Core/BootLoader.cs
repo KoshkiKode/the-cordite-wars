@@ -39,8 +39,8 @@ public partial class BootLoader : Node
         GD.Print("[Boot] Accessibility and keybind systems initialized.");
 
         GD.Print("[Boot] All core systems initialized.");
-        GD.Print("[Boot] Transitioning to splash screen...");
+        GD.Print("[Boot] Transitioning to branding screen...");
 
-        GetTree().ChangeSceneToFile("res://scenes/UI/SplashScreen.tscn");
+        GetTree().ChangeSceneToFile("res://scenes/UI/KoshkiKodeBrandingScreen.tscn");
     }
 }

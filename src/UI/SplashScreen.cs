@@ -3,7 +3,7 @@ using Godot;
 namespace CorditeWars.UI;
 
 /// <summary>
-/// Boot splash: "CORDITE WARS / SIX FRONTS" logo fade-in, hold, fade-out.
+/// Intro splash: "CORDITE WARS / SIX FRONTS" logo fade-in, hold, fade-out.
 /// Skip on any input. Version in bottom-right corner.
 /// </summary>
 public partial class SplashScreen : Control
@@ -13,6 +13,8 @@ public partial class SplashScreen : Control
     private const float FadeOutDuration = 0.5f;
     private const string EulaScene      = "res://scenes/UI/EulaAgreementScreen.tscn";
     private const string LoadingScene   = "res://scenes/UI/LoadingScreen.tscn";
+    private const string IntroTitle     = "CORDITE WARS";
+    private const string IntroSubtitle  = "SIX FRONTS";
 
     private static string VersionString
     {
@@ -55,14 +57,14 @@ public partial class SplashScreen : Control
 
         // Title: CORDITE WARS
         var title = new Label();
-        title.Text = Tr("GAME_TITLE");
+        title.Text = IntroTitle;
         title.HorizontalAlignment = HorizontalAlignment.Center;
         UITheme.StyleLabel(title, UITheme.FontSizeTitle, UITheme.Accent);
         center.AddChild(title);
 
         // Decorative separator
         var sep = new Label();
-        sep.Text = "\u2500\u2500\u2500  " + Tr("GAME_SUBTITLE") + "  \u2500\u2500\u2500";
+        sep.Text = "\u2500\u2500\u2500  " + IntroSubtitle + "  \u2500\u2500\u2500";
         sep.HorizontalAlignment = HorizontalAlignment.Center;
         UITheme.StyleLabel(sep, UITheme.FontSizeSubtitle, UITheme.TextSecondary);
         center.AddChild(sep);
