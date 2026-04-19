@@ -38,6 +38,11 @@ public partial class PropPlacer : Node3D
         TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid,
         QualityTier tier = QualityTier.Medium)
     {
+        // Remove any previously placed prop/structure nodes so that repeated calls
+        // (e.g. map reload or editor regeneration) do not accumulate stale geometry.
+        foreach (Node child in GetChildren())
+            child.QueueFree();
+
         _destructibles.Clear();
         _nextPropId = 0;
 

@@ -66,6 +66,13 @@ void fragment() {
         _mapWidth  = mapWidth;
         _mapHeight = mapHeight;
 
+        // Remove any existing fog plane so repeated calls don't stack meshes.
+        if (_meshInstance is not null && IsInstanceValid(_meshInstance))
+        {
+            _meshInstance.QueueFree();
+            _meshInstance = null;
+        }
+
         // Build the image: single-channel R8 with R used as opacity by the shader.
         _fogImage   = Image.CreateEmpty(mapWidth, mapHeight, false, Image.Format.R8);
         _fogBytes   = new byte[mapWidth * mapHeight]; // 1 byte per cell
@@ -107,7 +114,7 @@ void fragment() {
 
     public override void _Process(double delta)
     {
-        if (_fogGrid == null || _fogImage == null || _fogTexture == null)
+        if (_fogImage == null || _fogTexture == null)
             return;
 
         UploadFog();
