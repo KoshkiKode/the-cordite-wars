@@ -110,7 +110,7 @@ public partial class GameSession : Node
     private SelectionManager? _selectionManager;
     private CommandInput? _commandInput;
     private BuildingPlacer? _buildingPlacer;
-    private BuildingManifest _buildingManifest = new();
+    private readonly BuildingManifest _buildingManifest = new();
     private GameHUD? _gameHUD;
     private readonly List<SkirmishAI> _skirmishAIs = new();
     private CommandBuffer? _sharedCommandBuffer;
