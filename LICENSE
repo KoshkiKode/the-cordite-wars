@@ -7,10 +7,14 @@ No part of this software may be reproduced, distributed, or transmitted
 in any form or by any means without the prior written permission of
 KoshkiKode LLC.
 
+The End User License Agreement (EULA) is the primary and controlling
+license agreement for installation and use of the Software across all
+platforms.
+
 Unauthorized copying, modification, or distribution of this software
 is strictly prohibited and may result in civil and criminal penalties.
 
-For full end-user license terms see EULA.txt (distributed with the
-Windows installer) or versions/windows/EULA.txt in the source tree.
+For the full governing terms, see versions/windows/EULA.txt in the
+source tree (also distributed as EULA.txt with installer builds).
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.

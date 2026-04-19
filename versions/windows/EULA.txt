@@ -130,7 +130,7 @@ connection with the Software and Licensor's business.
 9. PRIVACY
 
 Use of the Software may be subject to Licensor's Privacy Policy, available at
-https://github.com/KoshkiKode/cordite or within the Software. The Privacy
+https://koshkikode.com or within the Software. The Privacy
 Policy is incorporated into this Agreement by reference.
 
 10. DISCLAIMER OF WARRANTIES
@@ -197,8 +197,8 @@ jurisdiction, and you consent to personal jurisdiction therein.
     d) Assignment. You may not assign or transfer this Agreement or any of your
        rights hereunder without the prior written consent of KoshkiKode LLC.
        KoshkiKode LLC may freely assign this Agreement.
-    e) Contact. For questions about this Agreement, contact KoshkiKode LLC
-       through the repository at https://github.com/KoshkiKode/cordite.
+    e) Contact. For questions about this Agreement or to report issues,
+       contact KoshkiKode LLC at https://koshkikode.com.
 
 ------------------------------------------------------------------------
 
