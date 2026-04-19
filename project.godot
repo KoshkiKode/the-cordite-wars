@@ -33,6 +33,7 @@ EventBus="*res://src/Core/EventBus.cs"
 AudioManager="*res://src/Systems/Audio/AudioManager.cs"
 LocalizationManager="*res://src/Systems/Localization/LocalizationManager.cs"
 SubtitleManager="*res://src/Systems/Localization/SubtitleManager.cs"
+QualityManager="*res://src/Systems/Graphics/QualityManager.cs"
 
 [debug]
 
