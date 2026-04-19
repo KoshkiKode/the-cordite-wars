@@ -1,7 +1,7 @@
 END USER LICENSE AGREEMENT
 Cordite Wars: Six Fronts
 
-Last Updated: 2026
+Last Updated: 18 April 2026
 
 PLEASE READ THIS END USER LICENSE AGREEMENT ("AGREEMENT" OR "EULA") CAREFULLY
 BEFORE INSTALLING OR USING CORDITE WARS: SIX FRONTS (THE "SOFTWARE"). BY
@@ -43,7 +43,9 @@ You may NOT, without prior written permission from KoshkiKode LLC:
     a) Copy, reproduce, distribute, publish, display, or transmit the Software
        or any portion thereof;
     b) Modify, adapt, translate, reverse engineer, decompile, disassemble, or
-       create derivative works based on the Software or any portion thereof;
+       create derivative works based on the Software or any portion thereof,
+       except as expressly permitted under Section 5 (Modding and Community
+       Modifications) below;
     c) Rent, lease, lend, sell, sublicense, or otherwise transfer rights to the
        Software;
     d) Remove, alter, or obscure any proprietary notices, labels, or marks on
@@ -54,20 +56,60 @@ You may NOT, without prior written permission from KoshkiKode LLC:
        access or interact with the Software in an unauthorized manner;
     g) Use the Software in a way that violates any applicable law or regulation.
 
-5. UPDATES AND PATCHES
+5. MODDING AND COMMUNITY MODIFICATIONS
+
+KoshkiKode LLC supports community creativity. Notwithstanding the restrictions in
+Section 4(b), you are granted a limited right to create Modifications ("Mods")
+to the Software under the following conditions:
+
+    a) Non-Commercial Only. Mods must be created and distributed free of charge.
+       You may not sell, license for a fee, or otherwise commercialize any Mod or
+       any portion of the Software on which it is based.
+
+    b) Open-Source Code Base. The source code of the Software is made publicly
+       available at https://github.com/KoshkiKode/cordite. You may read, fork,
+       and modify that source code solely to create Mods that extend or alter
+       gameplay. Any Mod you distribute must itself be distributed free of charge
+       and must clearly identify KoshkiKode LLC as the original author of the
+       underlying Software.
+
+    c) No Base-Game Redistribution. You may share your Mod files (scripts,
+       assets, configuration created by you), but you may NOT redistribute the
+       base Software, its compiled binaries, packaged builds, or any substantial
+       portion of its original assets as part of your Mod release.
+
+    d) Attribution. All Mods must prominently state: "Based on Cordite Wars: Six
+       Fronts, copyright (c) 2026 KoshkiKode LLC. All rights reserved."
+
+    e) No Harmful Mods. Mods must not introduce cheats, exploits, malware,
+       unlawful content, or anything that violates applicable law.
+
+    f) KoshkiKode LLC Retains All Rights. Creating a Mod does not transfer any
+       intellectual property rights to you. KoshkiKode LLC retains full and
+       exclusive ownership of the underlying Software and all of its components.
+       KoshkiKode LLC may incorporate community Mod ideas or code into the
+       official Software at its sole discretion without compensation or
+       attribution obligations, unless a separate written agreement states
+       otherwise.
+
+    g) No Warranty for Mods. KoshkiKode LLC makes no representations or
+       warranties regarding any community Mods and bears no liability for
+       damages arising from your use or distribution of a Mod.
+
+6. UPDATES AND PATCHES
 
 Licensor may, at its sole discretion, provide updates, patches, or new versions
 of the Software. Such updates are subject to the terms of this Agreement unless
 accompanied by a separate license agreement that expressly supersedes this one.
 
-6. INTELLECTUAL PROPERTY
+7. INTELLECTUAL PROPERTY
 
 All trademarks, service marks, trade names, logos, and trade dress associated
 with the Software are the property of KoshkiKode LLC. Nothing in this Agreement
 grants you the right to use any of those marks without prior written consent of
 KoshkiKode LLC.
 
-7. USER-GENERATED CONTENT
+8. USER-GENERATED CONTENT
 
 To the extent the Software permits you to create or upload content ("User
 Content"), you retain any rights you hold in your original creative work.
@@ -76,13 +118,13 @@ royalty-free, perpetual, irrevocable, sublicensable license to use, reproduce,
 modify, adapt, publish, translate, distribute, and display that User Content in
 connection with the Software and Licensor's business.
 
-8. PRIVACY
+9. PRIVACY
 
 Use of the Software may be subject to Licensor's Privacy Policy, available at
 https://github.com/KoshkiKode/cordite or within the Software. The Privacy
 Policy is incorporated into this Agreement by reference.
 
-9. DISCLAIMER OF WARRANTIES
+10. DISCLAIMER OF WARRANTIES
 
 THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTY OF ANY
 KIND. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, KOSHKIKODE LLC AND
@@ -92,7 +134,7 @@ FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. LICENSOR DOES
 NOT WARRANT THAT THE SOFTWARE WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF
 VIRUSES OR OTHER HARMFUL COMPONENTS.
 
-10. LIMITATION OF LIABILITY
+11. LIMITATION OF LIABILITY
 
 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL
 KOSHKIKODE LLC OR ITS OFFICERS, EMPLOYEES, OR AGENTS BE LIABLE FOR ANY
@@ -110,7 +152,7 @@ CLAIM, OR (B) TEN U.S. DOLLARS (US $10.00).
 SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF CERTAIN
 WARRANTIES OR LIABILITY, SO THE ABOVE LIMITATIONS MAY NOT APPLY TO YOU.
 
-11. INDEMNIFICATION
+12. INDEMNIFICATION
 
 You agree to indemnify, defend, and hold harmless KoshkiKode LLC and its
 officers, directors, employees, and agents from and against any claims,
@@ -118,14 +160,14 @@ liabilities, damages, judgments, awards, losses, costs, expenses, or fees
 (including reasonable attorneys' fees) arising out of or relating to your
 violation of this Agreement or your use of the Software.
 
-12. TERMINATION
+13. TERMINATION
 
 This Agreement is effective until terminated. KoshkiKode LLC may terminate this
 Agreement immediately and without notice if you breach any term herein. Upon
 termination you must destroy all copies of the Software in your possession or
-control. Sections 3, 4, 6, 9, 10, 11, 13, and 14 survive any termination.
+control. Sections 3, 4, 5, 7, 10, 11, 12, 14, and 15 survive any termination.
 
-13. GOVERNING LAW AND DISPUTE RESOLUTION
+14. GOVERNING LAW AND DISPUTE RESOLUTION
 
 This Agreement shall be governed by and construed in accordance with the laws of
 the jurisdiction in which KoshkiKode LLC is organized, without regard to its
@@ -133,7 +175,7 @@ conflict of law principles. Any dispute arising out of or relating to this
 Agreement shall be subject to the exclusive jurisdiction of the courts in that
 jurisdiction, and you consent to personal jurisdiction therein.
 
-14. GENERAL
+15. GENERAL
 
     a) Entire Agreement. This Agreement constitutes the entire agreement between
        you and KoshkiKode LLC regarding the Software and supersedes all prior or
