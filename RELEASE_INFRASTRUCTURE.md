@@ -48,7 +48,7 @@ python3 generate-checksums.py verify build/checksums.txt
 
 | Workflow | Trigger | Output |
 |----------|---------|--------|
-| `.github/workflows/export.yml` | Every push to `main` | All platform exports (WIP artifacts) |
+| `.github/workflows/export.yml` | Manual run / reusable call | All platform exports (WIP artifacts) |
 | `.github/workflows/release.yml` | Push tag `v*` | GitHub Release with all artifacts + checksums |
 
 ### Documentation
@@ -112,7 +112,7 @@ git commit -m "Release v0.1.1: Bug fixes and performance improvements"
 # Create tag (must match v*.*.* pattern to trigger release workflow)
 git tag v0.1.1
 
-# Push to origin (triggers export + release creation)
+# Push to origin (triggers release creation; release calls export internally)
 git push origin main --tags
 ```
 
