@@ -1,4 +1,7 @@
 using Godot;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using CorditeWars.Game.Assets;
 using CorditeWars.Game.Factions;
 using CorditeWars.Game.Tech;
@@ -16,25 +19,44 @@ namespace CorditeWars.UI;
 public partial class LoadingScreen : Control
 {
     private const string NextScene = "res://scenes/UI/MainMenu.tscn";
+    private const float TipRotationIntervalSeconds = 5f;
 
     private ProgressBar _progressBar = null!;
     private Label _statusLabel = null!;
     private Label _tipLabel = null!;
     private int _currentStep;
     private bool _loadingComplete;
+    private int _currentTipIndex;
+    private string[] _tipRotationList = null!;
+    private CancellationTokenSource? _tipRotationCts;
 
-    private static readonly string[] LoadingTipKeys =
+    private static readonly string[] LoadingTips =
     {
-        "TIP_VALKYR_REARM",
-        "TIP_KRAGMORE_HORDE",
-        "TIP_BASTION_REFINERY",
-        "TIP_ARCLOFT_OVERWATCH",
-        "TIP_IRONMARCH_FOB",
-        "TIP_STORMREND_MOMENTUM",
-        "TIP_CAMERA_CONTROLS",
-        "TIP_COMMAND_UNITS",
-        "TIP_CONTROL_GROUPS",
-        "TIP_DESTROY_REACTORS",
+        "Queue commands with Shift so units keep moving while you manage other fronts.",
+        "Scout early and often; vision wins battles before weapons do.",
+        "Spend Cordite steadily instead of stockpiling it for too long.",
+        "Build production before you need it so reinforcements arrive on time.",
+        "Control groups make multi-front fights much easier to manage.",
+        "Flank static defenses instead of charging straight into them.",
+        "Capture resource points quickly to create long-term economic pressure.",
+        "Pull damaged units back; preserving veterancy improves your army over time.",
+        "Use terrain choke points to force favorable engagements.",
+        "Expand to a second base before your first one is fully saturated.",
+        "Keep anti-air with your army even when skies look clear.",
+        "A balanced army is safer than overcommitting to one unit type.",
+        "Use quick raids to interrupt enemy economy and tech timings.",
+        "Hotkeys save seconds, and seconds win close battles.",
+        "Position artillery behind line-of-sight support for maximum impact.",
+        "Pressure multiple fronts to split enemy attention.",
+        "Reactors and tech structures are high-value strategic targets.",
+        "Keep production queues active so your army never stalls.",
+        "Defend supply lines and harvesters to protect your momentum.",
+        "Retreating early can be better than losing an entire force.",
+        "Always have a plan for detection against stealth threats.",
+        "Air units are strongest when paired with ground spotting.",
+        "Drop map markers and pings to keep team coordination tight.",
+        "Reinforce from forward positions to reduce travel downtime.",
+        "When ahead, secure objectives and deny comeback opportunities.",
     };
 
     private struct LoadStep
@@ -113,7 +135,6 @@ public partial class LoadingScreen : Control
 
         // Tip text at bottom
         _tipLabel = new Label();
-        _tipLabel.Text = Tr("LOADING_TIP_PREFIX") + " " + Tr(LoadingTipKeys[GD.RandRange(0, LoadingTipKeys.Length - 1)]);
         _tipLabel.HorizontalAlignment = HorizontalAlignment.Center;
         _tipLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         UITheme.StyleLabel(_tipLabel, UITheme.FontSizeSmall, UITheme.TextMuted);
@@ -123,8 +144,19 @@ public partial class LoadingScreen : Control
         _tipLabel.OffsetRight = -200;
         AddChild(_tipLabel);
 
+        InitializeTips();
+        _tipRotationCts = new CancellationTokenSource();
+        _ = RotateTipsOverTime(_tipRotationCts.Token);
+
         // Start loading on next frame to let UI render first
         CallDeferred(MethodName.StartLoading);
+    }
+
+    public override void _ExitTree()
+    {
+        _tipRotationCts?.Cancel();
+        _tipRotationCts?.Dispose();
+        _tipRotationCts = null;
     }
 
     private async void StartLoading()
@@ -140,6 +172,7 @@ public partial class LoadingScreen : Control
 
             // Execute the actual loading step
             ExecuteStep(_currentStep);
+            AdvanceTip();
 
             // Yield a frame between steps so the UI stays responsive
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
@@ -261,6 +294,66 @@ public partial class LoadingScreen : Control
             case 10: // Ready!
                 GD.Print("[LoadingScreen] All registries loaded.");
                 break;
+        }
+    }
+
+    private void InitializeTips()
+    {
+        _tipRotationList = (string[])LoadingTips.Clone();
+        ShuffleTips(_tipRotationList);
+        _currentTipIndex = 0;
+        RefreshTipLabel();
+    }
+
+    private void AdvanceTip()
+    {
+        if (_tipRotationList.Length == 0)
+            return;
+
+        _currentTipIndex++;
+        if (_currentTipIndex >= _tipRotationList.Length)
+        {
+            ShuffleTips(_tipRotationList);
+            _currentTipIndex = 0;
+        }
+
+        RefreshTipLabel();
+    }
+
+    private async Task RotateTipsOverTime(CancellationToken cancellationToken)
+    {
+        while (!_loadingComplete && !cancellationToken.IsCancellationRequested)
+        {
+            if (!IsInsideTree())
+                break;
+
+            SceneTree? tree = GetTree();
+            if (tree == null)
+                break;
+
+            await ToSignal(tree.CreateTimer(TipRotationIntervalSeconds), SceneTreeTimer.SignalName.Timeout);
+
+            if (_loadingComplete || cancellationToken.IsCancellationRequested || !IsInsideTree())
+                break;
+
+            AdvanceTip();
+        }
+    }
+
+    private void RefreshTipLabel()
+    {
+        if (!IsInsideTree() || !GodotObject.IsInstanceValid(_tipLabel))
+            return;
+
+        _tipLabel.Text = Tr("LOADING_TIP_PREFIX") + " " + _tipRotationList[_currentTipIndex];
+    }
+
+    private static void ShuffleTips(IList<string> tips)
+    {
+        for (int i = tips.Count - 1; i > 0; i--)
+        {
+            int j = GD.RandRange(0, i);
+            (tips[i], tips[j]) = (tips[j], tips[i]);
         }
     }
 }
