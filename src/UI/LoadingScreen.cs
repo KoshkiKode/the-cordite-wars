@@ -1,5 +1,7 @@
 using Godot;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using CorditeWars.Game.Assets;
 using CorditeWars.Game.Factions;
 using CorditeWars.Game.Tech;
@@ -26,6 +28,7 @@ public partial class LoadingScreen : Control
     private bool _loadingComplete;
     private int _currentTipIndex;
     private string[] _tipRotationList = null!;
+    private CancellationTokenSource? _tipRotationCts;
 
     private static readonly string[] LoadingTips =
     {
@@ -142,10 +145,18 @@ public partial class LoadingScreen : Control
         AddChild(_tipLabel);
 
         InitializeTips();
-        _ = RotateTipsOverTime();
+        _tipRotationCts = new CancellationTokenSource();
+        _ = RotateTipsOverTime(_tipRotationCts.Token);
 
         // Start loading on next frame to let UI render first
         CallDeferred(MethodName.StartLoading);
+    }
+
+    public override void _ExitTree()
+    {
+        _tipRotationCts?.Cancel();
+        _tipRotationCts?.Dispose();
+        _tipRotationCts = null;
     }
 
     private async void StartLoading()
@@ -309,13 +320,20 @@ public partial class LoadingScreen : Control
         RefreshTipLabel();
     }
 
-    private async System.Threading.Tasks.Task RotateTipsOverTime()
+    private async Task RotateTipsOverTime(CancellationToken cancellationToken)
     {
-        while (!_loadingComplete)
+        while (!_loadingComplete && !cancellationToken.IsCancellationRequested)
         {
-            await ToSignal(GetTree().CreateTimer(TipRotationIntervalSeconds), SceneTreeTimer.SignalName.Timeout);
+            if (!IsInsideTree())
+                break;
 
-            if (_loadingComplete)
+            SceneTree? tree = GetTree();
+            if (tree == null)
+                break;
+
+            await ToSignal(tree.CreateTimer(TipRotationIntervalSeconds), SceneTreeTimer.SignalName.Timeout);
+
+            if (_loadingComplete || cancellationToken.IsCancellationRequested || !IsInsideTree())
                 break;
 
             AdvanceTip();
@@ -324,6 +342,9 @@ public partial class LoadingScreen : Control
 
     private void RefreshTipLabel()
     {
+        if (!IsInsideTree() || !GodotObject.IsInstanceValid(_tipLabel))
+            return;
+
         _tipLabel.Text = Tr("LOADING_TIP_PREFIX") + " " + _tipRotationList[_currentTipIndex];
     }
 
