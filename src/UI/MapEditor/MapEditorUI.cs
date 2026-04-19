@@ -72,6 +72,7 @@ public partial class MapEditorUI : Control
         try
         {
             _manifest.Load("res://data/terrain_manifest.json");
+            _editor.SetManifest(_manifest);
         }
         catch (Exception e)
         {
@@ -734,7 +735,6 @@ public partial class MapEditorUI : Control
     {
         // Create dialog for new map settings
         _editor.NewMap(128, 128, "temperate");
-        _editor.RegenerateTerrain();
         UpdateStatus();
     }
 
@@ -759,7 +759,6 @@ public partial class MapEditorUI : Control
         dialog.FileSelected += (path) =>
         {
             _editor.LoadMap(path);
-            _editor.RegenerateTerrain();
             UpdateStatus();
             dialog.QueueFree();
         };

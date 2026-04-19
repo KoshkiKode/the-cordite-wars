@@ -35,9 +35,14 @@ public partial class PropPlacer : Node3D
     /// Places all props and structures from the map data.
     /// </summary>
     public void PlaceAll(MapData mapData, TerrainManifest manifest,
-        TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid,
+        TerrainRenderer terrainRenderer, OccupancyGrid? occupancyGrid,
         QualityTier tier = QualityTier.Medium)
     {
+        // Remove any previously placed prop/structure nodes so that repeated calls
+        // (e.g. map reload or editor regeneration) do not accumulate stale geometry.
+        foreach (Node child in GetChildren())
+            child.QueueFree();
+
         _destructibles.Clear();
         _nextPropId = 0;
 
@@ -93,7 +98,7 @@ public partial class PropPlacer : Node3D
     // ── Placement Logic ────────────────────────────────────────────────────
 
     private void PlaceProp(PropPlacement prop, TerrainManifest manifest,
-        TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid, bool useShadowBlobs)
+        TerrainRenderer terrainRenderer, OccupancyGrid? occupancyGrid, bool useShadowBlobs)
     {
         TerrainModelEntry entry;
         try
@@ -169,7 +174,7 @@ public partial class PropPlacer : Node3D
     }
 
     private void PlaceStructure(StructurePlacement structure, TerrainManifest manifest,
-        TerrainRenderer terrainRenderer, OccupancyGrid occupancyGrid, bool useShadowBlobs)
+        TerrainRenderer terrainRenderer, OccupancyGrid? occupancyGrid, bool useShadowBlobs)
     {
         TerrainModelEntry entry;
         try

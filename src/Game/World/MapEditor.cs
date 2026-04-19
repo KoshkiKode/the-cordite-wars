@@ -113,6 +113,7 @@ public partial class MapEditor : Node3D
     private TerrainRenderer _terrainRenderer = null!;
     private WaterRenderer _waterRenderer = null!;
     private PropPlacer _propPlacer = null!;
+    private TerrainManifest? _terrainManifest;
 
     // Signals
     [Signal] public delegate void MapModifiedEventHandler();
@@ -148,6 +149,15 @@ public partial class MapEditor : Node3D
 
         _propPlacer = new PropPlacer();
         AddChild(_propPlacer);
+    }
+
+    /// <summary>
+    /// Provides the terrain manifest so that props and structures can be
+    /// rendered in the editor viewport.  Call once after loading the manifest.
+    /// </summary>
+    public void SetManifest(TerrainManifest manifest)
+    {
+        _terrainManifest = manifest;
     }
 
     /// <summary>
@@ -1071,6 +1081,7 @@ public partial class MapEditor : Node3D
         if (data == null) return false;
 
         ImportMapData(data);
+        RegenerateTerrain();
         GD.Print($"[MapEditor] Loaded map: {data.DisplayName} ({data.Width}x{data.Height})");
         return true;
     }
@@ -1218,6 +1229,13 @@ public partial class MapEditor : Node3D
         MapData data = ExportMap();
         _terrainRenderer.Generate(data);
         _waterRenderer.Generate(data, _terrainRenderer);
+
+        // Render props and structures when a manifest has been supplied.
+        // OccupancyGrid is not needed in the editor (no pathfinding context).
+        if (_terrainManifest != null)
+        {
+            _propPlacer.PlaceAll(data, _terrainManifest, _terrainRenderer, occupancyGrid: null);
+        }
     }
 
     // ── Elevation Zone Export ───────────────────────────────────────────────

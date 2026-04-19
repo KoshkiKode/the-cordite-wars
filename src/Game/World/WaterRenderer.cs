@@ -82,6 +82,10 @@ void fragment() {
     /// </summary>
     public void Generate(MapData mapData, TerrainRenderer terrainRenderer, QualityTier tier = QualityTier.Medium)
     {
+        // Remove previous generated content if regenerating (e.g., map editor updates).
+        foreach (Node child in GetChildren())
+            child.QueueFree();
+
         // Choose animated vs static water based on quality tier
         string shaderSource = tier >= QualityTier.Medium ? WaterShaderSource : WaterShaderSimpleSource;
 
