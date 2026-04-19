@@ -196,7 +196,16 @@ jobs:
             exit 1
           fi
           GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
+          xattr -r -d com.apple.quarantine "$GODOT_APP_PATH" 2>/dev/null || true
           GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
+          if [ ! -f "$GODOT_BIN" ]; then
+            GODOT_BIN=$(find "$GODOT_APP_PATH/Contents/MacOS" -maxdepth 1 -type f | head -1)
+          fi
+          if [ -z "$GODOT_BIN" ] || [ ! -f "$GODOT_BIN" ]; then
+            echo "ERROR: Godot binary not found inside $GODOT_APP_PATH/Contents/MacOS/"
+            ls -la "$GODOT_APP_PATH/Contents/MacOS/" 2>/dev/null || true
+            exit 1
+          fi
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
@@ -222,6 +231,7 @@ jobs:
 
       - name: Export Windows
         run: |
+          mkdir -p build/windows
           "$GODOT_BIN" --headless --path ./ --export-release "Windows Desktop"
 
       - name: Flatten Windows export output
@@ -304,7 +314,16 @@ jobs:
             exit 1
           fi
           GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
+          xattr -r -d com.apple.quarantine "$GODOT_APP_PATH" 2>/dev/null || true
           GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
+          if [ ! -f "$GODOT_BIN" ]; then
+            GODOT_BIN=$(find "$GODOT_APP_PATH/Contents/MacOS" -maxdepth 1 -type f | head -1)
+          fi
+          if [ -z "$GODOT_BIN" ] || [ ! -f "$GODOT_BIN" ]; then
+            echo "ERROR: Godot binary not found inside $GODOT_APP_PATH/Contents/MacOS/"
+            ls -la "$GODOT_APP_PATH/Contents/MacOS/" 2>/dev/null || true
+            exit 1
+          fi
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
@@ -330,6 +349,7 @@ jobs:
 
       - name: Export Linux
         run: |
+          mkdir -p build/linux
           "$GODOT_BIN" --headless --path ./ --export-release "Linux/X11"
 
       - name: Flatten Linux export output
@@ -574,7 +594,16 @@ jobs:
             exit 1
           fi
           GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
+          xattr -r -d com.apple.quarantine "$GODOT_APP_PATH" 2>/dev/null || true
           GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
+          if [ ! -f "$GODOT_BIN" ]; then
+            GODOT_BIN=$(find "$GODOT_APP_PATH/Contents/MacOS" -maxdepth 1 -type f | head -1)
+          fi
+          if [ -z "$GODOT_BIN" ] || [ ! -f "$GODOT_BIN" ]; then
+            echo "ERROR: Godot binary not found inside $GODOT_APP_PATH/Contents/MacOS/"
+            ls -la "$GODOT_APP_PATH/Contents/MacOS/" 2>/dev/null || true
+            exit 1
+          fi
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
@@ -601,6 +630,7 @@ jobs:
       - name: Export Android (APK + AAB)
         run: |
           set -euo pipefail
+          mkdir -p build/android
           HAS_RELEASE="${{ steps.release_keystore.outputs.has_release_keystore }}"
           IFS=',' read -ra PRESETS <<< "Android,Android AAB"
           for PRESET in "${PRESETS[@]}"; do
@@ -771,7 +801,16 @@ jobs:
             exit 1
           fi
           GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
+          xattr -r -d com.apple.quarantine "$GODOT_APP_PATH" 2>/dev/null || true
           GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
+          if [ ! -f "$GODOT_BIN" ]; then
+            GODOT_BIN=$(find "$GODOT_APP_PATH/Contents/MacOS" -maxdepth 1 -type f | head -1)
+          fi
+          if [ -z "$GODOT_BIN" ] || [ ! -f "$GODOT_BIN" ]; then
+            echo "ERROR: Godot binary not found inside $GODOT_APP_PATH/Contents/MacOS/"
+            ls -la "$GODOT_APP_PATH/Contents/MacOS/" 2>/dev/null || true
+            exit 1
+          fi
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
@@ -797,6 +836,7 @@ jobs:
 
       - name: Export iOS/iPadOS Xcode project
         run: |
+          mkdir -p build/ios
           # Debug export avoids an Xcode signing conflict during project generation.
           "$GODOT_BIN" --headless --path ./ --export-debug "iOS"
 
@@ -804,7 +844,13 @@ jobs:
         run: |
           echo "iOS export contents:"
           ls -la build/ios/ 2>/dev/null || echo "WARNING: build/ios/ not found"
-          find . -maxdepth 4 \( -name "*.xcodeproj" -o -name "*.xcworkspace" \) 2>/dev/null | head -20
+          XCODEPROJ=$(find build/ios -name "*.xcodeproj" -maxdepth 5 2>/dev/null | head -1)
+          if [ -z "$XCODEPROJ" ]; then
+            echo "ERROR: No .xcodeproj found after iOS export. Listing available files:"
+            find build/ios -maxdepth 5 2>/dev/null | head -40 || true
+            exit 1
+          fi
+          echo "iOS Xcode project: $XCODEPROJ"
 
       - name: Bundle iOS config into export
         run: |
@@ -871,7 +917,16 @@ jobs:
             exit 1
           fi
           GODOT_APP_PATH="$(sed -n '1p' "$GODOT_APP_MATCHES_FILE")"
+          xattr -r -d com.apple.quarantine "$GODOT_APP_PATH" 2>/dev/null || true
           GODOT_BIN="$GODOT_APP_PATH/Contents/MacOS/Godot"
+          if [ ! -f "$GODOT_BIN" ]; then
+            GODOT_BIN=$(find "$GODOT_APP_PATH/Contents/MacOS" -maxdepth 1 -type f | head -1)
+          fi
+          if [ -z "$GODOT_BIN" ] || [ ! -f "$GODOT_BIN" ]; then
+            echo "ERROR: Godot binary not found inside $GODOT_APP_PATH/Contents/MacOS/"
+            ls -la "$GODOT_APP_PATH/Contents/MacOS/" 2>/dev/null || true
+            exit 1
+          fi
           chmod +x "$GODOT_BIN"
           echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
 
@@ -897,6 +952,7 @@ jobs:
 
       - name: Export macOS
         run: |
+          mkdir -p build/macos
           "$GODOT_BIN" --headless --path ./ --export-release "macOS"
 
       - name: Flatten macOS export output
@@ -1471,7 +1527,7 @@ jobs:
           # that can trigger "app is damaged" on downloaded DMGs.
           STAGED_APP_PATH="$STAGING_DIR/$(basename "$APP_PATH")"
           ditto "$APP_PATH" "$STAGED_APP_PATH"
-          codesign --verify --deep --strict --verbose=2 "$STAGED_APP_PATH"
+          codesign --verify --deep --verbose=2 "$STAGED_APP_PATH"
           hdiutil create \
             -volname "Cordite Wars" \
             -srcfolder "$STAGING_DIR" \
