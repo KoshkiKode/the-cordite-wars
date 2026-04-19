@@ -1,6 +1,7 @@
 using Godot;
 using CorditeWars.UI;
 using CorditeWars.UI.Input;
+using CorditeWars.Systems.Graphics;
 
 namespace CorditeWars.Core;
 
@@ -25,8 +26,9 @@ public partial class BootLoader : Node
         // Verify autoloads are available
         var gameManager = GetNode<GameManager>("/root/GameManager");
         var eventBus = GetNode<EventBus>("/root/EventBus");
+        var qualityManager = GetNode<QualityManager>("/root/QualityManager");
 
-        if (gameManager == null || eventBus == null)
+        if (gameManager == null || eventBus == null || qualityManager == null)
         {
             GD.PrintErr("[Boot] FATAL: Autoloads not found. Check project.godot.");
             GetTree().Quit(1);
