@@ -1103,10 +1103,14 @@ jobs:
 
       - name: Add WiX UI extension
         shell: powershell
+        env:
+          WIX_EULA_ACCEPT: "1"
         run: wix extension add --global WixToolset.UI.wixext/7.0.0
 
       - name: Build MSI installer (WiX)
         shell: powershell
+        env:
+          WIX_EULA_ACCEPT: "1"
         run: |
           $ErrorActionPreference = "Stop"
           wix build versions\windows\CorditeWars.wxs `
@@ -1278,6 +1282,11 @@ jobs:
           name: CorditeWars-Linux
           path: build/linux
 
+      - name: Install Flatpak tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+
       - name: Stage game files for flatpak-builder
         run: |
           # flatpak-builder resolves "path: build/linux" relative to the manifest
@@ -1396,12 +1405,12 @@ jobs:
             -Recurse -Filter "makeappx.exe" |
             Where-Object { $_.FullName -match "x64" } |
             Sort-Object FullName -Descending | Select-Object -First 1
-          if (-not $makeappx) { throw "makeappx.exe not found — Windows SDK missing?" }
+          if (-not $makeappx) { throw "makeappx.exe not found - Windows SDK missing?" }
           $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" `
             -Recurse -Filter "signtool.exe" |
             Where-Object { $_.FullName -match "x64" } |
             Sort-Object FullName -Descending | Select-Object -First 1
-          if (-not $signtool) { throw "signtool.exe not found — Windows SDK missing?" }
+          if (-not $signtool) { throw "signtool.exe not found - Windows SDK missing?" }
           "MAKEAPPX=$($makeappx.FullName)" | Out-File -Append $env:GITHUB_ENV
           "SIGNTOOL=$($signtool.FullName)"  | Out-File -Append $env:GITHUB_ENV
           Write-Host "makeappx: $($makeappx.FullName)"
