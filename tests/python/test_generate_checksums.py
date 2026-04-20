@@ -68,6 +68,48 @@ class GenerateChecksumsScriptTests(unittest.TestCase):
             apk_path.write_bytes(b"apk-v2")
             self.assertFalse(self.mod.verify_checksums(checksums_json, build_dir))
 
+    def test_generate_checksums_returns_empty_when_no_artifacts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build_dir = Path(tmp)
+            checksums = self.mod.generate_checksums(build_dir, output_format="both")
+            self.assertEqual({}, checksums)
+            self.assertFalse((build_dir / "checksums.txt").exists())
+            self.assertFalse((build_dir / "checksums.json").exists())
+
+    def test_verify_checksums_json_defaults_to_parent_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build_dir = Path(tmp)
+            (build_dir / "windows").mkdir(parents=True)
+            exe_path = build_dir / "windows" / "CorditeWars.exe"
+            exe_path.write_bytes(b"exe-v1")
+
+            self.mod.generate_checksums(build_dir, output_format="json")
+            checksums_json = build_dir / "checksums.json"
+            self.assertTrue(self.mod.verify_checksums(checksums_json))
+
+    def test_verify_checksums_txt_passes_and_handles_missing_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build_dir = Path(tmp)
+            (build_dir / "linux").mkdir(parents=True)
+            binary_path = build_dir / "linux" / "CorditeWars"
+            payload = b"linux-v1"
+            binary_path.write_bytes(payload)
+
+            checksum = hashlib.sha256(payload).hexdigest()
+            checksums_txt = build_dir / "checksums.txt"
+            checksums_txt.write_text(f"{checksum}  linux/CorditeWars\n")
+            self.assertTrue(self.mod.verify_checksums(checksums_txt, build_dir))
+
+            binary_path.unlink()
+            self.assertFalse(self.mod.verify_checksums(checksums_txt, build_dir))
+
+    def test_verify_checksums_txt_ignores_invalid_lines(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build_dir = Path(tmp)
+            checksums_txt = build_dir / "checksums.txt"
+            checksums_txt.write_text("invalid-line-without-path\n\n")
+            self.assertTrue(self.mod.verify_checksums(checksums_txt, build_dir))
+
 
 if __name__ == "__main__":
     unittest.main()

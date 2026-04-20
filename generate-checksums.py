@@ -129,6 +129,10 @@ def verify_checksums(checksums_file: Path, build_dir: Path = None) -> bool:
                     continue
                 
                 checksum, rel_path = parts
+                checksum = checksum.strip()
+                rel_path = rel_path.strip()
+                if not rel_path:
+                    continue
                 file_path = build_dir / rel_path
                 
                 if not file_path.exists():
