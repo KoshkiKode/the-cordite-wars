@@ -157,3 +157,35 @@ Copy this into a private note or 1Password/Bitwarden item as you fill each one i
 - [ ] `IOS_PROVISIONING_PROFILE`
 - [ ] `IOS_P12_CERTIFICATE`
 - [ ] `IOS_P12_PASSWORD`
+
+---
+
+## AWS release hosting (S3 + CloudFront)
+
+Used by `.github/workflows/deploy-aws.yml` to publish release artifacts to
+KoshkiKode's own S3 bucket / CloudFront distribution. See
+[`docs/aws-hosting-setup.md`](./aws-hosting-setup.md) for the full bootstrap.
+
+These are **repository variables**, not secrets — they are not sensitive
+(the role can only be assumed via OIDC from this repo, not with the ARN
+alone). Add them under **Settings → Secrets and variables → Actions →
+Variables**.
+
+| Variable | Required | Description | Where to find it |
+|--------|----------|-------------|-----------------|
+| `AWS_RELEASES_BUCKET` | ✅ | Name of the S3 bucket that stores release artifacts | `terraform output s3_bucket_name` (in `infra/aws/`) |
+| `AWS_RELEASES_ROLE_ARN` | ✅ | IAM role the workflow assumes via OIDC | `terraform output github_actions_role_arn` |
+| `AWS_REGION` | ✅ | Region of the S3 bucket (default `us-east-1`) | `terraform output aws_region` |
+| `AWS_CLOUDFRONT_DISTRIBUTION_ID` | Optional | If set, the workflow invalidates `latest.json` and the new version's prefix after upload | `terraform output cloudfront_distribution_id` |
+
+> **No AWS access keys are stored in GitHub.** Authentication uses the
+> built-in GitHub OIDC provider; the trust policy on the IAM role restricts
+> federation to this repository, the `release` environment, and `v*` tags
+> by default.
+
+### AWS checklist
+- [ ] `AWS_RELEASES_BUCKET` (variable)
+- [ ] `AWS_RELEASES_ROLE_ARN` (variable)
+- [ ] `AWS_REGION` (variable)
+- [ ] `AWS_CLOUDFRONT_DISTRIBUTION_ID` (variable, optional)
+- [ ] `release` environment created (Settings → Environments)

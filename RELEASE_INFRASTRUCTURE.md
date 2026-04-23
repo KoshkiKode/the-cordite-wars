@@ -262,6 +262,29 @@ For signing & distribution (optional, adds automation):
 
 **Note**: These are optional. Exports work without them (unsigned, debug keystore, etc).
 
+For full secrets/variables documentation see [`docs/secrets-setup.md`](docs/secrets-setup.md).
+
+---
+
+## ☁️ AWS Hosting (self-hosted downloads)
+
+Releases can also be mirrored from GitHub to KoshkiKode's own AWS account so
+download links can live on `koshkikode.com` (or e.g. `downloads.koshkikode.com`)
+instead of `github.com/.../releases/...`.
+
+| Component | Where |
+|---|---|
+| Terraform (S3 bucket, CloudFront, OAC, GitHub OIDC IAM role, optional ACM + Route 53) | [`infra/aws/`](infra/aws/) |
+| Workflow (runs on `release.published`) | [`.github/workflows/deploy-aws.yml`](.github/workflows/deploy-aws.yml) |
+| Setup walkthrough | [`docs/aws-hosting-setup.md`](docs/aws-hosting-setup.md) |
+
+After publish, artifacts are available at:
+
+```
+https://<your-cdn-domain>/releases/<version>/<filename>
+https://<your-cdn-domain>/releases/latest.json    # version manifest
+```
+
 ---
 
 ## 📚 Quick Links
