@@ -53,7 +53,8 @@ resource "aws_iam_role" "github_actions_releases" {
   max_session_duration = 3600
 }
 
-# Least-privilege policy: write to the releases bucket + invalidate CloudFront.
+# Least-privilege policy: write to the releases bucket (paid + public prefixes)
+# and invalidate CloudFront.
 data "aws_iam_policy_document" "github_releases_permissions" {
   statement {
     sid    = "S3WriteReleases"
@@ -66,7 +67,10 @@ data "aws_iam_policy_document" "github_releases_permissions" {
       "s3:AbortMultipartUpload",
       "s3:ListMultipartUploadParts",
     ]
-    resources = ["${aws_s3_bucket.releases.arn}/releases/*"]
+    resources = [
+      "${aws_s3_bucket.releases.arn}/paid/*",
+      "${aws_s3_bucket.releases.arn}/public/*",
+    ]
   }
 
   statement {
@@ -78,7 +82,7 @@ data "aws_iam_policy_document" "github_releases_permissions" {
     condition {
       test     = "StringLike"
       variable = "s3:prefix"
-      values   = ["releases/*", "releases"]
+      values   = ["paid/*", "paid", "public/*", "public"]
     }
   }
 

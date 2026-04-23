@@ -68,3 +68,62 @@ variable "price_class" {
     error_message = "price_class must be one of PriceClass_100, PriceClass_200, or PriceClass_All."
   }
 }
+
+###############################################################################
+# Paywall configuration
+###############################################################################
+
+variable "stripe_price_id" {
+  description = <<-EOT
+    Stripe Price ID (e.g. 'price_1Pxyz...') for a one-time purchase that grants
+    download access to the current release on every supported platform. Create
+    the Product + Price in the Stripe dashboard first, then paste the ID here.
+  EOT
+  type        = string
+}
+
+variable "stripe_currency" {
+  description = "Currency code (lowercase ISO 4217) used by the Stripe Price. Informational only — used in Checkout Session metadata."
+  type        = string
+  default     = "usd"
+}
+
+variable "stripe_product_name" {
+  description = "Human-readable product name shown in the success message and as Stripe Checkout fallback."
+  type        = string
+  default     = "Cordite Wars: Six Fronts"
+}
+
+variable "download_url_ttl_seconds" {
+  description = "TTL (seconds) for the S3 presigned download URL handed out after a successful purchase. Keep short — the user will follow it immediately via a 302 redirect."
+  type        = number
+  default     = 900
+
+  validation {
+    condition     = var.download_url_ttl_seconds >= 60 && var.download_url_ttl_seconds <= 3600
+    error_message = "download_url_ttl_seconds must be between 60 and 3600 (S3 presign max for SigV4 with role credentials is 1 hour)."
+  }
+}
+
+variable "download_redemption_limit" {
+  description = "Maximum total downloads (across all platforms) allowed per paid Checkout Session before the order is considered exhausted."
+  type        = number
+  default     = 10
+
+  validation {
+    condition     = var.download_redemption_limit >= 1 && var.download_redemption_limit <= 100
+    error_message = "download_redemption_limit must be between 1 and 100."
+  }
+}
+
+variable "order_retention_days" {
+  description = "How long completed orders live in DynamoDB before TTL cleanup."
+  type        = number
+  default     = 90
+}
+
+variable "lambda_log_retention_days" {
+  description = "Retention for the Lambda's CloudWatch log group."
+  type        = number
+  default     = 30
+}

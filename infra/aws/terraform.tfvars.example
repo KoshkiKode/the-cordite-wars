@@ -15,3 +15,16 @@ github_repo  = "cordite"
 # the validation + ALIAS records yourself).
 # domain_name     = "downloads.koshkikode.com"
 # route53_zone_id = "Z0123456789ABCDEFGHIJ"
+
+# Required: Stripe Price ID for the one-time download purchase.
+# Create a Product + one-time Price in the Stripe dashboard first.
+stripe_price_id = "price_REPLACE_ME"
+
+# Optional Stripe metadata.
+# stripe_currency      = "usd"
+# stripe_product_name  = "Cordite Wars: Six Fronts"
+
+# Optional paywall tuning.
+# download_url_ttl_seconds  = 900   # how long the presigned URL is valid (60-3600)
+# download_redemption_limit = 10    # max downloads per paid order
+# order_retention_days      = 90    # DynamoDB TTL on orders

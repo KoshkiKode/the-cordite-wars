@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Download Cordite Wars: Six Fronts — a cross-platform real-time strategy game. Direct downloads for Windows, macOS, Linux, Android, and iOS.">
+  <meta name="description" content="Download Cordite Wars: Six Fronts — a cross-platform real-time strategy game. One-time purchase via Stripe Checkout, then direct downloads for Windows, macOS, Linux, Android, and iOS.">
   <meta name="theme-color" content="#1a1a2e">
   <meta property="og:title" content="Cordite Wars: Six Fronts — Downloads">
-  <meta property="og:description" content="Direct downloads for Windows, macOS, Linux, Android, and iOS. No launcher, no account.">
+  <meta property="og:description" content="One-time purchase, instant download. Windows, macOS, Linux, Android, iOS.">
   <meta property="og:type" content="website">
   <title>Cordite Wars: Six Fronts | Downloads</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' rx='24' fill='%231a1a2e'/><text x='64' y='80' text-anchor='middle' font-family='monospace' font-size='52' font-weight='900' fill='%23e94560'>CW</text></svg>">
@@ -554,6 +554,59 @@
 
     .skeleton-line { height: 0.95rem; margin: 0.45rem 0; }
 
+    /* --- Paywall status banner ----------------------------------------- */
+    .status-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      margin: 0 0 0.9rem;
+      background: linear-gradient(180deg, rgba(233, 69, 96, 0.1), rgba(7, 8, 22, 0.45));
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .status-banner.ok      { border-color: rgba(111, 207, 151, 0.45); background: linear-gradient(180deg, rgba(111, 207, 151, 0.12), rgba(7, 8, 22, 0.45)); }
+    .status-banner.warn    { border-color: rgba(245, 158, 11, 0.45);  background: linear-gradient(180deg, rgba(245, 158, 11, 0.12),  rgba(7, 8, 22, 0.45)); }
+    .status-banner .text   { flex: 1 1 240px; line-height: 1.4; }
+    .status-banner strong  { color: var(--brand-2); }
+    .status-banner .actions{ display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .status-banner .micro  { font-size: 0.75rem; color: var(--muted); font-family: ui-monospace, monospace; word-break: break-all; }
+    .status-banner code    { color: var(--brand-2); }
+
+    /* The "buy" overlay state for the downloads grid */
+    .grid-locked-overlay {
+      grid-column: 1 / -1;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      padding: 1.2rem 1.4rem;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(7, 8, 22, 0.4);
+    }
+    .grid-locked-overlay h3 { margin: 0 0 0.4rem; color: var(--text); }
+    .grid-locked-overlay .actions { margin-top: 0.9rem; display: flex; justify-content: center; gap: 0.6rem; flex-wrap: wrap; }
+
+    /* --- Toast for transient errors ------------------------------------ */
+    .toast {
+      position: fixed;
+      bottom: 1.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      background: rgba(233, 69, 96, 0.95);
+      color: #1a1a2e;
+      font-weight: 600;
+      font-size: 0.88rem;
+      z-index: 50;
+      box-shadow: var(--shadow);
+      max-width: min(90vw, 480px);
+    }
+    .toast.ok { background: rgba(111, 207, 151, 0.95); }
+
     /* Responsive */
     @media (max-width: 980px) {
       .hero-grid { grid-template-columns: 1fr; }
@@ -593,7 +646,7 @@
         <a href="#downloads">Downloads</a>
         <a href="#features">About</a>
         <a href="#verify">Verify</a>
-        <a href="https://github.com/KoshkiKode/cordite/releases" class="cta" target="_blank" rel="noopener noreferrer">All releases</a>
+        <a href="#" id="nav-buy" class="cta" data-buy>Buy &amp; download</a>
       </nav>
     </div>
   </header>
@@ -607,21 +660,23 @@
           <h1 id="hero-heading">Six factions.<br>One <span class="accent">command line</span>.</h1>
           <p class="subtitle">
             Cordite Wars: Six Fronts is a cross-platform real-time strategy game in the spirit of classic
-            Command &amp; Conquer. Direct downloads — no launcher, no account, no telemetry.
+            Command &amp; Conquer. One-time purchase via Stripe Checkout — instant download, every supported
+            platform, no launcher.
           </p>
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#downloads">Jump to downloads</a>
-            <a class="btn btn-secondary" href="https://github.com/KoshkiKode/cordite" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+            <a class="btn btn-primary" href="#" data-buy>Buy &amp; download</a>
+            <a class="btn btn-secondary" href="#downloads">See what's included</a>
           </div>
           <div class="chips">
             <span class="chip">Windows · macOS · Linux</span>
             <span class="chip">Android · iOS</span>
-            <span class="chip">Deterministic LAN multiplayer</span>
+            <span class="chip">One-time purchase</span>
             <span class="chip">SHA-256 verified</span>
           </div>
           <div class="manifesto">
-            <strong>The Cordite vibe:</strong> handcrafted RTS feel, fixed-point determinism, and a download page
-            that respects your time — pick your platform, get the file, play.
+            <strong>How it works:</strong> pay once through Stripe, get a session ID, and your link
+            unlocks every platform's installer for the current release. No accounts, no DRM beyond the
+            short-lived signed download URL.
           </div>
         </div>
 
@@ -660,6 +715,11 @@
           <span class="dot" aria-hidden="true"></span>
           <span id="version-pill-label">resolving…</span>
         </span>
+      </div>
+
+      <div class="status-banner" id="status-banner" role="status" aria-live="polite" hidden>
+        <span class="text" id="status-text"></span>
+        <span class="actions" id="status-actions"></span>
       </div>
 
       <div class="downloads" id="download-grid" aria-busy="true">
@@ -749,10 +809,15 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
   </footer>
 
   <script>
-    // Tiny, dependency-free release loader.
-    // Reads /releases/latest.json (written by .github/workflows/deploy-aws.yml)
-    // and renders one card per platform with the artifacts found.
-
+    // Paywall-aware release loader.
+    // - Reads /releases/latest.json (written by .github/workflows/deploy-aws.yml)
+    //   to discover the current version + file list.
+    // - Detects ?session_id (Stripe Checkout success) or ?canceled (user
+    //   bailed out) on the URL and persists the session ID to localStorage
+    //   so reloads + return visits keep working until the redemption budget
+    //   or DynamoDB TTL is reached.
+    // - "Buy" buttons POST to /api/checkout and redirect to Stripe; download
+    //   buttons hit /api/download which 302s to a short-TTL S3 presigned URL.
     (function () {
       "use strict";
 
@@ -801,6 +866,9 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
         },
       ];
 
+      const STORAGE_KEY = "cordite.session";
+      const SESSION_ID_RE = /^cs_(test|live)_[A-Za-z0-9_]+$/;
+
       const $ = (sel) => document.querySelector(sel);
       const grid = $("#download-grid");
       const versionPillLabel = $("#version-pill-label");
@@ -810,8 +878,154 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
       const releaseFetchMeta = $("#release-fetch-meta");
       const statVersion = $("#stat-version");
       const statFiles = $("#stat-files");
+      const banner = $("#status-banner");
+      const bannerText = $("#status-text");
+      const bannerActions = $("#status-actions");
+
+      let manifestFiles = [];
+      let manifestVersion = null;
 
       $("#year").textContent = String(new Date().getFullYear());
+
+      // ---------- Session-ID handling ----------------------------------
+
+      function readSession() {
+        try {
+          const v = window.localStorage.getItem(STORAGE_KEY);
+          return v && SESSION_ID_RE.test(v) ? v : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function writeSession(id) {
+        try {
+          if (id && SESSION_ID_RE.test(id)) window.localStorage.setItem(STORAGE_KEY, id);
+        } catch (_) { /* private mode or quota — non-fatal */ }
+      }
+
+      function clearSession() {
+        try { window.localStorage.removeItem(STORAGE_KEY); } catch (_) { /* ignore */ }
+      }
+
+      function pickupSessionFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const sid = params.get("session_id");
+        const canceled = params.get("canceled");
+        let dirty = false;
+
+        if (sid && SESSION_ID_RE.test(sid)) {
+          writeSession(sid);
+          params.delete("session_id");
+          dirty = true;
+        }
+        if (canceled) {
+          showBanner("warn",
+            "Checkout canceled — no charge was made. You can try again whenever you're ready.",
+            [{ label: "Buy & download", primary: true, onClick: buyNow }]);
+          params.delete("canceled");
+          dirty = true;
+        }
+        if (dirty) {
+          const qs = params.toString();
+          const next = window.location.pathname + (qs ? "?" + qs : "") + window.location.hash;
+          window.history.replaceState(null, "", next);
+        }
+      }
+
+      // ---------- Stripe Checkout --------------------------------------
+
+      let buying = false;
+      async function buyNow(evt) {
+        if (evt) evt.preventDefault();
+        if (buying) return;
+        buying = true;
+        try {
+          showBanner(null, "Opening Stripe Checkout…", []);
+          const res = await fetch("api/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({ return_url: window.location.origin + window.location.pathname }),
+          });
+          if (!res.ok) {
+            const detail = await safeJson(res);
+            throw new Error(detail.error || ("HTTP " + res.status));
+          }
+          const data = await res.json();
+          if (!data.url) throw new Error("Stripe did not return a URL");
+          window.location.assign(data.url);
+        } catch (err) {
+          buying = false;
+          toast(String(err && err.message ? err.message : err) + " — try again in a moment.");
+          renderStatus();
+        }
+      }
+
+      async function safeJson(res) {
+        try { return await res.json(); } catch (_) { return {}; }
+      }
+
+      // ---------- Banner / toast ---------------------------------------
+
+      function showBanner(kind, text, actions) {
+        banner.hidden = false;
+        banner.className = "status-banner" + (kind ? " " + kind : "");
+        bannerText.innerHTML = "";
+        if (typeof text === "string") {
+          bannerText.textContent = text;
+        } else if (text instanceof Node) {
+          bannerText.appendChild(text);
+        }
+        bannerActions.innerHTML = "";
+        for (const a of (actions || [])) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn " + (a.primary ? "btn-primary" : "btn-secondary");
+          btn.textContent = a.label;
+          btn.addEventListener("click", a.onClick);
+          bannerActions.appendChild(btn);
+        }
+      }
+
+      function hideBanner() { banner.hidden = true; }
+
+      function toast(message, kind) {
+        const el = document.createElement("div");
+        el.className = "toast" + (kind === "ok" ? " ok" : "");
+        el.textContent = message;
+        document.body.appendChild(el);
+        setTimeout(() => { el.remove(); }, 4500);
+      }
+
+      // ---------- Status banner state machine --------------------------
+
+      function renderStatus() {
+        const sid = readSession();
+        if (sid) {
+          // Show paid state with session ID prefix + reset link.
+          const text = document.createElement("span");
+          const head = document.createElement("strong");
+          head.textContent = "Payment received. ";
+          const tail = document.createElement("span");
+          tail.textContent = "Click any platform below to start your download. ";
+          const sidLabel = document.createElement("span");
+          sidLabel.className = "micro";
+          sidLabel.textContent = "Session: " + sid.slice(0, 14) + "…";
+          text.appendChild(head);
+          text.appendChild(tail);
+          text.appendChild(sidLabel);
+          showBanner("ok", text, [
+            { label: "Buy another copy", onClick: buyNow },
+            { label: "Forget this session", onClick: function () { clearSession(); renderStatus(); } },
+          ]);
+        } else {
+          showBanner(null,
+            "Cordite Wars is a one-time purchase. After Stripe Checkout you'll be returned here with your downloads unlocked.",
+            [{ label: "Buy & download", primary: true, onClick: buyNow }]);
+        }
+      }
+
+      // ---------- Manifest / log helpers -------------------------------
 
       function logLine(tag, message, meta, kind) {
         const tagClass = kind || "";
@@ -844,6 +1058,54 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
         return n.toFixed(n >= 10 || i === 0 ? 0 : 1) + " " + units[i];
       }
 
+      // ---------- Download / buy flow per file -------------------------
+
+      async function startDownload(filename, evt) {
+        if (evt) evt.preventDefault();
+        const sid = readSession();
+        if (!sid) {
+          toast("Purchase first — opening Stripe Checkout.");
+          buyNow();
+          return;
+        }
+        const url = "api/download?session_id=" + encodeURIComponent(sid)
+                  + "&filename=" + encodeURIComponent(filename);
+        // Probe with fetch first so we can surface 403/404/410 errors as a
+        // toast instead of dropping the user on a JSON page. We follow the
+        // 302 manually because some browsers omit Content-Disposition for
+        // cross-origin redirects from same-origin fetch responses.
+        try {
+          const res = await fetch(url, { method: "GET", redirect: "manual" });
+          // `opaqueredirect` is the expected outcome of a 302; otherwise
+          // the API returned a JSON error.
+          if (res.type === "opaqueredirect" || res.status === 0 || res.status === 302) {
+            // Trigger the actual download via a hidden anchor.
+            const a = document.createElement("a");
+            a.href = url;
+            a.rel = "noopener";
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            return;
+          }
+          if (res.status === 403) {
+            const body = await safeJson(res);
+            toast(body.error || "This download session is no longer valid. Please buy again.");
+            clearSession();
+            renderStatus();
+            renderDownloads();
+            return;
+          }
+          const body = await safeJson(res);
+          toast(body.error || ("Download failed (HTTP " + res.status + ")"));
+        } catch (err) {
+          toast("Network error — please try again.");
+        }
+      }
+
+      // ---------- Render the grid --------------------------------------
+
       function renderEmpty(reason) {
         grid.innerHTML = "";
         const empty = document.createElement("div");
@@ -851,20 +1113,25 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
         empty.innerHTML =
           "<p>No release artifacts are published to this CDN yet.</p>" +
           "<p>" + (reason ? reason + " — " : "") +
-          'Until the first AWS deploy runs, grab the latest build from ' +
-          '<a href="https://github.com/KoshkiKode/cordite/releases/latest" rel="noopener noreferrer" target="_blank">GitHub Releases</a>.</p>';
+          "Check back once the next release lands.</p>";
         grid.appendChild(empty);
         grid.setAttribute("aria-busy", "false");
       }
 
-      function renderDownloads(meta, files) {
+      function renderDownloads() {
         grid.innerHTML = "";
         grid.setAttribute("aria-busy", "false");
 
+        if (!manifestFiles.length) {
+          renderEmpty("Manifest had no files");
+          return;
+        }
+
+        const sid = readSession();
         const buckets = {};
         for (const p of PLATFORMS) buckets[p.id] = [];
         const other = [];
-        for (const f of files) {
+        for (const f of manifestFiles) {
           const id = classify(f.name);
           if (buckets[id]) buckets[id].push(f);
           else other.push(f);
@@ -873,83 +1140,63 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
         for (const p of PLATFORMS) {
           const items = buckets[p.id];
           if (!items.length) continue;
-
-          const card = document.createElement("article");
-          card.className = "download-card";
-          card.innerHTML =
-            '<div class="platform-head">' +
-              '<div class="platform-icon" aria-hidden="true">' + p.icon + '</div>' +
-              '<div><h3>' + p.name + '</h3><span class="platform-sub">' + p.sub + '</span></div>' +
-            '</div>' +
-            '<div class="download-list"></div>';
-          const list = card.querySelector(".download-list");
-
-          items.sort(function (a, b) { return a.name.localeCompare(b.name); });
-          for (const f of items) {
-            const a = document.createElement("a");
-            a.className = "download-item";
-            a.href = meta.base_url + encodeURIComponent(f.name);
-            a.rel = "noopener";
-            // Treat checksum/release-notes files as inline; everything else as a download.
-            if (p.id !== "checksums") a.setAttribute("download", "");
-            const ext = (f.name.match(/\.[^./\\]+(\.\w+)?$/) || [""])[0];
-            const sizeLabel = fmtBytes(f.size);
-            a.innerHTML =
-              '<span class="label">' +
-                '<span class="name"></span>' +
-                '<span class="ext"></span>' +
-              '</span>' +
-              '<span class="arrow" aria-hidden="true">↓</span>';
-            a.querySelector(".name").textContent = f.name;
-            a.querySelector(".ext").textContent = [ext, sizeLabel].filter(Boolean).join(" · ");
-            list.appendChild(a);
-          }
-          grid.appendChild(card);
+          grid.appendChild(buildCard(p, items, sid));
         }
-
         if (other.length) {
-          const card = document.createElement("article");
-          card.className = "download-card";
-          card.innerHTML =
-            '<div class="platform-head">' +
-              '<div class="platform-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4Z" fill="currentColor"/></svg></div>' +
-              '<div><h3>Other</h3><span class="platform-sub">Uncategorised artifacts</span></div>' +
-            '</div>' +
-            '<div class="download-list"></div>';
-          const list = card.querySelector(".download-list");
-          for (const f of other) {
-            const a = document.createElement("a");
-            a.className = "download-item";
-            a.href = meta.base_url + encodeURIComponent(f.name);
-            a.rel = "noopener";
-            a.setAttribute("download", "");
-            a.innerHTML =
-              '<span class="label"><span class="name"></span><span class="ext"></span></span>' +
-              '<span class="arrow" aria-hidden="true">↓</span>';
-            a.querySelector(".name").textContent = f.name;
-            a.querySelector(".ext").textContent = fmtBytes(f.size);
-            list.appendChild(a);
-          }
-          grid.appendChild(card);
+          grid.appendChild(buildCard({
+            id: "other",
+            name: "Other",
+            sub: "Uncategorised artifacts",
+            icon: '<svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4Z" fill="currentColor"/></svg>',
+          }, other, sid));
         }
       }
 
-      // S3 ListBucket-V2 XML response → array of { name, size }
-      function parseS3Listing(xml, prefix) {
-        const out = [];
-        const doc = new DOMParser().parseFromString(xml, "application/xml");
-        const contents = doc.getElementsByTagName("Contents");
-        for (let i = 0; i < contents.length; i++) {
-          const key = contents[i].getElementsByTagName("Key")[0]?.textContent || "";
-          const size = parseInt(contents[i].getElementsByTagName("Size")[0]?.textContent || "0", 10);
-          if (!key.startsWith(prefix) || key === prefix) continue;
-          const name = key.slice(prefix.length);
-          // Skip nested "directories" — only first-level files.
-          if (name.includes("/")) continue;
-          out.push({ name: name, size: size });
+      function buildCard(platform, items, sid) {
+        const card = document.createElement("article");
+        card.className = "download-card";
+        card.innerHTML =
+          '<div class="platform-head">' +
+            '<div class="platform-icon" aria-hidden="true">' + platform.icon + '</div>' +
+            '<div><h3>' + platform.name + '</h3><span class="platform-sub">' + platform.sub + '</span></div>' +
+          '</div>' +
+          '<div class="download-list"></div>';
+        const list = card.querySelector(".download-list");
+        const sorted = items.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
+
+        for (const f of sorted) {
+          const item = document.createElement("a");
+          item.className = "download-item";
+          item.rel = "noopener";
+
+          const ext = (f.name.match(/\.[^./\\]+(\.\w+)?$/) || [""])[0];
+          const sizeLabel = fmtBytes(f.size);
+          item.innerHTML =
+            '<span class="label">' +
+              '<span class="name"></span>' +
+              '<span class="ext"></span>' +
+            '</span>' +
+            '<span class="arrow" aria-hidden="true">↓</span>';
+          item.querySelector(".name").textContent = f.name;
+          item.querySelector(".ext").textContent = [ext, sizeLabel].filter(Boolean).join(" · ");
+
+          if (sid) {
+            item.href = "#";
+            item.addEventListener("click", function (e) { startDownload(f.name, e); });
+          } else {
+            item.href = "#";
+            item.querySelector(".arrow").textContent = "🔒";
+            item.addEventListener("click", function (e) {
+              e.preventDefault();
+              buyNow();
+            });
+          }
+          list.appendChild(item);
         }
-        return out;
+        return card;
       }
+
+      // ---------- Manifest fetch ---------------------------------------
 
       async function loadLatest() {
         const t0 = performance.now();
@@ -971,50 +1218,33 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
         }
 
         const elapsed = Math.round(performance.now() - t0);
-        const version = meta.version || "unknown";
-        const baseUrl = meta.base_url || ("releases/" + version + "/");
-        // Normalise — make sure we always end with a slash.
-        meta.base_url = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+        manifestVersion = meta.version || null;
+        manifestFiles = Array.isArray(meta.files) ? meta.files.filter(Boolean) : [];
 
-        latestBadge.textContent = "Latest release: v" + version;
-        versionPillLabel.textContent = "v" + version;
-        versionInline.textContent = version;
-        statVersion.textContent = "v" + version;
+        latestBadge.textContent = manifestVersion
+          ? "Latest release: v" + manifestVersion
+          : "No release published yet";
+        versionPillLabel.textContent = manifestVersion ? "v" + manifestVersion : "—";
+        versionInline.textContent = manifestVersion || "—";
+        statVersion.textContent = manifestVersion ? "v" + manifestVersion : "—";
         releaseFetchMeta.textContent = elapsed + " ms";
-        logLine("ok", "Found release v" + version, elapsed + " ms", "ok");
+        statFiles.textContent = String(manifestFiles.length);
 
-        // Try to list the version directory directly via S3's REST API so we don't
-        // need a separate JSON manifest of files. CloudFront passes ?list-type=2
-        // straight through to the bucket. If listing isn't permitted we fall back
-        // to a small set of well-known artifact names.
-        let files = [];
-        try {
-          const listRes = await fetch("?list-type=2&prefix=" + encodeURIComponent("releases/" + version + "/"), { cache: "no-store" });
-          if (!listRes.ok) throw new Error("HTTP " + listRes.status);
-          const xml = await listRes.text();
-          files = parseS3Listing(xml, "releases/" + version + "/");
-          logLine("ok", "Listed " + files.length + " artifact(s) from CDN", "", "ok");
-        } catch (err) {
-          logLine("warn", "Bucket listing unavailable — using manifest fallback", "", "");
-          if (Array.isArray(meta.files) && meta.files.length) {
-            files = meta.files.map(function (f) {
-              return typeof f === "string" ? { name: f, size: 0 } : f;
-            });
-          }
+        if (manifestVersion) {
+          logLine("ok", "Found release v" + manifestVersion, elapsed + " ms", "ok");
+          logLine("ok", "Listed " + manifestFiles.length + " artifact(s) from manifest", "", "ok");
         }
-
-        statFiles.textContent = String(files.length);
-
-        if (!files.length) {
-          renderEmpty("Manifest had no files");
-          return;
-        }
-
-        renderDownloads(meta, files);
-        logLine("ok", "Rendered " + files.length + " download(s)", "ready", "ok");
+        renderDownloads();
       }
 
-      // Kick off
+      // ---------- Wire up ----------------------------------------------
+
+      document.querySelectorAll("[data-buy]").forEach(function (el) {
+        el.addEventListener("click", buyNow);
+      });
+
+      pickupSessionFromUrl();
+      renderStatus();
       loadLatest();
     })();
   </script>

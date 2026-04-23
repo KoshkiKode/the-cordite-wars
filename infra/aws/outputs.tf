@@ -32,3 +32,32 @@ output "aws_region" {
   description = "AWS region of the S3 bucket. Set this as the `AWS_REGION` GitHub Actions variable."
   value       = var.region
 }
+
+###############################################################################
+# Paywall outputs
+###############################################################################
+
+output "orders_table_name" {
+  description = "DynamoDB table holding paid orders."
+  value       = aws_dynamodb_table.orders.name
+}
+
+output "lambda_function_name" {
+  description = "Name of the paywall Lambda."
+  value       = aws_lambda_function.paywall.function_name
+}
+
+output "lambda_function_url" {
+  description = "Direct invocation URL for the Lambda (mainly useful for local debugging — production traffic goes via CloudFront /api/*)."
+  value       = aws_lambda_function_url.paywall.function_url
+}
+
+output "stripe_secret_arn" {
+  description = "ARN of the Secrets Manager secret holding the Stripe API key + webhook signing secret. Update its value in the AWS console after `terraform apply`."
+  value       = aws_secretsmanager_secret.stripe.arn
+}
+
+output "stripe_webhook_url" {
+  description = "URL to register as a Stripe webhook endpoint (events: checkout.session.completed). Listens for paid orders."
+  value       = local.has_custom_domain ? "https://${var.domain_name}/api/webhook" : "https://${aws_cloudfront_distribution.releases.domain_name}/api/webhook"
+}

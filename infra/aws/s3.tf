@@ -65,14 +65,16 @@ resource "aws_s3_bucket_lifecycle_configuration" "releases" {
   }
 }
 
-# Bucket policy — only the CloudFront distribution may read objects.
+# Bucket policy — only the CloudFront distribution may read objects, and it
+# may only read from the `public/` prefix. Paid artifacts live under `paid/`
+# and are reachable only through the Lambda-issued S3 presigned URLs.
 data "aws_iam_policy_document" "releases_bucket" {
   statement {
-    sid     = "AllowCloudFrontReadOnly"
+    sid     = "AllowCloudFrontReadPublicPrefix"
     effect  = "Allow"
     actions = ["s3:GetObject"]
 
-    resources = ["${aws_s3_bucket.releases.arn}/*"]
+    resources = ["${aws_s3_bucket.releases.arn}/public/*"]
 
     principals {
       type        = "Service"

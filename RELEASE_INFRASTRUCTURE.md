@@ -266,24 +266,34 @@ For full secrets/variables documentation see [`docs/secrets-setup.md`](docs/secr
 
 ---
 
-## ☁️ AWS Hosting (self-hosted downloads)
+## ☁️ AWS Hosting (paywalled self-hosted downloads)
 
-Releases can also be mirrored from GitHub to KoshkiKode's own AWS account so
-download links can live on `koshkikode.com` (or e.g. `downloads.koshkikode.com`)
-instead of `github.com/.../releases/...`.
+Releases are mirrored from GitHub to KoshkiKode's own AWS account and gated
+behind a Stripe one-time purchase, so the official download URL lives on
+`koshkikode.com` (or e.g. `downloads.koshkikode.com`) and revenue is collected
+without a separate storefront.
 
 | Component | Where |
 |---|---|
-| Terraform (S3 bucket, CloudFront, OAC, GitHub OIDC IAM role, optional ACM + Route 53) | [`infra/aws/`](infra/aws/) |
+| Terraform (S3 bucket, CloudFront + Lambda paywall, DynamoDB, Secrets Manager, GitHub OIDC IAM role, optional ACM + Route 53) | [`infra/aws/`](infra/aws/) |
+| Lambda code (Stripe Checkout, webhook, presigned-URL gateway) | [`infra/aws/lambda/`](infra/aws/lambda/) |
 | Workflow (runs on `release.published`) | [`.github/workflows/deploy-aws.yml`](.github/workflows/deploy-aws.yml) |
+| Static downloads page | [`web/downloads/`](web/downloads/) |
 | Setup walkthrough | [`docs/aws-hosting-setup.md`](docs/aws-hosting-setup.md) |
 
-After publish, artifacts are available at:
+After publish, visitors hit:
 
 ```
-https://<your-cdn-domain>/releases/<version>/<filename>
-https://<your-cdn-domain>/releases/latest.json    # version manifest
+https://<your-cdn-domain>/                          # paywalled downloads page
+https://<your-cdn-domain>/releases/latest.json      # public version manifest
+https://<your-cdn-domain>/api/checkout              # Stripe Checkout creator
+https://<your-cdn-domain>/api/webhook               # Stripe webhook target
+https://<your-cdn-domain>/api/download?session_id=&filename=
 ```
+
+Paid artifacts live at `s3://<bucket>/paid/<version>/<file>` and are **never**
+served via CloudFront — they're only reachable through short-TTL S3 presigned
+URLs handed out by the Lambda after a Stripe Checkout Session is verified.
 
 ---
 
