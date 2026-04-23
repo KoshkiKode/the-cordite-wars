@@ -364,6 +364,81 @@ def _issue_entitlement_response(
 # --- Deactivation -----------------------------------------------------------
 
 
+def handle_renew(event: dict[str, Any]) -> dict[str, Any]:
+    """POST /api/renew — refresh an entitlement using the entitlement itself.
+
+    This is the silent-background-renewal endpoint. Inputs:
+        {"entitlement_b64": "<existing signed blob>"}
+
+    The server verifies the blob's Ed25519 signature, confirms the license
+    row is still active in DynamoDB, refreshes `last_seen` on the matching
+    slot, and re-issues a fresh entitlement (same machine_id, same
+    slot_index, fresh expiry). The client therefore never needs to retain
+    the raw license key after first activation.
+    """
+    if not LICENSES_TABLE or not MACHINE_SLOTS_TABLE:
+        return _response(503, {"error": "Licensing not configured"})
+    try:
+        body = _read_json_body(event)
+    except ValueError as e:
+        return _response(400, {"error": str(e)})
+
+    raw_b64 = (body.get("entitlement_b64") or "").strip()
+    if not raw_b64:
+        return _response(400, {"error": "entitlement_b64 required"})
+
+    # base64-url with optional padding
+    s = raw_b64.replace("-", "+").replace("_", "/")
+    s += "=" * (-len(s) % 4)
+    try:
+        blob = base64.b64decode(s, validate=False)
+    except Exception:
+        return _response(400, {"error": "entitlement_b64 not base64"})
+
+    sk = _signing_key()
+    pk = sk.public_key()
+    try:
+        ent = lk.decode_entitlement(blob, public_key=pk)
+    except ValueError as e:
+        return _response(403, {"error": f"Entitlement invalid: {e}"})
+
+    license_row = _lookup_license_by_keyid(ent.key_id)
+    if license_row is None:
+        return _response(403, {"error": "License not recognized"})
+    if license_row.get("status", {}).get("S", "active") != "active":
+        return _response(403, {"error": "License is not active"})
+
+    # Confirm the slot is still allocated to this machine.
+    existing = _DYNAMODB.get_item(
+        TableName=MACHINE_SLOTS_TABLE,
+        Key={
+            "key_id":     {"S": str(ent.key_id)},
+            "machine_id": {"S": ent.machine_id.hex()},
+        },
+        ConsistentRead=True,
+    ).get("Item")
+    if existing is None or "released_at" in existing:
+        return _response(403, {"error": "Slot has been released; please reactivate."})
+
+    now = int(time.time())
+    _DYNAMODB.update_item(
+        TableName=MACHINE_SLOTS_TABLE,
+        Key={
+            "key_id":     {"S": str(ent.key_id)},
+            "machine_id": {"S": ent.machine_id.hex()},
+        },
+        UpdateExpression="SET last_seen = :t",
+        ExpressionAttributeValues={":t": {"N": str(now)}},
+    )
+    return _issue_entitlement_response(
+        ent.key_id,
+        ent.machine_id,
+        int(existing["slot_index"]["N"]),
+        existing.get("hostname_hint", {}).get("S", ent.hostname_hint),
+        now,
+    )
+
+
 def handle_deactivate(event: dict[str, Any]) -> dict[str, Any]:
     """POST /api/deactivate — release a slot so a new machine can claim it."""
     if not LICENSES_TABLE or not MACHINE_SLOTS_TABLE:

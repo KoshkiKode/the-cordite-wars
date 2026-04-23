@@ -411,6 +411,8 @@ def _route(event: dict[str, Any]) -> dict[str, Any]:
         # Same logic, different endpoint name so the website can present a
         # distinct UX for users activating from a different device.
         return licensing.handle_activate(event)
+    if path.endswith("/api/renew") and method == "POST":
+        return licensing.handle_renew(event)
     if path.endswith("/api/deactivate") and method == "POST":
         return licensing.handle_deactivate(event)
     if path.endswith("/api/manage") and method == "GET":
