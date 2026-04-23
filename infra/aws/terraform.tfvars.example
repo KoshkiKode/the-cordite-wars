@@ -1,0 +1,30 @@
+# Copy to terraform.tfvars and fill in. Do NOT commit terraform.tfvars.
+
+# Required: globally unique S3 bucket name.
+bucket_name = "cordite-releases-koshkikode"
+
+# Optional: AWS region for S3 + IAM (CloudFront is always us-east-1).
+region = "us-east-1"
+
+# Optional: GitHub repo allowed to assume the deploy role via OIDC.
+github_owner = "KoshkiKode"
+github_repo  = "cordite"
+
+# Optional: bind a custom domain. Requires a hosted zone in Route 53 OR
+# DNS managed elsewhere (in which case set route53_zone_id = "" and add
+# the validation + ALIAS records yourself).
+# domain_name     = "downloads.koshkikode.com"
+# route53_zone_id = "Z0123456789ABCDEFGHIJ"
+
+# Required: Stripe Price ID for the one-time download purchase.
+# Create a Product + one-time Price in the Stripe dashboard first.
+stripe_price_id = "price_REPLACE_ME"
+
+# Optional Stripe metadata.
+# stripe_currency      = "usd"
+# stripe_product_name  = "Cordite Wars: Six Fronts"
+
+# Optional paywall tuning.
+# download_url_ttl_seconds  = 900   # how long the presigned URL is valid (60-3600)
+# download_redemption_limit = 10    # max downloads per paid order
+# order_retention_days      = 90    # DynamoDB TTL on orders

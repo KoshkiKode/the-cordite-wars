@@ -1,0 +1,232 @@
+name: "Deploy Release Artifacts to AWS"
+
+# Mirrors the artifacts attached to a published GitHub Release into the S3
+# bucket that fronts CloudFront, so they can be served from KoshkiKode's own
+# website (e.g. https://downloads.koshkikode.com/releases/<version>/...).
+#
+# Trigger: runs automatically when a GitHub Release is published, and can also
+# be invoked manually for back-fill.
+#
+# Auth: assumes an IAM role via GitHub OIDC — no long-lived AWS keys.
+# The role, bucket, and distribution are provisioned by `infra/aws/`.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to (re-)publish to AWS, e.g. v0.1.0"
+        required: true
+        type: string
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+# Required for OIDC federation with AWS.
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-aws-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish-to-s3:
+    name: Sync release ${{ github.event.release.tag_name || inputs.tag }} to S3
+    runs-on: ubuntu-latest
+
+    # `release` environment lets you require manual approval and gate which
+    # OIDC subjects can assume the AWS role (matches the Terraform default
+    # `environment:release` subject).
+    environment: release
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Only need the working tree at the release tag for `web/downloads/`
+          # and any release-time scripts. Shallow clone keeps it fast.
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          fetch-depth: 1
+
+      - name: Resolve release tag and version
+        id: meta
+        env:
+          EVENT_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          TAG="${EVENT_TAG:-$INPUT_TAG}"
+          if [ -z "$TAG" ]; then
+            echo "::error::Could not determine release tag." >&2
+            exit 1
+          fi
+          VERSION="${TAG#v}"
+          echo "tag=$TAG"         >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag=$TAG version=$VERSION"
+
+      - name: Verify required configuration
+        run: |
+          set -euo pipefail
+          missing=0
+          for v in AWS_RELEASES_BUCKET AWS_RELEASES_ROLE_ARN AWS_REGION; do
+            if [ -z "${!v:-}" ]; then
+              echo "::error::Missing repository variable: $v"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Set the variables under Settings → Secrets and variables → Actions → Variables. See docs/aws-hosting-setup.md."
+            exit 1
+          fi
+        env:
+          AWS_RELEASES_BUCKET: ${{ vars.AWS_RELEASES_BUCKET }}
+          AWS_RELEASES_ROLE_ARN: ${{ vars.AWS_RELEASES_ROLE_ARN }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_RELEASES_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: gh-cordite-release-${{ steps.meta.outputs.version }}
+
+      - name: Download release assets from GitHub
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          # `gh release download` is preinstalled on ubuntu-latest runners.
+          gh release download "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --dir dist \
+            --skip-existing
+          echo "Downloaded assets:"
+          ls -lh dist/
+
+      - name: Upload paid artifacts to S3
+        env:
+          BUCKET: ${{ vars.AWS_RELEASES_BUCKET }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          set -euo pipefail
+          DEST="s3://${BUCKET}/paid/${VERSION}/"
+          echo "Syncing dist/ → ${DEST}"
+          # Immutable per-version artifacts: long cache, no transformation.
+          # The `paid/` prefix is NOT routable through CloudFront — these
+          # files are only fetched via Lambda-issued S3 presigned URLs.
+          aws s3 sync dist/ "$DEST" \
+            --no-progress \
+            --only-show-errors \
+            --cache-control "public, max-age=31536000, immutable"
+          echo "Uploaded files:"
+          aws s3 ls "$DEST"
+
+      - name: Upload downloads page to S3
+        env:
+          BUCKET: ${{ vars.AWS_RELEASES_BUCKET }}
+        run: |
+          set -euo pipefail
+          if [ -f web/downloads/index.html ]; then
+            aws s3 cp web/downloads/index.html "s3://${BUCKET}/public/index.html" \
+              --cache-control "public, max-age=300" \
+              --content-type "text/html; charset=utf-8" \
+              --only-show-errors
+            echo "Uploaded web/downloads/index.html → s3://${BUCKET}/public/index.html"
+          else
+            echo "No web/downloads/index.html in repo — skipping page upload."
+          fi
+
+      - name: Update "latest" pointer
+        env:
+          BUCKET: ${{ vars.AWS_RELEASES_BUCKET }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          set -euo pipefail
+          # Skip the "latest" alias for pre-releases.
+          if [ "$PRERELEASE" = "true" ]; then
+            echo "Pre-release — leaving 'latest' pointer untouched."
+            exit 0
+          fi
+          # Build a manifest listing every artifact (name + size + sha256 if
+          # a checksums file is present) so the static page knows what to
+          # offer for sale, and the Lambda can validate /api/download
+          # filename requests against it.
+          python3 - "$VERSION" dist/ > latest.json <<'PY'
+          import datetime, hashlib, json, os, sys
+          version = sys.argv[1]
+          d = sys.argv[2]
+          # Look for a sibling checksums file so we can attach hashes.
+          sums = {}
+          for cand in ("checksums.txt", "checksums.sha256", "SHA256SUMS"):
+              p = os.path.join(d, cand)
+              if os.path.isfile(p):
+                  with open(p) as fh:
+                      for line in fh:
+                          line = line.strip()
+                          if not line or line.startswith("#"):
+                              continue
+                          parts = line.split(None, 1)
+                          if len(parts) == 2:
+                              h, name = parts
+                              sums[os.path.basename(name.lstrip("*"))] = h.lower()
+                  break
+          files = []
+          for name in sorted(os.listdir(d)):
+              full = os.path.join(d, name)
+              if not os.path.isfile(full):
+                  continue
+              entry = {"name": name, "size": os.path.getsize(full)}
+              if name in sums:
+                  entry["sha256"] = sums[name]
+              files.append(entry)
+          out = {
+              "version": version,
+              "tag": f"v{version}",
+              "released_at": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "files": files,
+          }
+          json.dump(out, sys.stdout, indent=2)
+          PY
+          echo "Manifest:"
+          cat latest.json
+          aws s3 cp latest.json "s3://${BUCKET}/public/releases/latest.json" \
+            --cache-control "public, max-age=60" \
+            --content-type "application/json" \
+            --only-show-errors
+
+      - name: Invalidate CloudFront cache (optional)
+        if: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID != '' }}
+        env:
+          DIST_ID: ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          set -euo pipefail
+          # Static assets: page + manifest. Paid artifacts are not served
+          # via CloudFront, so no invalidation is needed for them.
+          aws cloudfront create-invalidation \
+            --distribution-id "$DIST_ID" \
+            --paths "/" "/index.html" "/releases/latest.json" \
+            > /dev/null
+          echo "Invalidation submitted for /, /index.html, /releases/latest.json"
+
+      - name: Summary
+        env:
+          BUCKET: ${{ vars.AWS_RELEASES_BUCKET }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          {
+            echo "### AWS release publish — \`v${VERSION}\`"
+            echo ""
+            echo "- **Bucket:** \`${BUCKET}\`"
+            echo "- **Paid artifacts prefix:** \`paid/${VERSION}/\` (private, served via Lambda presigned URLs)"
+            echo "- **Public manifest:** \`public/releases/latest.json\`"
+            echo "- **Public page:** \`public/index.html\`"
+            echo ""
+            echo "Visitors hit the static page; downloads require a paid Stripe Checkout Session."
+          } >> "$GITHUB_STEP_SUMMARY"
