@@ -321,12 +321,27 @@ def handle_activate(event: dict[str, Any]) -> dict[str, Any]:
                 "last_seen":     {"N": str(now)},
                 "hostname_hint": {"S": hostname_hint},
             },
-            ConditionExpression="attribute_not_exists(machine_id)",
+            # Allow overwriting a previously released slot for the same
+            # machine (user reactivating after deactivation), but reject
+            # the case where another concurrent activate just took it.
+            ConditionExpression="attribute_not_exists(machine_id) OR attribute_exists(released_at)",
         )
     except _DYNAMODB.exceptions.ConditionalCheckFailedException:
-        # Race with another activation request for the same machine_id —
-        # restart the whole flow which will hit the "existing" branch above.
-        return handle_activate(event)
+        # Race: another activate request for the same machine_id won. Look
+        # up the existing slot and refresh it rather than recursing — that
+        # avoids the infinite-recursion failure mode if the conditional is
+        # somehow non-eventually-satisfied.
+        existing = _DYNAMODB.get_item(
+            TableName=MACHINE_SLOTS_TABLE,
+            Key={
+                "key_id":     {"S": str(payload.key_id)},
+                "machine_id": {"S": machine_id.hex()},
+            },
+            ConsistentRead=True,
+        ).get("Item")
+        if existing is None or "released_at" in existing:
+            return _response(503, {"error": "activation race; please retry"})
+        slot_index = int(existing["slot_index"]["N"])
 
     LOG.info(
         "Activated key_id=%s slot=%s machine=%s",

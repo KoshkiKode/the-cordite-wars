@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage your Cordite Wars license</title>
+  <style>
+    :root {
+      --bg: #0e1015;
+      --panel: #181a22;
+      --fg: #e8eaee;
+      --muted: #8a90a0;
+      --accent: #f3b54a;
+      --danger: #d04848;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    .wrap { max-width: 720px; margin: 40px auto; padding: 0 24px; }
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    .sub { color: var(--muted); margin-bottom: 28px; }
+    .card { background: var(--panel); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input, button {
+      font: inherit;
+      box-sizing: border-box;
+      border-radius: 4px;
+      border: 1px solid #2a2d36;
+      background: #11131a;
+      color: var(--fg);
+      padding: 9px 12px;
+    }
+    input { width: 100%; margin-bottom: 14px; }
+    input[name="key"] { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.04em; }
+    button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 10px 18px;
+    }
+    button.secondary { background: #2a2d36; color: var(--fg); }
+    button.danger    { background: var(--danger); color: #fff; }
+    button:disabled  { opacity: 0.5; cursor: not-allowed; }
+    .slots { width: 100%; border-collapse: collapse; }
+    .slots th, .slots td { padding: 10px; text-align: left; border-bottom: 1px solid #2a2d36; font-size: 14px; }
+    .slots th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; }
+    .pill {
+      display: inline-block;
+      background: #2a2d36;
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-family: ui-monospace, monospace;
+    }
+    .err { color: var(--danger); margin-top: 12px; }
+    .ok { color: #4fa84f; margin-top: 12px; }
+    .hint { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    code { background: #11131a; padding: 1px 6px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Manage your Cordite Wars license</h1>
+    <p class="sub">
+      Up to 10 machines per license. Inactive machines free up automatically after 30 days,
+      or you can release one immediately below.
+    </p>
+
+    <div class="card">
+      <form id="lookup">
+        <label for="email">Purchase email</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+
+        <label for="key">License key</label>
+        <input type="text" id="key" name="key" required
+               placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX"
+               autocomplete="off"
+               spellcheck="false">
+
+        <button type="submit" id="lookupBtn">Show my machines</button>
+        <p class="hint">
+          Both fields are required. The email must match the one used at checkout.
+        </p>
+      </form>
+      <p id="lookupError" class="err" hidden></p>
+    </div>
+
+    <div id="slotsCard" class="card" hidden>
+      <h2 style="margin-top:0">Active machines (<span id="slotCount">0</span> / 10)</h2>
+      <table class="slots">
+        <thead>
+          <tr>
+            <th>Slot</th>
+            <th>Machine name</th>
+            <th>First seen</th>
+            <th>Last seen</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="slotsBody"></tbody>
+      </table>
+      <p class="hint" id="emptyHint" hidden>
+        No machines are currently activated for this license.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const API = ""; // same origin (CloudFront proxies /api/* to the Lambda)
+
+    function fmtTime(unix) {
+      if (!unix) return "—";
+      return new Date(unix * 1000).toLocaleString();
+    }
+
+    async function lookup() {
+      const email = document.getElementById("email").value.trim();
+      const key   = document.getElementById("key").value.trim();
+      const errEl = document.getElementById("lookupError");
+      const btn   = document.getElementById("lookupBtn");
+      errEl.hidden = true;
+      btn.disabled = true;
+      try {
+        const url = `${API}/api/manage?key=${encodeURIComponent(key)}&email=${encodeURIComponent(email)}`;
+        const resp = await fetch(url, { headers: { "Accept": "application/json" } });
+        const body = await resp.json();
+        if (!resp.ok) {
+          errEl.textContent = body.error || `Server returned ${resp.status}`;
+          errEl.hidden = false;
+          return;
+        }
+        renderSlots(body, key);
+      } catch (e) {
+        errEl.textContent = "Network error: " + e.message;
+        errEl.hidden = false;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function renderSlots(body, key) {
+      const card = document.getElementById("slotsCard");
+      const tbody = document.getElementById("slotsBody");
+      const empty = document.getElementById("emptyHint");
+      const count = document.getElementById("slotCount");
+      tbody.innerHTML = "";
+      count.textContent = String(body.slots.length);
+      card.hidden = false;
+      empty.hidden = body.slots.length > 0;
+      for (const s of body.slots) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><span class="pill">${s.slot_index}</span></td>
+          <td>${escapeHtml(s.hostname_hint || "(unnamed)")}</td>
+          <td>${fmtTime(s.first_seen)}</td>
+          <td>${fmtTime(s.last_seen)}</td>
+          <td><button class="danger">Release</button></td>
+        `;
+        tr.querySelector("button").addEventListener("click", () => release(key, s.machine_id, tr));
+        tbody.appendChild(tr);
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      }[c]));
+    }
+
+    async function release(key, machineId, row) {
+      if (!confirm("Release this machine? The next launch on it will need to reactivate.")) return;
+      const btn = row.querySelector("button");
+      btn.disabled = true;
+      btn.textContent = "Releasing…";
+      try {
+        const resp = await fetch(`${API}/api/deactivate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key, machine_id_to_release: machineId }),
+        });
+        if (!resp.ok) {
+          const body = await resp.json().catch(() => ({}));
+          alert("Could not release: " + (body.error || resp.status));
+          btn.disabled = false;
+          btn.textContent = "Release";
+          return;
+        }
+        await lookup(); // refresh
+      } catch (e) {
+        alert("Network error: " + e.message);
+        btn.disabled = false;
+        btn.textContent = "Release";
+      }
+    }
+
+    document.getElementById("lookup").addEventListener("submit", e => {
+      e.preventDefault();
+      lookup();
+    });
+  </script>
+</body>
+</html>

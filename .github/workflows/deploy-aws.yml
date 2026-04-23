@@ -141,6 +141,13 @@ jobs:
           else
             echo "No web/downloads/index.html in repo — skipping page upload."
           fi
+          if [ -f web/downloads/manage.html ]; then
+            aws s3 cp web/downloads/manage.html "s3://${BUCKET}/public/manage.html" \
+              --cache-control "public, max-age=300" \
+              --content-type "text/html; charset=utf-8" \
+              --only-show-errors
+            echo "Uploaded web/downloads/manage.html → s3://${BUCKET}/public/manage.html"
+          fi
 
       - name: Update "latest" pointer
         env:
@@ -211,9 +218,9 @@ jobs:
           # via CloudFront, so no invalidation is needed for them.
           aws cloudfront create-invalidation \
             --distribution-id "$DIST_ID" \
-            --paths "/" "/index.html" "/releases/latest.json" \
+            --paths "/" "/index.html" "/manage.html" "/releases/latest.json" \
             > /dev/null
-          echo "Invalidation submitted for /, /index.html, /releases/latest.json"
+          echo "Invalidation submitted for /, /index.html, /manage.html, /releases/latest.json"
 
       - name: Summary
         env:

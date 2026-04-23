@@ -137,7 +137,7 @@ public sealed class LicenseGate
         // so we don't block the boot sequence on a network call.
         if (ent!.ShouldRenew(DateTime.UtcNow))
         {
-            _ = Task.Run(() => SilentRenewAsync(ent, machineId, CancellationToken.None), ct);
+            _ = Task.Run(() => SilentRenewAsync(ct), ct);
         }
 
         return Task.FromResult(new LicenseGateResult
@@ -236,7 +236,7 @@ public sealed class LicenseGate
         }
     }
 
-    private async Task SilentRenewAsync(Entitlement existing, string machineId, CancellationToken ct)
+    private async Task SilentRenewAsync(CancellationToken ct)
     {
         try
         {
@@ -268,8 +268,6 @@ public sealed class LicenseGate
             // user discover the problem next time the game launches with
             // an expired entitlement. Silent renewal must never surface
             // errors to the player.
-            _ = existing;
-            _ = machineId;
         }
         catch
         {

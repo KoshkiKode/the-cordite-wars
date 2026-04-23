@@ -48,7 +48,6 @@ so verification works fully offline.
 
 from __future__ import annotations
 
-import os
 import secrets
 import struct
 from dataclasses import dataclass
@@ -481,7 +480,3 @@ def _verify_epoch() -> None:
 
 
 _verify_epoch()
-
-# Suppress an unused-import warning in linters; `os` is intentionally imported
-# for environment-driven debug toggles in future iterations.
-_ = os
