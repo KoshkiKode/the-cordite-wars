@@ -987,8 +987,6 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
         }
       }
 
-      function hideBanner() { banner.hidden = true; }
-
       function toast(message, kind) {
         const el = document.createElement("div");
         el.className = "toast" + (kind === "ok" ? " ok" : "");
