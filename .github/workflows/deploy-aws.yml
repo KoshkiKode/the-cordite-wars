@@ -43,6 +43,14 @@ jobs:
     environment: release
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Only need the working tree at the release tag for `web/downloads/`
+          # and any release-time scripts. Shallow clone keeps it fast.
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          fetch-depth: 1
+
       - name: Resolve release tag and version
         id: meta
         env:

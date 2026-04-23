@@ -942,7 +942,7 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
         buying = true;
         try {
           showBanner(null, "Opening Stripe Checkout…", []);
-          const res = await fetch("api/checkout", {
+          const res = await fetch("/api/checkout", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
             body: JSON.stringify({ return_url: window.location.origin + window.location.pathname }),
@@ -1068,7 +1068,7 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
           buyNow();
           return;
         }
-        const url = "api/download?session_id=" + encodeURIComponent(sid)
+        const url = "/api/download?session_id=" + encodeURIComponent(sid)
                   + "&filename=" + encodeURIComponent(filename);
         // Probe with fetch first so we can surface 403/404/410 errors as a
         // toast instead of dropping the user on a JSON page. We follow the
@@ -1202,7 +1202,7 @@ Get-FileHash .\CorditeWars-Setup.exe -Algorithm SHA256</code></pre>
         const t0 = performance.now();
         let meta;
         try {
-          const res = await fetch("releases/latest.json", { cache: "no-store" });
+          const res = await fetch("/releases/latest.json", { cache: "no-store" });
           if (!res.ok) throw new Error("HTTP " + res.status);
           meta = await res.json();
         } catch (err) {
