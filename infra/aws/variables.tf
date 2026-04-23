@@ -127,3 +127,43 @@ variable "lambda_log_retention_days" {
   type        = number
   default     = 30
 }
+
+###############################################################################
+# Licensing configuration
+###############################################################################
+
+variable "ses_from_address" {
+  description = <<-EOT
+    From-address used by SES when emailing license keys to buyers, e.g.
+    "keys@yourdomain.com". Leave empty to disable email delivery (keys are
+    still issued by the Lambda and returned via the API). When set, the
+    domain is verified in SES; you must add the DKIM CNAMEs (output as
+    `ses_dkim_records`) and a matching SPF/DMARC record to your DNS.
+  EOT
+  type        = string
+  default     = ""
+
+  validation {
+    condition = var.ses_from_address == "" || can(regex(
+      "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+      var.ses_from_address,
+    ))
+    error_message = "ses_from_address must be a valid email address or empty."
+  }
+}
+
+variable "slot_inactivity_reclaim_days" {
+  description = <<-EOT
+    A machine slot that has not had a successful activate/renew call within
+    this many days is automatically released by the nightly sweep, freeing
+    a slot on the user's license. This handles reformats and lost machines
+    without burning a slot forever.
+  EOT
+  type        = number
+  default     = 30
+
+  validation {
+    condition     = var.slot_inactivity_reclaim_days >= 7 && var.slot_inactivity_reclaim_days <= 365
+    error_message = "slot_inactivity_reclaim_days must be between 7 and 365."
+  }
+}
