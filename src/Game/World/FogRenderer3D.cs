@@ -29,7 +29,7 @@ public partial class FogRenderer3D : Node3D
 
     private static readonly string FogShaderSource = @"
 shader_type spatial;
-render_mode blend_mix, depth_draw_never, cull_disabled, unshaded;
+render_mode blend_mix, depth_draw_never, depth_test_disabled, cull_disabled, unshaded;
 
 uniform sampler2D fog_texture : hint_default_black, filter_linear;
 

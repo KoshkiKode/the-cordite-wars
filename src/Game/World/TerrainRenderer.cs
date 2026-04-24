@@ -537,7 +537,7 @@ void fragment() {
         if (elev < 0.5f && edgeDist < 20f)
             return CoastalSand;
         if (elev < 1f)
-            return CoastalSand.Lerp(CoastalGreen, (elev - 0.5f) * 2f);
+            return CoastalSand.Lerp(CoastalGreen, Math.Clamp((elev - 0.5f) * 2f, 0f, 1f));
 
         return CoastalGreen;
     }

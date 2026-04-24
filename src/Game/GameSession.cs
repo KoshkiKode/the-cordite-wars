@@ -786,6 +786,17 @@ public partial class GameSession : Node
     }
 
     /// <summary>
+    /// Returns the team color and faction base color for the given faction ID,
+    /// falling back to neutral greys when the faction ID is unknown.
+    /// </summary>
+    private static (Color teamColor, Color factionBaseColor) ResolveFactionColors(string factionId)
+    {
+        Color team    = FactionColors.TryGetValue(factionId, out var tc)  ? tc  : Colors.Gray;
+        Color faction = FactionBaseColors.TryGetValue(factionId, out var fbc) ? fbc : Colors.DimGray;
+        return (team, faction);
+    }
+
+    /// <summary>
     /// Reads the auto-save-replays setting from user://settings.cfg.
     /// Defaults to true if the file or key is absent.
     /// </summary>
@@ -910,6 +921,14 @@ public partial class GameSession : Node
             if (ws.IsReady && !readyBefore.Contains(ws.Data.Id))
                 EventBus.Instance?.EmitSuperweaponReady(_localPlayerId, ws.Data.Id);
         }
+
+        // ── 0c. Tick building construction progress ───────────────────────────
+        // Advance construction state for all buildings in the deterministic tick.
+        // Must run before BuildSimUnitFromBuilding so health reflects current progress.
+        FixedPoint tickDelta = FixedPoint.FromFloat(TickDeltaSeconds);
+        TickBuildingConstruction(_playerHQNodes.Values, tickDelta);
+        if (_buildingPlacer != null)
+            TickBuildingConstruction(_buildingPlacer.GetAllBuildings(), tickDelta);
 
         // ── 1. Build combined SimUnit list (mobile units + buildings) ──────
 
@@ -1145,6 +1164,21 @@ public partial class GameSession : Node
     /// starts at 1 and a match will not reach 100_000 live units simultaneously).
     /// </summary>
     private static bool IsBuildingId(int unitId) => unitId < 0 || unitId >= 100_001;
+
+    /// <summary>
+    /// Advances construction progress for every valid building in <paramref name="buildings"/>
+    /// by <paramref name="tickDelta"/>. Called once per simulation tick before building the
+    /// combined SimUnit list so that health values reflect the current build progress.
+    /// </summary>
+    private static void TickBuildingConstruction(
+        ICollection<BuildingInstance> buildings, FixedPoint tickDelta)
+    {
+        foreach (var b in buildings)
+        {
+            if (b != null && GodotObject.IsInstanceValid(b))
+                b.ProcessTick(tickDelta);
+        }
+    }
 
     /// <summary>
     /// Returns the ordered list of <see cref="TutorialStep"/>s for the given tutorial mission number.
@@ -2019,8 +2053,19 @@ public partial class GameSession : Node
                         : null;
 
                     var hqNode = new BuildingInstance();
+                    // Resolve faction colors from the saved player data for correct visuals.
+                    string hqFactionId = string.Empty;
+                    for (int p = 0; p < data.Players.Length; p++)
+                    {
+                        if (data.Players[p].PlayerId == bs.PlayerId)
+                        {
+                            hqFactionId = data.Players[p].FactionId;
+                            break;
+                        }
+                    }
+                    var (hqSaveTeamColor, hqSaveFactionBase) = ResolveFactionColors(hqFactionId);
                     hqNode.Initialize(bs.BuildingId, bs.BuildingTypeId, hqData, bs.PlayerId,
-                        bs.PositionX, bs.PositionY, hqModelEntry);
+                        bs.PositionX, bs.PositionY, hqModelEntry, hqSaveTeamColor, hqSaveFactionBase);
                     hqNode.RestoreState(
                         FixedPoint.FromRaw((int)bs.Health),
                         bs.IsConstructed,
@@ -2351,6 +2396,15 @@ public partial class GameSession : Node
             _terrainGrid,
             _terrainRenderer);
         AddChild(_buildingPlacer);
+
+        // Register faction colors for every player so buildings are rendered with the
+        // correct team tint and faction base color.
+        for (int i = 0; i < config.PlayerConfigs.Length; i++)
+        {
+            PlayerConfig pc = config.PlayerConfigs[i];
+            var (pcTeamColor, pcFactionBase) = ResolveFactionColors(pc.FactionId);
+            _buildingPlacer.RegisterPlayerColors(pc.PlayerId, pcTeamColor, pcFactionBase);
+        }
 
         // Register HQ positions for build radius validation
         if (ActiveMap is not null)
@@ -2762,8 +2816,9 @@ public partial class GameSession : Node
                     : null;
 
                 var hqNode = new BuildingInstance();
+                var (hqTeamColor, hqFactionBase) = ResolveFactionColors(pc.FactionId);
                 hqNode.Initialize(buildingId, hqBuildingId, hqData, pc.PlayerId,
-                    startPos.X, startPos.Y, hqModelEntry);
+                    startPos.X, startPos.Y, hqModelEntry, hqTeamColor, hqFactionBase);
                 // Mark fully constructed so it doesn't animate in during the game start
                 hqNode.RestoreState(hqData.MaxHealth, true, hqData.BuildTime);
                 // Snap to terrain surface so the HQ sits on the ground mesh
