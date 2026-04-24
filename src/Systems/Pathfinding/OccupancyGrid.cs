@@ -119,16 +119,24 @@ public class OccupancyGrid
 
     // ── Internal Storage ─────────────────────────────────────────────────────
     //
-    // 2D array for intuitive access: Cells[x, y].
-    // The TerrainGrid uses a flat array (Cells[y * Width + x]) for cache
-    // performance during sweep operations.  We use a 2D array here because
-    // occupancy access is random (per-unit queries), not sweep-based, so
-    // cache line locality matters less than code clarity.
+    // Flat row-major array: index = y * Width + x.
+    // Using a flat array instead of OccupancyCell[,] allows Clear() to use a
+    // single vectorised Span.Fill instead of a nested loop, and eliminates the
+    // extra multiply that 2D-array indexing imposes on every access.
 
     /// <summary>
-    /// The occupancy state for each grid cell.  Indexed as Cells[x, y].
+    /// The occupancy state for each grid cell.  Flat row-major layout:
+    /// index = y * Width + x.
     /// </summary>
-    public OccupancyCell[,] Cells { get; }
+    public OccupancyCell[] Cells { get; }
+
+    // Pre-baked "empty" cell value used for fast bulk clearing.
+    private static readonly OccupancyCell EmptyCell = new OccupancyCell
+    {
+        Type       = OccupancyType.Empty,
+        OccupantId = -1,
+        PlayerId   = -1,
+    };
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -143,15 +151,11 @@ public class OccupancyGrid
         if (width <= 0) throw new ArgumentException("Width must be positive.", nameof(width));
         if (height <= 0) throw new ArgumentException("Height must be positive.", nameof(height));
 
-        Width = width;
+        Width  = width;
         Height = height;
-        Cells = new OccupancyCell[width, height];
+        Cells  = new OccupancyCell[width * height];
 
-        // OccupancyCell is a struct with default values:
-        //   Type = OccupancyType.Empty (0)
-        //   OccupantId = 0 (not -1!)
-        //   PlayerId = 0 (not -1!)
-        // We must explicitly clear to set OccupantId and PlayerId to -1.
+        // Populate with the correct "empty" sentinel values.
         Clear();
     }
 
@@ -160,18 +164,11 @@ public class OccupancyGrid
     /// <summary>
     /// Resets all cells to empty.  Called at the start of each tick before
     /// rebuilding from the current unit/building positions.
+    /// Uses a single vectorised Span.Fill for maximum throughput.
     /// </summary>
     public void Clear()
     {
-        for (int x = 0; x < Width; x++)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                Cells[x, y].Type = OccupancyType.Empty;
-                Cells[x, y].OccupantId = -1;
-                Cells[x, y].PlayerId = -1;
-            }
-        }
+        Cells.AsSpan().Fill(EmptyCell);
     }
 
     // ── Occupy / Vacate ──────────────────────────────────────────────────────
@@ -191,9 +188,10 @@ public class OccupancyGrid
         if (x < 0 || x >= Width || y < 0 || y >= Height)
             return;
 
-        Cells[x, y].Type = type;
-        Cells[x, y].OccupantId = occupantId;
-        Cells[x, y].PlayerId = playerId;
+        ref OccupancyCell cell = ref Cells[y * Width + x];
+        cell.Type       = type;
+        cell.OccupantId = occupantId;
+        cell.PlayerId   = playerId;
     }
 
     /// <summary>
@@ -230,9 +228,7 @@ public class OccupancyGrid
         if (x < 0 || x >= Width || y < 0 || y >= Height)
             return;
 
-        Cells[x, y].Type = OccupancyType.Empty;
-        Cells[x, y].OccupantId = -1;
-        Cells[x, y].PlayerId = -1;
+        Cells[y * Width + x] = EmptyCell;
     }
 
     /// <summary>
@@ -279,7 +275,7 @@ public class OccupancyGrid
         if (x < 0 || x >= Width || y < 0 || y >= Height)
             return false;
 
-        return Cells[x, y].Type == OccupancyType.Empty;
+        return Cells[y * Width + x].Type == OccupancyType.Empty;
     }
 
     /// <summary>
@@ -305,7 +301,7 @@ public class OccupancyGrid
         if (x < 0 || x >= Width || y < 0 || y >= Height)
             return false;
 
-        OccupancyCell cell = Cells[x, y];
+        OccupancyCell cell = Cells[y * Width + x];
 
         // Empty is always passable
         if (cell.Type == OccupancyType.Empty)
@@ -352,16 +348,9 @@ public class OccupancyGrid
     public OccupancyCell GetCell(int x, int y)
     {
         if (x < 0 || x >= Width || y < 0 || y >= Height)
-        {
-            return new OccupancyCell
-            {
-                Type = OccupancyType.Empty,
-                OccupantId = -1,
-                PlayerId = -1
-            };
-        }
+            return EmptyCell;
 
-        return Cells[x, y];
+        return Cells[y * Width + x];
     }
 
     /// <summary>
@@ -373,7 +362,7 @@ public class OccupancyGrid
         if (x < 0 || x >= Width || y < 0 || y >= Height)
             return -1;
 
-        return Cells[x, y].OccupantId;
+        return Cells[y * Width + x].OccupantId;
     }
 
     // ── AssetRegistry Integration ───────────────────────────────────────

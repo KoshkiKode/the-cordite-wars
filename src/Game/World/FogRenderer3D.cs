@@ -144,19 +144,21 @@ void fragment() {
         int w = _mapWidth;
         int h = _mapHeight;
 
-        // Convert FogVisibility → byte opacity and write to flat buffer.
-        // R8 layout is row-major: index = y * width + x.
+        // Flat sequential scan: Cells[y * w + x] is row-major, so iterating
+        // y outer / x inner reads and writes both buffers sequentially.
+        var cells = _fogGrid.Cells;
         for (int y = 0; y < h; y++)
         {
+            int rowBase = y * w;
             for (int x = 0; x < w; x++)
             {
-                byte opacity = _fogGrid.Cells[x, y].Visibility switch
+                byte opacity = cells[rowBase + x].Visibility switch
                 {
                     FogVisibility.Visible    => (byte)(AlphaVisible    * 255f),
                     FogVisibility.Explored   => (byte)(AlphaExplored   * 255f),
                     _                        => (byte)(AlphaUnexplored * 255f)
                 };
-                _fogBytes[y * w + x] = opacity;
+                _fogBytes[rowBase + x] = opacity;
             }
         }
 
