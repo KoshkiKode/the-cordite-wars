@@ -274,6 +274,9 @@ public sealed class FlowField
         FixedPoint[] integrationField = ArrayPool<FixedPoint>.Shared.Rent(totalCells);
         byte[]       directions       = ArrayPool<byte>.Shared.Rent(totalCells);
         bool[]       finalized        = ArrayPool<bool>.Shared.Rent(totalCells);
+        // heapItems: 4× capacity because Dijkstra re-inserts cells on relaxation
+        // (lazy deletion) — each cell can appear in the heap multiple times before
+        // it is finalised.  4× is a conservative upper bound for typical maps.
         int[]        heapItems        = ArrayPool<int>.Shared.Rent(totalCells * 4);
 
         try

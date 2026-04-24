@@ -80,6 +80,9 @@ public class VisionSystem
     /// non-deterministic hash iteration.
     /// Indices 0..MaxCachedRadius are pre-sized; larger radii fall back to
     /// an on-demand (uncached) computation.
+    /// 64 covers all practical RTS sight ranges (typical units: 5–20 cells;
+    /// extreme "reveal map" abilities: up to ~50 cells). Anything beyond that
+    /// is exceedingly rare and not worth a permanent cache entry.
     /// </summary>
     private const int MaxCachedRadius = 64;
     private readonly List<(int dx, int dy)>?[] _radiusCache = new List<(int dx, int dy)>?[MaxCachedRadius + 1];

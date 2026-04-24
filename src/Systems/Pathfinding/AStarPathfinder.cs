@@ -180,6 +180,9 @@ public sealed class AStarPathfinder
         // nodes: flat node storage indexed by insertion order.
         PathNode[] nodes      = ArrayPool<PathNode>.Shared.Rent(maxNodes);
         // heapItems: backing store for the open-set min-heap.
+        // 4× maxNodes: A* re-inserts a node when a cheaper path is found (lazy
+        // deletion); each node can appear multiple times before being closed.
+        // 4× is a conservative upper bound that avoids heap overflow in practice.
         int[]      heapItems  = ArrayPool<int>.Shared.Rent(maxNodes * 4);
 
         try
