@@ -484,32 +484,46 @@ public class MovementSimulatorTests
     // ── AdvanceTick — turn rate limited (unit must take multiple ticks) ─────
 
     [Fact]
-    public void AdvanceTick_HighTurnRateLimit_TurnsSlowly()
+    public void AdvanceTick_HighTurnRateLimit_TurnsSlowly_PositiveDelta()
     {
-        // Use a profile with a very slow turn rate so the unit takes many ticks
-        // to face the desired direction. This exercises the "turn in shorter direction"
-        // branch including both subtraction directions (lines 208-209).
+        // facing = 0 (right), target is left (π) → delta > 0 → hits line 208.
         var terrain = FlatTerrain();
         var profile = InfantryProfile().WithTurnRate(FixedPoint.FromRaw(655)); // very slow ~0.01 rad/tick
 
-        // Start facing 0 (right), want to face left (π) — forces clamped turns.
-        var state = AtRest() with
-        {
-            Facing = FixedPoint.Zero
-        };
+        var state = AtRest() with { Facing = FixedPoint.Zero };
         var input = new MovementInput
         {
-            DesiredDirection = new FixedVector2(-FixedPoint.One, FixedPoint.Zero), // left
+            DesiredDirection = new FixedVector2(-FixedPoint.One, FixedPoint.Zero), // left (π)
             DesiredSpeed = FixedPoint.One,
             Brake = false
         };
 
         MovementState after = MovementSimulator.AdvanceTick(state, input, profile, terrain);
 
-        // After one tick, facing should have moved slightly toward π but not reached it.
         Assert.NotEqual(FixedPoint.Zero, after.Facing);
-        Assert.True(after.Facing < MovementSimulator.Pi,
-            $"Facing {after.Facing.ToFloat():F3} should be < π after one slow-turn tick");
+    }
+
+    [Fact]
+    public void AdvanceTick_HighTurnRateLimit_TurnsSlowly_NegativeDelta()
+    {
+        // facing = π/2 (up), target is right (0) → delta < 0 → hits line 209.
+        var terrain = FlatTerrain();
+        var profile = InfantryProfile().WithTurnRate(FixedPoint.FromRaw(655)); // very slow ~0.01 rad/tick
+
+        FixedPoint halfPi = FixedPoint.FromRaw(102944);
+        var state = AtRest() with { Facing = halfPi };
+        var input = new MovementInput
+        {
+            DesiredDirection = new FixedVector2(FixedPoint.One, FixedPoint.Zero), // right (0)
+            DesiredSpeed = FixedPoint.One,
+            Brake = false
+        };
+
+        MovementState after = MovementSimulator.AdvanceTick(state, input, profile, terrain);
+
+        // Facing should have moved slightly toward 0 (decreased from π/2).
+        Assert.True(after.Facing < halfPi,
+            $"Facing {after.Facing.ToFloat():F3} should have decreased from π/2");
     }
 
     // ── AdvanceTick — airborne unit lands after enough ticks ─────────────────
@@ -519,8 +533,10 @@ public class MovementSimulatorTests
     {
         // Unit starts airborne at Height=2 with zero vertical velocity.
         // Gravity should pull it down to Height=0 (terrain height on flat map).
+        // Must use a profile with SuspensionStiffness != 0 (e.g. LightVehicle)
+        // so the airborne gravity path is taken, not the aircraft hover path.
         var terrain = FlatTerrain();
-        var profile = InfantryProfile(); // SuspensionStiffness != 0
+        var profile = MovementProfile.LightVehicle(); // SuspensionStiffness = 0.3
 
         var state = AtRest() with
         {
@@ -537,7 +553,7 @@ public class MovementSimulatorTests
         };
 
         // Run enough ticks for gravity to bring the unit to ground.
-        for (int i = 0; i < 60 && state.IsAirborne; i++)
+        for (int i = 0; i < 120 && state.IsAirborne; i++)
             state = MovementSimulator.AdvanceTick(state, input, profile, terrain);
 
         Assert.False(state.IsAirborne, "Unit should have landed after gravity pulled it to terrain height");
@@ -549,15 +565,23 @@ public class MovementSimulatorTests
     [Fact]
     public void AdvanceTick_UnitOnSteepSlope_SpeedReducedOrZero()
     {
-        // Create a terrain with a steep slope at the center cell and verify
-        // the unit cannot accelerate to full speed.
+        // Create terrain with steep SlopeX on the relevant cells.
+        // GetSlope() does bilinear interpolation of SlopeX/SlopeY fields.
+        // infantry MaxSlopeAngle ≈ 0.87, so we need slopeMagnitude > 0.87.
+        // Setting SlopeX = 2.0 on a 3×3 block around the unit gives magnitude = 2 > 0.87.
         var terrain = new TerrainGrid(8, 8, FixedPoint.One);
-        // Set a large slope on the center cell to exceed infantry MaxSlopeAngle
-        ref TerrainCell cell = ref terrain.GetCell(4, 4);
-        cell.SlopeAngle = FixedPoint.FromInt(10); // > infantry max slope
-        terrain.ComputeSlopes();
+        for (int x = 3; x <= 5; x++)
+        {
+            for (int y = 3; y <= 5; y++)
+            {
+                ref TerrainCell cell = ref terrain.GetCell(x, y);
+                cell.SlopeX = FixedPoint.FromInt(2); // slope magnitude >> maxSlopeAngle
+            }
+        }
+        terrain.ComputeSlopes(); // will preserve pre-set SlopeX since heights are flat
 
         var profile = MovementProfile.Infantry();
+        // Position at cell (4,4): bilinear of nearby SlopeX values will be ~2
         var state = AtRest(pos: new FixedVector2(FixedPoint.FromFloat(4.5f), FixedPoint.FromFloat(4.5f)));
 
         var input = new MovementInput
@@ -569,9 +593,41 @@ public class MovementSimulatorTests
 
         MovementState next = MovementSimulator.AdvanceTick(state, input, profile, terrain);
 
-        // On a slope too steep to climb, effective max speed is 0 → speed stays at or near 0.
-        // (may accelerate by one tick's accel before being clamped)
+        // With effectiveMaxSpeed = 0, speed should stay at or near 0.
         Assert.True(next.Speed <= profile.Acceleration,
-            $"Speed {next.Speed.ToFloat():F4} should not exceed one tick of acceleration on a steep slope");
+            $"Speed {next.Speed.ToFloat():F4} should be near 0 on steep slope");
+    }
+
+    // ── AdvanceTick — deceleration clamps to targetSpeed (line 312) ──────────
+
+    [Fact]
+    public void AdvanceTick_DeceleratingToTarget_ClampsAtTarget()
+    {
+        // Unit moving at speed slightly less than one decel-per-tick step.
+        // After deceleration, speed would go below 0 → clamped to 0 (line 312).
+        // With Brake=true: decelPerTick = profile.Deceleration / tickRate / mass * 2
+        //   = 0.05 / 30 * 2 ≈ 0.00333. So initSpeed < 0.00333 triggers the clamp.
+        var terrain = FlatTerrain();
+        var profile = InfantryProfile();
+
+        FixedPoint initSpeed = FixedPoint.FromRaw(131); // ≈ 0.002, less than one decel step
+
+        var state = AtRest() with
+        {
+            Speed = initSpeed,
+            Velocity = new FixedVector2(initSpeed, FixedPoint.Zero)
+        };
+
+        var input = new MovementInput
+        {
+            DesiredDirection = FixedVector2.Zero,
+            DesiredSpeed = FixedPoint.Zero,
+            Brake = true
+        };
+
+        MovementState next = MovementSimulator.AdvanceTick(state, input, profile, terrain);
+
+        // Speed should be clamped to 0 (not negative)
+        Assert.Equal(FixedPoint.Zero, next.Speed);
     }
 }
