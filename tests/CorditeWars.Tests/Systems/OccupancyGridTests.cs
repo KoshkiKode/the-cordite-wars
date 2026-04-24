@@ -11,6 +11,10 @@ namespace CorditeWars.Tests.Systems;
 /// </summary>
 public class OccupancyGridTests
 {
+    // Helper: flat-index accessor matching the row-major layout (y * Width + x).
+    private static OccupancyCell Cell(OccupancyGrid g, int x, int y)
+        => g.Cells[y * g.Width + x];
+
     // ── Construction ────────────────────────────────────────────────────────
 
     [Fact]
@@ -22,9 +26,9 @@ public class OccupancyGridTests
         {
             for (int y = 0; y < 16; y++)
             {
-                Assert.Equal(OccupancyType.Empty, grid.Cells[x, y].Type);
-                Assert.Equal(-1, grid.Cells[x, y].OccupantId);
-                Assert.Equal(-1, grid.Cells[x, y].PlayerId);
+                Assert.Equal(OccupancyType.Empty, Cell(grid, x, y).Type);
+                Assert.Equal(-1, Cell(grid, x, y).OccupantId);
+                Assert.Equal(-1, Cell(grid, x, y).PlayerId);
             }
         }
     }
@@ -58,11 +62,11 @@ public class OccupancyGridTests
 
         grid.Clear();
 
-        Assert.Equal(OccupancyType.Empty, grid.Cells[3, 3].Type);
-        Assert.Equal(-1, grid.Cells[3, 3].OccupantId);
-        Assert.Equal(-1, grid.Cells[3, 3].PlayerId);
+        Assert.Equal(OccupancyType.Empty, Cell(grid, 3, 3).Type);
+        Assert.Equal(-1, Cell(grid, 3, 3).OccupantId);
+        Assert.Equal(-1, Cell(grid, 3, 3).PlayerId);
 
-        Assert.Equal(OccupancyType.Empty, grid.Cells[5, 5].Type);
+        Assert.Equal(OccupancyType.Empty, Cell(grid, 5, 5).Type);
     }
 
     [Fact]
@@ -71,7 +75,7 @@ public class OccupancyGridTests
         var grid = new OccupancyGrid(8, 8);
         grid.Clear();
         grid.Clear(); // should not throw
-        Assert.Equal(OccupancyType.Empty, grid.Cells[0, 0].Type);
+        Assert.Equal(OccupancyType.Empty, Cell(grid, 0, 0).Type);
     }
 
     // ── OccupyCell ──────────────────────────────────────────────────────────
@@ -82,9 +86,9 @@ public class OccupancyGridTests
         var grid = new OccupancyGrid(16, 16);
         grid.OccupyCell(5, 7, OccupancyType.Unit, 10, 1);
 
-        Assert.Equal(OccupancyType.Unit, grid.Cells[5, 7].Type);
-        Assert.Equal(10, grid.Cells[5, 7].OccupantId);
-        Assert.Equal(1, grid.Cells[5, 7].PlayerId);
+        Assert.Equal(OccupancyType.Unit, Cell(grid, 5, 7).Type);
+        Assert.Equal(10, Cell(grid, 5, 7).OccupantId);
+        Assert.Equal(1, Cell(grid, 5, 7).PlayerId);
     }
 
     [Fact]
@@ -97,7 +101,7 @@ public class OccupancyGridTests
         grid.OccupyCell(8, 0, OccupancyType.Unit, 1, 1);
         grid.OccupyCell(0, 8, OccupancyType.Unit, 1, 1);
         // All cells should still be empty
-        Assert.Equal(OccupancyType.Empty, grid.Cells[0, 0].Type);
+        Assert.Equal(OccupancyType.Empty, Cell(grid, 0, 0).Type);
     }
 
     [Fact]
@@ -105,9 +109,9 @@ public class OccupancyGridTests
     {
         var grid = new OccupancyGrid(16, 16);
         grid.OccupyCell(2, 3, OccupancyType.Building, 200, 2);
-        Assert.Equal(OccupancyType.Building, grid.Cells[2, 3].Type);
-        Assert.Equal(200, grid.Cells[2, 3].OccupantId);
-        Assert.Equal(2, grid.Cells[2, 3].PlayerId);
+        Assert.Equal(OccupancyType.Building, Cell(grid, 2, 3).Type);
+        Assert.Equal(200, Cell(grid, 2, 3).OccupantId);
+        Assert.Equal(2, Cell(grid, 2, 3).PlayerId);
     }
 
     // ── VacateCell ──────────────────────────────────────────────────────────
@@ -119,9 +123,9 @@ public class OccupancyGridTests
         grid.OccupyCell(4, 4, OccupancyType.Unit, 5, 1);
         grid.VacateCell(4, 4);
 
-        Assert.Equal(OccupancyType.Empty, grid.Cells[4, 4].Type);
-        Assert.Equal(-1, grid.Cells[4, 4].OccupantId);
-        Assert.Equal(-1, grid.Cells[4, 4].PlayerId);
+        Assert.Equal(OccupancyType.Empty, Cell(grid, 4, 4).Type);
+        Assert.Equal(-1, Cell(grid, 4, 4).OccupantId);
+        Assert.Equal(-1, Cell(grid, 4, 4).PlayerId);
     }
 
     [Fact]
@@ -147,7 +151,7 @@ public class OccupancyGridTests
         {
             for (int dy = 0; dy < 2; dy++)
             {
-                var cell = grid.Cells[2 + dx, 3 + dy];
+                var cell = Cell(grid, 2 + dx, 3 + dy);
                 Assert.Equal(OccupancyType.Building, cell.Type);
                 Assert.Equal(7, cell.OccupantId);
                 Assert.Equal(2, cell.PlayerId);
@@ -162,10 +166,10 @@ public class OccupancyGridTests
         grid.OccupyFootprint(4, 4, 2, 2, OccupancyType.Building, 1, 1);
 
         // Cells just outside the footprint should be empty
-        Assert.Equal(OccupancyType.Empty, grid.Cells[3, 4].Type);
-        Assert.Equal(OccupancyType.Empty, grid.Cells[6, 4].Type);
-        Assert.Equal(OccupancyType.Empty, grid.Cells[4, 3].Type);
-        Assert.Equal(OccupancyType.Empty, grid.Cells[4, 6].Type);
+        Assert.Equal(OccupancyType.Empty, Cell(grid, 3, 4).Type);
+        Assert.Equal(OccupancyType.Empty, Cell(grid, 6, 4).Type);
+        Assert.Equal(OccupancyType.Empty, Cell(grid, 4, 3).Type);
+        Assert.Equal(OccupancyType.Empty, Cell(grid, 4, 6).Type);
     }
 
     [Fact]
@@ -179,7 +183,7 @@ public class OccupancyGridTests
         {
             for (int dy = 0; dy < 3; dy++)
             {
-                Assert.Equal(OccupancyType.Empty, grid.Cells[2 + dx, 2 + dy].Type);
+                Assert.Equal(OccupancyType.Empty, Cell(grid, 2 + dx, 2 + dy).Type);
             }
         }
     }
@@ -192,8 +196,8 @@ public class OccupancyGridTests
         grid.OccupyFootprint(6, 6, 3, 3, OccupancyType.Building, 1, 1);
 
         // Cells at (6,6) and (7,6) are within bounds
-        Assert.Equal(OccupancyType.Building, grid.Cells[6, 6].Type);
-        Assert.Equal(OccupancyType.Building, grid.Cells[7, 6].Type);
+        Assert.Equal(OccupancyType.Building, Cell(grid, 6, 6).Type);
+        Assert.Equal(OccupancyType.Building, Cell(grid, 7, 6).Type);
         // (8, 6) and beyond are out of bounds — skipped silently
     }
 
@@ -205,9 +209,9 @@ public class OccupancyGridTests
         var grid = new OccupancyGrid(16, 16);
         grid.ReserveCell(3, 5, 17, 1);
 
-        Assert.Equal(OccupancyType.Reserved, grid.Cells[3, 5].Type);
-        Assert.Equal(17, grid.Cells[3, 5].OccupantId);
-        Assert.Equal(1, grid.Cells[3, 5].PlayerId);
+        Assert.Equal(OccupancyType.Reserved, Cell(grid, 3, 5).Type);
+        Assert.Equal(17, Cell(grid, 3, 5).OccupantId);
+        Assert.Equal(1, Cell(grid, 3, 5).PlayerId);
     }
 
     // ── IsCellFree ──────────────────────────────────────────────────────────

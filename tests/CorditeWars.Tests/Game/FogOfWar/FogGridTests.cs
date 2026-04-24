@@ -9,6 +9,10 @@ namespace CorditeWars.Tests.Game.FogOfWar;
 /// </summary>
 public class FogGridTests
 {
+    // Helper: flat-index accessor matching the row-major layout (y * Width + x).
+    private static FogCell Cell(FogGrid g, int x, int y)
+        => g.Cells[y * g.Width + x];
+
     // ── Construction ───────────────────────────────────────────────────────
 
     [Fact]
@@ -21,8 +25,8 @@ public class FogGridTests
             for (int y = 0; y < 8; y++)
             {
                 Assert.Equal(FogVisibility.Unexplored, grid.GetVisibility(x, y));
-                Assert.False(grid.Cells[x, y].WasEverVisible);
-                Assert.Equal(0, grid.Cells[x, y].VisibilityRefCount);
+                Assert.False(Cell(grid, x, y).WasEverVisible);
+                Assert.Equal(0, Cell(grid, x, y).VisibilityRefCount);
             }
         }
     }
@@ -37,7 +41,7 @@ public class FogGridTests
             for (int y = 0; y < 8; y++)
             {
                 Assert.Equal(FogVisibility.Explored, grid.GetVisibility(x, y));
-                Assert.True(grid.Cells[x, y].WasEverVisible);
+                Assert.True(Cell(grid, x, y).WasEverVisible);
             }
         }
     }
@@ -133,7 +137,7 @@ public class FogGridTests
         grid.AddVisibility(3, 3);
 
         Assert.Equal(FogVisibility.Visible, grid.GetVisibility(3, 3));
-        Assert.True(grid.Cells[3, 3].WasEverVisible);
+        Assert.True(Cell(grid, 3, 3).WasEverVisible);
         Assert.True(grid.IsVisible(3, 3));
         Assert.True(grid.IsExplored(3, 3));
     }
@@ -143,9 +147,9 @@ public class FogGridTests
     {
         var grid = new FogGrid(8, 8, 1, FogMode.Campaign);
         grid.AddVisibility(2, 2);
-        Assert.Equal(1, grid.Cells[2, 2].VisibilityRefCount);
+        Assert.Equal(1, Cell(grid, 2, 2).VisibilityRefCount);
         grid.AddVisibility(2, 2);
-        Assert.Equal(2, grid.Cells[2, 2].VisibilityRefCount);
+        Assert.Equal(2, Cell(grid, 2, 2).VisibilityRefCount);
     }
 
     [Fact]
@@ -169,8 +173,8 @@ public class FogGridTests
         grid.RemoveVisibility(4, 4);
 
         Assert.Equal(FogVisibility.Explored, grid.GetVisibility(4, 4));
-        Assert.Equal(0, grid.Cells[4, 4].VisibilityRefCount);
-        Assert.True(grid.Cells[4, 4].WasEverVisible);
+        Assert.Equal(0, Cell(grid, 4, 4).VisibilityRefCount);
+        Assert.True(Cell(grid, 4, 4).WasEverVisible);
     }
 
     [Fact]
@@ -182,7 +186,7 @@ public class FogGridTests
         grid.RemoveVisibility(5, 5); // still 1 viewer
 
         Assert.Equal(FogVisibility.Visible, grid.GetVisibility(5, 5));
-        Assert.Equal(1, grid.Cells[5, 5].VisibilityRefCount);
+        Assert.Equal(1, Cell(grid, 5, 5).VisibilityRefCount);
     }
 
     [Fact]
@@ -193,7 +197,7 @@ public class FogGridTests
         grid.RemoveVisibility(1, 1); // now 0
         grid.RemoveVisibility(1, 1); // should not underflow
 
-        Assert.Equal(0, grid.Cells[1, 1].VisibilityRefCount);
+        Assert.Equal(0, Cell(grid, 1, 1).VisibilityRefCount);
     }
 
     [Fact]
@@ -229,8 +233,8 @@ public class FogGridTests
 
         grid.ResetVisibility();
 
-        Assert.Equal(0, grid.Cells[1, 1].VisibilityRefCount);
-        Assert.Equal(0, grid.Cells[2, 2].VisibilityRefCount);
+        Assert.Equal(0, Cell(grid, 1, 1).VisibilityRefCount);
+        Assert.Equal(0, Cell(grid, 2, 2).VisibilityRefCount);
     }
 
     [Fact]
@@ -271,7 +275,7 @@ public class FogGridTests
         var grid = new FogGrid(8, 8, 1, FogMode.Campaign);
         grid.AddVisibility(5, 5);
         grid.ResetVisibility();
-        Assert.True(grid.Cells[5, 5].WasEverVisible);
+        Assert.True(Cell(grid, 5, 5).WasEverVisible);
     }
 
     // ── RevealAll ──────────────────────────────────────────────────────────
@@ -287,8 +291,8 @@ public class FogGridTests
             for (int y = 0; y < 8; y++)
             {
                 Assert.Equal(FogVisibility.Visible, grid.GetVisibility(x, y));
-                Assert.True(grid.Cells[x, y].WasEverVisible);
-                Assert.Equal(1, grid.Cells[x, y].VisibilityRefCount);
+                Assert.True(Cell(grid, x, y).WasEverVisible);
+                Assert.Equal(1, Cell(grid, x, y).VisibilityRefCount);
             }
         }
     }
@@ -332,6 +336,6 @@ public class FogGridTests
         // Re-add after reset should restore Visible
         grid.AddVisibility(3, 3);
         Assert.Equal(FogVisibility.Visible, grid.GetVisibility(3, 3));
-        Assert.Equal(1, grid.Cells[3, 3].VisibilityRefCount);
+        Assert.Equal(1, Cell(grid, 3, 3).VisibilityRefCount);
     }
 }

@@ -135,7 +135,7 @@ public class MinimapDataTests
     {
         var mm = new MinimapData(4, 4, 4, 4);
         var fog = new FogGrid(4, 4, playerId: 0, FogMode.Campaign);
-        fog.Cells[0, 0].Visibility = FogVisibility.Explored;
+        fog.Cells[0 * fog.Width + 0].Visibility = FogVisibility.Explored;
 
         mm.UpdateFogLayer(fog);
 
@@ -148,7 +148,7 @@ public class MinimapDataTests
     {
         var mm = new MinimapData(4, 4, 4, 4);
         var fog = new FogGrid(4, 4, playerId: 0, FogMode.Campaign);
-        fog.Cells[0, 0].Visibility = FogVisibility.Visible;
+        fog.Cells[0 * fog.Width + 0].Visibility = FogVisibility.Visible;
 
         mm.UpdateFogLayer(fog);
 

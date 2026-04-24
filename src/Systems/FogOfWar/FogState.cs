@@ -83,8 +83,27 @@ public class FogGrid
     /// <summary>The owning player's ID.</summary>
     public int PlayerId { get; }
 
-    /// <summary>The 2-D cell array. Indexed [x, y].</summary>
-    public FogCell[,] Cells { get; }
+    /// <summary>
+    /// Flat row-major cell array. Index = y * Width + x.
+    /// Using a flat array rather than <c>FogCell[,]</c> lets bulk operations
+    /// (constructor init, ResetVisibility, RevealAll) use Span.Fill for
+    /// vectorised throughput, and gives the renderer sequential read access.
+    /// </summary>
+    public FogCell[] Cells { get; }
+
+    // Pre-baked cell values for fast bulk fills.
+    private static readonly FogCell ExploredCell = new FogCell
+    {
+        Visibility        = FogVisibility.Explored,
+        VisibilityRefCount = 0,
+        WasEverVisible    = true,
+    };
+    private static readonly FogCell RevealedCell = new FogCell
+    {
+        Visibility        = FogVisibility.Visible,
+        VisibilityRefCount = 1,
+        WasEverVisible    = true,
+    };
 
     // ── Constructor ──────────────────────────────────────────────────────
 
@@ -101,22 +120,13 @@ public class FogGrid
     /// </param>
     public FogGrid(int width, int height, int playerId, FogMode mode)
     {
-        Width = width;
-        Height = height;
+        Width    = width;
+        Height   = height;
         PlayerId = playerId;
-        Cells = new FogCell[width, height];
+        Cells    = new FogCell[width * height];
 
         if (mode == FogMode.Skirmish)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    Cells[x, y].Visibility = FogVisibility.Explored;
-                    Cells[x, y].WasEverVisible = true;
-                }
-            }
-        }
+            Cells.AsSpan().Fill(ExploredCell);
         // Campaign: default struct values → Unexplored, refcount 0, WasEverVisible false
     }
 
@@ -126,19 +136,19 @@ public class FogGrid
     public FogVisibility GetVisibility(int x, int y)
     {
         if (!IsInBounds(x, y)) return FogVisibility.Unexplored;
-        return Cells[x, y].Visibility;
+        return Cells[y * Width + x].Visibility;
     }
 
     /// <summary>Shorthand: is the cell currently visible to this player?</summary>
     public bool IsVisible(int x, int y)
     {
-        return IsInBounds(x, y) && Cells[x, y].Visibility == FogVisibility.Visible;
+        return IsInBounds(x, y) && Cells[y * Width + x].Visibility == FogVisibility.Visible;
     }
 
     /// <summary>Shorthand: has the cell ever been seen (Explored or Visible)?</summary>
     public bool IsExplored(int x, int y)
     {
-        return IsInBounds(x, y) && Cells[x, y].Visibility >= FogVisibility.Explored;
+        return IsInBounds(x, y) && Cells[y * Width + x].Visibility >= FogVisibility.Explored;
     }
 
     // ── Visibility Manipulation ──────────────────────────────────────────
@@ -151,9 +161,9 @@ public class FogGrid
     {
         if (!IsInBounds(x, y)) return;
 
-        ref FogCell cell = ref Cells[x, y];
+        ref FogCell cell = ref Cells[y * Width + x];
         cell.VisibilityRefCount++;
-        cell.Visibility = FogVisibility.Visible;
+        cell.Visibility     = FogVisibility.Visible;
         cell.WasEverVisible = true;
     }
 
@@ -165,7 +175,7 @@ public class FogGrid
     {
         if (!IsInBounds(x, y)) return;
 
-        ref FogCell cell = ref Cells[x, y];
+        ref FogCell cell = ref Cells[y * Width + x];
 
         if (cell.VisibilityRefCount > 0)
             cell.VisibilityRefCount--;
@@ -180,21 +190,17 @@ public class FogGrid
     /// cells to Explored. Cells that were Unexplored stay Unexplored.
     /// The <see cref="VisionSystem"/> will then re-add visibility for every
     /// unit, rebuilding accurate ref counts from scratch.
+    /// Uses a single flat pass over the array for cache-friendly throughput.
     /// </summary>
     public void ResetVisibility()
     {
-        for (int x = 0; x < Width; x++)
+        var span = Cells.AsSpan();
+        for (int i = 0; i < span.Length; i++)
         {
-            for (int y = 0; y < Height; y++)
-            {
-                ref FogCell cell = ref Cells[x, y];
-                cell.VisibilityRefCount = 0;
-
-                if (cell.Visibility == FogVisibility.Visible)
-                    cell.Visibility = FogVisibility.Explored;
-
-                // Unexplored cells stay Unexplored (WasEverVisible is still false)
-            }
+            ref FogCell cell = ref span[i];
+            cell.VisibilityRefCount = 0;
+            if (cell.Visibility == FogVisibility.Visible)
+                cell.Visibility = FogVisibility.Explored;
         }
     }
 
@@ -206,16 +212,7 @@ public class FogGrid
     /// </summary>
     public void RevealAll()
     {
-        for (int x = 0; x < Width; x++)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                ref FogCell cell = ref Cells[x, y];
-                cell.VisibilityRefCount = 1;
-                cell.Visibility = FogVisibility.Visible;
-                cell.WasEverVisible = true;
-            }
-        }
+        Cells.AsSpan().Fill(RevealedCell);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

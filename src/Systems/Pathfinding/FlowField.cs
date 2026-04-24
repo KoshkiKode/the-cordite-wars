@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using CorditeWars.Core;
 
 namespace CorditeWars.Systems.Pathfinding;
@@ -170,17 +171,17 @@ public sealed class FlowField
 
     /// <summary>
     /// The direction field. Each cell contains a <see cref="FlowDirection"/>
-    /// (cast to byte) indicating which neighbor to move toward.
-    /// Indexed as [x - RegionMinX, y - RegionMinY] (local coordinates).
+    /// (cast to byte) indicating which neighbour to move toward.
+    /// Flat row-major layout: index = localY * RegionWidth + localX.
     /// </summary>
-    public byte[,] Directions { get; private set; } = new byte[0, 0];
+    public byte[] Directions { get; private set; } = Array.Empty<byte>();
 
     /// <summary>
     /// The integration (cost) field. Each cell stores the minimum cost to reach
     /// the goal from that cell. <see cref="FixedPoint.MaxValue"/> means unreachable.
-    /// Indexed as [x - RegionMinX, y - RegionMinY] (local coordinates).
+    /// Flat row-major layout: index = localY * RegionWidth + localX.
     /// </summary>
-    public FixedPoint[,] IntegrationField { get; private set; } = new FixedPoint[0, 0];
+    public FixedPoint[] IntegrationField { get; private set; } = Array.Empty<FixedPoint>();
 
     /// <summary>
     /// Whether this flow field has been successfully computed and is ready for use.
@@ -250,11 +251,11 @@ public sealed class FlowField
         RegionMinY = regionMinY;
         RegionMaxX = regionMaxX;
         RegionMaxY = regionMaxY;
-        GoalX = goalX;
-        GoalY = goalY;
-        IsValid = false;
+        GoalX      = goalX;
+        GoalY      = goalY;
+        IsValid    = false;
 
-        int width = RegionWidth;
+        int width  = RegionWidth;
         int height = RegionHeight;
 
         if (width <= 0 || height <= 0)
@@ -265,148 +266,156 @@ public sealed class FlowField
             goalY < regionMinY || goalY > regionMaxY)
             return;
 
-        // ── Allocate fields ─────────────────────────────────────────
-        IntegrationField = new FixedPoint[width, height];
-        Directions = new byte[width, height];
-
-        // Initialize integration field to Unreachable.
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                IntegrationField[x, y] = Unreachable;
-            }
-        }
-
-        // ── Build integration field via Dijkstra ────────────────────
+        // ── Allocate / rent flat arrays ─────────────────────────────
+        // Using ArrayPool avoids LOH allocations when the same FlowField
+        // object is reused for repeated group-move commands.
         int totalCells = width * height;
 
-        // Heap element: packed index into the local grid (y_local * width + x_local).
-        // We use a separate cost array (the integration field itself) for ordering.
-        var heap = new DijkstraHeap(totalCells, IntegrationField, width);
+        FixedPoint[] integrationField = ArrayPool<FixedPoint>.Shared.Rent(totalCells);
+        byte[]       directions       = ArrayPool<byte>.Shared.Rent(totalCells);
+        bool[]       finalized        = ArrayPool<bool>.Shared.Rent(totalCells);
+        int[]        heapItems        = ArrayPool<int>.Shared.Rent(totalCells * 4);
 
-        // Seed with the goal cell.
-        int goalLocalX = goalX - regionMinX;
-        int goalLocalY = goalY - regionMinY;
-        IntegrationField[goalLocalX, goalLocalY] = FixedPoint.Zero;
-        heap.Push(goalLocalX, goalLocalY);
-
-        // Track which cells have been finalized.
-        var finalized = new bool[width, height];
-
-        while (heap.Count > 0)
+        try
         {
-            var (cx, cy) = heap.Pop();
+            // Initialize integration field to Unreachable, finalized to false.
+            // Array.Fill / Array.Clear use vectorised (SIMD) paths in .NET 5+.
+            Array.Fill(integrationField, Unreachable, 0, totalCells);
+            Array.Clear(finalized, 0, totalCells);
+            // directions are set before being read; no pre-init needed.
 
-            if (finalized[cx, cy])
-                continue;
+            // ── Build integration field via Dijkstra ────────────────
+            var heap = new DijkstraHeap(heapItems, totalCells * 4, integrationField, width);
 
-            finalized[cx, cy] = true;
+            int goalLocalX = goalX - regionMinX;
+            int goalLocalY = goalY - regionMinY;
+            integrationField[goalLocalY * width + goalLocalX] = FixedPoint.Zero;
+            heap.Push(goalLocalX, goalLocalY);
 
-            FixedPoint currentCost = IntegrationField[cx, cy];
-
-            // World coordinates of the current cell.
-            int worldX = cx + regionMinX;
-            int worldY = cy + regionMinY;
-
-            // ── Expand 8 neighbors ──────────────────────────────────
-            for (int dir = 0; dir < 8; dir++)
+            while (heap.Count > 0)
             {
-                int nlx = cx + NeighborOffsets[dir].dx; // neighbor local X
-                int nly = cy + NeighborOffsets[dir].dy; // neighbor local Y
+                var (cx, cy) = heap.Pop();
+                int packedC  = cy * width + cx;
 
-                // Out of region bounds.
-                if (nlx < 0 || nly < 0 || nlx >= width || nly >= height)
+                if (finalized[packedC])
                     continue;
 
-                // Already finalized.
-                if (finalized[nlx, nly])
-                    continue;
+                finalized[packedC] = true;
 
-                int nwx = nlx + regionMinX; // neighbor world X
-                int nwy = nly + regionMinY; // neighbor world Y
+                FixedPoint currentCost = integrationField[packedC];
 
-                // Traversability check.
-                if (!grid.IsInBounds(nwx, nwy) ||
-                    !TerrainCostCalculator.CanTraverse(grid, profile, nwx, nwy))
-                    continue;
-
-                // Corner-cutting prevention for diagonal moves.
-                if (IsDiagonal[dir])
-                {
-                    int adjWorldX1 = worldX + NeighborOffsets[dir].dx;
-                    int adjWorldY1 = worldY;
-                    int adjWorldX2 = worldX;
-                    int adjWorldY2 = worldY + NeighborOffsets[dir].dy;
-
-                    if (!grid.IsInBounds(adjWorldX1, adjWorldY1) ||
-                        !TerrainCostCalculator.CanTraverse(grid, profile, adjWorldX1, adjWorldY1) ||
-                        !grid.IsInBounds(adjWorldX2, adjWorldY2) ||
-                        !TerrainCostCalculator.CanTraverse(grid, profile, adjWorldX2, adjWorldY2))
-                        continue;
-                }
-
-                // Compute edge cost: base step cost × terrain cost.
-                // NOTE: For the integration field we compute cost from neighbor
-                // TO current (since we expand outward from the goal).
-                FixedPoint stepCost = IsDiagonal[dir] ? DiagonalCost : CardinalCost;
-                FixedPoint terrainCost = TerrainCostCalculator.GetMovementCost(
-                    grid, profile, nwx, nwy, worldX, worldY);
-                FixedPoint newCost = currentCost + stepCost * terrainCost;
-
-                if (newCost < IntegrationField[nlx, nly])
-                {
-                    IntegrationField[nlx, nly] = newCost;
-                    heap.Push(nlx, nly);
-                }
-            }
-        }
-
-        // ── Build direction field from integration gradient ─────────
-        for (int ly = 0; ly < height; ly++)
-        {
-            for (int lx = 0; lx < width; lx++)
-            {
-                // Unreachable cells get no direction.
-                if (IntegrationField[lx, ly] == Unreachable)
-                {
-                    Directions[lx, ly] = (byte)FlowDirection.None;
-                    continue;
-                }
-
-                // Goal cell: no direction needed (units have arrived).
-                if (lx == goalLocalX && ly == goalLocalY)
-                {
-                    Directions[lx, ly] = (byte)FlowDirection.None;
-                    continue;
-                }
-
-                // Find the neighbor with the lowest integration cost.
-                FixedPoint bestCost = IntegrationField[lx, ly];
-                FlowDirection bestDir = FlowDirection.None;
+                int worldX = cx + regionMinX;
+                int worldY = cy + regionMinY;
 
                 for (int dir = 0; dir < 8; dir++)
                 {
-                    int nlx = lx + NeighborOffsets[dir].dx;
-                    int nly = ly + NeighborOffsets[dir].dy;
+                    int nlx = cx + NeighborOffsets[dir].dx;
+                    int nly = cy + NeighborOffsets[dir].dy;
 
                     if (nlx < 0 || nly < 0 || nlx >= width || nly >= height)
                         continue;
 
-                    FixedPoint neighborCost = IntegrationField[nlx, nly];
-                    if (neighborCost < bestCost)
+                    int packedN = nly * width + nlx;
+                    if (finalized[packedN])
+                        continue;
+
+                    int nwx = nlx + regionMinX;
+                    int nwy = nly + regionMinY;
+
+                    if (!grid.IsInBounds(nwx, nwy) ||
+                        !TerrainCostCalculator.CanTraverse(grid, profile, nwx, nwy))
+                        continue;
+
+                    if (IsDiagonal[dir])
                     {
-                        bestCost = neighborCost;
-                        // dir 0 = N = FlowDirection.N (1), so dir index + 1.
-                        bestDir = (FlowDirection)(dir + 1);
+                        int adjWorldX1 = worldX + NeighborOffsets[dir].dx;
+                        int adjWorldY1 = worldY;
+                        int adjWorldX2 = worldX;
+                        int adjWorldY2 = worldY + NeighborOffsets[dir].dy;
+
+                        if (!grid.IsInBounds(adjWorldX1, adjWorldY1) ||
+                            !TerrainCostCalculator.CanTraverse(grid, profile, adjWorldX1, adjWorldY1) ||
+                            !grid.IsInBounds(adjWorldX2, adjWorldY2) ||
+                            !TerrainCostCalculator.CanTraverse(grid, profile, adjWorldX2, adjWorldY2))
+                            continue;
+                    }
+
+                    FixedPoint stepCost    = IsDiagonal[dir] ? DiagonalCost : CardinalCost;
+                    FixedPoint terrainCost = TerrainCostCalculator.GetMovementCost(
+                        grid, profile, nwx, nwy, worldX, worldY);
+                    FixedPoint newCost = currentCost + stepCost * terrainCost;
+
+                    if (newCost < integrationField[packedN])
+                    {
+                        integrationField[packedN] = newCost;
+                        heap.Push(nlx, nly);
                     }
                 }
-
-                Directions[lx, ly] = (byte)bestDir;
             }
-        }
 
-        IsValid = true;
+            // ── Build direction field from integration gradient ─────
+            // Outer loop y, inner loop x → sequential reads of integrationField
+            // (row-major y*width+x) and sequential writes to directions.
+            for (int ly = 0; ly < height; ly++)
+            {
+                int rowBase = ly * width;
+                for (int lx = 0; lx < width; lx++)
+                {
+                    int packedLoc = rowBase + lx;
+
+                    if (integrationField[packedLoc] == Unreachable)
+                    {
+                        directions[packedLoc] = (byte)FlowDirection.None;
+                        continue;
+                    }
+
+                    if (lx == goalLocalX && ly == goalLocalY)
+                    {
+                        directions[packedLoc] = (byte)FlowDirection.None;
+                        continue;
+                    }
+
+                    FixedPoint    bestCost = integrationField[packedLoc];
+                    FlowDirection bestDir  = FlowDirection.None;
+
+                    for (int dir = 0; dir < 8; dir++)
+                    {
+                        int nlx = lx + NeighborOffsets[dir].dx;
+                        int nly = ly + NeighborOffsets[dir].dy;
+
+                        if (nlx < 0 || nly < 0 || nlx >= width || nly >= height)
+                            continue;
+
+                        FixedPoint neighborCost = integrationField[nly * width + nlx];
+                        if (neighborCost < bestCost)
+                        {
+                            bestCost = neighborCost;
+                            bestDir  = (FlowDirection)(dir + 1);
+                        }
+                    }
+
+                    directions[packedLoc] = (byte)bestDir;
+                }
+            }
+
+            // ── Copy results into public properties ─────────────────
+            // We keep a fresh copy so the rented arrays can be returned
+            // and callers can safely read IntegrationField / Directions
+            // after Generate() returns.
+            IntegrationField = new FixedPoint[totalCells];
+            Directions       = new byte[totalCells];
+            Array.Copy(integrationField, IntegrationField, totalCells);
+            Array.Copy(directions,       Directions,       totalCells);
+
+            IsValid = true;
+        }
+        finally
+        {
+            ArrayPool<FixedPoint>.Shared.Return(integrationField);
+            ArrayPool<byte>.Shared.Return(directions);
+            ArrayPool<bool>.Shared.Return(finalized);
+            ArrayPool<int>.Shared.Return(heapItems);
+        }
     }
 
     // ── Lookup Methods ──────────────────────────────────────────────────
@@ -429,7 +438,7 @@ public sealed class FlowField
         if (lx < 0 || ly < 0 || lx >= RegionWidth || ly >= RegionHeight)
             return FlowDirection.None;
 
-        return (FlowDirection)Directions[lx, ly];
+        return (FlowDirection)Directions[ly * RegionWidth + lx];
     }
 
     /// <summary>
@@ -451,91 +460,52 @@ public sealed class FlowField
     // ── Dijkstra Min-Heap ───────────────────────────────────────────────
 
     /// <summary>
-    /// Specialized min-heap for Dijkstra's algorithm on the flow field.
+    /// Specialised min-heap for Dijkstra's algorithm on the flow field.
     ///
-    /// Elements are (localX, localY) pairs packed into a single int for compact
-    /// storage. Priority is determined by looking up the integration field value
-    /// at the cell's coordinates.
+    /// Stores packed cell indices (localY * regionWidth + localX) as ints.
+    /// Priority is read from the flat integration-field array at index
+    /// <c>packed</c>, so cost lookup is a single array access — no
+    /// coordinate unpacking required.
     ///
-    /// Array-backed with no allocations after construction. Deterministic ordering.
+    /// Accepts a pooled backing array to avoid allocation inside Generate().
     /// </summary>
     private sealed class DijkstraHeap
     {
-        /// <summary>
-        /// Packed cell indices: value = localY * _width + localX.
-        /// </summary>
-        private readonly int[] _items;
-
-        /// <summary>
-        /// Reference to the integration field for cost lookups.
-        /// </summary>
-        private readonly FixedPoint[,] _costs;
-
-        /// <summary>Width of the region (used to pack/unpack coordinates).</summary>
-        private readonly int _width;
-
+        private readonly int[]        _items;
+        private readonly int          _capacity;
+        private readonly FixedPoint[] _costs; // flat integration field: costs[packed]
+        private readonly int          _width; // region width for pack/unpack
         private int _count;
 
-        /// <summary>Number of elements currently in the heap.</summary>
         public int Count => _count;
 
-        /// <summary>
-        /// Creates a Dijkstra heap with the given capacity.
-        /// </summary>
-        /// <param name="capacity">Maximum number of elements.</param>
-        /// <param name="costs">The integration field (costs are read from here for ordering).</param>
-        /// <param name="width">Region width for coordinate packing.</param>
-        public DijkstraHeap(int capacity, FixedPoint[,] costs, int width)
+        public DijkstraHeap(int[] backingArray, int capacity, FixedPoint[] costs, int width)
         {
-            // Allow extra capacity for duplicate entries (relaxation re-inserts).
-            _items = new int[capacity * 4];
-            _costs = costs;
-            _width = width;
-            _count = 0;
+            _items    = backingArray;
+            _capacity = capacity;
+            _costs    = costs;
+            _width    = width;
+            _count    = 0;
         }
 
-        /// <summary>
-        /// Pushes a cell onto the heap.
-        /// </summary>
+        /// <summary>Pushes (localX, localY) onto the heap.</summary>
         public void Push(int localX, int localY)
         {
-            int packed = localY * _width + localX;
+            if (_count >= _capacity) return; // guard — should not happen with 4× capacity
 
-            if (_count >= _items.Length)
-            {
-                // Safety: should not happen with 4× capacity, but guard against it.
-                return;
-            }
-
-            _items[_count] = packed;
+            _items[_count] = localY * _width + localX;
             SiftUp(_count);
             _count++;
         }
 
-        /// <summary>
-        /// Pops the cell with the lowest integration cost.
-        /// </summary>
-        /// <returns>The (localX, localY) of the cheapest cell.</returns>
+        /// <summary>Pops and returns the (localX, localY) with the lowest cost.</summary>
         public (int localX, int localY) Pop()
         {
             int packed = _items[0];
             _count--;
             _items[0] = _items[_count];
-
-            if (_count > 0)
-                SiftDown(0);
-
-            int ly = packed / _width;
-            int lx = packed % _width;
-            return (lx, ly);
-        }
-
-        /// <summary>Gets the integration cost for a packed cell index.</summary>
-        private FixedPoint GetCost(int packed)
-        {
-            int ly = packed / _width;
-            int lx = packed % _width;
-            return _costs[lx, ly];
+            if (_count > 0) SiftDown(0);
+            return (packed % _width, packed / _width);
         }
 
         private void SiftUp(int index)
@@ -543,15 +513,12 @@ public sealed class FlowField
             while (index > 0)
             {
                 int parent = (index - 1) >> 1;
-                if (GetCost(_items[index]) < GetCost(_items[parent]))
+                if (_costs[_items[index]] < _costs[_items[parent]])
                 {
                     (_items[index], _items[parent]) = (_items[parent], _items[index]);
                     index = parent;
                 }
-                else
-                {
-                    break;
-                }
+                else break;
             }
         }
 
@@ -559,18 +526,14 @@ public sealed class FlowField
         {
             while (true)
             {
-                int left = (index << 1) + 1;
-                int right = (index << 1) + 2;
+                int left     = (index << 1) + 1;
+                int right    = (index << 1) + 2;
                 int smallest = index;
 
-                if (left < _count && GetCost(_items[left]) < GetCost(_items[smallest]))
-                    smallest = left;
+                if (left  < _count && _costs[_items[left]]  < _costs[_items[smallest]]) smallest = left;
+                if (right < _count && _costs[_items[right]] < _costs[_items[smallest]]) smallest = right;
 
-                if (right < _count && GetCost(_items[right]) < GetCost(_items[smallest]))
-                    smallest = right;
-
-                if (smallest == index)
-                    break;
+                if (smallest == index) break;
 
                 (_items[index], _items[smallest]) = (_items[smallest], _items[index]);
                 index = smallest;

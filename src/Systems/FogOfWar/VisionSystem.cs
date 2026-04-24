@@ -75,10 +75,14 @@ public class VisionSystem
     // ── Reusable buffers to avoid per-tick allocations ──────────────────
 
     /// <summary>
-    /// Cached list of cells within a circle of a given radius.
-    /// Key: radius in integer cells. Value: list of (dx, dy) offsets.
+    /// Cached lists of cells within a circle of a given integer radius.
+    /// Indexed directly by radius; avoids Dictionary lookup overhead and
+    /// non-deterministic hash iteration.
+    /// Indices 0..MaxCachedRadius are pre-sized; larger radii fall back to
+    /// an on-demand (uncached) computation.
     /// </summary>
-    private readonly Dictionary<int, List<(int dx, int dy)>> _radiusCache = new();
+    private const int MaxCachedRadius = 64;
+    private readonly List<(int dx, int dy)>?[] _radiusCache = new List<(int dx, int dy)>?[MaxCachedRadius + 1];
 
     // ── Public API ──────────────────────────────────────────────────────
 
@@ -170,53 +174,42 @@ public class VisionSystem
         // Convert target cell to world-space center
         FixedVector2 toWorld = terrain.GridToWorld(toX, toY);
 
-        // Target terrain height
-        FixedPoint toHeight = terrain.GetHeight(toWorld);
-
-        // Observer height above sea level (unit height = terrain height at its
-        // position + some eye-level offset, already baked into fromHeight).
-        // Target height: we check against the terrain surface at the target cell.
-
         // Direction vector from observer to target
         FixedVector2 delta = toWorld - from;
-        FixedPoint dist = delta.Length;
+        FixedPoint   dist  = delta.Length;
 
         // Trivially visible if same cell or adjacent
         if (dist <= FixedPoint.One)
             return true;
 
-        // Step along the ray at fixed intervals
-        FixedPoint invDist = FixedPoint.One / dist;
-        FixedVector2 stepDir = new FixedVector2(delta.X * invDist, delta.Y * invDist);
+        // Precompute reciprocal for t computation; precompute step increments
+        // as raw FixedPoint components to avoid creating a FixedVector2 per step.
+        FixedPoint invDist  = FixedPoint.One / dist;
+        FixedPoint stepX    = delta.X * invDist * RayStepSize;
+        FixedPoint stepY    = delta.Y * invDist * RayStepSize;
 
-        // Scale step direction by RayStepSize
-        FixedVector2 step = new FixedVector2(
-            stepDir.X * RayStepSize,
-            stepDir.Y * RayStepSize
-        );
+        // Target terrain height (used for linear interpolation of expected height)
+        FixedPoint toHeight  = terrain.GetHeight(toWorld);
+        FixedPoint heightDelta = toHeight - fromHeight;
 
-        // Number of steps
-        int stepCount = (dist / RayStepSize).ToInt();
-        if (stepCount < 1) return true;
+        // Number of steps and how much t advances per step
+        int        stepCount = (dist / RayStepSize).ToInt();
+        FixedPoint tStep     = RayStepSize * invDist; // advance in [0,1] per step
 
-        // Current sample point
-        FixedVector2 sample = from;
+        // Walk along the ray; track sample position with raw FixedPoint
+        // to avoid allocating a new FixedVector2 struct every iteration.
+        FixedPoint sampleX = from.X + stepX; // start at step i=1
+        FixedPoint sampleY = from.Y + stepY;
+        FixedPoint t       = tStep;
 
-        for (int i = 1; i < stepCount; i++)
+        for (int i = 1; i < stepCount; i++, sampleX += stepX, sampleY += stepY, t += tStep)
         {
-            sample = new FixedVector2(sample.X + step.X, sample.Y + step.Y);
-
-            // How far along the ray are we? (fraction 0..1)
-            FixedPoint t = (RayStepSize * i) * invDist;
-
-            // Linearly interpolate the expected LOS height at this distance
-            // from observer height to target terrain height
-            FixedPoint expectedHeight = fromHeight + (toHeight - fromHeight) * t;
+            // Expected LOS height at this fraction along the ray
+            FixedPoint expectedHeight = fromHeight + heightDelta * t;
 
             // Actual terrain height at the sample point
-            FixedPoint terrainHeight = terrain.GetHeight(sample);
+            FixedPoint terrainHeight = terrain.GetHeight(new FixedVector2(sampleX, sampleY));
 
-            // If the terrain is above the sight line, LOS is blocked
             if (terrainHeight > expectedHeight)
                 return false;
         }
@@ -268,15 +261,26 @@ public class VisionSystem
     /// </returns>
     public List<(int dx, int dy)> GetCellsInRadius(int radius)
     {
-        if (_radiusCache.TryGetValue(radius, out var cached))
-            return cached;
+        // Fast path: direct array lookup for common radii.
+        if (radius <= MaxCachedRadius)
+        {
+            if (_radiusCache[radius] is not null)
+                return _radiusCache[radius]!;
 
+            var cells = BuildCellsInRadius(radius);
+            _radiusCache[radius] = cells;
+            return cells;
+        }
+
+        // Uncommon large radius — compute on demand without caching.
+        return BuildCellsInRadius(radius);
+    }
+
+    private static List<(int dx, int dy)> BuildCellsInRadius(int radius)
+    {
         var cells = new List<(int dx, int dy)>();
-        int rSq = radius * radius;
+        int rSq   = radius * radius;
 
-        // Iterate over the bounding box and keep cells inside the circle.
-        // For typical RTS sight ranges (5–15 cells) this is perfectly fast
-        // and produces an exact filled circle without gaps.
         for (int dx = -radius; dx <= radius; dx++)
         {
             for (int dy = -radius; dy <= radius; dy++)
@@ -286,7 +290,6 @@ public class VisionSystem
             }
         }
 
-        _radiusCache[radius] = cells;
         return cells;
     }
 }

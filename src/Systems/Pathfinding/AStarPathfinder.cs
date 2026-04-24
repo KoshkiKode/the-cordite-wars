@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using CorditeWars.Core;
 
@@ -165,171 +166,154 @@ public sealed class AStarPathfinder
         if (!IsFootprintTraversable(grid, profile, startX, startY))
             return result;
 
-        // ── Allocate working structures ─────────────────────────────
-        int gridWidth = grid.Width;
+        // ── Rent working arrays from the pool ───────────────────────
+        // Pooling avoids repeated Large Object Heap allocations (gridSize can
+        // be 262 144 ints for a 512×512 map) and the associated GC pressure.
+        int gridWidth  = grid.Width;
         int gridHeight = grid.Height;
-        int gridSize = gridWidth * gridHeight;
+        int gridSize   = gridWidth * gridHeight;
 
-        // Node storage — flat array, indexed by insertion order.
-        var nodes = new PathNode[maxNodes];
-        int nodeCount = 0;
+        // cellToNode: maps flat cell index → index into nodes[].  -1 = unvisited.
+        int[]      cellToNode = ArrayPool<int>.Shared.Rent(gridSize);
+        // closed: marks fully-expanded cells.
+        bool[]     closed     = ArrayPool<bool>.Shared.Rent(gridSize);
+        // nodes: flat node storage indexed by insertion order.
+        PathNode[] nodes      = ArrayPool<PathNode>.Shared.Rent(maxNodes);
+        // heapItems: backing store for the open-set min-heap.
+        int[]      heapItems  = ArrayPool<int>.Shared.Rent(maxNodes * 4);
 
-        // Maps grid cell (y * gridWidth + x) → index into nodes[].
-        // -1 means the cell has not been visited.
-        // Using an array (not Dictionary) for deterministic access.
-        var cellToNode = new int[gridSize];
-        Array.Fill(cellToNode, -1);
-
-        // Closed set — tracks which cells have been fully expanded.
-        var closed = new bool[gridSize];
-
-        // ── Seed the open set with the start node ───────────────────
-        FixedPoint startH = OctileHeuristic(startX, startY, goalX, goalY);
-        nodes[nodeCount] = new PathNode
+        try
         {
-            X = startX,
-            Y = startY,
-            GCost = FixedPoint.Zero,
-            HCost = startH,
-            FCost = startH,
-            ParentIndex = -1
-        };
-        cellToNode[startY * gridWidth + startX] = nodeCount;
+            // ArrayPool.Rent() does not guarantee zero-initialised buffers.
+            Array.Fill(cellToNode, -1, 0, gridSize);
+            Array.Clear(closed, 0, gridSize);
+            // nodes and heapItems are written before being read; no init needed.
 
-        // Min-heap ordered by FCost, breaking ties by lower GCost (prefer
-        // nodes closer to the goal when costs are equal).
-        // Capacity is 4× maxNodes to accommodate lazy-deletion duplicates.
-        // When a node is relaxed (better path found), we re-insert it into
-        // the heap rather than performing a decrease-key operation. The stale
-        // entry is skipped when popped (via the closed[] check above).
-        var openHeap = new MinHeap<int>(maxNodes * 4, (a, b) =>
-        {
-            int cmp = nodes[a].FCost.CompareTo(nodes[b].FCost);
-            if (cmp != 0) return cmp;
-            // Tie-break: prefer higher GCost (closer to goal, i.e., break
-            // ties in favor of the node that has traveled farther).
-            return nodes[b].GCost.CompareTo(nodes[a].GCost);
-        });
-        openHeap.Push(nodeCount);
-        nodeCount++;
+            int nodeCount = 0;
 
-        // ── Main A* loop ────────────────────────────────────────────
-        while (openHeap.Count > 0)
-        {
-            int currentIdx = openHeap.Pop();
-            ref PathNode current = ref nodes[currentIdx];
-
-            int cx = current.X;
-            int cy = current.Y;
-            int cellKey = cy * gridWidth + cx;
-
-            // Skip if already closed (can happen with duplicate heap entries).
-            if (closed[cellKey])
-                continue;
-
-            closed[cellKey] = true;
-
-            // ── Goal reached — reconstruct path ─────────────────────
-            if (cx == goalX && cy == goalY)
+            // ── Seed the open set with the start node ───────────────
+            FixedPoint startH = OctileHeuristic(startX, startY, goalX, goalY);
+            nodes[nodeCount] = new PathNode
             {
-                return ReconstructPath(nodes, currentIdx);
-            }
+                X = startX,
+                Y = startY,
+                GCost = FixedPoint.Zero,
+                HCost = startH,
+                FCost = startH,
+                ParentIndex = -1
+            };
+            cellToNode[startY * gridWidth + startX] = nodeCount;
 
-            // ── Expand all 8 neighbors ──────────────────────────────
-            for (int dir = 0; dir < 8; dir++)
+            // Min-heap ordered by FCost, breaking ties by lower GCost.
+            // Uses the pooled heapItems array; capacity is 4× maxNodes to
+            // accommodate lazy-deletion duplicates without reallocation.
+            var openHeap = new MinHeap<int>(heapItems, maxNodes * 4, (a, b) =>
             {
-                int nx = cx + NeighborOffsets[dir].dx;
-                int ny = cy + NeighborOffsets[dir].dy;
+                int cmp = nodes[a].FCost.CompareTo(nodes[b].FCost);
+                if (cmp != 0) return cmp;
+                // Tie-break: prefer the node that has travelled farther.
+                return nodes[b].GCost.CompareTo(nodes[a].GCost);
+            });
+            openHeap.Push(nodeCount);
+            nodeCount++;
 
-                // Bounds check (the footprint-aware check below also
-                // validates bounds, but this early-out avoids the cost
-                // of calling into TerrainCostCalculator for obviously
-                // out-of-range cells).
-                if (nx < 0 || ny < 0 || nx >= gridWidth || ny >= gridHeight)
+            // ── Main A* loop ────────────────────────────────────────
+            while (openHeap.Count > 0)
+            {
+                int currentIdx = openHeap.Pop();
+                ref PathNode current = ref nodes[currentIdx];
+
+                int cx      = current.X;
+                int cy      = current.Y;
+                int cellKey = cy * gridWidth + cx;
+
+                // Skip stale heap entries (lazy deletion).
+                if (closed[cellKey])
                     continue;
 
-                int neighborKey = ny * gridWidth + nx;
+                closed[cellKey] = true;
 
-                // Already fully evaluated — skip.
-                if (closed[neighborKey])
-                    continue;
+                // ── Goal reached — reconstruct path ─────────────────
+                if (cx == goalX && cy == goalY)
+                    return ReconstructPath(nodes, currentIdx);
 
-                // ── Footprint traversability check ──────────────────
-                // For a 1×1 unit this checks the single cell.
-                // For larger units it checks every cell the footprint
-                // would occupy at position (nx, ny).
-                if (!IsFootprintTraversable(grid, profile, nx, ny))
-                    continue;
-
-                // ── Corner-cutting prevention for diagonals ─────────
-                // Diagonal movement is only allowed if both adjacent
-                // cardinal cells are traversable (prevents clipping
-                // through corners of blocked cells).
-                if (IsDiagonal[dir])
+                // ── Expand all 8 neighbours ──────────────────────────
+                for (int dir = 0; dir < 8; dir++)
                 {
-                    int adjX1 = cx + NeighborOffsets[dir].dx;
-                    int adjY1 = cy;
-                    int adjX2 = cx;
-                    int adjY2 = cy + NeighborOffsets[dir].dy;
+                    int nx = cx + NeighborOffsets[dir].dx;
+                    int ny = cy + NeighborOffsets[dir].dy;
 
-                    if (!IsFootprintTraversable(grid, profile, adjX1, adjY1) ||
-                        !IsFootprintTraversable(grid, profile, adjX2, adjY2))
+                    if (nx < 0 || ny < 0 || nx >= gridWidth || ny >= gridHeight)
                         continue;
-                }
 
-                // ── Compute tentative G cost ────────────────────────
-                // Base step cost (cardinal = 1.0, diagonal = sqrt(2))
-                // multiplied by the terrain movement cost for this edge.
-                FixedPoint stepCost = IsDiagonal[dir] ? DiagonalCost : CardinalCost;
-                FixedPoint terrainCost = TerrainCostCalculator.GetMovementCost(
-                    grid, profile, cx, cy, nx, ny);
-                FixedPoint tentativeG = current.GCost + stepCost * terrainCost;
+                    int neighborKey = ny * gridWidth + nx;
 
-                // ── Check if this is a new or improved path ─────────
-                int existingIdx = cellToNode[neighborKey];
+                    if (closed[neighborKey])
+                        continue;
 
-                if (existingIdx == -1)
-                {
-                    // Never visited — create a new node.
-                    if (nodeCount >= maxNodes)
+                    if (!IsFootprintTraversable(grid, profile, nx, ny))
+                        continue;
+
+                    // Corner-cutting prevention for diagonal moves.
+                    if (IsDiagonal[dir])
                     {
-                        // Budget exhausted — return empty (no path found
-                        // within the allowed computation budget).
-                        return result;
+                        int adjX1 = cx + NeighborOffsets[dir].dx;
+                        int adjY1 = cy;
+                        int adjX2 = cx;
+                        int adjY2 = cy + NeighborOffsets[dir].dy;
+
+                        if (!IsFootprintTraversable(grid, profile, adjX1, adjY1) ||
+                            !IsFootprintTraversable(grid, profile, adjX2, adjY2))
+                            continue;
                     }
 
-                    FixedPoint h = OctileHeuristic(nx, ny, goalX, goalY);
-                    nodes[nodeCount] = new PathNode
+                    FixedPoint stepCost    = IsDiagonal[dir] ? DiagonalCost : CardinalCost;
+                    FixedPoint terrainCost = TerrainCostCalculator.GetMovementCost(
+                        grid, profile, cx, cy, nx, ny);
+                    FixedPoint tentativeG  = current.GCost + stepCost * terrainCost;
+
+                    int existingIdx = cellToNode[neighborKey];
+
+                    if (existingIdx == -1)
                     {
-                        X = nx,
-                        Y = ny,
-                        GCost = tentativeG,
-                        HCost = h,
-                        FCost = tentativeG + h,
-                        ParentIndex = currentIdx
-                    };
-                    cellToNode[neighborKey] = nodeCount;
-                    openHeap.Push(nodeCount);
-                    nodeCount++;
-                }
-                else if (tentativeG < nodes[existingIdx].GCost)
-                {
-                    // Found a cheaper path to an already-visited node.
-                    // Update its cost and re-insert into the heap.
-                    // (The old entry remains but will be skipped when
-                    // popped because the cell will already be closed or
-                    // have a better GCost by then — lazy deletion.)
-                    ref PathNode existing = ref nodes[existingIdx];
-                    existing.GCost = tentativeG;
-                    existing.FCost = tentativeG + existing.HCost;
-                    existing.ParentIndex = currentIdx;
-                    openHeap.Push(existingIdx);
+                        if (nodeCount >= maxNodes)
+                            return result; // budget exhausted
+
+                        FixedPoint h = OctileHeuristic(nx, ny, goalX, goalY);
+                        nodes[nodeCount] = new PathNode
+                        {
+                            X           = nx,
+                            Y           = ny,
+                            GCost       = tentativeG,
+                            HCost       = h,
+                            FCost       = tentativeG + h,
+                            ParentIndex = currentIdx
+                        };
+                        cellToNode[neighborKey] = nodeCount;
+                        openHeap.Push(nodeCount);
+                        nodeCount++;
+                    }
+                    else if (tentativeG < nodes[existingIdx].GCost)
+                    {
+                        ref PathNode existing = ref nodes[existingIdx];
+                        existing.GCost       = tentativeG;
+                        existing.FCost       = tentativeG + existing.HCost;
+                        existing.ParentIndex = currentIdx;
+                        openHeap.Push(existingIdx);
+                    }
                 }
             }
-        }
 
-        // Open set exhausted without finding the goal — no path exists.
-        return result;
+            // Open set exhausted — no path exists.
+            return result;
+        }
+        finally
+        {
+            ArrayPool<int>.Shared.Return(cellToNode);
+            ArrayPool<bool>.Shared.Return(closed);
+            ArrayPool<PathNode>.Shared.Return(nodes);
+            ArrayPool<int>.Shared.Return(heapItems);
+        }
     }
 
     // ── Heuristic ───────────────────────────────────────────────────────
@@ -450,6 +434,7 @@ public sealed class AStarPathfinder
     private sealed class MinHeap<T>
     {
         private readonly T[] _items;
+        private readonly int _capacity;
         private readonly Comparison<T> _compare;
         private int _count;
 
@@ -457,19 +442,16 @@ public sealed class AStarPathfinder
         public int Count => _count;
 
         /// <summary>
-        /// Creates a new min-heap with the specified maximum capacity.
-        /// The backing array is allocated once and never resized.
+        /// Creates a new min-heap backed by a pre-allocated array.
+        /// The array must be at least <paramref name="capacity"/> elements long.
+        /// Used with ArrayPool to eliminate per-call heap allocation.
         /// </summary>
-        /// <param name="capacity">Maximum number of elements the heap can hold.</param>
-        /// <param name="compare">
-        /// Comparison delegate defining the heap order. Must return negative if
-        /// the first argument has higher priority (should be popped first).
-        /// </param>
-        public MinHeap(int capacity, Comparison<T> compare)
+        public MinHeap(T[] backingArray, int capacity, Comparison<T> compare)
         {
-            _items = new T[capacity];
-            _compare = compare;
-            _count = 0;
+            _items    = backingArray;
+            _capacity = capacity;
+            _compare  = compare;
+            _count    = 0;
         }
 
         /// <summary>
@@ -482,7 +464,7 @@ public sealed class AStarPathfinder
         /// </exception>
         public void Push(T item)
         {
-            if (_count >= _items.Length)
+            if (_count >= _capacity)
                 throw new InvalidOperationException(
                     "MinHeap capacity exceeded. Increase maxNodes or heap size.");
 

@@ -124,6 +124,14 @@ public sealed class PathRequestManager
     /// </summary>
     private readonly AStarPathfinder _pathfinder = new();
 
+    // ── Scratch buffers (reused every tick to avoid per-tick allocation) ──
+
+    /// <summary>Destination groups built by BuildProcessQueue; cleared each call.</summary>
+    private readonly List<DestinationGroup> _groups = new();
+
+    /// <summary>Ordered work items built by BuildProcessQueue; cleared each call.</summary>
+    private readonly List<ProcessItem> _items = new();
+
     // ── Public API: Enqueue Requests ────────────────────────────────────
 
     /// <summary>
@@ -451,11 +459,7 @@ public sealed class PathRequestManager
     private List<ProcessItem> BuildProcessQueue()
     {
         // ── Group individual requests by (goalX, goalY, profile) ────
-        // Using a list of groups with linear search. This is O(n*g) where g is
-        // the number of distinct destinations, but n is bounded by the number
-        // of pending requests (typically < 100) and g is small.
-
-        var groups = new List<DestinationGroup>();
+        _groups.Clear();
 
         for (int i = 0; i < _pendingRequests.Count; i++)
         {
@@ -468,11 +472,11 @@ public sealed class PathRequestManager
 
                 // Find existing group for this destination + profile.
                 int groupIdx = -1;
-                for (int g = 0; g < groups.Count; g++)
+                for (int g = 0; g < _groups.Count; g++)
                 {
-                    if (groups[g].GoalX == gx &&
-                        groups[g].GoalY == gy &&
-                        ReferenceEquals(groups[g].Profile, req.Profile))
+                    if (_groups[g].GoalX == gx &&
+                        _groups[g].GoalY == gy &&
+                        ReferenceEquals(_groups[g].Profile, req.Profile))
                     {
                         groupIdx = g;
                         break;
@@ -481,53 +485,50 @@ public sealed class PathRequestManager
 
                 if (groupIdx == -1)
                 {
-                    groups.Add(new DestinationGroup
+                    _groups.Add(new DestinationGroup
                     {
-                        GoalX = gx,
-                        GoalY = gy,
-                        Profile = req.Profile,
-                        Requests = new List<PathRequest> { req },
+                        GoalX             = gx,
+                        GoalY             = gy,
+                        Profile           = req.Profile,
+                        Requests          = new List<PathRequest> { req },
                         MinSequenceNumber = req.SequenceNumber,
                     });
                 }
                 else
                 {
-                    var group = groups[groupIdx];
+                    var group = _groups[groupIdx];
                     group.Requests.Add(req);
                     if (req.SequenceNumber < group.MinSequenceNumber)
                         group.MinSequenceNumber = req.SequenceNumber;
-                    groups[groupIdx] = group;
+                    _groups[groupIdx] = group;
                 }
             }
         }
 
         // ── Build process items ─────────────────────────────────────
-        var items = new List<ProcessItem>();
+        _items.Clear();
 
-        // Add batched groups (>= threshold) and individual requests (< threshold).
-        for (int g = 0; g < groups.Count; g++)
+        for (int g = 0; g < _groups.Count; g++)
         {
-            var group = groups[g];
+            var group = _groups[g];
 
             if (group.Requests.Count >= FlowFieldThreshold)
             {
-                // Batch into a single flow field operation.
-                items.Add(new ProcessItem
+                _items.Add(new ProcessItem
                 {
-                    IsBatch = true,
-                    Requests = group.Requests,
+                    IsBatch           = true,
+                    Requests          = group.Requests,
                     MinSequenceNumber = group.MinSequenceNumber,
                 });
             }
             else
             {
-                // Keep as individual requests.
                 for (int r = 0; r < group.Requests.Count; r++)
                 {
-                    items.Add(new ProcessItem
+                    _items.Add(new ProcessItem
                     {
-                        IsBatch = false,
-                        Requests = new List<PathRequest> { group.Requests[r] },
+                        IsBatch           = false,
+                        Requests          = new List<PathRequest> { group.Requests[r] },
                         MinSequenceNumber = group.Requests[r].SequenceNumber,
                     });
                 }
@@ -540,19 +541,19 @@ public sealed class PathRequestManager
             var req = _pendingRequests[i];
             if (req.Type == RequestType.FlowField)
             {
-                items.Add(new ProcessItem
+                _items.Add(new ProcessItem
                 {
-                    IsBatch = false,
-                    Requests = new List<PathRequest> { req },
+                    IsBatch           = false,
+                    Requests          = new List<PathRequest> { req },
                     MinSequenceNumber = req.SequenceNumber,
                 });
             }
         }
 
         // Sort by sequence number to maintain FIFO order.
-        items.Sort((a, b) => a.MinSequenceNumber.CompareTo(b.MinSequenceNumber));
+        _items.Sort((a, b) => a.MinSequenceNumber.CompareTo(b.MinSequenceNumber));
 
-        return items;
+        return _items;
     }
 
     /// <summary>
