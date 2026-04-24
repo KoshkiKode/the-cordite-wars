@@ -158,6 +158,13 @@ public partial class BuildingInstance : Node3D
         _modelRoot.Scale = new Vector3(1f, 0.05f, 1f);
     }
 
+    // ── Per-frame visual update ───────────────────────────────────────
+
+    public override void _Process(double delta)
+    {
+        SyncVisuals();
+    }
+
     // ── Simulation Tick ──────────────────────────────────────────────
 
     /// <summary>

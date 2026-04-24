@@ -911,6 +911,27 @@ public partial class GameSession : Node
                 EventBus.Instance?.EmitSuperweaponReady(_localPlayerId, ws.Data.Id);
         }
 
+        // ── 0c. Tick building construction progress ───────────────────────────
+        // Advance construction state for all buildings in the deterministic tick.
+        // Must run before BuildSimUnitFromBuilding so health reflects current progress.
+        FixedPoint tickDelta = FixedPoint.FromFloat(TickDeltaSeconds);
+        foreach (var kvp in _playerHQNodes)
+        {
+            var b = kvp.Value;
+            if (b != null && GodotObject.IsInstanceValid(b))
+                b.ProcessTick(tickDelta);
+        }
+        if (_buildingPlacer != null)
+        {
+            var allBuildings = _buildingPlacer.GetAllBuildings();
+            for (int i = 0; i < allBuildings.Count; i++)
+            {
+                var b = allBuildings[i];
+                if (b != null && GodotObject.IsInstanceValid(b))
+                    b.ProcessTick(tickDelta);
+            }
+        }
+
         // ── 1. Build combined SimUnit list (mobile units + buildings) ──────
 
         var allNodes = _unitSpawner.GetAllUnits();

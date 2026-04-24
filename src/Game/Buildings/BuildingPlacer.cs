@@ -318,7 +318,8 @@ public partial class BuildingPlacer : Node
         float snappedX = Mathf.Round(worldPos.Value.X / CellSize) * CellSize;
         float snappedZ = Mathf.Round(worldPos.Value.Z / CellSize) * CellSize;
 
-        _ghostPosition = new Vector3(snappedX, 0f, snappedZ);
+        float terrainY = _terrainRenderer?.GetElevationAtWorld(snappedX, snappedZ) ?? 0f;
+        _ghostPosition = new Vector3(snappedX, terrainY, snappedZ);
         _ghostMesh.GlobalPosition = _ghostPosition;
 
         // Validate placement
