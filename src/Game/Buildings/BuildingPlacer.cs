@@ -236,7 +236,7 @@ public partial class BuildingPlacer : Node
         var instance = new BuildingInstance();
         var (restoreTeamColor, restoreFactionBase) = GetPlayerColors(playerId);
         instance.Initialize(buildingId, buildingTypeId, data, playerId, gridX, gridY,
-            modelEntry: null, restoreTeamColor, restoreFactionBase);
+            null, restoreTeamColor, restoreFactionBase);
         instance.RestoreState(health, isConstructed, constructionProgress);
 
         // Snap to terrain surface

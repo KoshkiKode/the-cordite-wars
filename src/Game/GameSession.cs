@@ -786,6 +786,17 @@ public partial class GameSession : Node
     }
 
     /// <summary>
+    /// Returns the team color and faction base color for the given faction ID,
+    /// falling back to neutral greys when the faction ID is unknown.
+    /// </summary>
+    private static (Color teamColor, Color factionBaseColor) ResolveFactionColors(string factionId)
+    {
+        Color team    = FactionColors.TryGetValue(factionId, out var tc)  ? tc  : Colors.Gray;
+        Color faction = FactionBaseColors.TryGetValue(factionId, out var fbc) ? fbc : Colors.DimGray;
+        return (team, faction);
+    }
+
+    /// <summary>
     /// Reads the auto-save-replays setting from user://settings.cfg.
     /// Defaults to true if the file or key is absent.
     /// </summary>
@@ -2052,8 +2063,7 @@ public partial class GameSession : Node
                             break;
                         }
                     }
-                    Color hqSaveTeamColor   = FactionColors.TryGetValue(hqFactionId, out var hstc)  ? hstc  : Colors.Gray;
-                    Color hqSaveFactionBase = FactionBaseColors.TryGetValue(hqFactionId, out var hsfbc) ? hsfbc : Colors.DimGray;
+                    var (hqSaveTeamColor, hqSaveFactionBase) = ResolveFactionColors(hqFactionId);
                     hqNode.Initialize(bs.BuildingId, bs.BuildingTypeId, hqData, bs.PlayerId,
                         bs.PositionX, bs.PositionY, hqModelEntry, hqSaveTeamColor, hqSaveFactionBase);
                     hqNode.RestoreState(
@@ -2392,11 +2402,8 @@ public partial class GameSession : Node
         for (int i = 0; i < config.PlayerConfigs.Length; i++)
         {
             PlayerConfig pc = config.PlayerConfigs[i];
-            Color teamColor = FactionColors.TryGetValue(pc.FactionId, out var tc)
-                ? tc : Colors.Gray;
-            Color factionBase = FactionBaseColors.TryGetValue(pc.FactionId, out var fbc)
-                ? fbc : Colors.DimGray;
-            _buildingPlacer.RegisterPlayerColors(pc.PlayerId, teamColor, factionBase);
+            var (pcTeamColor, pcFactionBase) = ResolveFactionColors(pc.FactionId);
+            _buildingPlacer.RegisterPlayerColors(pc.PlayerId, pcTeamColor, pcFactionBase);
         }
 
         // Register HQ positions for build radius validation
@@ -2809,8 +2816,7 @@ public partial class GameSession : Node
                     : null;
 
                 var hqNode = new BuildingInstance();
-                Color hqTeamColor    = FactionColors.TryGetValue(pc.FactionId, out var htc)  ? htc  : Colors.Gray;
-                Color hqFactionBase  = FactionBaseColors.TryGetValue(pc.FactionId, out var hfbc) ? hfbc : Colors.DimGray;
+                var (hqTeamColor, hqFactionBase) = ResolveFactionColors(pc.FactionId);
                 hqNode.Initialize(buildingId, hqBuildingId, hqData, pc.PlayerId,
                     startPos.X, startPos.Y, hqModelEntry, hqTeamColor, hqFactionBase);
                 // Mark fully constructed so it doesn't animate in during the game start
