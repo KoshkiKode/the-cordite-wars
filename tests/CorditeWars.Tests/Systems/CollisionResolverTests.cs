@@ -758,19 +758,9 @@ public class CollisionResolverTests
     [Fact]
     public void DetectCollisions_UnitInSpatialHashButNotInUnitsList_SkippedGracefully()
     {
-        // Unit 2 is in the spatial hash but removed from the units list before
-        // detection (candidateIndex < 0 because ID 2 was never added to unitIdToIndex).
-        var units = new List<UnitCollisionInfo>
-        {
-            MakeUnit(1, FixedVector2.Zero),
-            // Unit 2 is in the spatial hash but deliberately NOT in the units list
-        };
         var spatial = new SpatialHash(256, 256);
         spatial.Insert(1, FixedVector2.Zero, FixedPoint.One);
-        // Insert unit 2 in spatial hash but not in the units list; unit 2's index
-        // in unitIdToIndex will be -1 (default).
-        // We add the unit to the list to size unitIdToIndex[2], then remove it.
-        // Simpler: just register unit 2 in the hash at a nearby position.
+        // Register unit 2 in the hash at a nearby position.
         spatial.Insert(2, new FixedVector2(FixedPoint.Half, FixedPoint.Zero), FixedPoint.One);
 
         // Build a units list that has ID=1 AND ID=2 so the array is sized,
