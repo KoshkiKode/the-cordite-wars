@@ -117,7 +117,7 @@ public partial class PropPlacer : Node3D
             ? terrainRenderer.GetElevationAtWorld(worldX, worldZ)
             : 0f;
 
-        float rotation = prop.Rotation.ToFloat();
+        float rotation = prop.Rotation.ToFloat() * MathF.PI / 180.0f;
         float scale = prop.Scale.ToFloat();
         float modelScale = entry.ModelScale.ToFloat();
         float finalScale = scale * modelScale;
@@ -193,7 +193,7 @@ public partial class PropPlacer : Node3D
             ? terrainRenderer.GetElevationAtWorld(worldX, worldZ)
             : 0f;
 
-        float rotation = structure.Rotation.ToFloat();
+        float rotation = structure.Rotation.ToFloat() * MathF.PI / 180.0f;
         float scale = structure.Scale.ToFloat();
         float modelScale = entry.ModelScale.ToFloat();
         float finalScale = scale * modelScale;
