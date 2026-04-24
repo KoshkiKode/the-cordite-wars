@@ -222,11 +222,11 @@ public class GarrisonSystemTests
         Register(sys, buildingId: 42, ownerId: 7, capacity: 4, defenseBonus: 25);
         var all = sys.AllGarrisons;
         Assert.Single(all);
-        Assert.True(all.ContainsKey(42));
-        Assert.Equal(42, all[42].BuildingId);
-        Assert.Equal(7, all[42].OwnerId);
-        Assert.Equal(4, all[42].Capacity);
-        Assert.Equal(25, all[42].DefenseBonus);
+        Assert.True(all.TryGetValue(42, out var garrison));
+        Assert.Equal(42, garrison.BuildingId);
+        Assert.Equal(7, garrison.OwnerId);
+        Assert.Equal(4, garrison.Capacity);
+        Assert.Equal(25, garrison.DefenseBonus);
     }
 
     [Fact] public void AllGarrisons_AfterMultipleRegistrations_ReflectsAll() {
