@@ -117,7 +117,7 @@ public partial class PropPlacer : Node3D
             ? terrainRenderer.GetElevationAtWorld(worldX, worldZ)
             : 0f;
 
-        float rotation = prop.Rotation.ToFloat() * MathF.PI / 180.0f;
+        float rotation = DegreesToRadians(prop.Rotation.ToFloat());
         float scale = prop.Scale.ToFloat();
         float modelScale = entry.ModelScale.ToFloat();
         float finalScale = scale * modelScale;
@@ -193,7 +193,7 @@ public partial class PropPlacer : Node3D
             ? terrainRenderer.GetElevationAtWorld(worldX, worldZ)
             : 0f;
 
-        float rotation = structure.Rotation.ToFloat() * MathF.PI / 180.0f;
+        float rotation = DegreesToRadians(structure.Rotation.ToFloat());
         float scale = structure.Scale.ToFloat();
         float modelScale = entry.ModelScale.ToFloat();
         float finalScale = scale * modelScale;
@@ -378,4 +378,6 @@ public partial class PropPlacer : Node3D
 
         _destructibles.Remove(propId);
     }
+
+    private static float DegreesToRadians(float degrees) => degrees * MathF.PI / 180.0f;
 }
