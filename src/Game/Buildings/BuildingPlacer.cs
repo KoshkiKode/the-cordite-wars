@@ -51,6 +51,10 @@ public partial class BuildingPlacer : Node
     // HQ positions per player for build radius check
     private readonly SortedList<int, List<FixedVector2>> _hqPositions = new();
 
+    // Per-player faction colors for building visuals
+    private readonly SortedList<int, Color> _playerTeamColors        = new();
+    private readonly SortedList<int, Color> _playerFactionBaseColors = new();
+
     // ── Initialization ───────────────────────────────────────────────
 
     public void Initialize(
@@ -107,6 +111,26 @@ public partial class BuildingPlacer : Node
         _hqPositions[playerId].Add(position);
     }
 
+    /// <summary>
+    /// Registers the team and faction base colors for a player so that buildings
+    /// placed by or for that player are rendered with correct faction colors.
+    /// Call once per player during match setup (before any buildings are placed).
+    /// </summary>
+    public void RegisterPlayerColors(int playerId, Color teamColor, Color factionBaseColor)
+    {
+        _playerTeamColors[playerId]        = teamColor;
+        _playerFactionBaseColors[playerId] = factionBaseColor;
+    }
+
+    /// <summary>Returns the registered faction colors for <paramref name="playerId"/>,
+    /// or neutral grey defaults if the player was not registered.</summary>
+    private (Color teamColor, Color factionBaseColor) GetPlayerColors(int playerId)
+    {
+        Color team    = _playerTeamColors.TryGetValue(playerId, out var tc)  ? tc : Colors.Gray;
+        Color faction = _playerFactionBaseColors.TryGetValue(playerId, out var fbc) ? fbc : Colors.DimGray;
+        return (team, faction);
+    }
+
     public BuildingInstance? GetBuilding(int buildingId)
     {
         if (_buildings.ContainsKey(buildingId))
@@ -146,7 +170,9 @@ public partial class BuildingPlacer : Node
             : null;
 
         var instance = new BuildingInstance();
-        instance.Initialize(buildingId, buildingTypeId, data, playerId, gridX, gridY, modelEntry);
+        var (aiTeamColor, aiFactionBase) = GetPlayerColors(playerId);
+        instance.Initialize(buildingId, buildingTypeId, data, playerId, gridX, gridY, modelEntry,
+            aiTeamColor, aiFactionBase);
 
         if (_terrainRenderer is not null)
         {
@@ -208,7 +234,9 @@ public partial class BuildingPlacer : Node
         BuildingData data = _buildingRegistry.GetBuilding(buildingTypeId);
 
         var instance = new BuildingInstance();
-        instance.Initialize(buildingId, buildingTypeId, data, playerId, gridX, gridY);
+        var (restoreTeamColor, restoreFactionBase) = GetPlayerColors(playerId);
+        instance.Initialize(buildingId, buildingTypeId, data, playerId, gridX, gridY,
+            modelEntry: null, restoreTeamColor, restoreFactionBase);
         instance.RestoreState(health, isConstructed, constructionProgress);
 
         // Snap to terrain surface
@@ -451,13 +479,16 @@ public partial class BuildingPlacer : Node
             : null;
 
         var instance = new BuildingInstance();
+        var (localTeamColor, localFactionBase) = GetPlayerColors(_localPlayerId);
         instance.Initialize(
             buildingId,
             _placingBuildingId,
             _placingData,
             _localPlayerId,
             gridX, gridY,
-            modelEntry);
+            modelEntry,
+            localTeamColor,
+            localFactionBase);
 
         // Snap to terrain surface so the building sits on the ground mesh
         if (_terrainRenderer is not null)

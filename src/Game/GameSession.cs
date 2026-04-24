@@ -2042,8 +2042,20 @@ public partial class GameSession : Node
                         : null;
 
                     var hqNode = new BuildingInstance();
+                    // Resolve faction colors from the saved player data for correct visuals.
+                    string hqFactionId = string.Empty;
+                    for (int p = 0; p < data.Players.Length; p++)
+                    {
+                        if (data.Players[p].PlayerId == bs.PlayerId)
+                        {
+                            hqFactionId = data.Players[p].FactionId;
+                            break;
+                        }
+                    }
+                    Color hqSaveTeamColor   = FactionColors.TryGetValue(hqFactionId, out var hstc)  ? hstc  : Colors.Gray;
+                    Color hqSaveFactionBase = FactionBaseColors.TryGetValue(hqFactionId, out var hsfbc) ? hsfbc : Colors.DimGray;
                     hqNode.Initialize(bs.BuildingId, bs.BuildingTypeId, hqData, bs.PlayerId,
-                        bs.PositionX, bs.PositionY, hqModelEntry);
+                        bs.PositionX, bs.PositionY, hqModelEntry, hqSaveTeamColor, hqSaveFactionBase);
                     hqNode.RestoreState(
                         FixedPoint.FromRaw((int)bs.Health),
                         bs.IsConstructed,
@@ -2374,6 +2386,18 @@ public partial class GameSession : Node
             _terrainGrid,
             _terrainRenderer);
         AddChild(_buildingPlacer);
+
+        // Register faction colors for every player so buildings are rendered with the
+        // correct team tint and faction base color.
+        for (int i = 0; i < config.PlayerConfigs.Length; i++)
+        {
+            PlayerConfig pc = config.PlayerConfigs[i];
+            Color teamColor = FactionColors.TryGetValue(pc.FactionId, out var tc)
+                ? tc : Colors.Gray;
+            Color factionBase = FactionBaseColors.TryGetValue(pc.FactionId, out var fbc)
+                ? fbc : Colors.DimGray;
+            _buildingPlacer.RegisterPlayerColors(pc.PlayerId, teamColor, factionBase);
+        }
 
         // Register HQ positions for build radius validation
         if (ActiveMap is not null)
@@ -2785,8 +2809,10 @@ public partial class GameSession : Node
                     : null;
 
                 var hqNode = new BuildingInstance();
+                Color hqTeamColor    = FactionColors.TryGetValue(pc.FactionId, out var htc)  ? htc  : Colors.Gray;
+                Color hqFactionBase  = FactionBaseColors.TryGetValue(pc.FactionId, out var hfbc) ? hfbc : Colors.DimGray;
                 hqNode.Initialize(buildingId, hqBuildingId, hqData, pc.PlayerId,
-                    startPos.X, startPos.Y, hqModelEntry);
+                    startPos.X, startPos.Y, hqModelEntry, hqTeamColor, hqFactionBase);
                 // Mark fully constructed so it doesn't animate in during the game start
                 hqNode.RestoreState(hqData.MaxHealth, true, hqData.BuildTime);
                 // Snap to terrain surface so the HQ sits on the ground mesh

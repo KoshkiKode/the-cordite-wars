@@ -39,11 +39,10 @@ public partial class BuildingInstance : Node3D
     private Node3D?          _modelRoot;
     private float _targetScaleY;
 
-    // Neutral cohesive-shader base colors applied to all loaded building models.
-    // Using a neutral mid-grey keeps the faction cel-shading readable without
-    // clashing with the building's own albedo tones.
-    private static readonly Color BuildingBaseColor    = new Color(0.55f, 0.55f, 0.60f);
-    private static readonly Color BuildingFactionColor = new Color(0.40f, 0.40f, 0.45f);
+    // Fallback colors used when no faction colors are supplied.
+    // Neutral mid-grey keeps the cel-shader readable without biasing any faction.
+    private static readonly Color DefaultTeamColor        = new Color(0.55f, 0.55f, 0.60f);
+    private static readonly Color DefaultFactionBaseColor = new Color(0.40f, 0.40f, 0.45f);
 
     // ── Initialization ───────────────────────────────────────────────
 
@@ -54,7 +53,9 @@ public partial class BuildingInstance : Node3D
         int playerId,
         int gridX,
         int gridY,
-        BuildingModelEntry? modelEntry = null)
+        BuildingModelEntry? modelEntry = null,
+        Color? teamColor = null,
+        Color? factionBaseColor = null)
     {
         BuildingId = buildingId;
         BuildingTypeId = buildingTypeId;
@@ -78,7 +79,9 @@ public partial class BuildingInstance : Node3D
         Name = $"Building_{buildingId}_{buildingTypeId}";
         GlobalPosition = new Vector3(gridX, 0f, gridY);
 
-        CreateVisuals(data, modelEntry);
+        Color resolvedTeam        = teamColor        ?? DefaultTeamColor;
+        Color resolvedFactionBase = factionBaseColor ?? DefaultFactionBaseColor;
+        CreateVisuals(data, modelEntry, resolvedTeam, resolvedFactionBase);
     }
 
     /// <summary>
@@ -93,7 +96,7 @@ public partial class BuildingInstance : Node3D
 
     // ── Visuals ──────────────────────────────────────────────────────
 
-    private void CreateVisuals(BuildingData data, BuildingModelEntry? modelEntry)
+    private void CreateVisuals(BuildingData data, BuildingModelEntry? modelEntry, Color teamColor, Color factionBaseColor)
     {
         // Outer wrapper — this node is what we scale during construction
         _modelRoot = new Node3D();
@@ -120,9 +123,9 @@ public partial class BuildingInstance : Node3D
                 if (rotDeg != 0f)
                     instance.RotateY(Mathf.DegToRad(rotDeg));
 
-                // Apply the cohesive cel-shader using a neutral grey base so the
-                // faction colour (supplied later if needed) comes through cleanly.
-                CohesiveMaterial.ApplyToScene(instance, BuildingBaseColor, BuildingFactionColor);
+                // Apply faction colors so each player's buildings read as distinctly
+                // faction-colored using the same cohesive cel-shader as units.
+                CohesiveMaterial.ApplyToScene(instance, teamColor, factionBaseColor);
 
                 loadedModel = true;
             }
@@ -136,7 +139,8 @@ public partial class BuildingInstance : Node3D
 
         if (!loadedModel)
         {
-            // Fallback: coloured box whose dimensions match the footprint
+            // Fallback: coloured box whose dimensions match the footprint.
+            // Tint it with the faction's primary color so it still reads correctly.
             _meshInstance = new MeshInstance3D();
             var boxMesh = new BoxMesh();
             boxMesh.Size = new Vector3(
@@ -147,7 +151,7 @@ public partial class BuildingInstance : Node3D
             _meshInstance.Position = new Vector3(0f, 1.5f, 0f);
 
             var mat = new StandardMaterial3D();
-            mat.AlbedoColor = new Color(0.4f, 0.4f, 0.5f);
+            mat.AlbedoColor = CohesiveMaterial.BlendWithFaction(teamColor, factionBaseColor);
             _meshInstance.MaterialOverride = mat;
 
             _modelRoot.AddChild(_meshInstance);
