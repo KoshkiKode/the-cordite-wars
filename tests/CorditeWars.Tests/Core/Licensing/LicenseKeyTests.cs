@@ -445,10 +445,15 @@ public class LicenseKeyTests
         var store = new EntitlementStore(tempDir.Path, pk);
 
         // Write garbage to the store's path.
+        string licenseSubdir = System.IO.Path.GetFileName(
+            EntitlementStore.LicenseSubdir.TrimEnd(
+                System.IO.Path.DirectorySeparatorChar,
+                System.IO.Path.AltDirectorySeparatorChar));
+        string licenseFileName = System.IO.Path.GetFileName(EntitlementStore.FileName);
         string licensePath = System.IO.Path.Combine(
-            tempDir.Path, EntitlementStore.LicenseSubdir, EntitlementStore.FileName);
+            tempDir.Path, licenseSubdir, licenseFileName);
         System.IO.Directory.CreateDirectory(
-            System.IO.Path.Combine(tempDir.Path, EntitlementStore.LicenseSubdir));
+            System.IO.Path.Combine(tempDir.Path, licenseSubdir));
         File.WriteAllBytes(licensePath, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
 
         bool ok = store.TryLoad(null, out _, out string? reason);
