@@ -165,4 +165,93 @@ public class FixedVector2Tests
         Assert.True(a != b);
         Assert.False(a == b);
     }
+
+    // ── Equals(object?) ────────────────────────────────────────────────
+
+    [Fact]
+    public void EqualsObject_SameValue_ReturnsTrue()
+    {
+        var a = new FixedVector2(FixedPoint.FromInt(3), FixedPoint.FromInt(7));
+        object b = new FixedVector2(FixedPoint.FromInt(3), FixedPoint.FromInt(7));
+        Assert.True(a.Equals(b));
+    }
+
+    [Fact]
+    public void EqualsObject_DifferentValue_ReturnsFalse()
+    {
+        var a = new FixedVector2(FixedPoint.FromInt(3), FixedPoint.FromInt(7));
+        object b = new FixedVector2(FixedPoint.FromInt(4), FixedPoint.FromInt(7));
+        Assert.False(a.Equals(b));
+    }
+
+    [Fact]
+    public void EqualsObject_Null_ReturnsFalse()
+    {
+        var a = new FixedVector2(FixedPoint.FromInt(3), FixedPoint.FromInt(7));
+        Assert.False(a.Equals((object?)null));
+    }
+
+    [Fact]
+    public void EqualsObject_DifferentType_ReturnsFalse()
+    {
+        var a = new FixedVector2(FixedPoint.FromInt(3), FixedPoint.FromInt(7));
+        Assert.False(a.Equals("not a FixedVector2"));
+        Assert.False(a.Equals(42));
+    }
+
+    // ── ToString ───────────────────────────────────────────────────────
+
+    [Fact]
+    public void ToString_ContainsBothComponents()
+    {
+        var v = new FixedVector2(FixedPoint.FromInt(3), FixedPoint.FromInt(7));
+        string s = v.ToString();
+        // Format: "(X, Y)" — verify both component values are present.
+        Assert.Contains("3", s);
+        Assert.Contains("7", s);
+        Assert.StartsWith("(", s);
+        Assert.EndsWith(")", s);
+    }
+
+    [Fact]
+    public void ToString_Zero_ProducesValidString()
+    {
+        // Should not throw and should be non-empty.
+        string s = FixedVector2.Zero.ToString();
+        Assert.False(string.IsNullOrEmpty(s));
+    }
+
+    // ── ToVector3 (Godot interop) ──────────────────────────────────────
+
+    [Fact]
+    public void ToVector3_DefaultHeight_MapsXToXAndYToZ()
+    {
+        var v = new FixedVector2(FixedPoint.FromInt(3), FixedPoint.FromInt(7));
+        Godot.Vector3 result = v.ToVector3();
+
+        // Simulation X -> Render X, Simulation Y -> Render Z, Render Y = 0
+        Assert.Equal(3f, result.X, 3);
+        Assert.Equal(0f, result.Y, 3);
+        Assert.Equal(7f, result.Z, 3);
+    }
+
+    [Fact]
+    public void ToVector3_CustomHeight_SetsYComponent()
+    {
+        var v = new FixedVector2(FixedPoint.FromInt(1), FixedPoint.FromInt(2));
+        Godot.Vector3 result = v.ToVector3(height: 5f);
+
+        Assert.Equal(1f, result.X, 3);
+        Assert.Equal(5f, result.Y, 3);
+        Assert.Equal(2f, result.Z, 3);
+    }
+
+    [Fact]
+    public void ToVector3_Zero_ReturnsAllZerosWithDefaultHeight()
+    {
+        Godot.Vector3 result = FixedVector2.Zero.ToVector3();
+        Assert.Equal(0f, result.X);
+        Assert.Equal(0f, result.Y);
+        Assert.Equal(0f, result.Z);
+    }
 }

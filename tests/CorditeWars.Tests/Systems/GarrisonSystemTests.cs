@@ -207,4 +207,91 @@ public class GarrisonSystemTests
         Assert.Equal(1, sys.GetGarrisonBuilding(10));
         Assert.Equal(2, sys.GetGarrisonBuilding(11));
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Read-only views (AllGarrisons, GarrisonedUnits)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    [Fact] public void AllGarrisons_EmptySystem_ReturnsEmpty() {
+        var sys = new GarrisonSystem();
+        Assert.Empty(sys.AllGarrisons);
+    }
+
+    [Fact] public void AllGarrisons_AfterRegistration_ContainsBuilding() {
+        var sys = new GarrisonSystem();
+        Register(sys, buildingId: 42, ownerId: 7, capacity: 4, defenseBonus: 25);
+        var all = sys.AllGarrisons;
+        Assert.Single(all);
+        Assert.True(all.ContainsKey(42));
+        Assert.Equal(42, all[42].BuildingId);
+        Assert.Equal(7, all[42].OwnerId);
+        Assert.Equal(4, all[42].Capacity);
+        Assert.Equal(25, all[42].DefenseBonus);
+    }
+
+    [Fact] public void AllGarrisons_AfterMultipleRegistrations_ReflectsAll() {
+        var sys = new GarrisonSystem();
+        Register(sys, buildingId: 1);
+        Register(sys, buildingId: 2);
+        Register(sys, buildingId: 3);
+
+        Assert.Equal(3, sys.AllGarrisons.Count);
+        Assert.True(sys.AllGarrisons.ContainsKey(1));
+        Assert.True(sys.AllGarrisons.ContainsKey(2));
+        Assert.True(sys.AllGarrisons.ContainsKey(3));
+    }
+
+    [Fact] public void AllGarrisons_AfterBuildingDestroyed_RemovesBuilding() {
+        var sys = new GarrisonSystem();
+        Register(sys, buildingId: 1);
+        Register(sys, buildingId: 2);
+        sys.OnBuildingDestroyed(1);
+
+        Assert.Single(sys.AllGarrisons);
+        Assert.False(sys.AllGarrisons.ContainsKey(1));
+        Assert.True(sys.AllGarrisons.ContainsKey(2));
+    }
+
+    [Fact] public void GarrisonedUnits_EmptySystem_ReturnsEmpty() {
+        var sys = new GarrisonSystem();
+        Assert.Empty(sys.GarrisonedUnits);
+    }
+
+    [Fact] public void GarrisonedUnits_AfterGarrison_ContainsMapping() {
+        var sys = new GarrisonSystem();
+        Register(sys, buildingId: 1, capacity: 4);
+        sys.TryGarrison(unitId: 100, buildingId: 1);
+
+        Assert.Single(sys.GarrisonedUnits);
+        Assert.True(sys.GarrisonedUnits.ContainsKey(100));
+        Assert.Equal(1, sys.GarrisonedUnits[100]);
+    }
+
+    [Fact] public void GarrisonedUnits_AfterMultipleGarrison_ReflectsAll() {
+        var sys = new GarrisonSystem();
+        Register(sys, buildingId: 1, capacity: 4);
+        Register(sys, buildingId: 2, capacity: 4);
+
+        sys.TryGarrison(100, 1);
+        sys.TryGarrison(101, 1);
+        sys.TryGarrison(200, 2);
+
+        Assert.Equal(3, sys.GarrisonedUnits.Count);
+        Assert.Equal(1, sys.GarrisonedUnits[100]);
+        Assert.Equal(1, sys.GarrisonedUnits[101]);
+        Assert.Equal(2, sys.GarrisonedUnits[200]);
+    }
+
+    [Fact] public void GarrisonedUnits_AfterEject_RemovesUnit() {
+        var sys = new GarrisonSystem();
+        Register(sys, buildingId: 1, capacity: 4);
+        sys.TryGarrison(100, 1);
+        sys.TryGarrison(101, 1);
+
+        sys.TryEject(100);
+
+        Assert.Single(sys.GarrisonedUnits);
+        Assert.False(sys.GarrisonedUnits.ContainsKey(100));
+        Assert.True(sys.GarrisonedUnits.ContainsKey(101));
+    }
 }
