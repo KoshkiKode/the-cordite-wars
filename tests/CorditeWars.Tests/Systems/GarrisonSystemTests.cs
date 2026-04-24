@@ -263,8 +263,8 @@ public class GarrisonSystemTests
         sys.TryGarrison(unitId: 100, buildingId: 1);
 
         Assert.Single(sys.GarrisonedUnits);
-        Assert.True(sys.GarrisonedUnits.ContainsKey(100));
-        Assert.Equal(1, sys.GarrisonedUnits[100]);
+        Assert.True(sys.GarrisonedUnits.TryGetValue(100, out var buildingId));
+        Assert.Equal(1, buildingId);
     }
 
     [Fact] public void GarrisonedUnits_AfterMultipleGarrison_ReflectsAll() {
