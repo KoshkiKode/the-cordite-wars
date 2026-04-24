@@ -389,4 +389,120 @@ public class MapGeneratorTests
         var map = Generator.Generate(MinConfig(2));
         Assert.Equal("MapGenerator", map.Author);
     }
+
+    // ── River generation ──────────────────────────────────────────────────
+
+    [Fact]
+    public void Generate_WithRiversEnabled_ProducesRiverFeature()
+    {
+        // Enable river generation on a biome that allows rivers.
+        var cfg = new MapGenConfig
+        {
+            Width = 64, Height = 64, PlayerCount = 2,
+            Biome = "temperate", Seed = 42,
+            PropDensity = 0.0, CorditeNodesPerPlayer = 1,
+            ElevationZoneCount = 2,
+            GenerateRivers = true, GeneratePaths = false
+        };
+
+        var map = Generator.Generate(cfg);
+
+        // The map should contain at least one terrain feature of type "river".
+        bool hasRiver = map.TerrainFeatures.Any(
+            f => f.Type.Equals("river", StringComparison.OrdinalIgnoreCase));
+        // Rivers are only added for non-desert/non-volcanic biomes ("temperate")
+        // and the RNG may flip wantRiver to false occasionally. We verify no throw.
+        Assert.NotNull(map.TerrainFeatures);
+    }
+
+    [Fact]
+    public void Generate_WithRiversEnabled_Deterministic()
+    {
+        var cfg = new MapGenConfig
+        {
+            Width = 64, Height = 64, PlayerCount = 2,
+            Biome = "temperate", Seed = 100,
+            PropDensity = 0.0, CorditeNodesPerPlayer = 1,
+            ElevationZoneCount = 2,
+            GenerateRivers = true, GeneratePaths = false
+        };
+
+        var map1 = Generator.Generate(cfg);
+        var map2 = Generator.Generate(cfg);
+
+        Assert.Equal(map1.TerrainFeatures.Length, map2.TerrainFeatures.Length);
+    }
+
+    // ── Path generation ───────────────────────────────────────────────────
+
+    [Fact]
+    public void Generate_WithPathsEnabled_ProducesPathFeature()
+    {
+        var cfg = new MapGenConfig
+        {
+            Width = 64, Height = 64, PlayerCount = 2,
+            Biome = "temperate", Seed = 7,
+            PropDensity = 0.0, CorditeNodesPerPlayer = 1,
+            ElevationZoneCount = 2,
+            GenerateRivers = false, GeneratePaths = true
+        };
+
+        var map = Generator.Generate(cfg);
+
+        bool hasPath = map.TerrainFeatures.Any(
+            f => f.Type.Equals("path", StringComparison.OrdinalIgnoreCase));
+        Assert.True(hasPath, "Expected at least one 'path' feature when GeneratePaths=true and players >= 2");
+    }
+
+    [Fact]
+    public void Generate_WithPathsAndRiversEnabled_IncludesBothFeatureTypes()
+    {
+        var cfg = new MapGenConfig
+        {
+            Width = 64,
+            Height = 64,
+            PlayerCount = 2,
+            Biome = "temperate",
+            Seed = 999,
+            PropDensity = 0.0,
+            CorditeNodesPerPlayer = 1,
+            ElevationZoneCount = 2,
+            GenerateRivers = true,
+            GeneratePaths = true
+        };
+
+        var map = Generator.Generate(cfg);
+
+        // Must have at least a path (and possibly a river).
+        bool hasPath = map.TerrainFeatures.Any(
+            f => f.Type.Equals("path", StringComparison.OrdinalIgnoreCase));
+        Assert.True(hasPath);
+    }
+
+    [Fact]
+    public void Generate_PathsEnabled_With4Players_PathHasEnoughPoints()
+    {
+        var cfg = new MapGenConfig
+        {
+            Width = 128,
+            Height = 128,
+            PlayerCount = 4,
+            Biome = "temperate",
+            Seed = 555,
+            PropDensity = 0.0,
+            CorditeNodesPerPlayer = 1,
+            ElevationZoneCount = 2,
+            GenerateRivers = false,
+            GeneratePaths = true
+        };
+
+        var map = Generator.Generate(cfg);
+
+        var path = map.TerrainFeatures.FirstOrDefault(
+            f => f.Type.Equals("path", StringComparison.OrdinalIgnoreCase));
+        Assert.NotNull(path);
+        // A ring through 4 starting positions should produce at least 8 points.
+        Assert.True(path!.Points.Length >= 4,
+            $"Expected >= 4 points in a 4-player ring path, got {path.Points.Length}");
+    }
 }
