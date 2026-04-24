@@ -411,7 +411,9 @@ public class LicenseKeyTests
         var store = new EntitlementStore(tempDir.Path, pk);
 
         string expectedPath = System.IO.Path.Combine(
-            tempDir.Path, EntitlementStore.LicenseSubdir, EntitlementStore.FileName);
+            tempDir.Path,
+            Path.GetFileName(EntitlementStore.LicenseSubdir),
+            Path.GetFileName(EntitlementStore.FileName));
         Assert.Equal(expectedPath, store.FilePath);
     }
 
