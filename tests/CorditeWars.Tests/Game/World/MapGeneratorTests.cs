@@ -407,9 +407,6 @@ public class MapGeneratorTests
 
         var map = Generator.Generate(cfg);
 
-        // The map should contain at least one terrain feature of type "river".
-        bool hasRiver = map.TerrainFeatures.Any(
-            f => f.Type.Equals("river", StringComparison.OrdinalIgnoreCase));
         // Rivers are only added for non-desert/non-volcanic biomes ("temperate")
         // and the RNG may flip wantRiver to false occasionally. We verify no throw.
         Assert.NotNull(map.TerrainFeatures);
