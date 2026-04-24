@@ -1,5 +1,8 @@
 using CorditeWars.Core;
+using CorditeWars.Game.Assets;
+using CorditeWars.Game.Economy;
 using CorditeWars.Game.Tech;
+using CorditeWars.Game.Units;
 
 namespace CorditeWars.Tests.Game.Tech;
 
@@ -567,5 +570,56 @@ public class PlayerTechStateTests
 
         bool result = tech.CanBuildBuilding("bastion_superweapon", registry);
         Assert.False(result, "Should return false when at least one prerequisite is missing");
+    }
+
+    // ── CanBuildUnit ────────────────────────────────────────────────────────
+
+    private static UnitData MakeUnit(string id, string factionId = "bastion") =>
+        new UnitData
+        {
+            Id = id,
+            DisplayName = id,
+            FactionId = factionId,
+            Category = UnitCategory.Infantry,
+            MovementClassId = "Infantry",
+            MaxHealth = FixedPoint.FromInt(100),
+            ArmorValue = FixedPoint.Zero,
+            Cost = 200
+        };
+
+    [Fact]
+    public void CanBuildUnit_UnknownUnit_ReturnsFalse()
+    {
+        var tech = CreateDefault();
+        var unitReg = new UnitDataRegistry();
+        var upgradeReg = new UpgradeRegistry();
+
+        // Empty registry — HasUnit returns false
+        bool result = tech.CanBuildUnit("nonexistent_unit", unitReg, upgradeReg);
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void CanBuildUnit_KnownUnit_ReturnsTrue()
+    {
+        var tech = CreateDefault();
+        var unitReg = new UnitDataRegistry();
+        unitReg.Register(MakeUnit("bastion_grunt"));
+        var upgradeReg = new UpgradeRegistry();
+
+        bool result = tech.CanBuildUnit("bastion_grunt", unitReg, upgradeReg);
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void CanBuildUnit_EmptyRegistryDoesNotThrow()
+    {
+        var tech = CreateDefault();
+        var unitReg = new UnitDataRegistry();
+        var upgradeReg = new UpgradeRegistry();
+
+        // Just verifying no exception is thrown for an unknown ID.
+        var ex = Record.Exception(() => tech.CanBuildUnit("any_unit", unitReg, upgradeReg));
+        Assert.Null(ex);
     }
 }

@@ -1,3 +1,5 @@
+using CorditeWars.Core;
+using CorditeWars.Game.Assets;
 using CorditeWars.Systems.Pathfinding;
 
 namespace CorditeWars.Tests.Systems;
@@ -433,5 +435,87 @@ public class OccupancyGridTests
         Assert.Equal(1, grid.GetOccupantAt(1, 1));
         Assert.Equal(2, grid.GetOccupantAt(5, 5));
         Assert.True(grid.IsCellFree(3, 3)); // unaffected cell
+    }
+
+    // ── Registry-based footprint helpers ───────────────────────────────────
+
+    private static AssetRegistry MakeRegistry(string unitId, int w = 2, int h = 2)
+    {
+        var reg = new AssetRegistry();
+        reg.Register(unitId, new AssetEntry
+        {
+            FootprintWidth  = w,
+            FootprintHeight = h,
+            CollisionRadius = FixedPoint.One,
+            Mass            = FixedPoint.One
+        });
+        return reg;
+    }
+
+    [Fact]
+    public void OccupyUnitFootprint_ThenIsFilled()
+    {
+        var grid = new OccupancyGrid(32, 32);
+        var reg  = MakeRegistry("infantry", w: 2, h: 2);
+
+        // Center at (5,5) with 2×2 footprint → top-left at (4,4)
+        grid.OccupyUnitFootprint(5, 5, "infantry", occupantId: 10, playerId: 1, reg);
+
+        // The four cells (4,4) (4,5) (5,4) (5,5) should all be occupied.
+        Assert.False(grid.IsCellFree(4, 4));
+        Assert.False(grid.IsCellFree(4, 5));
+        Assert.False(grid.IsCellFree(5, 4));
+        Assert.False(grid.IsCellFree(5, 5));
+    }
+
+    [Fact]
+    public void VacateUnitFootprint_ClearsCells()
+    {
+        var grid = new OccupancyGrid(32, 32);
+        var reg  = MakeRegistry("infantry", w: 2, h: 2);
+
+        grid.OccupyUnitFootprint(5, 5, "infantry", 10, 1, reg);
+        grid.VacateUnitFootprint(5, 5, "infantry", reg);
+
+        Assert.True(grid.IsCellFree(4, 4));
+        Assert.True(grid.IsCellFree(4, 5));
+        Assert.True(grid.IsCellFree(5, 4));
+        Assert.True(grid.IsCellFree(5, 5));
+    }
+
+    [Fact]
+    public void IsUnitFootprintFree_ReturnsTrueWhenEmpty()
+    {
+        var grid = new OccupancyGrid(32, 32);
+        var reg  = MakeRegistry("tank", w: 3, h: 3);
+
+        // Nothing placed yet — footprint must be free.
+        Assert.True(grid.IsUnitFootprintFree(10, 10, "tank", reg));
+    }
+
+    [Fact]
+    public void IsUnitFootprintFree_ReturnsFalseWhenOccupied()
+    {
+        var grid = new OccupancyGrid(32, 32);
+        var reg  = MakeRegistry("tank", w: 2, h: 2);
+
+        // Occupy just one of the footprint cells directly.
+        grid.OccupyCell(9, 9, OccupancyType.Unit, occupantId: 99, playerId: 2);
+
+        // Tank centered at (10,10) → top-left at (9,9), which is now occupied.
+        Assert.False(grid.IsUnitFootprintFree(10, 10, "tank", reg));
+    }
+
+    [Fact]
+    public void OccupyAndVacateUnitFootprint_1x1Unit()
+    {
+        var grid = new OccupancyGrid(32, 32);
+        var reg  = MakeRegistry("scout", w: 1, h: 1);
+
+        grid.OccupyUnitFootprint(7, 7, "scout", 5, 1, reg);
+        Assert.False(grid.IsCellFree(7, 7));
+
+        grid.VacateUnitFootprint(7, 7, "scout", reg);
+        Assert.True(grid.IsCellFree(7, 7));
     }
 }

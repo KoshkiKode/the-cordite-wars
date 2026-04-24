@@ -166,6 +166,18 @@ public sealed class AssetRegistry
     /// <summary>Returns the number of loaded entries.</summary>
     public int Count => _entries.Count;
 
+    /// <summary>
+    /// Registers an asset entry programmatically. Intended for testing without
+    /// requiring Godot's file-system APIs.
+    /// </summary>
+    public void Register(string unitId, AssetEntry entry)
+    {
+        if (!_entries.ContainsKey(unitId))
+            _entries.Add(unitId, entry);
+        else
+            _entries[unitId] = entry;
+    }
+
     private static string ReadGodotFile(string path)
     {
         using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);

@@ -131,6 +131,18 @@ public sealed class UnitDataRegistry
     /// <summary>Returns the number of loaded units.</summary>
     public int Count => _units.Count;
 
+    /// <summary>
+    /// Registers a unit programmatically. Intended for testing without
+    /// requiring Godot's file-system APIs.
+    /// </summary>
+    public void Register(UnitData data)
+    {
+        if (!_units.ContainsKey(data.Id))
+            _units.Add(data.Id, data);
+        else
+            _units[data.Id] = data;
+    }
+
     private static string ReadGodotFile(string path)
     {
         using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
