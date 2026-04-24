@@ -915,22 +915,9 @@ public partial class GameSession : Node
         // Advance construction state for all buildings in the deterministic tick.
         // Must run before BuildSimUnitFromBuilding so health reflects current progress.
         FixedPoint tickDelta = FixedPoint.FromFloat(TickDeltaSeconds);
-        foreach (var kvp in _playerHQNodes)
-        {
-            var b = kvp.Value;
-            if (b != null && GodotObject.IsInstanceValid(b))
-                b.ProcessTick(tickDelta);
-        }
+        TickBuildingConstruction(_playerHQNodes.Values, tickDelta);
         if (_buildingPlacer != null)
-        {
-            var allBuildings = _buildingPlacer.GetAllBuildings();
-            for (int i = 0; i < allBuildings.Count; i++)
-            {
-                var b = allBuildings[i];
-                if (b != null && GodotObject.IsInstanceValid(b))
-                    b.ProcessTick(tickDelta);
-            }
-        }
+            TickBuildingConstruction(_buildingPlacer.GetAllBuildings(), tickDelta);
 
         // ── 1. Build combined SimUnit list (mobile units + buildings) ──────
 
@@ -1166,6 +1153,21 @@ public partial class GameSession : Node
     /// starts at 1 and a match will not reach 100_000 live units simultaneously).
     /// </summary>
     private static bool IsBuildingId(int unitId) => unitId < 0 || unitId >= 100_001;
+
+    /// <summary>
+    /// Advances construction progress for every valid building in <paramref name="buildings"/>
+    /// by <paramref name="tickDelta"/>. Called once per simulation tick before building the
+    /// combined SimUnit list so that health values reflect the current build progress.
+    /// </summary>
+    private static void TickBuildingConstruction(
+        ICollection<BuildingInstance> buildings, FixedPoint tickDelta)
+    {
+        foreach (var b in buildings)
+        {
+            if (b != null && GodotObject.IsInstanceValid(b))
+                b.ProcessTick(tickDelta);
+        }
+    }
 
     /// <summary>
     /// Returns the ordered list of <see cref="TutorialStep"/>s for the given tutorial mission number.

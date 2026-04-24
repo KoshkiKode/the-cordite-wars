@@ -379,5 +379,5 @@ public partial class PropPlacer : Node3D
         _destructibles.Remove(propId);
     }
 
-    private static float DegreesToRadians(float degrees) => degrees * MathF.PI / 180.0f;
+    private static float DegreesToRadians(float degrees) => Mathf.DegToRad(degrees);
 }
