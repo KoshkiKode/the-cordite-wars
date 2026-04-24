@@ -452,7 +452,6 @@ public class MovementSimulatorTests
         // The approximation is not perfectly precise, so we just verify quadrant.
         FixedPoint result = MovementSimulator.Atan2(-FixedPoint.One, -FixedPoint.One);
         FixedPoint pi = MovementSimulator.Pi;
-        FixedPoint threePiOver2 = FixedPoint.FromRaw(pi.Raw + (pi.Raw / 2));
         // Allow a small tolerance — the approximation is accurate to ~0.2 rad here.
         Assert.True(result > FixedPoint.Zero && result < MovementSimulator.TwoPi,
             $"atan2(-1,-1) expected in [0, 2π), got {result.ToFloat():F3}");
