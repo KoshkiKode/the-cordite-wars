@@ -364,4 +364,36 @@ public class CommandSerializerTests
         Assert.Equal(fractX.Raw, restored.TargetPosition.X.Raw);
         Assert.Equal(fractY.Raw, restored.TargetPosition.Y.Raw);
     }
+
+    // ── Unknown type / invalid wire format throws ───────────────────────────
+
+    [Fact]
+    public void Serialize_UnknownCommandType_ThrowsInvalidOperationException()
+    {
+        // SetStanceCommand is not handled by the serializer switch.
+        var cmd = new SetStanceCommand
+        {
+            ScheduledTick = 1,
+            PlayerId = 1,
+            UnitIds = new List<int> { 1 },
+            Stance = CorditeWars.Systems.Pathfinding.UnitStance.Aggressive
+        };
+        Assert.Throws<InvalidOperationException>(() => CommandSerializer.Serialize(cmd));
+    }
+
+    [Fact]
+    public void Deserialize_UnknownWireType_ThrowsInvalidOperationException()
+    {
+        // Build a byte stream with an unrecognised wire-type byte (e.g. 0xFF).
+        // Header: 1 byte wireType + 8 bytes scheduledTick (ulong) + 4 bytes playerId (int)
+        using var ms = new System.IO.MemoryStream();
+        using var w = new System.IO.BinaryWriter(ms);
+        w.Write((byte)0xFF);        // unknown wire type
+        w.Write((ulong)1);          // scheduledTick
+        w.Write((int)1);            // playerId
+        w.Flush();
+        byte[] data = ms.ToArray();
+
+        Assert.Throws<InvalidOperationException>(() => CommandSerializer.Deserialize(data));
+    }
 }

@@ -283,6 +283,249 @@ public class LicenseKeyTests
         Assert.True(a.All(c => "0123456789abcdef".Contains(c)));
     }
 
+    // --- Entitlement.DecodeAndVerify — additional error paths ---------------
+
+    [Fact]
+    public void Entitlement_DecodeAndVerify_NullPublicKey_Throws()
+    {
+        var (sk, _) = TestKeyFactory.GenerateKeypair();
+        byte[] blob = TestKeyFactory.IssueEntitlement(sk, 1, new byte[16], 1, "h", 1);
+        Assert.Throws<ArgumentException>(
+            () => Entitlement.DecodeAndVerify(blob, null!));
+    }
+
+    [Fact]
+    public void Entitlement_DecodeAndVerify_WrongPublicKeyLength_Throws()
+    {
+        var (sk, _) = TestKeyFactory.GenerateKeypair();
+        byte[] blob = TestKeyFactory.IssueEntitlement(sk, 1, new byte[16], 1, "h", 1);
+        Assert.Throws<ArgumentException>(
+            () => Entitlement.DecodeAndVerify(blob, new byte[31])); // must be 32
+    }
+
+    [Fact]
+    public void Entitlement_DecodeAndVerify_TooShortBlob_Throws()
+    {
+        var (_, pk) = TestKeyFactory.GenerateKeypair();
+        byte[] tooShort = new byte[Entitlement.FixedHeaderBytes + Entitlement.SignatureBytes - 1];
+        Assert.Throws<InvalidDataException>(
+            () => Entitlement.DecodeAndVerify(tooShort, pk));
+    }
+
+    [Fact]
+    public void Entitlement_DecodeAndVerify_UnsupportedVersion_Throws()
+    {
+        var (sk, pk) = TestKeyFactory.GenerateKeypair();
+        byte[] blob = TestKeyFactory.IssueEntitlement(sk, 1, new byte[16], 1, "h", 1);
+        // Corrupt version byte to 99
+        blob[0] = 99;
+        Assert.Throws<InvalidDataException>(
+            () => Entitlement.DecodeAndVerify(blob, pk));
+    }
+
+    [Fact]
+    public void Entitlement_DecodeAndVerify_HostnameTooLong_Throws()
+    {
+        var (sk, pk) = TestKeyFactory.GenerateKeypair();
+        // Issue a valid blob, then patch hostnameLen byte to 65 (> MaxHostnameBytes=64)
+        byte[] blob = TestKeyFactory.IssueEntitlement(sk, 1, new byte[16], 1, "h", 1);
+        // hostnameLen is at offset 30.
+        blob[30] = 65;
+        Assert.Throws<InvalidDataException>(
+            () => Entitlement.DecodeAndVerify(blob, pk));
+    }
+
+    [Fact]
+    public void Entitlement_DecodeAndVerify_BlobLengthMismatch_Throws()
+    {
+        var (sk, pk) = TestKeyFactory.GenerateKeypair();
+        // Issue a valid blob, then append an extra byte to cause length mismatch.
+        byte[] blob = TestKeyFactory.IssueEntitlement(sk, 1, new byte[16], 1, "h", 1);
+        byte[] padded = new byte[blob.Length + 1];
+        Buffer.BlockCopy(blob, 0, padded, 0, blob.Length);
+        Assert.Throws<InvalidDataException>(
+            () => Entitlement.DecodeAndVerify(padded, pk));
+    }
+
+    [Fact]
+    public void Entitlement_DecodeAndVerify_SlotIndexZero_Throws()
+    {
+        var (sk, pk) = TestKeyFactory.GenerateKeypair();
+        // Issue a validly-signed blob with slotIndex=0 (< 1, out of range).
+        // Signature is valid so the check proceeds to the slot validation.
+        byte[] blob = TestKeyFactory.IssueEntitlement(
+            sk, keyId: 1, machineId: new byte[16],
+            slotIndex: 0,   // out of valid range [1..10]
+            hostname: "h", issuedAt: 1);
+        Assert.Throws<InvalidDataException>(
+            () => Entitlement.DecodeAndVerify(blob, pk));
+    }
+
+    [Fact]
+    public void Entitlement_DecodeAndVerify_ExpiresAtNotAfterIssuedAt_Throws()
+    {
+        // Build a blob where expiresAt <= issuedAt by using ttlSeconds=0.
+        // IssueEntitlement uses issuedAt + ttlSeconds for expires, so ttlSeconds=0
+        // makes expiresAt == issuedAt.
+        var (sk, pk) = TestKeyFactory.GenerateKeypair();
+        byte[] blob = TestKeyFactory.IssueEntitlement(
+            sk, 1, new byte[16], 1, "h",
+            issuedAt: 1_000_000,
+            ttlSeconds: 0);
+        Assert.Throws<InvalidDataException>(
+            () => Entitlement.DecodeAndVerify(blob, pk));
+    }
+
+    [Fact]
+    public void Entitlement_IssuedAtUtc_MatchesExpected()
+    {
+        uint ts = 1_700_000_000;
+        var ent = new Entitlement
+        {
+            Version = Entitlement.CurrentVersion,
+            KeyId = 1,
+            MachineId = new byte[16],
+            SlotIndex = 1,
+            IssuedAt = ts,
+            ExpiresAt = ts + 86400
+        };
+        DateTime expected = DateTimeOffset.FromUnixTimeSeconds(ts).UtcDateTime;
+        Assert.Equal(expected, ent.IssuedAtUtc);
+    }
+
+    // --- EntitlementStore — additional paths --------------------------------
+
+    [Fact]
+    public void EntitlementStore_Constructor_BadPublicKey_Throws()
+    {
+        using var tempDir = new TempDir();
+        Assert.Throws<ArgumentException>(
+            () => new EntitlementStore(tempDir.Path, new byte[31])); // must be 32
+    }
+
+    [Fact]
+    public void EntitlementStore_FilePath_ReturnsExpectedPath()
+    {
+        using var tempDir = new TempDir();
+        var (_, pk) = TestKeyFactory.GenerateKeypair();
+        var store = new EntitlementStore(tempDir.Path, pk);
+
+        string expectedPath = System.IO.Path.Combine(
+            tempDir.Path,
+            Path.GetFileName(EntitlementStore.LicenseSubdir),
+            Path.GetFileName(EntitlementStore.FileName));
+        Assert.Equal(expectedPath, store.FilePath);
+    }
+
+    [Fact]
+    public void EntitlementStore_Save_ThenOverwrite_UsesReplace()
+    {
+        // Saves twice so the second save triggers File.Replace (file already exists).
+        using var tempDir = new TempDir();
+        var (sk, pk) = TestKeyFactory.GenerateKeypair();
+        byte[] machineId = new byte[16];
+        uint now = (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        byte[] blob1 = TestKeyFactory.IssueEntitlement(sk, 1, machineId, 1, "h", now);
+        byte[] blob2 = TestKeyFactory.IssueEntitlement(sk, 2, machineId, 1, "h", now);
+
+        var store = new EntitlementStore(tempDir.Path, pk);
+        store.Save(blob1);              // first save — File.Move path
+        store.Save(blob2);              // second save — File.Replace path
+
+        Assert.True(store.TryLoad(null, out var ent, out _));
+        Assert.Equal(2u, ent!.KeyId);  // second save should win
+    }
+
+    [Fact]
+    public void EntitlementStore_TryLoad_InvalidBlobOnDisk_ReturnsFalse()
+    {
+        // Write garbage bytes directly to the file — simulates a corrupt save.
+        using var tempDir = new TempDir();
+        var (_, pk) = TestKeyFactory.GenerateKeypair();
+        var store = new EntitlementStore(tempDir.Path, pk);
+
+        // Write garbage to the store's path.
+        string licenseSubdir = System.IO.Path.GetFileName(
+            EntitlementStore.LicenseSubdir.TrimEnd(
+                System.IO.Path.DirectorySeparatorChar,
+                System.IO.Path.AltDirectorySeparatorChar));
+        string licenseFileName = System.IO.Path.GetFileName(EntitlementStore.FileName);
+        string licensePath = System.IO.Path.Combine(
+            tempDir.Path, licenseSubdir, licenseFileName);
+        System.IO.Directory.CreateDirectory(
+            System.IO.Path.Combine(tempDir.Path, licenseSubdir));
+        File.WriteAllBytes(licensePath, new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
+
+        bool ok = store.TryLoad(null, out _, out string? reason);
+        Assert.False(ok);
+        Assert.Contains("invalid", reason, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void EntitlementStore_Clear_DeletesFile()
+    {
+        using var tempDir = new TempDir();
+        var (sk, pk) = TestKeyFactory.GenerateKeypair();
+        byte[] machineId = new byte[16];
+        uint now = (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        byte[] blob = TestKeyFactory.IssueEntitlement(sk, 1, machineId, 1, "h", now);
+
+        var store = new EntitlementStore(tempDir.Path, pk);
+        store.Save(blob);
+        Assert.True(File.Exists(store.FilePath));
+
+        store.Clear();
+        Assert.False(File.Exists(store.FilePath));
+    }
+
+    [Fact]
+    public void EntitlementStore_Clear_WhenNoFile_DoesNotThrow()
+    {
+        using var tempDir = new TempDir();
+        var (_, pk) = TestKeyFactory.GenerateKeypair();
+        var store = new EntitlementStore(tempDir.Path, pk);
+
+        // No file has been saved — Clear should be a no-op.
+        var ex = Record.Exception(() => store.Clear());
+        Assert.Null(ex);
+    }
+
+    [Fact]
+    public void EntitlementStore_TryLoad_UnreadableFile_ReturnsFalseWithReason()
+    {
+        using var tempDir = new TempDir();
+        var (sk, pk) = TestKeyFactory.GenerateKeypair();
+        byte[] machineId = new byte[16];
+        uint now = (uint)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        byte[] blob = TestKeyFactory.IssueEntitlement(sk, 1, machineId, 1, "h", now);
+
+        var store = new EntitlementStore(tempDir.Path, pk);
+        store.Save(blob);
+
+        // Remove read permission so File.ReadAllBytes throws.
+        System.IO.File.SetAttributes(store.FilePath, System.IO.FileAttributes.ReadOnly);
+        try
+        {
+            // Make file completely inaccessible by changing permissions via chmod.
+            var startProc = System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo("chmod", $"0 \"{store.FilePath}\"")
+                { UseShellExecute = false });
+            startProc!.WaitForExit();
+
+            bool ok = store.TryLoad(null, out _, out string? reason);
+            Assert.False(ok);
+            Assert.Contains("failed to read", reason, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            // Restore so TempDir.Dispose can delete the file.
+            var restoreProc = System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo("chmod", $"644 \"{store.FilePath}\"")
+                { UseShellExecute = false });
+            restoreProc!.WaitForExit();
+        }
+    }
+
     // --- helpers ------------------------------------------------------------
 
     private sealed class TempDir : IDisposable

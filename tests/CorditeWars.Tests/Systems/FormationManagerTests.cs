@@ -363,4 +363,23 @@ public class FormationManagerTests
                 "WorldTarget.X should be finite");
         }
     }
+
+    [Fact]
+    public void ComputeFormation_UnrecognizedFormationType_FallsBackToDestination()
+    {
+        // Cast an out-of-enum value to trigger the default branch.
+        var unknownType = (FormationType)999;
+        var pos  = new FixedVector2(FixedPoint.FromInt(5), FixedPoint.FromInt(5));
+        var units = new List<FormationUnit>
+        {
+            MakeUnit(1, mass: FixedPoint.One),
+            MakeUnit(2, mass: FixedPoint.One),
+        };
+
+        var result = _manager.ComputeFormation(units, pos, pos, unknownType);
+
+        // Fallback: all units go directly to destination.
+        Assert.Equal(2, result.Count);
+        Assert.All(result, slot => Assert.Equal(pos, slot.WorldTarget));
+    }
 }

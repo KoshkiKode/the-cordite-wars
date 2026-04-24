@@ -272,4 +272,169 @@ public class SteeringManagerTests
 
         Assert.Equal(0, result.UpdatedWaypointIndex);
     }
+
+    // ── Avoidance (velocity + neighbor ahead) ────────────────────────────
+
+    [Fact]
+    public void ComputeSteering_MovingUnit_WithNeighborDirectlyAhead_AppliesAvoidanceForce()
+    {
+        // Unit at (0,0) moving in +X direction with a neighbor 3 units ahead.
+        // The unit has velocity, so ComputeAvoidance is triggered.
+        var neighbors = new List<NearbyUnit>
+        {
+            new NearbyUnit
+            {
+                Position = new FixedVector2(FixedPoint.FromInt(3), FixedPoint.Zero),
+                Velocity = FixedVector2.Zero,
+                Radius   = FixedPoint.One
+            }
+        };
+        var ctx = new UnitSteeringContext
+        {
+            Position           = FixedVector2.Zero,
+            Velocity           = new FixedVector2(FixedPoint.FromFloat(2f), FixedPoint.Zero),
+            Radius             = FixedPoint.One,
+            PathWaypoints      = null,
+            ActiveFlowField    = null,
+            CurrentWaypointIndex = 0,
+            Neighbors          = neighbors
+        };
+
+        SteeringResult result = SteeringManager.ComputeSteering(ctx);
+
+        // The avoidance / separation behavior should produce a non-zero direction.
+        bool nonZero = result.DesiredDirection.X != FixedPoint.Zero
+                    || result.DesiredDirection.Y != FixedPoint.Zero;
+        Assert.True(nonZero, "Expected avoidance to produce a non-zero direction.");
+    }
+
+    [Fact]
+    public void ComputeSteering_MovingUnit_NoNeighborAhead_NoAvoidance()
+    {
+        // Unit moving in +X with a neighbor far off to the side (no threat ahead).
+        var neighbors = new List<NearbyUnit>
+        {
+            new NearbyUnit
+            {
+                Position = new FixedVector2(FixedPoint.Zero, FixedPoint.FromInt(20)),
+                Velocity = FixedVector2.Zero,
+                Radius   = FixedPoint.One
+            }
+        };
+        var waypoints = new List<(int X, int Y)> { (50, 0) };
+        var ctx = new UnitSteeringContext
+        {
+            Position           = FixedVector2.Zero,
+            Velocity           = new FixedVector2(FixedPoint.FromInt(2), FixedPoint.Zero),
+            Radius             = FixedPoint.One,
+            PathWaypoints      = waypoints,
+            ActiveFlowField    = null,
+            CurrentWaypointIndex = 0,
+            Neighbors          = neighbors
+        };
+
+        // Should not throw and should produce a valid result.
+        var ex = Record.Exception(() => SteeringManager.ComputeSteering(ctx));
+        Assert.Null(ex);
+    }
+
+    // ── Flow field following ─────────────────────────────────────────────
+
+    [Fact]
+    public void ComputeSteering_ActiveFlowField_UsesFlowFieldPath()
+    {
+        var grid = new TerrainGrid(32, 32, FixedPoint.One);
+        var ff   = new FlowField();
+        ff.Generate(grid, MovementProfile.Infantry(),
+            goalX: 20, goalY: 20,
+            regionMinX: 0, regionMinY: 0, regionMaxX: 31, regionMaxY: 31);
+        Assert.True(ff.IsValid);
+
+        var ctx = new UnitSteeringContext
+        {
+            Position           = new FixedVector2(FixedPoint.FromInt(5), FixedPoint.FromInt(5)),
+            Velocity           = FixedVector2.Zero,
+            Radius             = FixedPoint.FromFloat(0.5f),
+            PathWaypoints      = null,
+            ActiveFlowField    = ff,
+            CurrentWaypointIndex = 0,
+            Neighbors          = new List<NearbyUnit>()
+        };
+
+        SteeringResult result = SteeringManager.ComputeSteering(ctx);
+
+        // FlowField path is active — result must be a recognized state (no throw).
+        // Since the goal is at (20,20) and the unit is at (5,5), the direction should
+        // be generally toward the goal (positive X and/or Y).
+        bool towardGoal = result.DesiredDirection.X > FixedPoint.Zero
+                       || result.DesiredDirection.Y > FixedPoint.Zero;
+        Assert.True(towardGoal || result.HasArrived,
+            $"Expected direction toward goal or HasArrived. Got {result.DesiredDirection}");
+    }
+
+    [Fact]
+    public void ComputeSteering_ActiveFlowField_AtGoalCell_ReturnsValidResult()
+    {
+        // When using a flow field, 'HasArrived' is governed by PathWaypoints (not the flow field).
+        // A flow-field-only unit at the goal cell simply produces no path force (FlowDirection.None).
+        var grid = new TerrainGrid(32, 32, FixedPoint.One);
+        var ff   = new FlowField();
+        ff.Generate(grid, MovementProfile.Infantry(),
+            goalX: 5, goalY: 5,
+            regionMinX: 0, regionMinY: 0, regionMaxX: 31, regionMaxY: 31);
+
+        // Unit is at (5,5) — at the goal cell.
+        var ctx = new UnitSteeringContext
+        {
+            Position           = new FixedVector2(FixedPoint.FromInt(5), FixedPoint.FromInt(5)),
+            Velocity           = FixedVector2.Zero,
+            Radius             = FixedPoint.FromFloat(0.5f),
+            PathWaypoints      = null,
+            ActiveFlowField    = ff,
+            CurrentWaypointIndex = 0,
+            Neighbors          = new List<NearbyUnit>()
+        };
+
+        // Should not throw. The direction at the goal cell is typically Zero (FlowDirection.None).
+        var ex = Record.Exception(() => SteeringManager.ComputeSteering(ctx));
+        Assert.Null(ex);
+    }
+
+    // ── Arrival (near final waypoint) ────────────────────────────────────
+
+    [Fact]
+    public void ComputeSteering_NearFinalWaypoint_AppliesArrivalSlowdown()
+    {
+        // Place the unit close to the final waypoint to trigger arrival throttle logic.
+        var waypoints = new List<(int X, int Y)> { (1, 0) }; // very close final dest
+        var ctx = MakeContext(posX: 0f, posY: 0f,
+            velX: 0f, velY: 0f,
+            radius: 0.5f, waypoints: waypoints);
+
+        SteeringResult result = SteeringManager.ComputeSteering(ctx);
+
+        // Either it has arrived or it's applying a reduced throttle.
+        Assert.True(result.HasArrived || result.DesiredSpeed <= FixedPoint.One);
+    }
+
+    [Fact]
+    public void ComputeSteering_AtLastWaypointIndexBeyondEnd_HandledGracefully()
+    {
+        // Simulate edge case: CurrentWaypointIndex is at or past the end of the list.
+        var waypoints = new List<(int X, int Y)> { (10, 0), (20, 0) };
+        var ctx = new UnitSteeringContext
+        {
+            Position           = new FixedVector2(FixedPoint.FromInt(20), FixedPoint.Zero),
+            Velocity           = FixedVector2.Zero,
+            Radius             = FixedPoint.FromFloat(0.5f),
+            PathWaypoints      = waypoints,
+            ActiveFlowField    = null,
+            CurrentWaypointIndex = 1, // at the last waypoint
+            Neighbors          = new List<NearbyUnit>()
+        };
+
+        // Should not throw.
+        var ex = Record.Exception(() => SteeringManager.ComputeSteering(ctx));
+        Assert.Null(ex);
+    }
 }

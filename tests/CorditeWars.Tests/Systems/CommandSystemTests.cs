@@ -339,4 +339,60 @@ public class CommandSystemTests
         Assert.False(buffer.HasCommandsForTick(3));
         Assert.False(buffer.HasCommandsForTick(10));
     }
+
+    // ── CommandBuffer additional edge cases ─────────────────────────────────
+
+    [Fact]
+    public void CommandBuffer_GetCommandsForTick_EmptyTick_ReturnsEmptyList()
+    {
+        var buffer = new CommandBuffer();
+        // No commands have been added for tick 99
+        var result = buffer.GetCommandsForTick(99);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void CommandBuffer_PeekCommandsForTick_EmptyTick_ReturnsEmptyList()
+    {
+        var buffer = new CommandBuffer();
+        var result = buffer.PeekCommandsForTick(42);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void CommandBuffer_PeekCommandsForTick_SortsAndDoesNotRemoveTick()
+    {
+        var buffer = new CommandBuffer();
+        // Two commands for the same player but different types — forces the
+        // CommandType-ordering branch of the sort comparison.
+        buffer.AddCommand(new MoveCommand    { ScheduledTick = 5, PlayerId = 1 });
+        buffer.AddCommand(new StopCommand    { ScheduledTick = 5, PlayerId = 1 });
+
+        var peeked = buffer.PeekCommandsForTick(5);
+
+        Assert.Equal(2, peeked.Count);
+        // StopCommand enum value is less than MoveCommand, so it comes first.
+        Assert.IsType<StopCommand>(peeked[0]);
+        Assert.IsType<MoveCommand>(peeked[1]);
+
+        // Peek must NOT remove the tick.
+        Assert.True(buffer.HasCommandsForTick(5));
+        Assert.Equal(2, buffer.TotalPendingCommands);
+    }
+
+    [Fact]
+    public void CommandBuffer_PeekCommandsForTick_InsertionOrderTieBreak()
+    {
+        var buffer = new CommandBuffer();
+        // Three Move commands for the same player — forces the
+        // InsertionOrder tiebreak branch.
+        buffer.AddCommand(new MoveCommand { ScheduledTick = 7, PlayerId = 1 });
+        buffer.AddCommand(new MoveCommand { ScheduledTick = 7, PlayerId = 1 });
+        buffer.AddCommand(new MoveCommand { ScheduledTick = 7, PlayerId = 1 });
+
+        var peeked = buffer.PeekCommandsForTick(7);
+
+        Assert.Equal(3, peeked.Count);
+        Assert.All(peeked, c => Assert.IsType<MoveCommand>(c));
+    }
 }

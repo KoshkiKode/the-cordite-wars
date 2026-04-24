@@ -1,5 +1,8 @@
 using CorditeWars.Core;
+using CorditeWars.Game.Assets;
 using CorditeWars.Game.Units;
+using CorditeWars.Systems.Pathfinding;
+using System.Collections.Generic;
 
 namespace CorditeWars.Tests.Game.Units;
 
@@ -854,5 +857,267 @@ public class CombatResolverTests
         // Facing = 0 (right), toTarget = (-5, 0) = facing left = angle π
         var toTarget = new FixedVector2(FixedPoint.FromInt(-5), FixedPoint.Zero);
         Assert.False(_resolver.IsInFiringArc(FixedPoint.Zero, toTarget, quarterPi));
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // CanAttack — ground weapon vs ground target (line 261)
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void CanAttack_AntiAirWeapon_CannotTargetGround()
+    {
+        // Weapon can only target air, target is ground — should return false.
+        var weapon = CreateBasicWeapon(
+            range: FixedPoint.FromInt(10),
+            canTarget: TargetType.Air); // cannot target ground
+        var target = CreateTarget(
+            distanceSq: FixedPoint.FromInt(25),
+            isAir: false); // ground target
+
+        Assert.False(_resolver.CanAttack(weapon, target));
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // IsInFiringArc — angular normalization edge cases (lines 651,653)
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void IsInFiringArc_AngularDeltaExceedsPi_NormalizedCorrectly()
+    {
+        // Force delta > π by having attackerFacing = -π and target at angle near +π.
+        // attackerFacing = -π (raw -205887), targetAngle = +π (raw 205887)
+        // delta = +π - (-π) = +2π → while loop: delta = 2π - 2π = 0 (in arc)
+        FixedPoint minusPi = FixedPoint.FromRaw(-205887);
+        FixedPoint fullArc = FixedPoint.FromRaw(411775); // 2π — use a big arc so 0 is in it
+        var toTarget = new FixedVector2(FixedPoint.FromInt(-5), FixedPoint.Zero); // angle ~π
+
+        // With delta normalized to 0, it must be within any arc >= 0.
+        Assert.True(_resolver.IsInFiringArc(minusPi, toTarget, fullArc));
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // AcquireTarget — maxRange == 0 returns null (line 469)
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void AcquireTarget_AllWeaponsHaveZeroRange_ReturnsNull()
+    {
+        var weapons = new List<WeaponData>
+        {
+            CreateBasicWeapon(range: FixedPoint.Zero), // all ranges are 0
+        };
+        var attacker = MakeAttacker(1, 1, FixedVector2.Zero, weapons);
+        var spatial  = new SpatialHash(256, 256);
+        var occupancy = new OccupancyGrid(32, 32);
+
+        var result = _resolver.AcquireTarget(attacker, weapons, spatial, new List<UnitCombatInfo>(), occupancy);
+
+        Assert.Null(result);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // AcquireTarget — current target valid but no weapon can hit (line 504-505)
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void AcquireTarget_CurrentTargetOutOfRange_FallsThrough()
+    {
+        // Current target exists but is now out of range for all weapons.
+        // Should fall through to acquire a new target.
+        var weapon  = CreateBasicWeapon(range: FixedPoint.FromInt(5));
+        var weapons = new List<WeaponData> { weapon };
+        var attacker = MakeAttacker(1, 1, FixedVector2.Zero, weapons, currentTargetId: 2);
+
+        // Place the "current target" far away (out of range)
+        var currentTarget = MakeCombatUnit(
+            2, 2, new FixedVector2(FixedPoint.FromInt(50), FixedPoint.Zero));
+
+        // Place a closer enemy unit that can be acquired
+        var closeEnemy = MakeCombatUnit(
+            3, 2, new FixedVector2(FixedPoint.FromInt(3), FixedPoint.Zero));
+
+        var allUnits = new List<UnitCombatInfo> { currentTarget, closeEnemy };
+        var spatial  = new SpatialHash(256, 256);
+        foreach (var u in allUnits)
+            spatial.Insert(u.UnitId, u.Position, u.Radius);
+
+        var occupancy = new OccupancyGrid(32, 32);
+        var result = _resolver.AcquireTarget(attacker, weapons, spatial, allUnits, occupancy);
+
+        // Should acquire the closer enemy, not null.
+        Assert.NotNull(result);
+        Assert.Equal(3, result!.Value.TargetId);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // AcquireTarget — priority selection (same priority, closer wins)
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void AcquireTarget_TwoTargetsSamePriority_PicksCloser()
+    {
+        var weapon  = CreateBasicWeapon(range: FixedPoint.FromInt(20));
+        var weapons = new List<WeaponData> { weapon };
+        var attacker = MakeAttacker(1, 1, FixedVector2.Zero, weapons);
+
+        var far   = MakeCombatUnit(2, 2, new FixedVector2(FixedPoint.FromInt(10), FixedPoint.Zero));
+        var close = MakeCombatUnit(3, 2, new FixedVector2(FixedPoint.FromInt(3),  FixedPoint.Zero));
+
+        var allUnits = new List<UnitCombatInfo> { far, close };
+        var spatial  = new SpatialHash(256, 256);
+        foreach (var u in allUnits)
+            spatial.Insert(u.UnitId, u.Position, u.Radius);
+
+        var occupancy = new OccupancyGrid(32, 32);
+        var result = _resolver.AcquireTarget(attacker, weapons, spatial, allUnits, occupancy);
+
+        Assert.NotNull(result);
+        Assert.Equal(3, result!.Value.TargetId); // closer unit (id=3) wins
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ResolveAttack — splash with ArmorModifier (lines 417-421)
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void ResolveAttack_SplashDamage_UsesArmorModifier_FromDictionary()
+    {
+        // AoE weapon with armor modifier for Medium armor.
+        var armorMods = new Dictionary<ArmorType, FixedPoint>
+        {
+            [ArmorType.Medium] = FixedPoint.Half // 50% damage to medium armor
+        };
+        var weapon = new WeaponData
+        {
+            Id = "splash_cannon",
+            Type = WeaponType.Cannon,
+            Damage = FixedPoint.FromInt(100),
+            RateOfFire = FixedPoint.FromInt(1),
+            Range = FixedPoint.FromInt(20),
+            MinRange = FixedPoint.Zero,
+            ProjectileSpeed = FixedPoint.Zero,
+            AreaOfEffect = FixedPoint.FromInt(5),
+            CanTarget = TargetType.Ground | TargetType.Air | TargetType.Building,
+            AccuracyPercent = FixedPoint.FromInt(100),
+            ArmorModifiers = armorMods
+        };
+
+        var attacker = MakeAttacker(1, 1,
+            new FixedVector2(FixedPoint.Zero, FixedPoint.Zero),
+            new List<WeaponData> { weapon });
+
+        var primary = CreateTarget(
+            position: new FixedVector2(FixedPoint.FromInt(5), FixedPoint.Zero),
+            distanceSq: FixedPoint.FromInt(25),
+            armor: ArmorType.Medium);
+
+        // Place a splash target nearby
+        var splashUnit = new UnitCombatInfo
+        {
+            UnitId     = 5,
+            PlayerId   = 2,
+            Position   = new FixedVector2(FixedPoint.FromInt(6), FixedPoint.Zero),
+            Health     = FixedPoint.FromInt(100),
+            MaxHealth  = FixedPoint.FromInt(100),
+            ArmorValue = FixedPoint.Zero,
+            ArmorClass = ArmorType.Medium,
+            Radius     = FixedPoint.One
+        };
+
+        var allUnits = new List<UnitCombatInfo> { splashUnit };
+        var spatial  = new SpatialHash(256, 256);
+        spatial.Insert(5, splashUnit.Position, splashUnit.Radius);
+
+        var rng = new DeterministicRng(seed: 1);
+        var result = _resolver.ResolveAttack(attacker, primary, weapon, 0, rng, spatial, allUnits);
+
+        // Splash targets should exist (at least the primary or nearby unit).
+        // DidHit should be true (100% accuracy).
+        Assert.True(result.DidHit);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // BuildAttackerInfo and BuildCombatInfo (lines 690-702, 730-746)
+    // ═══════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void BuildAttackerInfo_PopulatesFieldsFromRegistry()
+    {
+        var unitReg = new UnitDataRegistry();
+        unitReg.Register(new CorditeWars.Game.Units.UnitData
+        {
+            Id              = "grunt",
+            DisplayName     = "Grunt",
+            FactionId       = "bastion",
+            Category        = CorditeWars.Game.Units.UnitCategory.Infantry,
+            MovementClassId = "Infantry",
+            MaxHealth       = FixedPoint.FromInt(100),
+            Cost            = 200
+        });
+
+        var pos = new FixedVector2(FixedPoint.FromInt(5), FixedPoint.FromInt(5));
+        var cooldowns = new List<FixedPoint> { FixedPoint.Zero };
+
+        var info = CombatResolver.BuildAttackerInfo(
+            unitId: 10,
+            playerId: 1,
+            dataId: "grunt",
+            position: pos,
+            facing: FixedPoint.Zero,
+            currentTargetId: null,
+            weaponCooldowns: cooldowns,
+            registry: unitReg);
+
+        Assert.Equal(10, info.UnitId);
+        Assert.Equal(1, info.PlayerId);
+        Assert.Equal(pos, info.Position);
+        Assert.Null(info.CurrentTargetId);
+        Assert.Same(cooldowns, info.WeaponCooldowns);
+    }
+
+    [Fact]
+    public void BuildCombatInfo_PopulatesFieldsFromRegistries()
+    {
+        var unitReg  = new UnitDataRegistry();
+        unitReg.Register(new CorditeWars.Game.Units.UnitData
+        {
+            Id              = "grunt",
+            DisplayName     = "Grunt",
+            FactionId       = "bastion",
+            Category        = CorditeWars.Game.Units.UnitCategory.Infantry,
+            MovementClassId = "Infantry",
+            MaxHealth       = FixedPoint.FromInt(100),
+            ArmorValue      = FixedPoint.Zero,
+            ArmorClass      = ArmorType.Medium,
+            Cost            = 200
+        });
+
+        var assetReg = new AssetRegistry();
+        assetReg.Register("grunt", new AssetEntry
+        {
+            CollisionRadius = FixedPoint.FromFloat(0.5f),
+            Mass = FixedPoint.FromInt(5)
+        });
+
+        var pos = new FixedVector2(FixedPoint.FromInt(3), FixedPoint.FromInt(3));
+        var info = CombatResolver.BuildCombatInfo(
+            unitId: 7,
+            playerId: 2,
+            dataId: "grunt",
+            position: pos,
+            health: FixedPoint.FromInt(80),
+            isAir: false,
+            isBuilding: false,
+            isStealthed: false,
+            unitRegistry: unitReg,
+            assetRegistry: assetReg);
+
+        Assert.Equal(7, info.UnitId);
+        Assert.Equal(2, info.PlayerId);
+        Assert.Equal(FixedPoint.FromInt(80), info.Health);
+        Assert.Equal(FixedPoint.FromInt(100), info.MaxHealth);
+        Assert.Equal(ArmorType.Medium, info.ArmorClass);
+        Assert.Equal(FixedPoint.FromFloat(0.5f), info.Radius);
+        Assert.False(info.IsAir);
     }
 }

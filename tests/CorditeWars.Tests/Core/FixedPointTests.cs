@@ -398,4 +398,78 @@ public class FixedPointTests
         Assert.False(a.Equals("not a FixedPoint"));
         Assert.False(a.Equals(null));
     }
+
+    // ── ToDouble ────────────────────────────────────────────────────────
+
+    [Fact]
+    public void ToDouble_Integer_ReturnsExactValue()
+    {
+        Assert.Equal(5.0, FixedPoint.FromInt(5).ToDouble());
+        Assert.Equal(0.0, FixedPoint.Zero.ToDouble());
+        Assert.Equal(-3.0, FixedPoint.FromInt(-3).ToDouble());
+    }
+
+    [Fact]
+    public void ToDouble_FractionalValues_RoundTripWithinPrecision()
+    {
+        // Q16.16 fixed-point precision is 1/65536 ≈ 1.5e-5
+        double[] values = { 0.5, -0.5, 100.25, -99.75, 0.125 };
+        foreach (double v in values)
+        {
+            double result = FixedPoint.FromFloat((float)v).ToDouble();
+            Assert.True(
+                Math.Abs(result - v) < 0.0001,
+                $"ToDouble round-trip failed for {v}: got {result}");
+        }
+    }
+
+    [Fact]
+    public void ToDouble_HasMorePrecisionThanFloat()
+    {
+        // ToDouble uses double-precision division; verify the conversion path
+        // is distinct from ToFloat by using FromRaw with a specific raw value.
+        var fp = FixedPoint.FromRaw(1); // 1/65536
+        double expected = 1.0 / FixedPoint.Scale;
+        Assert.Equal(expected, fp.ToDouble());
+    }
+
+    // ── Multiplication: int * FixedPoint operator ──────────────────────
+
+    [Fact]
+    public void Multiply_IntTimesFixedPoint_ReturnsCorrectProduct()
+    {
+        // operator *(int, FixedPoint) — left-hand int form
+        FixedPoint result = 3 * FixedPoint.FromInt(4);
+        Assert.Equal(FixedPoint.FromInt(12), result);
+    }
+
+    [Fact]
+    public void Multiply_IntTimesFixedPoint_FractionalValue()
+    {
+        FixedPoint half = FixedPoint.Half;
+        FixedPoint result = 6 * half;
+        Assert.Equal(FixedPoint.FromInt(3), result);
+    }
+
+    [Fact]
+    public void Multiply_IntTimesFixedPoint_NegativeIntFlipsSign()
+    {
+        FixedPoint result = -2 * FixedPoint.FromInt(5);
+        Assert.Equal(FixedPoint.FromInt(-10), result);
+    }
+
+    [Fact]
+    public void Multiply_IntTimesFixedPoint_ZeroIntReturnsZero()
+    {
+        FixedPoint result = 0 * FixedPoint.FromInt(123);
+        Assert.Equal(FixedPoint.Zero, result);
+    }
+
+    [Fact]
+    public void Multiply_IntTimesFixedPoint_Commutative()
+    {
+        // a * 5 should equal 5 * a
+        FixedPoint a = FixedPoint.FromFloat(2.5f);
+        Assert.Equal(a * 5, 5 * a);
+    }
 }

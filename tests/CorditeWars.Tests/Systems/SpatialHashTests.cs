@@ -231,4 +231,232 @@ public class SpatialHashTests
             Assert.Equal(results1[i], results2[i]);
         }
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // QueryRadius (precise overload with unit position array)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void QueryRadiusPrecise_EmptyHash_ReturnsNoResults()
+    {
+        var hash = new SpatialHash(64, 64);
+        var positions = new FixedVector2[10];
+        var results = new List<int>();
+
+        hash.QueryRadius(FixedVector2.Zero, FixedPoint.FromInt(10), positions, results);
+
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void QueryRadiusPrecise_UnitInsideRadius_IsReturned()
+    {
+        var hash = new SpatialHash(64, 64);
+        var positions = new FixedVector2[10];
+        var unitPos = new FixedVector2(FixedPoint.FromInt(12), FixedPoint.FromInt(12));
+        positions[1] = unitPos;
+        hash.Insert(1, unitPos, FixedPoint.One);
+
+        var results = new List<int>();
+        hash.QueryRadius(unitPos, FixedPoint.FromInt(5), positions, results);
+
+        Assert.Contains(1, results);
+    }
+
+    [Fact]
+    public void QueryRadiusPrecise_UnitOutsideCircleButInsideCellAabb_IsRejected()
+    {
+        // Key advantage of the precise overload: rejects units that are in an
+        // overlapping hash cell but outside the actual query circle.
+        var hash = new SpatialHash(64, 64, cellSize: 8);
+        var positions = new FixedVector2[10];
+
+        // Place unit near a cell corner so AABB cell-overlap finds it,
+        // but precise distance check rejects it.
+        var unitPos = new FixedVector2(FixedPoint.FromInt(7), FixedPoint.FromInt(7));
+        positions[1] = unitPos;
+        hash.Insert(1, unitPos, FixedPoint.One);
+
+        // Query from origin with radius 3 — unit at (7,7) is sqrt(98) ≈ 9.9 away.
+        var queryCenter = FixedVector2.Zero;
+        var results = new List<int>();
+        hash.QueryRadius(queryCenter, FixedPoint.FromInt(3), positions, results);
+
+        // The basic AABB overlap might find it, but precise distance² check rejects.
+        Assert.DoesNotContain(1, results);
+    }
+
+    [Fact]
+    public void QueryRadiusPrecise_UnitFarAway_NotReturned()
+    {
+        var hash = new SpatialHash(64, 64);
+        var positions = new FixedVector2[10];
+
+        var nearPos = new FixedVector2(FixedPoint.FromInt(5), FixedPoint.FromInt(5));
+        var farPos = new FixedVector2(FixedPoint.FromInt(50), FixedPoint.FromInt(50));
+        positions[1] = nearPos;
+        positions[2] = farPos;
+        hash.Insert(1, nearPos, FixedPoint.One);
+        hash.Insert(2, farPos, FixedPoint.One);
+
+        var results = new List<int>();
+        hash.QueryRadius(nearPos, FixedPoint.FromInt(5), positions, results);
+
+        Assert.Contains(1, results);
+        Assert.DoesNotContain(2, results);
+    }
+
+    [Fact]
+    public void QueryRadiusPrecise_AppendsToExistingResults()
+    {
+        var hash = new SpatialHash(64, 64);
+        var positions = new FixedVector2[10];
+        var pos = new FixedVector2(FixedPoint.FromInt(10), FixedPoint.FromInt(10));
+        positions[1] = pos;
+        hash.Insert(1, pos, FixedPoint.One);
+
+        var results = new List<int> { 999 };
+        hash.QueryRadius(pos, FixedPoint.FromInt(5), positions, results);
+
+        Assert.Contains(999, results);
+        Assert.Contains(1, results);
+    }
+
+    [Fact]
+    public void QueryRadiusPrecise_QueryAtNegativeOriginClamped()
+    {
+        // Center far outside the world to the negative side — clamps to cell 0.
+        var hash = new SpatialHash(64, 64);
+        var positions = new FixedVector2[10];
+        var unitPos = new FixedVector2(FixedPoint.FromInt(2), FixedPoint.FromInt(2));
+        positions[1] = unitPos;
+        hash.Insert(1, unitPos, FixedPoint.One);
+
+        var center = new FixedVector2(FixedPoint.FromInt(-100), FixedPoint.FromInt(-100));
+        var results = new List<int>();
+        hash.QueryRadius(center, FixedPoint.FromInt(110), positions, results);
+
+        // Distance from (-100, -100) to (2, 2) is sqrt(2*102²) ≈ 144 > 110, so excluded.
+        Assert.DoesNotContain(1, results);
+    }
+
+    [Fact]
+    public void QueryRadiusPrecise_QueryBeyondMaxClamped()
+    {
+        // Center far outside the world to the positive side — clamps max cell.
+        var hash = new SpatialHash(64, 64);
+        var positions = new FixedVector2[10];
+        var unitPos = new FixedVector2(FixedPoint.FromInt(60), FixedPoint.FromInt(60));
+        positions[1] = unitPos;
+        hash.Insert(1, unitPos, FixedPoint.One);
+
+        var center = new FixedVector2(FixedPoint.FromInt(200), FixedPoint.FromInt(200));
+        // Large radius covers the world edge, but precise distance excludes.
+        var results = new List<int>();
+        hash.QueryRadius(center, FixedPoint.FromInt(50), positions, results);
+
+        Assert.DoesNotContain(1, results);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // QueryRect — finds units in cells overlapping an axis-aligned rectangle
+    // ═══════════════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void QueryRect_EmptyHash_ReturnsNoResults()
+    {
+        var hash = new SpatialHash(64, 64);
+        var results = new List<int>();
+        hash.QueryRect(0, 0, 10, 10, results);
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void QueryRect_UnitInsideRect_IsReturned()
+    {
+        var hash = new SpatialHash(64, 64);
+        var pos = new FixedVector2(FixedPoint.FromInt(10), FixedPoint.FromInt(10));
+        hash.Insert(1, pos, FixedPoint.One);
+
+        var results = new List<int>();
+        hash.QueryRect(5, 5, 15, 15, results);
+
+        Assert.Contains(1, results);
+    }
+
+    [Fact]
+    public void QueryRect_UnitFarOutsideRect_NotReturned()
+    {
+        var hash = new SpatialHash(64, 64);
+        var nearPos = new FixedVector2(FixedPoint.FromInt(10), FixedPoint.FromInt(10));
+        var farPos = new FixedVector2(FixedPoint.FromInt(60), FixedPoint.FromInt(60));
+        hash.Insert(1, nearPos, FixedPoint.One);
+        hash.Insert(2, farPos, FixedPoint.One);
+
+        var results = new List<int>();
+        hash.QueryRect(0, 0, 16, 16, results);
+
+        Assert.Contains(1, results);
+        Assert.DoesNotContain(2, results);
+    }
+
+    [Fact]
+    public void QueryRect_MultipleUnitsInRect_AllReturned()
+    {
+        var hash = new SpatialHash(64, 64);
+        for (int i = 1; i <= 3; i++)
+        {
+            var pos = new FixedVector2(FixedPoint.FromInt(i * 2), FixedPoint.FromInt(2));
+            hash.Insert(i, pos, FixedPoint.One);
+        }
+
+        var results = new List<int>();
+        hash.QueryRect(0, 0, 8, 8, results);
+
+        Assert.Contains(1, results);
+        Assert.Contains(2, results);
+        Assert.Contains(3, results);
+    }
+
+    [Fact]
+    public void QueryRect_NegativeBounds_ClampedToZero()
+    {
+        // Negative min coords should be clamped without throwing.
+        var hash = new SpatialHash(64, 64);
+        var pos = new FixedVector2(FixedPoint.FromInt(2), FixedPoint.FromInt(2));
+        hash.Insert(1, pos, FixedPoint.One);
+
+        var results = new List<int>();
+        hash.QueryRect(-50, -50, 5, 5, results);
+
+        Assert.Contains(1, results);
+    }
+
+    [Fact]
+    public void QueryRect_BoundsBeyondWorld_ClampedToMaxCell()
+    {
+        // Max coords beyond world should be clamped to last cell index.
+        var hash = new SpatialHash(64, 64);
+        var pos = new FixedVector2(FixedPoint.FromInt(60), FixedPoint.FromInt(60));
+        hash.Insert(1, pos, FixedPoint.One);
+
+        var results = new List<int>();
+        hash.QueryRect(50, 50, 200, 200, results);
+
+        Assert.Contains(1, results);
+    }
+
+    [Fact]
+    public void QueryRect_AppendsToExistingResults()
+    {
+        var hash = new SpatialHash(64, 64);
+        var pos = new FixedVector2(FixedPoint.FromInt(10), FixedPoint.FromInt(10));
+        hash.Insert(1, pos, FixedPoint.One);
+
+        var results = new List<int> { 999 };
+        hash.QueryRect(0, 0, 16, 16, results);
+
+        Assert.Contains(999, results);
+        Assert.Contains(1, results);
+    }
 }

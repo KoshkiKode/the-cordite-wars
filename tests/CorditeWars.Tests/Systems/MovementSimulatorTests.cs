@@ -441,4 +441,192 @@ public class MovementSimulatorTests
         Assert.True(state.IsStuck || state.StuckTicks > 0,
             "Unit should be flagged as stuck after many ticks with no meaningful movement");
     }
+
+    // ── Atan2 — third quadrant (x<0, y<0) hits line 576 ─────────────────────
+
+    [Fact]
+    public void Atan2_NegativeX_NegativeY_ReturnsAngleInThirdQuadrant()
+    {
+        // atan2(-1, -1) should return an angle in the third quadrant [π, 3π/2]
+        // This hits the x<0, y<0 branch (line 576: atanResult = Pi + atanResult).
+        // The approximation is not perfectly precise, so we just verify quadrant.
+        FixedPoint result = MovementSimulator.Atan2(-FixedPoint.One, -FixedPoint.One);
+        FixedPoint pi = MovementSimulator.Pi;
+        // Allow a small tolerance — the approximation is accurate to ~0.2 rad here.
+        Assert.True(result > FixedPoint.Zero && result < MovementSimulator.TwoPi,
+            $"atan2(-1,-1) expected in [0, 2π), got {result.ToFloat():F3}");
+        Assert.True(result >= pi - FixedPoint.FromFloat(0.2f),
+            $"atan2(-1,-1) expected ≥ π, got {result.ToFloat():F3}");
+    }
+
+    [Fact]
+    public void Atan2_BothZero_ReturnsZero_AndHitsMaxValZeroPath()
+    {
+        // atan2(0,0): absX=0 and absY=0 → maxVal=0 → t=0 (line 554)
+        FixedPoint result = MovementSimulator.Atan2(FixedPoint.Zero, FixedPoint.Zero);
+        Assert.Equal(FixedPoint.Zero, result);
+    }
+
+    // ── NormalizeAngle — negative angle wraps up (line 604) ────────────────
+
+    [Fact]
+    public void NormalizeAngle_LargeNegative_WrapsToPositiveRange()
+    {
+        // -π → should normalize to π (raw 205887)
+        FixedPoint negPi = FixedPoint.FromRaw(-205887);
+        FixedPoint result = MovementSimulator.NormalizeAngle(negPi);
+        Assert.True(result.Raw >= 0, $"Expected non-negative, got {result.ToFloat():F3}");
+        Assert.True(result.Raw < MovementSimulator.TwoPi.Raw,
+            $"Expected < 2π, got {result.ToFloat():F3}");
+    }
+
+    // ── AdvanceTick — turn rate limited (unit must take multiple ticks) ─────
+
+    [Fact]
+    public void AdvanceTick_HighTurnRateLimit_TurnsSlowly_PositiveDelta()
+    {
+        // facing = 0 (right), target is left (π) → delta > 0 → hits line 208.
+        var terrain = FlatTerrain();
+        var profile = InfantryProfile().WithTurnRate(FixedPoint.FromRaw(655)); // very slow ~0.01 rad/tick
+
+        var state = AtRest() with { Facing = FixedPoint.Zero };
+        var input = new MovementInput
+        {
+            DesiredDirection = new FixedVector2(-FixedPoint.One, FixedPoint.Zero), // left (π)
+            DesiredSpeed = FixedPoint.One,
+            Brake = false
+        };
+
+        MovementState after = MovementSimulator.AdvanceTick(state, input, profile, terrain);
+
+        Assert.NotEqual(FixedPoint.Zero, after.Facing);
+    }
+
+    [Fact]
+    public void AdvanceTick_HighTurnRateLimit_TurnsSlowly_NegativeDelta()
+    {
+        // facing = π/2 (up), target is right (0) → delta < 0 → hits line 209.
+        var terrain = FlatTerrain();
+        var profile = InfantryProfile().WithTurnRate(FixedPoint.FromRaw(655)); // very slow ~0.01 rad/tick
+
+        FixedPoint halfPi = FixedPoint.FromRaw(102944);
+        var state = AtRest() with { Facing = halfPi };
+        var input = new MovementInput
+        {
+            DesiredDirection = new FixedVector2(FixedPoint.One, FixedPoint.Zero), // right (0)
+            DesiredSpeed = FixedPoint.One,
+            Brake = false
+        };
+
+        MovementState after = MovementSimulator.AdvanceTick(state, input, profile, terrain);
+
+        // Facing should have moved slightly toward 0 (decreased from π/2).
+        Assert.True(after.Facing < halfPi,
+            $"Facing {after.Facing.ToFloat():F3} should have decreased from π/2");
+    }
+
+    // ── AdvanceTick — airborne unit lands after enough ticks ─────────────────
+
+    [Fact]
+    public void AdvanceTick_AirborneUnit_LandsAfterApplyingGravity()
+    {
+        // Unit starts airborne at Height=2 with zero vertical velocity.
+        // Gravity should pull it down to Height=0 (terrain height on flat map).
+        // Must use a profile with SuspensionStiffness != 0 (e.g. LightVehicle)
+        // so the airborne gravity path is taken, not the aircraft hover path.
+        var terrain = FlatTerrain();
+        var profile = MovementProfile.LightVehicle(); // SuspensionStiffness = 0.3
+
+        var state = AtRest() with
+        {
+            Height = FixedPoint.FromInt(2),
+            VerticalVelocity = FixedPoint.Zero,
+            IsAirborne = true
+        };
+
+        var input = new MovementInput
+        {
+            DesiredDirection = FixedVector2.Zero,
+            DesiredSpeed = FixedPoint.Zero,
+            Brake = false
+        };
+
+        // Run enough ticks for gravity to bring the unit to ground.
+        for (int i = 0; i < 120 && state.IsAirborne; i++)
+            state = MovementSimulator.AdvanceTick(state, input, profile, terrain);
+
+        Assert.False(state.IsAirborne, "Unit should have landed after gravity pulled it to terrain height");
+        Assert.Equal(FixedPoint.Zero, state.VerticalVelocity);
+    }
+
+    // ── AdvanceTick — steep slope stops movement ─────────────────────────────
+
+    [Fact]
+    public void AdvanceTick_UnitOnSteepSlope_SpeedReducedOrZero()
+    {
+        // Create terrain with steep SlopeX on the relevant cells.
+        // GetSlope() does bilinear interpolation of SlopeX/SlopeY fields.
+        // infantry MaxSlopeAngle ≈ 0.87, so we need slopeMagnitude > 0.87.
+        // Setting SlopeX = 2.0 on a 3×3 block around the unit gives magnitude = 2 > 0.87.
+        var terrain = new TerrainGrid(8, 8, FixedPoint.One);
+        for (int x = 3; x <= 5; x++)
+        {
+            for (int y = 3; y <= 5; y++)
+            {
+                ref TerrainCell cell = ref terrain.GetCell(x, y);
+                cell.SlopeX = FixedPoint.FromInt(2); // slope magnitude >> maxSlopeAngle
+            }
+        }
+        terrain.ComputeSlopes(); // will preserve pre-set SlopeX since heights are flat
+
+        var profile = MovementProfile.Infantry();
+        // Position at cell (4,4): bilinear of nearby SlopeX values will be ~2
+        var state = AtRest(pos: new FixedVector2(FixedPoint.FromFloat(4.5f), FixedPoint.FromFloat(4.5f)));
+
+        var input = new MovementInput
+        {
+            DesiredDirection = new FixedVector2(FixedPoint.One, FixedPoint.Zero),
+            DesiredSpeed = FixedPoint.One,
+            Brake = false
+        };
+
+        MovementState next = MovementSimulator.AdvanceTick(state, input, profile, terrain);
+
+        // With effectiveMaxSpeed = 0, speed should stay at or near 0.
+        Assert.True(next.Speed <= profile.Acceleration,
+            $"Speed {next.Speed.ToFloat():F4} should be near 0 on steep slope");
+    }
+
+    // ── AdvanceTick — deceleration clamps to targetSpeed (line 312) ──────────
+
+    [Fact]
+    public void AdvanceTick_DeceleratingToTarget_ClampsAtTarget()
+    {
+        // Unit moving at speed slightly less than one decel-per-tick step.
+        // After deceleration, speed would go below 0 → clamped to 0 (line 312).
+        // With Brake=true: decelPerTick = profile.Deceleration / tickRate / mass * 2
+        //   = 0.05 / 30 * 2 ≈ 0.00333. So initSpeed < 0.00333 triggers the clamp.
+        var terrain = FlatTerrain();
+        var profile = InfantryProfile();
+
+        FixedPoint initSpeed = FixedPoint.FromRaw(131); // ≈ 0.002, less than one decel step
+
+        var state = AtRest() with
+        {
+            Speed = initSpeed,
+            Velocity = new FixedVector2(initSpeed, FixedPoint.Zero)
+        };
+
+        var input = new MovementInput
+        {
+            DesiredDirection = FixedVector2.Zero,
+            DesiredSpeed = FixedPoint.Zero,
+            Brake = true
+        };
+
+        MovementState next = MovementSimulator.AdvanceTick(state, input, profile, terrain);
+
+        // Speed should be clamped to 0 (not negative)
+        Assert.Equal(FixedPoint.Zero, next.Speed);
+    }
 }

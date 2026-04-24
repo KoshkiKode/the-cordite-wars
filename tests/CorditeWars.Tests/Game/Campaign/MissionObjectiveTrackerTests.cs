@@ -560,4 +560,104 @@ public class MissionObjectiveTrackerTests
         tracker.Tick(1, EmptyContext(), currentTick: 30);
         Assert.True(tracker.Objectives[0].IsComplete);
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // DestroyUnitType objective (driven via NotifyUnitDestroyed)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    private static TypedObjective MakeDestroyUnit(string typeId, int count = 1, bool required = true) =>
+        new TypedObjective
+        {
+            Type     = ObjectiveType.DestroyUnitType,
+            Label    = $"Destroy {typeId}",
+            TargetId = typeId,
+            Count    = count,
+            Required = required
+        };
+
+    [Fact]
+    public void DestroyUnitType_NoDestructions_StaysIncomplete()
+    {
+        var tracker = MakeTracker(new[] { MakeDestroyUnit("enemy_tank") });
+        Assert.False(tracker.Objectives[0].IsComplete);
+    }
+
+    [Fact]
+    public void DestroyUnitType_WrongUnitType_NoEffect()
+    {
+        var tracker = MakeTracker(new[] { MakeDestroyUnit("enemy_tank", count: 1) });
+        tracker.NotifyUnitDestroyed("some_other_unit");
+        Assert.False(tracker.Objectives[0].IsComplete);
+    }
+
+    [Fact]
+    public void DestroyUnitType_CorrectUnitOnce_CompletesCountOne()
+    {
+        var tracker = MakeTracker(new[] { MakeDestroyUnit("enemy_tank", count: 1) });
+        tracker.NotifyUnitDestroyed("enemy_tank");
+        Assert.True(tracker.Objectives[0].IsComplete);
+    }
+
+    [Fact]
+    public void DestroyUnitType_PartialDestructions_StaysIncomplete()
+    {
+        var tracker = MakeTracker(new[] { MakeDestroyUnit("enemy_tank", count: 5) });
+        tracker.NotifyUnitDestroyed("enemy_tank");
+        tracker.NotifyUnitDestroyed("enemy_tank");
+        Assert.False(tracker.Objectives[0].IsComplete);
+    }
+
+    [Fact]
+    public void DestroyUnitType_ExactDestructions_Completes()
+    {
+        var tracker = MakeTracker(new[] { MakeDestroyUnit("enemy_tank", count: 3) });
+        tracker.NotifyUnitDestroyed("enemy_tank");
+        tracker.NotifyUnitDestroyed("enemy_tank");
+        tracker.NotifyUnitDestroyed("enemy_tank");
+        Assert.True(tracker.Objectives[0].IsComplete);
+    }
+
+    [Fact]
+    public void DestroyUnitType_ExtraDestructionsAfterComplete_NoStateChange()
+    {
+        var tracker = MakeTracker(new[] { MakeDestroyUnit("enemy_tank", count: 1) });
+        tracker.NotifyUnitDestroyed("enemy_tank");
+        Assert.True(tracker.Objectives[0].IsComplete);
+
+        tracker.NotifyUnitDestroyed("enemy_tank");
+        Assert.True(tracker.Objectives[0].IsComplete);
+        Assert.False(tracker.Objectives[0].IsFailed);
+    }
+
+    [Fact]
+    public void DestroyUnitType_MultipleObjectives_EachTracksIndependently()
+    {
+        var obj1 = MakeDestroyUnit("scout", count: 1);
+        var obj2 = MakeDestroyUnit("tank",  count: 2);
+        var tracker = MakeTracker(new[] { obj1, obj2 });
+
+        tracker.NotifyUnitDestroyed("scout");
+        tracker.NotifyUnitDestroyed("tank");
+
+        Assert.True(tracker.Objectives[0].IsComplete);
+        Assert.False(tracker.Objectives[1].IsComplete);
+
+        tracker.NotifyUnitDestroyed("tank");
+        Assert.True(tracker.Objectives[1].IsComplete);
+    }
+
+    [Fact]
+    public void DestroyUnitType_DoesNotAffectDestroyBuildingObjectives()
+    {
+        // NotifyUnitDestroyed must only advance DestroyUnitType objectives,
+        // not DestroyBuildingType ones (and vice-versa).
+        var unitObj  = MakeDestroyUnit("enemy_tank", count: 1);
+        var bldgObj  = MakeDestroyBuilding("enemy_tank", count: 1); // same TargetId
+
+        var tracker = MakeTracker(new[] { unitObj, bldgObj });
+        tracker.NotifyUnitDestroyed("enemy_tank");
+
+        Assert.True(tracker.Objectives[0].IsComplete);   // unit objective complete
+        Assert.False(tracker.Objectives[1].IsComplete);  // building objective unaffected
+    }
 }

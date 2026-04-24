@@ -375,4 +375,112 @@ public class PlayerEconomyTests
             Math.Abs(cordite - 5015.0f) < 0.1f,
             $"Expected ~5015 Cordite, got {cordite}");
     }
+
+    // ── SetCordite (saved-state restore) ────────────────────────────────
+
+    [Fact]
+    public void SetCordite_PositiveAmount_SetsExactValue()
+    {
+        var economy = CreateDefault();
+        economy.SetCordite(FixedPoint.FromInt(1234));
+        Assert.Equal(FixedPoint.FromInt(1234), economy.Cordite);
+    }
+
+    [Fact]
+    public void SetCordite_NegativeAmount_ClampsToZero()
+    {
+        var economy = CreateDefault();
+        economy.SetCordite(FixedPoint.FromInt(-100));
+        Assert.Equal(FixedPoint.Zero, economy.Cordite);
+    }
+
+    [Fact]
+    public void SetCordite_Zero_SetsZero()
+    {
+        var economy = CreateDefault();
+        economy.SetCordite(FixedPoint.Zero);
+        Assert.Equal(FixedPoint.Zero, economy.Cordite);
+    }
+
+    [Fact]
+    public void SetCordite_DoesNotUpdateTotalCorditeIncome()
+    {
+        var economy = CreateDefault();
+        int incomeBefore = economy.TotalCorditeIncome;
+        economy.SetCordite(FixedPoint.FromInt(9999));
+        // SetCordite bypasses income tracking
+        Assert.Equal(incomeBefore, economy.TotalCorditeIncome);
+    }
+
+    // ── SetVC (saved-state restore) ──────────────────────────────────────
+
+    [Fact]
+    public void SetVC_ValidAmount_SetsExactValue()
+    {
+        var economy = CreateDefault();
+        economy.SetVC(FixedPoint.FromInt(200));
+        Assert.Equal(FixedPoint.FromInt(200), economy.VoltaicCharge);
+    }
+
+    [Fact]
+    public void SetVC_NegativeAmount_ClampsToZero()
+    {
+        var economy = CreateDefault();
+        economy.SetVC(FixedPoint.FromInt(-50));
+        Assert.Equal(FixedPoint.Zero, economy.VoltaicCharge);
+    }
+
+    [Fact]
+    public void SetVC_AboveCap_ClampsToVCCap()
+    {
+        var economy = CreateDefault(); // VCCap = 500
+        economy.SetVC(FixedPoint.FromInt(800));
+        Assert.Equal(FixedPoint.FromInt(500), economy.VoltaicCharge);
+    }
+
+    [Fact]
+    public void SetVC_ExactlyCap_SetsCapValue()
+    {
+        var economy = CreateDefault();
+        economy.SetVC(FixedPoint.FromInt(500));
+        Assert.Equal(FixedPoint.FromInt(500), economy.VoltaicCharge);
+    }
+
+    [Fact]
+    public void SetVC_Zero_SetsZero()
+    {
+        var economy = CreateDefault();
+        economy.SetVC(FixedPoint.Zero);
+        Assert.Equal(FixedPoint.Zero, economy.VoltaicCharge);
+    }
+
+    // ── RegisterRefinery / UnregisterRefinery ────────────────────────────
+
+    [Fact]
+    public void RegisterRefinery_IncrementsCount()
+    {
+        var economy = CreateDefault();
+        economy.RegisterRefinery();
+        Assert.Equal(1, economy.RefineryCount);
+        economy.RegisterRefinery();
+        Assert.Equal(2, economy.RefineryCount);
+    }
+
+    [Fact]
+    public void UnregisterRefinery_DecrementsCount()
+    {
+        var economy = CreateDefault();
+        economy.RegisterRefinery();
+        economy.RegisterRefinery();
+        economy.UnregisterRefinery();
+        Assert.Equal(1, economy.RefineryCount);
+    }
+
+    [Fact]
+    public void UnregisterRefinery_ClampsToZero()
+    {
+        var economy = CreateDefault();
+        economy.UnregisterRefinery(); // no refinery to remove
+        Assert.Equal(0, economy.RefineryCount);
+    }
 }
