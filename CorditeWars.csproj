@@ -12,6 +12,12 @@
     <Compile Remove="tests/**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Ed25519 verification for license entitlements. Pure managed,
+         no native dependencies — works for every Godot export target. -->
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.0" />
+  </ItemGroup>
+
   <!-- Steam integration disabled — will be added back when a Steam App ID is obtained.
   <ItemGroup>
     <PackageReference Include="Steamworks.NET" Version="20.2.0" />

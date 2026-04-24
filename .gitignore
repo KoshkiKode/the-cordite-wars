@@ -58,3 +58,8 @@ temp/
 
 # Test results
 TestResults/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/

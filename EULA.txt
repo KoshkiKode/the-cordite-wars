@@ -22,8 +22,12 @@ Cordite Wars: Six Fronts is published and owned by:
 
 Subject to your compliance with the terms of this Agreement, Licensor grants
 you a limited, non-exclusive, non-transferable, non-sublicensable, revocable
-license to install and run one (1) copy of the Software on a device you own or
-control, solely for your personal, non-commercial entertainment use.
+license to install and run the Software on up to ten (10) devices you own or
+control concurrently per license, solely for your personal, non-commercial
+entertainment use. Devices that have not connected to Licensor's activation
+service for thirty (30) consecutive days will be automatically released from
+the active count, and you may at any time release a device manually via the
+"Manage Machines" interface available at https://downloads.koshkikode.com.
 
 3. OWNERSHIP AND RESERVATION OF RIGHTS
 
@@ -132,6 +136,24 @@ connection with the Software and Licensor's business.
 Use of the Software may be subject to Licensor's Privacy Policy, available at
 https://koshkikode.com or within the Software. The Privacy
 Policy is incorporated into this Agreement by reference.
+
+    a) License Activation Data. To enforce the per-license activation cap
+       described in Section 2, the Software transmits to Licensor: (i) the
+       license key entered by you, (ii) a privacy-respecting machine
+       fingerprint computed locally as a one-way hash of operating-system,
+       hardware, and user-account signals (raw signals are not transmitted),
+       and (iii) the device hostname for display in the "Manage Machines"
+       interface. The Software stores Licensor's signed activation response
+       locally and re-verifies it offline on every launch. When connected to
+       the internet the Software periodically refreshes the activation token
+       in the background; no further data leaves the device. License
+       activation data is retained only for the duration of an active
+       license plus thirty (30) days after the last successful refresh.
+
+    b) Storefront Builds. Builds distributed via Steam, GOG, or other
+       third-party storefronts use that storefront's ownership-verification
+       mechanism instead of the activation system described in this section.
+       In those builds no license activation data is transmitted to Licensor.
 
 10. DISCLAIMER OF WARRANTIES
 

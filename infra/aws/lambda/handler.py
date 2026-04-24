@@ -42,6 +42,8 @@ from typing import Any
 import boto3
 from botocore.config import Config as BotoConfig
 
+import licensing  # noqa: E402 — sibling module, license-key endpoints
+
 LOG = logging.getLogger()
 LOG.setLevel(logging.INFO)
 
@@ -271,18 +273,45 @@ def handle_webhook(event: dict[str, Any]) -> dict[str, Any]:
         return _response(400, {"error": "Missing session id"})
 
     expires_at = int(time.time()) + ORDER_RETENTION_DAYS * 86400
-    _DYNAMODB.put_item(
-        TableName=ORDERS_TABLE,
-        Item={
-            "session_id":   {"S": session_id},
-            "paid":         {"BOOL": True},
-            "redemptions":  {"N": "0"},
-            "amount_total": {"N": str(session.get("amount_total") or 0)},
-            "currency":     {"S": session.get("currency") or "usd"},
-            "created_at":   {"N": str(int(time.time()))},
-            "expires_at":   {"N": str(expires_at)},
-        },
-    )
+    customer_email = (
+        (session.get("customer_details") or {}).get("email")
+        or session.get("customer_email")
+        or ""
+    ).strip().lower()
+
+    # Idempotent license issuance: only fire on the first webhook for this
+    # session. We store the issued key_id in the orders row so re-deliveries
+    # don't issue duplicate keys + emails.
+    license_key: str | None = None
+    if customer_email:
+        try:
+            license_key = licensing.issue_license_for_session(
+                session_id=session_id,
+                email=customer_email,
+                amount_total=int(session.get("amount_total") or 0),
+                currency=session.get("currency") or "usd",
+            )
+        except Exception:  # pragma: no cover — surfaced via logs, won't 500 the webhook
+            LOG.exception("License issuance failed for session=%s", session_id)
+    else:
+        LOG.warning("Stripe session %s had no customer email; license not issued", session_id)
+
+    item: dict[str, Any] = {
+        "session_id":   {"S": session_id},
+        "paid":         {"BOOL": True},
+        "redemptions":  {"N": "0"},
+        "amount_total": {"N": str(session.get("amount_total") or 0)},
+        "currency":     {"S": session.get("currency") or "usd"},
+        "created_at":   {"N": str(int(time.time()))},
+        "expires_at":   {"N": str(expires_at)},
+    }
+    if customer_email:
+        item["email"] = {"S": customer_email}
+    if license_key:
+        # Store the *hashed* key for cross-reference; never the raw key.
+        item["license_key_hash"] = {"S": licensing._hash_key_for_storage(license_key)}
+
+    _DYNAMODB.put_item(TableName=ORDERS_TABLE, Item=item)
     LOG.info("Order recorded for session %s", session_id)
     return _response(200, {"ok": True})
 
@@ -376,6 +405,18 @@ def _route(event: dict[str, Any]) -> dict[str, Any]:
         return handle_webhook(event)
     if path.endswith("/api/download") and method == "GET":
         return handle_download(event)
+    if path.endswith("/api/activate") and method == "POST":
+        return licensing.handle_activate(event)
+    if path.endswith("/api/activate-offline") and method == "POST":
+        # Same logic, different endpoint name so the website can present a
+        # distinct UX for users activating from a different device.
+        return licensing.handle_activate(event)
+    if path.endswith("/api/renew") and method == "POST":
+        return licensing.handle_renew(event)
+    if path.endswith("/api/deactivate") and method == "POST":
+        return licensing.handle_deactivate(event)
+    if path.endswith("/api/manage") and method == "GET":
+        return licensing.handle_manage(event)
     if path.endswith("/api/health") and method == "GET":
         return _response(200, {"ok": True})
 
@@ -383,6 +424,10 @@ def _route(event: dict[str, Any]) -> dict[str, Any]:
 
 
 def handle(event: dict[str, Any], _context: Any) -> dict[str, Any]:
+    # EventBridge cron events have no `requestContext`; route them to the
+    # background slot-sweep handler.
+    if event.get("source") == "aws.events" or event.get("detail-type") == "Scheduled Event":
+        return licensing.handle_slot_sweep(event)
     try:
         return _route(event)
     except Exception as exc:  # pragma: no cover — last-resort guard

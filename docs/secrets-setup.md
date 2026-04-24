@@ -189,3 +189,23 @@ Variables**.
 - [ ] `AWS_REGION` (variable)
 - [ ] `AWS_CLOUDFRONT_DISTRIBUTION_ID` (variable, optional)
 - [ ] `release` environment created (Settings → Environments)
+
+## Licensing system (Secrets Manager, not GitHub)
+
+The license-key system uses one secret stored in **AWS Secrets Manager**
+(not GitHub Actions secrets) and one constant baked into the game binary:
+
+| Where                                   | What                          | How to populate                                         |
+|-----------------------------------------|-------------------------------|---------------------------------------------------------|
+| Secrets Manager: `<bucket>/license-signing` | Ed25519 keypair JSON (PEM)    | `python3 tools/license_keygen.py generate-signing-key` then paste into the AWS console |
+| `src/Core/Licensing/LicenseConfig.cs`   | 32-byte raw public key        | `public_key_raw_hex` from the same command — paste as a `byte[]` literal |
+| Secrets Manager: `<bucket>/stripe`      | Stripe API key + webhook secret | Already documented above; license issuance fires from the same webhook |
+| Terraform variable: `ses_from_address`  | From-address for license emails | Set in `terraform.tfvars`; leave empty to disable email |
+| DNS                                      | DKIM CNAMEs                   | `terraform output ses_dkim_records` after `apply`       |
+
+> **Do not regenerate the Ed25519 signing key after launch.** Every issued
+> license and every customer's stored entitlement becomes invalid. The
+> Secrets Manager `recovery_window_in_days = 30` setting gives a 30-day
+> undo window if the secret is accidentally deleted. See
+> [`docs/licensing.md`](./licensing.md) for the rotation runbook if it's
+> ever unavoidable.
