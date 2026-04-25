@@ -50,7 +50,6 @@ render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_sc
 
 varying vec3 v_world_pos;
 varying vec3 v_biome_color;
-varying vec3 v_vertex_normal;
 
 // --- Procedural noise helpers -------------------------------------------------
 
@@ -84,9 +83,8 @@ float fbm(vec2 p) {
 // --- Vertex stage -------------------------------------------------------------
 
 void vertex() {
-    v_world_pos    = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
-    v_biome_color  = COLOR.rgb;
-    v_vertex_normal = (MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz;
+    v_world_pos   = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    v_biome_color = COLOR.rgb;
 }
 
 // --- Fragment stage -----------------------------------------------------------
@@ -124,7 +122,6 @@ void fragment() {
     ROUGHNESS = mix(0.95, 0.68, surface);   // troughs rough, peaks slightly smoother
     METALLIC  = 0.0;
     SPECULAR  = 0.07;
-    NORMAL_MAP_DEPTH = 0.0;  // no normal map — lighting comes from mesh normals
 }
 ";
 
