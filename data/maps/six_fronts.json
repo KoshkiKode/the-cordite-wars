@@ -4504,6 +4504,14 @@
       "Height": 2.0
     }
   ],
+  "NeutralCapturableUnits": [
+    { "UnitTypeId": "ancient_gun", "X": 160, "Y": 135, "Facing": 1.5708 },
+    { "UnitTypeId": "ancient_gun", "X": 181, "Y": 147, "Facing": 2.6180 },
+    { "UnitTypeId": "ancient_gun", "X": 181, "Y": 173, "Facing": 3.6652 },
+    { "UnitTypeId": "ancient_gun", "X": 160, "Y": 185, "Facing": 4.7124 },
+    { "UnitTypeId": "ancient_gun", "X": 139, "Y": 173, "Facing": 5.7596 },
+    { "UnitTypeId": "ancient_gun", "X": 139, "Y": 147, "Facing": 0.5236 }
+  ],
   "SunConfig": {
     "Enabled": false,
     "RotationX": -40,
