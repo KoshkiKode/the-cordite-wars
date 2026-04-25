@@ -355,6 +355,11 @@ namespace CorditeWars.Systems.Graphics
             // Godot 4.x exposes vendor + device name on RenderingDevice.
             string deviceName = rd.GetDeviceName().ToLowerInvariant();
 
+            // Apple Silicon (M1, M2, M3, M4 …): MoltenVK reports "Apple M1", "Apple M2 Pro", etc.
+            // All Apple M-series GPUs are capable of the High quality tier.
+            if (deviceName.Contains("apple m"))
+                return QualityTier.High;
+
             // Intel integrated: Potato
             if (deviceName.Contains("intel") && (deviceName.Contains("uhd") || deviceName.Contains("hd graphics")))
                 return QualityTier.Potato;

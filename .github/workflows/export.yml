@@ -400,6 +400,37 @@ jobs:
           echo "macOS build contents after extraction:"
           ls -la build/macos/
 
+      - name: Verify macOS universal binary (arm64 + x86_64)
+        if: matrix.name == 'macOS'
+        run: |
+          APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: No .app bundle found"
+            exit 1
+          fi
+          # Locate the main executable inside the bundle
+          APP_NAME=$(basename "$APP_PATH" .app)
+          MAIN_BIN="$APP_PATH/Contents/MacOS/$APP_NAME"
+          if [ ! -f "$MAIN_BIN" ]; then
+            MAIN_BIN=$(find "$APP_PATH/Contents/MacOS" -maxdepth 1 -type f | head -1)
+          fi
+          if [ -z "$MAIN_BIN" ]; then
+            echo "ERROR: Could not locate main executable in $APP_PATH"
+            exit 1
+          fi
+          echo "Checking architectures in: $MAIN_BIN"
+          lipo -info "$MAIN_BIN"
+          # Require both arm64 (Apple Silicon) and x86_64 (Intel) slices
+          if ! lipo -info "$MAIN_BIN" | grep -q "arm64"; then
+            echo "ERROR: arm64 slice missing — Apple Silicon Macs will not be supported"
+            exit 1
+          fi
+          if ! lipo -info "$MAIN_BIN" | grep -q "x86_64"; then
+            echo "ERROR: x86_64 slice missing — Intel Macs will not be supported"
+            exit 1
+          fi
+          echo "Universal binary confirmed: arm64 + x86_64 both present."
+
       - name: Ad-hoc sign macOS .app bundle
         if: matrix.name == 'macOS'
         run: |
