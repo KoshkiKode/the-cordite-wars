@@ -47,7 +47,34 @@ public class MapDataModelsTests
         Assert.Empty(map.Props);
         Assert.Empty(map.Structures);
         Assert.Empty(map.ElevationZones);
+        Assert.Empty(map.NeutralCapturableUnits);
         Assert.Null(map.SunConfig);
+    }
+
+    [Fact]
+    public void CapturableUnitPlacement_Defaults_AreExpected()
+    {
+        var p = new CapturableUnitPlacement();
+        Assert.Equal(string.Empty, p.UnitTypeId);
+        Assert.Equal(0, p.X);
+        Assert.Equal(0, p.Y);
+        Assert.Equal(CorditeWars.Core.FixedPoint.Zero, p.Facing);
+    }
+
+    [Fact]
+    public void CapturableUnitPlacement_AssignedValues_ArePreserved()
+    {
+        var p = new CapturableUnitPlacement
+        {
+            UnitTypeId = "ancient_gun",
+            X = 160,
+            Y = 135,
+            Facing = CorditeWars.Core.FixedPoint.FromFloat(1.5708f)
+        };
+        Assert.Equal("ancient_gun", p.UnitTypeId);
+        Assert.Equal(160, p.X);
+        Assert.Equal(135, p.Y);
+        Assert.Equal(CorditeWars.Core.FixedPoint.FromFloat(1.5708f), p.Facing);
     }
 
     [Fact]

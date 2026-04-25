@@ -493,4 +493,31 @@ public class GameDataValidationTests
             Assert.NotNull(JsonDocument.Parse(json));
         }
     }
+
+    [Fact]
+    public void SixFronts_HasNeutralCapturableAncientGuns()
+    {
+        // Lore for the six_fronts map promises ancient automated turrets
+        // guarding the Cordite Nexus. Verify the map data actually pre-places
+        // them so the runtime spawn pass and the capture flow have something
+        // to act on.
+        string path = Path.Combine(DataRoot, "maps", "six_fronts.json");
+        Assert.True(File.Exists(path), $"Missing map file: {path}");
+
+        using var doc = JsonDocument.Parse(File.ReadAllText(path));
+        Assert.True(doc.RootElement.TryGetProperty("NeutralCapturableUnits", out var arr),
+            "six_fronts.json must declare a 'NeutralCapturableUnits' array.");
+        Assert.Equal(JsonValueKind.Array, arr.ValueKind);
+        Assert.True(arr.GetArrayLength() >= 1,
+            "six_fronts.json must declare at least one neutral capturable unit (the ancient turrets).");
+
+        foreach (JsonElement entry in arr.EnumerateArray())
+        {
+            Assert.True(entry.TryGetProperty("UnitTypeId", out var typeId),
+                "Each NeutralCapturableUnits entry must have a 'UnitTypeId'.");
+            Assert.Equal("ancient_gun", typeId.GetString());
+            Assert.True(entry.TryGetProperty("X", out _), "Each entry must have 'X'.");
+            Assert.True(entry.TryGetProperty("Y", out _), "Each entry must have 'Y'.");
+        }
+    }
 }

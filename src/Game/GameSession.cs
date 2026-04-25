@@ -210,6 +210,36 @@ public partial class GameSession : Node
     /// </summary>
     private readonly HashSet<int> _playersWithInitialHQ = new();
 
+    // ── Neutral / capturable map entities ───────────────────────────
+
+    /// <summary>
+    /// Reserved player ID for neutral, capturable map entities such as the
+    /// ancient automated turrets on Six Fronts. Real player slots are assigned
+    /// IDs starting at 1, so 0 is safe as a "nobody owns this" sentinel.
+    /// Combat treats any unit with a different PlayerId as hostile, which
+    /// makes neutral units fire on every player and every player fire on them
+    /// without any extra targeting code.
+    /// </summary>
+    public const int NeutralPlayerId = 0;
+
+    /// <summary>Faction-id key used to look up the neutral colour palette.</summary>
+    public const string NeutralFactionId = "neutral";
+
+    /// <summary>
+    /// Synthetic unit type id for the ancient automated turret. Registered
+    /// programmatically in <see cref="RegisterSyntheticNeutralUnits"/> so it
+    /// does not need a per-faction JSON entry (which would fail data-validation
+    /// tests that require a real faction prefix).
+    /// </summary>
+    public const string AncientGunUnitTypeId = "ancient_gun";
+
+    /// <summary>
+    /// Live unit IDs of pre-placed neutral capturable units that have not yet
+    /// been claimed. Populated by <see cref="SpawnNeutralCapturableUnits"/>;
+    /// entries are removed the tick the unit is captured or destroyed.
+    /// </summary>
+    private readonly HashSet<int> _capturableUnitIds = new();
+
     // ── Faction economy configs (static, created once) ──────────────
 
     private SortedList<string, FactionEconomyConfig> _factionEconomyConfigs =
@@ -229,6 +259,10 @@ public partial class GameSession : Node
         colors.Add("kragmore",  CorditeWars.UI.UITheme.FactionKragmore);
         colors.Add("stormrend", CorditeWars.UI.UITheme.FactionStormrend);
         colors.Add("valkyr",    CorditeWars.UI.UITheme.FactionValkyr);
+        // Neutral faction — used by pre-placed capturable map entities (e.g. the
+        // ancient automated turrets on Six Fronts). Slate-grey so the unit is
+        // visually distinct from any of the six player factions.
+        colors.Add(NeutralFactionId, new Color(0.55f, 0.58f, 0.62f));
         return colors;
     }
 
@@ -243,6 +277,8 @@ public partial class GameSession : Node
         colors.Add("kragmore",  CorditeWars.UI.UITheme.FactionKragmoreSecondary);
         colors.Add("stormrend", CorditeWars.UI.UITheme.FactionStormrendSecondary);
         colors.Add("valkyr",    CorditeWars.UI.UITheme.FactionValkyrSecondary);
+        // Weathered copper / oxidised bronze base for neutral capturable units.
+        colors.Add(NeutralFactionId, new Color(0.42f, 0.32f, 0.22f));
         return colors;
     }
 
@@ -269,6 +305,7 @@ public partial class GameSession : Node
         _corditeHarvested     = 0;
         _lastAutosaveTick     = 0;
         _surrenderedPlayers.Clear();
+        _capturableUnitIds.Clear();
 
         // Initialize mission objective tracker
         var typedObjs = config.Campaign?.TypedObjectives;
@@ -476,6 +513,12 @@ public partial class GameSession : Node
 
         // i. Spawn starting units (1 harvester per player)
         SpawnStartingUnits(config);
+
+        // i2. Spawn pre-placed neutral capturable units (e.g. ancient turrets).
+        //    These belong to the reserved neutral PlayerId so every player
+        //    treats them as enemies (and they treat every player as an enemy)
+        //    until the capture flow in HandleSimulationTick claims them.
+        SpawnNeutralCapturableUnits();
 
         // j. Register Cordite nodes from map data
         RegisterCorditeNodes();
@@ -1098,6 +1141,25 @@ public partial class GameSession : Node
             int destroyedId = tickResult.DestroyedUnitIds[i];
             if (!IsBuildingId(destroyedId))
             {
+                // Capturable neutral units intercept the despawn flow: when
+                // killed by a real player, they re-spawn at the same spot under
+                // the killer's ownership instead of being removed. Skip the
+                // normal despawn (TryCaptureNeutralUnit handles the despawn /
+                // re-spawn pair internally) and the kill/loss bookkeeping
+                // below, since this is a capture, not a kill.
+                if (_capturableUnitIds.Remove(destroyedId))
+                {
+                    int? killerPlayerId = FindKillerPlayerIdForTarget(tickResult, destroyedId);
+                    if (killerPlayerId.HasValue &&
+                        TryCaptureNeutralUnit(destroyedId, killerPlayerId.Value))
+                    {
+                        continue;
+                    }
+                    // Capture failed (no identifiable owning killer) — fall
+                    // through to the normal despawn path so we don't leak the
+                    // visual node.
+                }
+
                 // Track kill/loss before despawning
                 if (_persistentSimUnits.TryGetValue(destroyedId, out SimUnit deadSim))
                 {
@@ -2743,6 +2805,11 @@ public partial class GameSession : Node
         _upgradeRegistry.Load("res://data/upgrades");
         _assetRegistry.Load("res://data/asset_manifest.json");
 
+        // Synthetic templates that are not driven by per-faction JSON files.
+        // These must be registered after the data-driven loads so they cannot
+        // be accidentally overwritten by a duplicate manifest entry.
+        RegisterSyntheticNeutralUnits();
+
         // Load the sound manifest so AudioManager and CombatAudioBridge can play sounds.
         // Without this call SoundRegistry.Instance.IsLoaded stays false and all audio
         // (music, SFX, combat sounds) is silently skipped every frame.
@@ -2754,6 +2821,213 @@ public partial class GameSession : Node
         {
             GD.PushWarning($"[GameSession] Could not load sound_manifest.json — audio will be silent. ({ex.Message})");
         }
+    }
+
+    /// <summary>
+    /// Registers in-code unit / asset templates that are owned by the engine
+    /// rather than per-faction JSON. Currently this is the neutral
+    /// <c>ancient_gun</c> turret used by <see cref="SpawnNeutralCapturableUnits"/>.
+    /// Defining these in code (instead of JSON under <c>data/units/</c>)
+    /// avoids breaking validation tests that require every unit file to
+    /// belong to one of the six player factions and to use a faction-prefixed id.
+    /// </summary>
+    private void RegisterSyntheticNeutralUnits()
+    {
+        // Skip if a previous match in this process already registered them.
+        if (_unitDataRegistry.HasUnit(AncientGunUnitTypeId)) return;
+
+        // Long-range, hard-hitting cannon. Slow rate of fire keeps the gun
+        // dangerous but not oppressive — a small squad can rush and capture it.
+        var cannon = new WeaponData
+        {
+            Id              = "ancient_gun_primary",
+            Type            = WeaponType.Cannon,
+            Damage          = FixedPoint.FromInt(60),
+            RateOfFire      = FixedPoint.FromFloat(0.4f),  // 1 shot ~every 2.5s
+            Range           = FixedPoint.FromInt(14),
+            MinRange        = FixedPoint.Zero,
+            ProjectileSpeed = FixedPoint.FromInt(28),
+            AreaOfEffect    = FixedPoint.FromFloat(1.5f),
+            CanTarget       = TargetType.Ground | TargetType.Building | TargetType.Naval,
+            AccuracyPercent = FixedPoint.FromInt(85),
+            ArmorModifiers  = new Dictionary<ArmorType, FixedPoint>
+            {
+                { ArmorType.Unarmored, FixedPoint.One },
+                { ArmorType.Light,     FixedPoint.FromFloat(1.1f) },
+                { ArmorType.Medium,    FixedPoint.One },
+                { ArmorType.Heavy,     FixedPoint.FromFloat(0.9f) },
+                { ArmorType.Building,  FixedPoint.FromFloat(0.9f) },
+                { ArmorType.Aircraft,  FixedPoint.FromFloat(0.2f) },
+                { ArmorType.Naval,     FixedPoint.FromFloat(0.8f) },
+            }
+        };
+
+        var data = new UnitData
+        {
+            Id              = AncientGunUnitTypeId,
+            DisplayName     = "Ancient Automated Turret",
+            FactionId       = NeutralFactionId,
+            Category        = UnitCategory.Defense,
+            // Use Artillery as the base movement profile and pin speed to 0
+            // so the gun is effectively immobile while remaining a valid,
+            // pathfinding-aware ground entity.
+            MovementClassId = "Artillery",
+            MaxHealth       = FixedPoint.FromInt(1200),
+            ArmorValue      = FixedPoint.FromInt(6),
+            ArmorClass      = ArmorType.Building,
+            SightRange      = FixedPoint.FromInt(15),
+            BuildTime       = FixedPoint.Zero,
+            Cost            = 0,
+            SecondaryCost   = 0,
+            PopulationCost  = 0,
+            Weapons         = new List<WeaponData> { cannon },
+            SpecialAbilityId = null,
+            Description     = "A relic of an older war, half-buried at the foot of the Cordite Nexus. Its targeting array still functions — and it does not distinguish between sides.",
+            SpeedOverride   = FixedPoint.Zero,
+            FootprintWidth  = 2,
+            FootprintHeight = 2,
+            CanGarrison     = false,
+            CanCrush        = false,
+            IsStealthed     = false,
+            IsDetector      = false,
+        };
+        _unitDataRegistry.Register(data);
+
+        // Asset entry — uses the existing twin-barrel turret model so no new
+        // art is required. ModelScale picked to read at the same visual weight
+        // as a heavy tank.
+        var asset = new AssetEntry
+        {
+            ModelPath        = "assets/models/kenney/turret_double_cohesive.glb",
+            CollisionRadius  = FixedPoint.FromFloat(1.1f),
+            CollisionHeight  = FixedPoint.FromFloat(2.4f),
+            FootprintWidth   = 2,
+            FootprintHeight  = 2,
+            Mass             = FixedPoint.FromInt(20),
+            CrushStrength    = FixedPoint.Zero,
+            Speed            = FixedPoint.Zero,
+            Domain           = "Ground",
+            ModelScale       = FixedPoint.FromFloat(1.4f),
+            ModelRotation    = FixedPoint.Zero,
+        };
+        _assetRegistry.Register(AncientGunUnitTypeId, asset);
+
+        GD.Print("[GameSession] Registered synthetic neutral unit 'ancient_gun'.");
+    }
+
+    /// <summary>
+    /// Spawns the map's <see cref="MapData.NeutralCapturableUnits"/> as
+    /// neutral entities. Each is added to <see cref="_capturableUnitIds"/>
+    /// so that <see cref="HandleSimulationTick"/> can route its first death
+    /// through the capture flow (transferring ownership to the killing player)
+    /// instead of normal despawn.
+    /// </summary>
+    private void SpawnNeutralCapturableUnits()
+    {
+        if (ActiveMap is null || _unitSpawner is null) return;
+
+        CapturableUnitPlacement[] placements = ActiveMap.NeutralCapturableUnits;
+        for (int i = 0; i < placements.Length; i++)
+        {
+            CapturableUnitPlacement p = placements[i];
+            if (string.IsNullOrEmpty(p.UnitTypeId)) continue;
+            if (!_unitDataRegistry.HasUnit(p.UnitTypeId))
+            {
+                GD.PushWarning(
+                    $"[GameSession] Skipping capturable placement at ({p.X}, {p.Y}) — " +
+                    $"unknown unit type '{p.UnitTypeId}'.");
+                continue;
+            }
+
+            var pos = new FixedVector2(FixedPoint.FromInt(p.X), FixedPoint.FromInt(p.Y));
+            UnitNode3D? node = _unitSpawner.SpawnUnit(
+                p.UnitTypeId,
+                NeutralFactionId,
+                NeutralPlayerId,
+                pos,
+                p.Facing);
+
+            if (node is not null)
+            {
+                _capturableUnitIds.Add(node.UnitId);
+            }
+        }
+
+        if (placements.Length > 0)
+        {
+            GD.Print($"[GameSession] Spawned {_capturableUnitIds.Count} neutral capturable unit(s).");
+        }
+    }
+
+    /// <summary>
+    /// Transfers ownership of a previously-neutral unit to the player whose
+    /// shot reduced it to zero health. The original (neutral) <see cref="UnitNode3D"/>
+    /// is despawned and a fresh, fully healed copy is spawned at the same
+    /// position under the new owner — this avoids mutating the existing node's
+    /// faction colour, weapon cooldown, and target-cache state in place.
+    /// </summary>
+    /// <returns>
+    /// True if the capture succeeded (a replacement unit was spawned for the
+    /// killing player). False if the capture cannot be completed (e.g. the
+    /// killer is also neutral, or the killer's faction is unknown), in which
+    /// case the caller should let the regular despawn path proceed.
+    /// </returns>
+    private bool TryCaptureNeutralUnit(int destroyedUnitId, int killerPlayerId)
+    {
+        if (_unitSpawner is null) return false;
+        if (killerPlayerId == NeutralPlayerId) return false;
+
+        UnitNode3D? oldNode = _unitSpawner.GetUnit(destroyedUnitId);
+        if (oldNode is null) return false;
+
+        string unitTypeId = oldNode.UnitTypeId;
+        FixedVector2 capturePos = oldNode.SimPosition;
+        FixedPoint captureFacing = oldNode.SimFacing;
+
+        string killerFactionId = GetPlayerFactionId(killerPlayerId);
+        if (string.IsNullOrEmpty(killerFactionId)) return false;
+
+        // Despawn the neutral husk first so its UnitId is freed and the new
+        // unit visibly replaces it in the same frame.
+        _unitSpawner.DespawnUnit(destroyedUnitId);
+
+        UnitNode3D? newNode = _unitSpawner.SpawnUnit(
+            unitTypeId,
+            killerFactionId,
+            killerPlayerId,
+            capturePos,
+            captureFacing);
+
+        if (newNode is null) return false;
+
+        GD.Print(
+            $"[GameSession] Player {killerPlayerId} ({killerFactionId}) captured " +
+            $"'{unitTypeId}' (was id={destroyedUnitId}, now id={newNode.UnitId}).");
+        return true;
+    }
+
+    /// <summary>
+    /// Returns the PlayerId of the unit credited with destroying
+    /// <paramref name="targetId"/> this tick, or <c>null</c> if no destroying
+    /// attack is found in <paramref name="tickResult"/>.
+    /// </summary>
+    private int? FindKillerPlayerIdForTarget(TickResult tickResult, int targetId)
+    {
+        if (tickResult.Attacks is null) return null;
+        for (int i = 0; i < tickResult.Attacks.Count; i++)
+        {
+            AttackResult a = tickResult.Attacks[i];
+            if (!a.TargetDestroyed) continue;
+            if (a.TargetId != targetId) continue;
+            // Look the attacker up in our persistent sim-unit dictionary first
+            // (covers mobile attackers); fall back to the unit spawner's live
+            // node table.
+            if (_persistentSimUnits.TryGetValue(a.AttackerId, out SimUnit attackerSim))
+                return attackerSim.PlayerId;
+            UnitNode3D? attackerNode = _unitSpawner?.GetUnit(a.AttackerId);
+            if (attackerNode is not null) return attackerNode.PlayerId;
+        }
+        return null;
     }
 
     /// <summary>

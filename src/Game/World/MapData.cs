@@ -91,6 +91,32 @@ public sealed class StructurePlacement
 }
 
 /// <summary>
+/// A pre-placed neutral unit on the map that any player can capture.
+/// Used for features such as the ancient automated turrets on the Six Fronts
+/// map: they fire at every faction until reduced to zero health, at which
+/// point they are claimed by the killing player rather than destroyed.
+/// </summary>
+public sealed class CapturableUnitPlacement
+{
+    /// <summary>
+    /// Unit type identifier to spawn (e.g. <c>"ancient_gun"</c>). The unit
+    /// data must be present in the <c>UnitDataRegistry</c> at match start —
+    /// synthetic / non-faction templates may be registered in code by
+    /// <c>GameSession</c> before the map is realised.
+    /// </summary>
+    public string UnitTypeId { get; init; } = string.Empty;
+
+    /// <summary>World/grid X coordinate.</summary>
+    public int X { get; init; }
+
+    /// <summary>World/grid Y coordinate.</summary>
+    public int Y { get; init; }
+
+    /// <summary>Initial facing in radians.</summary>
+    public FixedPoint Facing { get; init; }
+}
+
+/// <summary>
 /// An elevation zone that modifies terrain height in a circular area.
 /// </summary>
 public sealed class ElevationZone
@@ -121,6 +147,13 @@ public sealed class MapData
     public PropPlacement[] Props { get; init; } = [];
     public StructurePlacement[] Structures { get; init; } = [];
     public ElevationZone[] ElevationZones { get; init; } = [];
+
+    /// <summary>
+    /// Pre-placed neutral capturable units (e.g. ancient automated turrets).
+    /// Spawned with a reserved neutral player ID at match start; they fire
+    /// at any non-neutral player and switch ownership to the killing player.
+    /// </summary>
+    public CapturableUnitPlacement[] NeutralCapturableUnits { get; init; } = [];
 
     /// <summary>
     /// Optional per-map sun / ambient lighting config.
