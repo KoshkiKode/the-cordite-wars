@@ -268,17 +268,21 @@ public partial class GameSession : Node
 
     private static SortedList<string, Color> CreateFactionBaseColors()
     {
-        // Secondary colors used as base tints on 3D models to give each faction
-        // a distinctive look regardless of player-assigned team color.
+        // Use faction PRIMARY colors for the base-model blend rather than secondary.
+        // Secondary colors are often a very different hue from the primary (e.g.
+        // Stormrend: amber secondary + purple primary → muddy brownish-purple).
+        // Blending with the primary ensures the base model surface is already
+        // clearly pre-tinted toward the faction's identity color; the explicit
+        // team_color mix in the shader then reinforces it further.
         var colors = new SortedList<string, Color>();
-        colors.Add("arcloft",   CorditeWars.UI.UITheme.FactionArcloftSecondary);
-        colors.Add("bastion",   CorditeWars.UI.UITheme.FactionBastionSecondary);
-        colors.Add("ironmarch", CorditeWars.UI.UITheme.FactionIronmarchSecondary);
-        colors.Add("kragmore",  CorditeWars.UI.UITheme.FactionKragmoreSecondary);
-        colors.Add("stormrend", CorditeWars.UI.UITheme.FactionStormrendSecondary);
-        colors.Add("valkyr",    CorditeWars.UI.UITheme.FactionValkyrSecondary);
-        // Weathered copper / oxidised bronze base for neutral capturable units.
-        colors.Add(NeutralFactionId, new Color(0.42f, 0.32f, 0.22f));
+        colors.Add("arcloft",   CorditeWars.UI.UITheme.FactionArcloft);
+        colors.Add("bastion",   CorditeWars.UI.UITheme.FactionBastion);
+        colors.Add("ironmarch", CorditeWars.UI.UITheme.FactionIronmarch);
+        colors.Add("kragmore",  CorditeWars.UI.UITheme.FactionKragmore);
+        colors.Add("stormrend", CorditeWars.UI.UITheme.FactionStormrend);
+        colors.Add("valkyr",    CorditeWars.UI.UITheme.FactionValkyr);
+        // Neutral faction — use the same slate-grey as the team color.
+        colors.Add(NeutralFactionId, new Color(0.55f, 0.58f, 0.62f));
         return colors;
     }
 

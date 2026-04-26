@@ -147,15 +147,13 @@ public static class CohesiveMaterial
         for (int surfaceIdx = 0; surfaceIdx < surfaceCount; surfaceIdx++)
         {
             Color originalColor = Colors.White;
+            Texture2D? albedoTexture = null;
             Material? originalMat = meshInstance.GetActiveMaterial(surfaceIdx);
 
-            if (originalMat is StandardMaterial3D stdMat)
-            {
-                originalColor = stdMat.AlbedoColor;
-            }
-            else if (originalMat is BaseMaterial3D baseMat)
+            if (originalMat is BaseMaterial3D baseMat)
             {
                 originalColor = baseMat.AlbedoColor;
+                albedoTexture = baseMat.AlbedoTexture;
             }
             else if (originalMat is ShaderMaterial shaderMat)
             {
@@ -166,14 +164,22 @@ public static class CohesiveMaterial
                 }
             }
 
+            // When the source material carries a UV texture, skip vertex-color
+            // mode so the texture is the albedo source rather than baked vertex data.
             ShaderMaterial newMat = CreateUnitMaterial(
                 originalColor,
                 teamColor,
                 factionBaseColor,
                 rimColor,
                 teamColorStrength,
-                useVertexColor: true,
+                useVertexColor: albedoTexture is null,
                 lightBands: 4);
+
+            if (albedoTexture is not null)
+            {
+                newMat.SetShaderParameter("use_albedo_texture", true);
+                newMat.SetShaderParameter("albedo_texture", (Godot.GodotObject)albedoTexture);
+            }
 
             meshInstance.SetSurfaceOverrideMaterial(surfaceIdx, newMat);
         }

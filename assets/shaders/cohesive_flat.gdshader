@@ -54,6 +54,15 @@ render_mode
 uniform vec4 base_color : source_color = vec4(1.0);
 uniform bool use_vertex_color = true;
 
+// --- UV Albedo Texture ----------------------------------------------------
+// When use_albedo_texture is true, diffuse color is sampled from this texture
+// using UV coordinates rather than vertex color or the flat base_color.
+// The base_color is then applied as a 25 % faction-tint overlay on top so
+// faction identity is preserved without crushing dark or saturated textures.
+// repeat_enable ensures tiling UVs (values > 1.0) work correctly.
+uniform sampler2D albedo_texture : filter_linear_mipmap, repeat_enable;
+uniform bool use_albedo_texture = false;
+
 // --- Cel / Band Lighting --------------------------------------------------
 // light_bands controls how many discrete brightness steps exist.
 //   2 bands → very graphic, two-tone look
@@ -295,10 +304,20 @@ void fragment() {
     }
 
     // --- Step 1: Determine base albedo ------------------------------------
-    // Use vertex color if enabled (the Blender pipeline bakes palette-correct
-    // colors into vertex color), otherwise fall back to the flat uniform.
+    // Three sources in priority order:
+    //   1. UV albedo texture (use_albedo_texture = true): sampled from UV coords.
+    //      base_color is mixed in as a 25 % faction-tint overlay so faction
+    //      identity reads without crushing the original texture colours.
+    //   2. Vertex color (use_vertex_color = true): baked by the Blender pipeline.
+    //      base_color modulates by multiplication — vertex colour encodes surface
+    //      variation, base_color encodes the faction secondary tint.
+    //   3. Flat base_color only: used for procedural / fallback geometry.
     vec3 albedo;
-    if (use_vertex_color) {
+    if (use_albedo_texture) {
+        vec3 tex_sample = texture(albedo_texture, UV).rgb;
+        // 25 % overlay: preserves texture detail while adding faction tint.
+        albedo = mix(tex_sample, base_color.rgb, 0.25);
+    } else if (use_vertex_color) {
         albedo = v_vertex_color.rgb * base_color.rgb;
     } else {
         albedo = base_color.rgb;
@@ -349,7 +368,14 @@ void fragment() {
     EMISSION  = ambient_color.rgb * ambient_strength * albedo;
     ROUGHNESS = 1.0;  // matte look; no PBR highlight
     METALLIC  = 0.0;
-    ALPHA     = use_vertex_color ? (v_vertex_color.a * base_color.a) : base_color.a;
+    // Alpha matches the active albedo source so each path respects transparency.
+    if (use_albedo_texture) {
+        ALPHA = texture(albedo_texture, UV).a * base_color.a;
+    } else if (use_vertex_color) {
+        ALPHA = v_vertex_color.a * base_color.a;
+    } else {
+        ALPHA = base_color.a;
+    }
 }
 
 // =============================================================================
