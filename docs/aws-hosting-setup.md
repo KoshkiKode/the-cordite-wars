@@ -268,6 +268,76 @@ Tunables (in `terraform.tfvars`):
 
 ---
 
+## (Optional) Hosting the marketing site on AWS Amplify
+
+The repo contains two separate web assets:
+
+| Path | What it is | Hosted on |
+|---|---|---|
+| `web/downloads/` | Paywalled downloads page + licence manager | **S3 → CloudFront** (deployed by `deploy-aws.yml`) |
+| `cordite-site-temp/` | Static marketing site (hero, videos, screenshots + paywall CTA) | **AWS Amplify** (separate) |
+
+The marketing site calls the same Lambda endpoints (`/api/checkout`,
+`/api/download`) and the same `releases/latest.json` manifest, so it
+must be able to reach the CloudFront distribution.
+
+### One-time Amplify setup
+
+1. **Create an Amplify app** in the [AWS Amplify console](https://console.aws.amazon.com/amplify):
+   - **New app → Host web app → GitHub** → connect `KoshkiKode/cordite`
+   - **Branch**: `main` (or whichever branch you want to publish)
+   - **App root directory**: `cordite-site-temp`
+
+2. **Build settings** — Amplify auto-detects `cordite-site-temp/amplify.yml`.
+   No extra build commands are needed; the site is pure static HTML/JS.
+
+3. **Configure API rewrites** (required when Amplify is on a different domain
+   from CloudFront):
+
+   In the Amplify console → **App → Hosting → Rewrites and redirects**,
+   add two rules:
+
+   | Source address | Target address | Type |
+   |---|---|---|
+   | `/api/<*>` | `https://<CLOUDFRONT_DOMAIN>/api/<*>` | `200` (Rewrite) |
+   | `/releases/<*>` | `https://<CLOUDFRONT_DOMAIN>/releases/<*>` | `200` (Rewrite) |
+
+   Replace `<CLOUDFRONT_DOMAIN>` with the `cloudfront_domain_name` (or your
+   custom domain) from `terraform output` in `infra/aws/`.
+
+   **Alternative — set `API_BASE` in `app.js` instead of rewrites:**
+   Open `cordite-site-temp/app.js` and set the `API_BASE` constant at the top
+   to the full CloudFront URL:
+   ```js
+   const API_BASE = "https://d1234abcd.cloudfront.net";
+   ```
+   Rewrites keep `app.js` origin-agnostic; the `API_BASE` approach is simpler
+   for a single environment.
+
+4. **Custom domain (optional)** — in Amplify console → **Domain management**,
+   add e.g. `koshkikode.com`. Amplify provisions the ACM certificate and creates
+   the CloudFront distribution automatically.
+
+5. **Deploy** — push to the configured branch and Amplify builds + publishes
+   automatically. You can also trigger a manual deploy from the console.
+
+### AWS services used
+
+| Service | Purpose |
+|---|---|
+| **S3** | Private origin bucket for release artifacts and static downloads page |
+| **CloudFront** | Public CDN; serves static page + routes `/api/*` to Lambda |
+| **Lambda** | Paywall logic: Stripe Checkout, webhook, presigned-URL issuance, licence keys |
+| **DynamoDB** | Order tracking and licence records |
+| **Secrets Manager** | Stripe API key + webhook signing secret; Ed25519 licence signing keypair |
+| **SES** (optional) | Licence-key delivery email |
+| **ACM** (optional) | TLS certificate for a custom domain on CloudFront |
+| **Route 53** (optional) | DNS automation for the custom domain |
+| **AWS Amplify** (optional) | Hosts the `cordite-site-temp` marketing site |
+| **IAM + OIDC** | Keyless GitHub Actions deploy via federated identity |
+
+---
+
 ## Embedding download links elsewhere
 
 Because downloads are paywalled, the only public URL you should embed is the

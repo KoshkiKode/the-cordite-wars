@@ -1,6 +1,17 @@
-// Replace with your Stripe publishable key.
-const STRIPE_PUBLISHABLE_KEY = "pk_test_replace_me";
-const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+// ---------------------------------------------------------------------------
+// API base URL — set to your CloudFront distribution URL when this site is
+// hosted on a different origin (e.g. AWS Amplify).
+//
+//   Examples:
+//     const API_BASE = "https://d1234abcd.cloudfront.net";
+//     const API_BASE = "https://downloads.koshkikode.com";
+//
+// Leave as "" when this site is served from CloudFront itself (same origin).
+// When empty and the site runs on a different origin (Amplify), configure
+// /api/* and /releases/* rewrite rules in Amplify console — see amplify.yml
+// and docs/aws-hosting-setup.md for instructions.
+// ---------------------------------------------------------------------------
+const API_BASE = "";
 
 const TOP_TEN_LOCALES = [
   { code: "en", name: "English" },
@@ -309,21 +320,21 @@ let currentLocale = DEFAULT_LOCALE;
 
 for (const button of buttons) {
   button.addEventListener("click", async () => {
-    const product = button.dataset.product;
-    await startCheckout(product);
+    await startCheckout();
   });
 }
 
 initializeLanguageSupport();
 
-async function startCheckout(product) {
-  // Backend endpoint expected:
-  // POST /api/create-checkout-session with JSON { product }
-  // Response: { id: "cs_test_..." }
-  const response = await fetch("/api/create-checkout-session", {
+async function startCheckout() {
+  // Backend endpoint:
+  // POST /api/checkout with optional JSON { return_url }
+  // Response: { url: "https://checkout.stripe.com/...", session_id: "cs_..." }
+  const origin = window.location.origin + window.location.pathname;
+  const response = await fetch(`${API_BASE}/api/checkout`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ product })
+    body: JSON.stringify({ return_url: origin })
   });
 
   if (!response.ok) {
@@ -332,8 +343,16 @@ async function startCheckout(product) {
   }
 
   const session = await response.json();
-  await stripe.redirectToCheckout({ sessionId: session.id });
+  // Redirect to Stripe-hosted Checkout page.
+  window.location.href = session.url;
 }
+
+// Platform filename patterns — used to match manifest entries to download links.
+const PLATFORM_PATTERNS = {
+  windows: [/\.exe$/i, /\.msi$/i, /\.msix$/i, /-windows[._-]/i, /win(?:dows)?[._-]/i],
+  macos:   [/\.dmg$/i, /\.pkg$/i, /-macos[._-]/i, /-osx[._-]/i, /darwin/i],
+  linux:   [/\.snap$/i, /\.deb$/i, /\.rpm$/i, /\.flatpak$/i, /\.appimage$/i, /\.tar\.(?:gz|xz|bz2)$/i, /-linux[._-]/i],
+};
 
 async function tryUnlockFromSession() {
   const params = new URLSearchParams(window.location.search);
@@ -341,20 +360,27 @@ async function tryUnlockFromSession() {
   if (!sessionId) return;
   if (!/^cs_(test_|live_)?[A-Za-z0-9_]+$/.test(sessionId)) return;
 
-  // Backend endpoint expected:
-  // GET /api/download-entitlements?session_id=...
-  // Response: { paid: true, downloadUrls: { windows, macos, linux } }
-  const response = await fetch(`/api/download-entitlements?session_id=${encodeURIComponent(sessionId)}`);
-  if (!response.ok) return;
-
-  const result = await response.json();
-  if (!result.paid) return;
+  // Fetch the release manifest to discover available filenames.
+  // Backend endpoint: GET /releases/latest.json
+  // Response: { version, files: [{ name, size, sha256? }, ...] }
+  let files = [];
+  try {
+    const manifestRes = await fetch(`${API_BASE}/releases/latest.json`, { cache: "no-store" });
+    if (manifestRes.ok) {
+      const manifest = await manifestRes.json();
+      files = Array.isArray(manifest.files) ? manifest.files : [];
+    }
+  } catch (err) { /* non-fatal — download links will stay locked */ }
 
   for (const link of downloadLinks) {
     const key = link.dataset.download;
-    const href = result.downloadUrls?.[key];
-    if (href) {
-      link.href = href;
+    const patterns = PLATFORM_PATTERNS[key] || [];
+    const match = files.find(f => f && typeof f.name === "string" && patterns.some(p => p.test(f.name)));
+    if (match) {
+      // Each click goes to GET /api/download?session_id=...&filename=...
+      // The Lambda atomically verifies payment, increments the redemption
+      // counter, and 302-redirects to a short-TTL S3 presigned URL.
+      link.href = `${API_BASE}/api/download?session_id=${encodeURIComponent(sessionId)}&filename=${encodeURIComponent(match.name)}`;
       link.classList.add("unlocked");
       link.removeAttribute("aria-disabled");
     }
