@@ -4,19 +4,23 @@ name: "Deploy Release Artifacts to AWS"
 # bucket that fronts CloudFront, so they can be served from KoshkiKode's own
 # website (e.g. https://downloads.koshkikode.com/releases/<version>/...).
 #
-# Trigger: runs automatically when a GitHub Release is published, and can also
-# be invoked manually for back-fill.
+# Trigger: called explicitly from release.yml after the GitHub Release is
+# created, and can also be invoked manually via workflow_dispatch for back-fill.
 #
 # Auth: assumes an IAM role via GitHub OIDC — no long-lived AWS keys.
 # The role, bucket, and distribution are provisioned by `infra/aws/`.
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag:
         description: "Existing release tag to (re-)publish to AWS, e.g. v0.1.0"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        description: "Release tag to publish to AWS, e.g. v0.1.0"
         required: true
         type: string
 
@@ -26,12 +30,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-aws-${{ github.event.release.tag_name || inputs.tag }}
+  group: deploy-aws-${{ inputs.tag }}
   cancel-in-progress: false
 
 jobs:
   publish-to-s3:
-    name: Sync release ${{ github.event.release.tag_name || inputs.tag }} to S3
+    name: Sync release ${{ inputs.tag }} to S3
     runs-on: ubuntu-latest
 
     # `release` environment lets you require manual approval and gate which
@@ -45,17 +49,16 @@ jobs:
         with:
           # Only need the working tree at the release tag for `web/downloads/`
           # and any release-time scripts. Shallow clone keeps it fast.
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          ref: ${{ inputs.tag }}
           fetch-depth: 1
 
       - name: Resolve release tag and version
         id: meta
         env:
-          EVENT_TAG: ${{ github.event.release.tag_name }}
           INPUT_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          TAG="${EVENT_TAG:-$INPUT_TAG}"
+          TAG="${INPUT_TAG}"
           if [ -z "$TAG" ]; then
             echo "::error::Could not determine release tag." >&2
             exit 1
@@ -69,7 +72,7 @@ jobs:
         run: |
           set -euo pipefail
           missing=0
-          for v in AWS_RELEASES_BUCKET AWS_RELEASES_ROLE_ARN AWS_REGION; do
+          for v in AWS_RELEASES_BUCKET AWS_REGION; do
             if [ -z "${!v:-}" ]; then
               echo "::error::Missing repository variable: $v"
               missing=1
@@ -81,13 +84,12 @@ jobs:
           fi
         env:
           AWS_RELEASES_BUCKET: ${{ vars.AWS_RELEASES_BUCKET }}
-          AWS_RELEASES_ROLE_ARN: ${{ vars.AWS_RELEASES_ROLE_ARN }}
           AWS_REGION: ${{ vars.AWS_REGION }}
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ vars.AWS_RELEASES_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::261142221895:role/cordite-github-actions-releases
           aws-region: ${{ vars.AWS_REGION }}
           role-session-name: gh-cordite-release-${{ steps.meta.outputs.version }}
 
@@ -150,12 +152,12 @@ jobs:
         env:
           BUCKET: ${{ vars.AWS_RELEASES_BUCKET }}
           VERSION: ${{ steps.meta.outputs.version }}
-          PRERELEASE: ${{ github.event.release.prerelease }}
+          TAG: ${{ steps.meta.outputs.tag }}
         run: |
           set -euo pipefail
-          # Skip the "latest" alias for pre-releases.
-          if [ "$PRERELEASE" = "true" ]; then
-            echo "Pre-release — leaving 'latest' pointer untouched."
+          # A tag containing a hyphen (e.g. v1.0.0-rc.1) is a pre-release.
+          if [[ "$TAG" == *-* ]]; then
+            echo "Pre-release tag ($TAG) — leaving 'latest' pointer untouched."
             exit 0
           fi
           # Build a manifest listing every artifact (name + size + sha256 if

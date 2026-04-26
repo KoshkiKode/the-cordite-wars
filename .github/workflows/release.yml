@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write   # required to create GitHub Releases and upload assets
+  id-token: write   # required for OIDC federation with AWS
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -199,3 +200,14 @@ jobs:
               });
               console.log(`  ✓ ${file}`);
             }
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 3. Deploy release artifacts to AWS S3 / CloudFront
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy-aws:
+    name: Deploy to AWS
+    needs: publish
+    uses: ./.github/workflows/deploy-aws.yml
+    with:
+      tag: ${{ github.ref_name }}
+    secrets: inherit

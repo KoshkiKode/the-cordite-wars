@@ -435,10 +435,9 @@ jobs:
         run: |
           APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -1)
           if [ -n "$APP_PATH" ]; then
-            codesign --deep --force --options runtime \
-              --entitlements versions/macos/entitlements.plist \
+            codesign --deep --force \
               --sign - "$APP_PATH"
-            echo "Ad-hoc signed with Hardened Runtime: $APP_PATH"
+            echo "Ad-hoc signed: $APP_PATH"
           else
             echo "WARNING: No .app bundle found to sign"
           fi
