@@ -401,8 +401,15 @@ public partial class UnitNode3D : Node3D
         // Use faction primary color as rim/glow color so units read as distinctly faction-colored
         // from the typical top-down RTS camera angle.
         // team_color_strength is higher for small units (infantry) which are harder to read.
+        // Rim color is lightened toward white (35 % lerp) so the silhouette edge glow is always
+        // brighter than the model surface — critical for readability against varied terrain.
         float teamColorStrength = GetTeamColorStrength(Category);
-        CohesiveMaterial.ApplyToScene(instance, teamColor, factionBaseColor, teamColor, teamColorStrength);
+        Color rimColor = new Color(
+            Mathf.Lerp(teamColor.R, 1.0f, 0.35f),
+            Mathf.Lerp(teamColor.G, 1.0f, 0.35f),
+            Mathf.Lerp(teamColor.B, 1.0f, 0.35f),
+            teamColor.A);
+        CohesiveMaterial.ApplyToScene(instance, teamColor, factionBaseColor, rimColor, teamColorStrength);
     }
 
     /// <summary>

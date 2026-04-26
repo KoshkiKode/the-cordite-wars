@@ -1,0 +1,66 @@
+# Kenney Modular Buildings - shared material library
+# Textures: procedurally generated 512x512 tiling PNGs, steel/neon industrial aesthetic
+
+newmtl Brick
+Ka 0.12 0.09 0.08
+Kd 1.0 1.0 1.0
+Ks 0.04 0.04 0.04
+Ns 8.0
+d 1.0
+map_Kd tex_brick.png
+
+newmtl Dark_brick
+Ka 0.06 0.05 0.04
+Kd 1.0 1.0 1.0
+Ks 0.04 0.04 0.04
+Ns 8.0
+d 1.0
+map_Kd tex_dark_brick.png
+
+newmtl FrontColor
+Ka 0.1 0.1 0.12
+Kd 1.0 1.0 1.0
+Ks 0.15 0.18 0.2
+Ns 30.0
+d 1.0
+map_Kd tex_front_color.png
+
+newmtl Glass
+Ka 0.05 0.08 0.12
+Kd 1.0 1.0 1.0
+Ks 0.6 0.7 0.8
+Ns 90.0
+d 0.45
+map_Kd tex_glass.png
+
+newmtl Green
+Ka 0.02 0.1 0.02
+Kd 1.0 1.0 1.0
+Ks 0.1 0.3 0.1
+Ns 20.0
+d 1.0
+map_Kd tex_green.png
+
+newmtl Metal
+Ka 0.12 0.12 0.14
+Kd 1.0 1.0 1.0
+Ks 0.5 0.5 0.55
+Ns 70.0
+d 1.0
+map_Kd tex_metal.png
+
+newmtl Roof
+Ka 0.08 0.08 0.09
+Kd 1.0 1.0 1.0
+Ks 0.08 0.08 0.1
+Ns 12.0
+d 1.0
+map_Kd tex_roof.png
+
+newmtl Wood
+Ka 0.08 0.08 0.1
+Kd 1.0 1.0 1.0
+Ks 0.2 0.2 0.25
+Ns 35.0
+d 1.0
+map_Kd tex_wood.png
