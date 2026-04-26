@@ -881,20 +881,16 @@ jobs:
         shell: powershell
         run: New-Item -ItemType Directory -Force -Path dist\windows | Out-Null
 
-      - name: Install WiX Toolset v7
+      - name: Install WiX Toolset v4
         shell: powershell
-        run: dotnet tool install --global wix --version 7.0.0
+        run: dotnet tool install --global wix --version 4.0.5
 
       - name: Add WiX UI extension
         shell: powershell
-        env:
-          WIX_EULA_ACCEPT: "1"
-        run: wix extension add --global WixToolset.UI.wixext/7.0.0
+        run: wix extension add --global WixToolset.UI.wixext/4.0.5
 
       - name: Build MSI installer (WiX)
         shell: powershell
-        env:
-          WIX_EULA_ACCEPT: "1"
         run: |
           $ErrorActionPreference = "Stop"
           wix build versions\windows\CorditeWars.wxs `
@@ -1097,6 +1093,11 @@ jobs:
               versions/linux/flatpak/build/linux/com.koshkikode.CorditeWars.svg
           fi
 
+      - name: Add Flathub remote
+        run: |
+          sudo flatpak remote-add --if-not-exists flathub \
+            https://dl.flathub.org/repo/flathub.flatpakrepo
+
       - name: Build Flatpak bundle
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
@@ -1241,7 +1242,7 @@ jobs:
               -CertStoreLocation "Cert:\CurrentUser\My" `
               -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3","2.5.29.19={text}")
             & $env:SIGNTOOL sign /fd SHA256 /sha1 $cert.Thumbprint $msix
-            Write-Host "MSIX self-signed (dev cert — sideload only)."
+            Write-Host "MSIX self-signed (dev cert - sideload only)."
           }
 
       - name: Upload MSIX artifact
