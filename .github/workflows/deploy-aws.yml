@@ -20,9 +20,6 @@ on:
         required: true
         type: string
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 # Required for OIDC federation with AWS.
 permissions:
   id-token: write
@@ -44,7 +41,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           # Only need the working tree at the release tag for `web/downloads/`
           # and any release-time scripts. Shallow clone keeps it fast.
@@ -88,7 +85,7 @@ jobs:
           AWS_REGION: ${{ vars.AWS_REGION }}
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_RELEASES_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}

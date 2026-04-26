@@ -6,7 +6,6 @@ on:
 
 env:
   GODOT_VERSION: "4.6.2-stable"
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
   contents: read
@@ -22,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check boot scene and required project files
         run: |
@@ -104,7 +103,7 @@ jobs:
       app_version: ${{ steps.read_version.outputs.app_version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Read app version from versions/shared/version.json
         id: read_version
@@ -177,10 +176,10 @@ jobs:
             export_mode: debug
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 9.0.x
 
@@ -469,7 +468,7 @@ jobs:
           fi
 
       - name: Upload ${{ matrix.name }} export artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.build_dir }}/
@@ -480,16 +479,16 @@ jobs:
     needs: validate-project
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 9.0.x
 
@@ -779,13 +778,13 @@ jobs:
           fi
 
       - name: Upload Android APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-Android
           path: build/android/CorditeWars.apk
 
       - name: Upload Android AAB artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-Android-AAB
           path: build/android/CorditeWars.aab
@@ -809,10 +808,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Windows export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-Windows
           path: build/windows
@@ -847,7 +846,7 @@ jobs:
           Write-Host "EXE installer: dist\windows\CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe"
 
       - name: Upload EXE installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-Windows-Setup-EXE
           path: dist/windows/CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe
@@ -861,10 +860,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Windows export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-Windows
           path: build/windows
@@ -910,7 +909,7 @@ jobs:
           Write-Host "MSI installer: dist\windows\CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi"
 
       - name: Upload MSI installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-Windows-MSI
           path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi
@@ -924,10 +923,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Linux export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-Linux
           path: build/linux
@@ -965,7 +964,7 @@ jobs:
           path: versions/linux
 
       - name: Upload Snap artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-Linux-Snap
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -979,10 +978,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Linux export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-Linux
           path: build/linux
@@ -1045,7 +1044,7 @@ jobs:
           ls -lh dist/linux/
 
       - name: Upload DEB artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-Linux-DEB
           path: dist/linux/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_amd64.deb
@@ -1059,10 +1058,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Linux export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-Linux
           path: build/linux
@@ -1106,7 +1105,7 @@ jobs:
           cache-key: flatpak-builder-${{ hashFiles('versions/linux/flatpak/com.koshkikode.CorditeWars.yml') }}
 
       - name: Upload Flatpak artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-Linux-Flatpak
           path: CorditeWars_${{ needs.resolve-version.outputs.app_version }}.flatpak
@@ -1123,10 +1122,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Windows export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-Windows
           path: build/windows
@@ -1246,7 +1245,7 @@ jobs:
           }
 
       - name: Upload MSIX artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-Windows-MSIX
           path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msix
@@ -1259,10 +1258,10 @@ jobs:
     needs: [export-all, resolve-version]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download macOS export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-macOS-Export
           path: build/macos
@@ -1379,7 +1378,7 @@ jobs:
           fi
 
       - name: Upload macOS DMG artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-macOS-DMG
           path: dist/macos/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.dmg
@@ -1399,10 +1398,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download iOS Xcode project
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-iOS-iPadOS-Handoff
           path: build/ios
@@ -1538,7 +1537,7 @@ jobs:
 
       - name: Upload iOS IPA artifact
         if: steps.ios_secrets.outputs.has_signing == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-iOS-IPA
           path: build/ipa/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_ios.ipa
@@ -1556,7 +1555,7 @@ jobs:
 
       - name: Upload iOS Xcode zip artifact (fallback)
         if: steps.ios_secrets.outputs.has_signing != 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorditeWars-iOS-IPA
           path: build/ios-zip/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_ios_xcode.zip
@@ -1573,7 +1572,7 @@ jobs:
 
     steps:
       - name: Download Linux export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-Linux
           path: smoke/
@@ -1608,7 +1607,7 @@ jobs:
 
     steps:
       - name: Download Windows export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-Windows
           path: smoke/
@@ -1643,7 +1642,7 @@ jobs:
 
     steps:
       - name: Download macOS export
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: CorditeWars-macOS-Export
           path: smoke/
@@ -1678,3 +1677,184 @@ jobs:
           # --headless skips display/audio; --quit-after 60 exits after 60 frames.
           "$GAME_BINARY" --headless --quit-after 60
           echo "Smoke test passed — game started and exited cleanly."
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 7. Package Steam upload bundles (matrix: windows / linux / macos)
+  #
+  #    Produces one upload-ready artifact per Steam depot. Each bundle contains
+  #    the platform build under content/ plus the patched depot .vdf and an
+  #    app-build.vdf, so it can be fed directly to SteamCMD on the operator's
+  #    machine (or a future deploy workflow) without further patching:
+  #
+  #      steamcmd +login <user> +run_app_build app-build.vdf +quit
+  #
+  #    Placeholder IDs are replaced with real Steam App ID / Depot IDs from
+  #    secrets when configured, otherwise the bundle still ships with the
+  #    placeholders for manual patching.
+  # ─────────────────────────────────────────────────────────────────────────────
+  package-steam:
+    name: Steam Bundle (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    needs: [export-all, resolve-version]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            artifact: CorditeWars-Windows
+            depot_vdf: steam/windows-depot.vdf
+            depot_placeholder: YOUR_WINDOWS_DEPOT_ID
+          - platform: linux
+            artifact: CorditeWars-Linux
+            depot_vdf: steam/linux-depot.vdf
+            depot_placeholder: YOUR_LINUX_DEPOT_ID
+          - platform: macos
+            artifact: CorditeWars-macOS-Export
+            depot_vdf: steam/macos-depot.vdf
+            depot_placeholder: YOUR_MACOS_DEPOT_ID
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download ${{ matrix.platform }} export
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ matrix.artifact }}
+          path: content
+
+      - name: Stage Steam bundle
+        env:
+          STEAM_APP_ID: ${{ secrets.STEAM_APP_ID }}
+          # Static per-platform secret references (no dynamic indexing) so that
+          # only the relevant depot ID is exposed to each matrix job.
+          STEAM_DEPOT_ID_WINDOWS: ${{ secrets.STEAM_WINDOWS_DEPOT_ID }}
+          STEAM_DEPOT_ID_LINUX: ${{ secrets.STEAM_LINUX_DEPOT_ID }}
+          STEAM_DEPOT_ID_MACOS: ${{ secrets.STEAM_MACOS_DEPOT_ID }}
+          MATRIX_PLATFORM: ${{ matrix.platform }}
+          DEPOT_PLACEHOLDER: ${{ matrix.depot_placeholder }}
+          DEPOT_VDF: ${{ matrix.depot_vdf }}
+        run: |
+          set -euo pipefail
+          BUNDLE="dist/steam-${MATRIX_PLATFORM}"
+          mkdir -p "$BUNDLE/output"
+
+          # Pick the depot ID for this matrix row (no dynamic secrets[] lookup)
+          case "$MATRIX_PLATFORM" in
+            windows) STEAM_DEPOT_ID="${STEAM_DEPOT_ID_WINDOWS:-}";;
+            linux)   STEAM_DEPOT_ID="${STEAM_DEPOT_ID_LINUX:-}";;
+            macos)   STEAM_DEPOT_ID="${STEAM_DEPOT_ID_MACOS:-}";;
+            *)       echo "::error::Unknown matrix platform '$MATRIX_PLATFORM'"; exit 1;;
+          esac
+
+          # Copy build payload and per-depot/app-build manifests
+          cp -R content "$BUNDLE/content"
+          cp steam/app-build.vdf "$BUNDLE/app-build.vdf"
+          DEPOT_FILE="$(basename "$DEPOT_VDF")"
+          cp "$DEPOT_VDF" "$BUNDLE/$DEPOT_FILE"
+
+          # Point per-platform ContentRoot / LocalPath references at the staged
+          # content/ directory.  SteamCMD's BuildOutput (../build/steam) is
+          # remapped to a local ./output/ directory inside the bundle so the
+          # operator can run SteamCMD from the bundle root without further edits.
+          # Use '#' as the sed delimiter so '|' can be used for ERE alternation.
+          sed -i -E 's#\.\./build/(windows|linux|macos)/#content/#g; s#\.\./build/(windows|linux|macos)\b#content#g' \
+            "$BUNDLE/app-build.vdf" "$BUNDLE/$DEPOT_FILE"
+          sed -i 's#\.\./build/steam/#output/#g; s#\.\./build/steam\b#output#g' \
+            "$BUNDLE/app-build.vdf" "$BUNDLE/$DEPOT_FILE"
+
+          # Best-effort patch placeholder IDs when secrets are configured
+          if [ -n "${STEAM_APP_ID:-}" ]; then
+            sed -i "s/YOUR_STEAM_APP_ID/${STEAM_APP_ID}/g" \
+              "$BUNDLE/app-build.vdf" "$BUNDLE/$DEPOT_FILE"
+          fi
+          if [ -n "${STEAM_DEPOT_ID:-}" ]; then
+            sed -i "s/${DEPOT_PLACEHOLDER}/${STEAM_DEPOT_ID}/g" \
+              "$BUNDLE/app-build.vdf" "$BUNDLE/$DEPOT_FILE"
+          fi
+
+          ls -la "$BUNDLE"
+
+      - name: Upload Steam bundle artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: CorditeWars-Steam-${{ matrix.platform }}
+          path: dist/steam-${{ matrix.platform }}/
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 8. Package GOG upload bundles (matrix: windows / linux / macos)
+  #
+  #    Produces one upload-ready artifact per GOG depot. Each bundle contains
+  #    the platform build under content/ plus the patched build-<os>.json so it
+  #    can be fed directly to the GOG Galaxy Pipeline Builder:
+  #
+  #      GOGGalaxyPipelineBuilder build-<os>.json
+  #
+  #    Placeholder IDs/secrets are replaced from repository secrets when
+  #    configured, otherwise the bundle ships with the placeholders.
+  # ─────────────────────────────────────────────────────────────────────────────
+  package-gog:
+    name: GOG Bundle (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    needs: [export-all, resolve-version]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            artifact: CorditeWars-Windows
+            build_json: gog/build-windows.json
+          - platform: linux
+            artifact: CorditeWars-Linux
+            build_json: gog/build-linux.json
+          - platform: macos
+            artifact: CorditeWars-macOS-Export
+            build_json: gog/build-macos.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download ${{ matrix.platform }} export
+        uses: actions/download-artifact@v5
+        with:
+          name: ${{ matrix.artifact }}
+          path: content
+
+      - name: Stage GOG bundle
+        env:
+          GOG_PRODUCT_ID: ${{ secrets.GOG_PRODUCT_ID }}
+          GOG_CLIENT_ID: ${{ secrets.GOG_CLIENT_ID }}
+          GOG_CLIENT_SECRET: ${{ secrets.GOG_CLIENT_SECRET }}
+          MATRIX_PLATFORM: ${{ matrix.platform }}
+          BUILD_JSON: ${{ matrix.build_json }}
+        run: |
+          set -euo pipefail
+          BUNDLE="dist/gog-${MATRIX_PLATFORM}"
+          mkdir -p "$BUNDLE"
+
+          BUILD_FILE="$(basename "$BUILD_JSON")"
+          cp -R content "$BUNDLE/content"
+          cp "$BUILD_JSON" "$BUNDLE/$BUILD_FILE"
+
+          # Point the build manifest at the staged content/ directory.
+          # Restrict to the known platform names so we never accidentally
+          # rewrite an unrelated path that happens to live under build/.
+          sed -i -E 's#"\.\./build/(windows|linux|macos)"#"content"#g' "$BUNDLE/$BUILD_FILE"
+
+          # Best-effort patch placeholder IDs when secrets are configured
+          if [ -n "${GOG_PRODUCT_ID:-}" ]; then
+            sed -i "s/YOUR_GOG_PRODUCT_ID/${GOG_PRODUCT_ID}/g" "$BUNDLE/$BUILD_FILE"
+          fi
+          if [ -n "${GOG_CLIENT_ID:-}" ]; then
+            sed -i "s/YOUR_GOG_CLIENT_ID/${GOG_CLIENT_ID}/g" "$BUNDLE/$BUILD_FILE"
+          fi
+          if [ -n "${GOG_CLIENT_SECRET:-}" ]; then
+            sed -i "s/YOUR_GOG_CLIENT_SECRET/${GOG_CLIENT_SECRET}/g" "$BUNDLE/$BUILD_FILE"
+          fi
+
+          ls -la "$BUNDLE"
+
+      - name: Upload GOG bundle artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: CorditeWars-GOG-${{ matrix.platform }}
+          path: dist/gog-${{ matrix.platform }}/
