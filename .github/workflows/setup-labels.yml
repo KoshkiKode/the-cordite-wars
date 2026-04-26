@@ -1,14 +1,9 @@
 name: "Setup Repository Labels"
 
 # Creates the labels referenced by dependabot.yml and other workflows.
-# Runs automatically on every push to main (idempotent — safe to re-run)
-# and can be triggered manually from Actions → Setup Repository Labels.
+# Trigger manually from Actions → Setup Repository Labels whenever label
+# definitions need to be (re-)applied.
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - ".github/dependabot.yml"
-      - ".github/workflows/setup-labels.yml"
   workflow_dispatch:
 
 permissions:
