@@ -104,7 +104,7 @@ The .NET runtime is MIT-licensed and permits unrestricted commercial use.
 
 All game content — faction names, unit names, ability names, map data, story text, and
 code — is wholly original and owned by the copyright holder. No content has been copied
-or derived from any other commercial game, including Command & Conquer, StarCraft,
+or derived from any other commercial game, including Command & Conquer, StarCraft, Tempest Rising,
 or any other RTS title. Game mechanic concepts (superweapons, tech trees, resource
 harvesting) are not protected by copyright and are used in their general, unprotected
 sense.

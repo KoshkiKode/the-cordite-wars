@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://wnnhj7xvg0fn"
-path="res://.godot/imported/AmbientNatureStormRainThunder02.wav-2beba8205b627698fef7ce8fa044f43c.sample"
+path="res://.godot/imported/AmbientNatureStormRainThunder02.wav-b22161aa6d5408519675b8d2aa98381a.sample"
 
 [deps]
 
 source_file="res://assets/audio/sfx/ambient/nature/Ambient/AmbientNatureStormRainThunder02.wav"
-dest_files=["res://.godot/imported/AmbientNatureStormRainThunder02.wav-2beba8205b627698fef7ce8fa044f43c.sample"]
+dest_files=["res://.godot/imported/AmbientNatureStormRainThunder02.wav-b22161aa6d5408519675b8d2aa98381a.sample"]
 
 [params]
 

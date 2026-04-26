@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://brke4gislqhi2"
+path="res://.godot/imported/Preview (Female).ogg-b7d08b934254dde58ce1f64a9c513e6a.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/voice/Kenney_Voiceover/Preview (Female).ogg"
+dest_files=["res://.godot/imported/Preview (Female).ogg-b7d08b934254dde58ce1f64a9c513e6a.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
