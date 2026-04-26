@@ -4,11 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cordite Wars — Official Site</title>
+    <meta name="description" content="Cordite Wars — command massive RTS battles across land, sea, and sky. Six fronts. One war." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
     <link rel="stylesheet" href="./styles.css" />
     <script src="https://js.stripe.com/v3/"></script>
   </head>
   <body>
     <header class="hero">
+      <div class="hero-grid-overlay" aria-hidden="true"></div>
       <nav class="top-nav">
         <h1>Cordite Wars</h1>
         <div class="top-nav-actions">
@@ -20,13 +25,19 @@
       <div class="hero-content">
         <p class="eyebrow" data-i18n="heroEyebrow">Six Fronts. One War.</p>
         <h2 data-i18n="heroTitle">Command massive RTS battles across land, sea, and sky.</h2>
-        <p data-i18n="heroBody">Use this section for your key trailer callout and release messaging.</p>
+        <p class="hero-body" data-i18n="heroBody">Use this section for your key trailer callout and release messaging.</p>
+        <div class="hero-cta">
+          <a href="#downloads" class="btn btn-primary" data-i18n="getDownloads">Get Downloads</a>
+          <a href="#featured" class="btn btn-ghost">Watch the Trailer</a>
+        </div>
       </div>
     </header>
 
     <main>
-      <section class="section">
-        <h3 data-i18n="featuredVideosTitle">Featured Videos</h3>
+      <section id="featured" class="section">
+        <div class="section-heading">
+          <h3 data-i18n="featuredVideosTitle">Featured Videos</h3>
+        </div>
         <div class="media-grid">
           <article class="card video-slot" data-i18n="videoSlot1">Trailer slot (embed YouTube/Vimeo here)</article>
           <article class="card video-slot" data-i18n="videoSlot2">Gameplay deep dive slot</article>
@@ -35,7 +46,9 @@
       </section>
 
       <section class="section background-showcase">
-        <h3 data-i18n="worldScreenshotsTitle">World & Screenshots</h3>
+        <div class="section-heading">
+          <h3 data-i18n="worldScreenshotsTitle">World & Screenshots</h3>
+        </div>
         <p data-i18n="worldScreenshotsBody">Replace these placeholders with faction art, in-game screenshots, and map backgrounds.</p>
         <div class="media-grid">
           <article class="card image-slot" data-i18n="imageSlot1">Image slot 1</article>
@@ -45,7 +58,9 @@
       </section>
 
       <section id="downloads" class="section">
-        <h3 data-i18n="downloadsTitle">Downloads (Paywalled)</h3>
+        <div class="section-heading">
+          <h3 data-i18n="downloadsTitle">Downloads (Paywalled)</h3>
+        </div>
         <p data-i18n="downloadsBody">Downloads unlock only after successful Stripe payment.</p>
         <div id="paywall-message" class="status" data-i18n="paywallLocked">🔒 Locked — purchase required.</div>
         <div class="download-grid">
@@ -68,6 +83,18 @@
       </section>
     </main>
 
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <div><strong>Cordite Wars</strong> — © <span id="footer-year">2026</span> KoshkiKode. All rights reserved.</div>
+        <div>Six Fronts. One War.</div>
+      </div>
+    </footer>
+
     <script src="./app.js"></script>
+    <script>
+      // Keep footer year fresh without touching app.js.
+      var y = document.getElementById("footer-year");
+      if (y) y.textContent = new Date().getFullYear();
+    </script>
   </body>
   </html>
