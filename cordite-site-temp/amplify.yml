@@ -1,0 +1,36 @@
+version: 1
+frontend:
+  phases:
+    # Pure static site — no build step required.
+    build:
+      commands: []
+  artifacts:
+    # Deploy everything in this folder as-is.
+    baseDirectory: /
+    files:
+      - '**/*'
+  cache:
+    paths: []
+
+# ---------------------------------------------------------------------------
+# API proxy rewrites (configure in Amplify console)
+#
+# The paywall pages call /api/* and /releases/* via relative URLs. When this
+# site is hosted on Amplify (a different origin from CloudFront), those paths
+# must be rewritten / proxied to your CloudFront distribution.
+#
+# In the Amplify console → App → Hosting → Rewrites and redirects, add:
+#
+#   Source address          Target address                         Type
+#   /api/<*>                https://<CLOUDFRONT_DOMAIN>/api/<*>   200 (Rewrite)
+#   /releases/<*>           https://<CLOUDFRONT_DOMAIN>/releases/<*>  200 (Rewrite)
+#
+# Replace <CLOUDFRONT_DOMAIN> with the value of `cloudfront_domain_name`
+# (or your custom domain) from `terraform output` in infra/aws/.
+#
+# If you choose not to configure Amplify rewrites, set the API_BASE constant
+# at the top of app.js to the full CloudFront URL instead (e.g.
+# "https://d1234abcd.cloudfront.net"). Either approach works — the rewrite
+# option keeps app.js origin-agnostic; the API_BASE option is simpler for a
+# single environment.
+# ---------------------------------------------------------------------------
