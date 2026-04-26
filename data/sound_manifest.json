@@ -1395,12 +1395,12 @@
     "music": {
       "music_menu": {
         "Files": [
-          "assets/audio/music/new oggs/ChillMenu_Loopable.ogg",
-          "assets/audio/music/new oggs/KleptoLindaMountainA_Loopable.ogg",
-          "assets/audio/music/new oggs/KleptoLindaMountainB_Loopable.ogg",
-          "assets/audio/music/new oggs/SwitchWithMeTheme_Loopable.ogg"
+          "assets/audio/music/new oggs/battle_commences_loopable.ogg",
+          "assets/audio/music/new oggs/leading_the_charge_loopable.ogg",
+          "assets/audio/music/new oggs/solemn_advance_loopable.ogg",
+          "assets/audio/music/new oggs/the_wall_loopable.ogg"
         ],
-        "Volume": 0.55,
+        "Volume": 0.65,
         "PitchVariation": 0.0,
         "MaxDistance": 0.0,
         "Priority": 1,
