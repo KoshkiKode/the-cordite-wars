@@ -17,8 +17,8 @@ public partial class RTSCamera : Camera3D
     private const float ZoomMax = 80.0f;
     private const float ZoomStep = 3.0f;
     private const float ZoomLerpSpeed = 8.0f;
-    private const float TouchZoomMultiplier = 5.0f;
     private const float ReferenceZoomLevel = 30.0f;
+    private const float TouchZoomMultiplier = 5.0f;
 
     // ── Pan ──────────────────────────────────────────────────────────
     private const float BasePanSpeed = 30.0f;

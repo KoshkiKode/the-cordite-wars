@@ -1,5 +1,8 @@
 # Copy to terraform.tfvars and fill in. Do NOT commit terraform.tfvars.
 
+# Required: AWS account ID to deploy into (prevents accidental cross-account deploys).
+allowed_account_id = "YOUR_AWS_ACCOUNT_ID"
+
 # Required: globally unique S3 bucket name.
 bucket_name = "cordite-releases-koshkikode"
 

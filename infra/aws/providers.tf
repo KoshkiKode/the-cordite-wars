@@ -1,5 +1,5 @@
 locals {
-  allowed_account_ids = ["261142221895"]
+  allowed_account_ids = [var.allowed_account_id]
 }
 
 # Default provider — used for S3, IAM, etc. Region is configurable.
