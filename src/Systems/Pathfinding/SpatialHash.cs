@@ -102,6 +102,20 @@ public class SpatialHash
 
     private readonly List<int>[] _cells;
 
+    /// <summary>
+    /// Indices of cells that have had at least one unit inserted since the last
+    /// Clear().  Used to clear only the populated cells instead of all
+    /// <see cref="_totalCells"/> cells, which is important when units are clustered
+    /// in a small part of a large world.
+    /// </summary>
+    private readonly List<int> _occupiedCellIndices = new List<int>();
+
+    /// <summary>
+    /// Parallel bool array to <see cref="_cells"/> used to avoid adding a cell
+    /// index to <see cref="_occupiedCellIndices"/> more than once per tick.
+    /// </summary>
+    private readonly bool[] _cellOccupied;
+
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /// <summary>
@@ -140,6 +154,7 @@ public class SpatialHash
             // (4096 cells × 4 entries × 4 bytes ≈ 64 KB).
             _cells[i] = new List<int>(4);
         }
+        _cellOccupied = new bool[_totalCells];
     }
 
     // ── Clear ────────────────────────────────────────────────────────────────
@@ -152,10 +167,16 @@ public class SpatialHash
     /// </summary>
     public void Clear()
     {
-        for (int i = 0; i < _totalCells; i++)
+        // Only clear the cells that actually had units inserted.
+        // This avoids O(totalCells) work when units occupy only a small
+        // fraction of the world (common scenario in practice).
+        for (int i = 0; i < _occupiedCellIndices.Count; i++)
         {
-            _cells[i].Clear();
+            int idx = _occupiedCellIndices[i];
+            _cells[idx].Clear();
+            _cellOccupied[idx] = false;
         }
+        _occupiedCellIndices.Clear();
     }
 
     // ── Insert ───────────────────────────────────────────────────────────────
@@ -207,6 +228,11 @@ public class SpatialHash
             {
                 int idx = GetCellIndex(cx, cy);
                 _cells[idx].Add(unitId);
+                if (!_cellOccupied[idx])
+                {
+                    _cellOccupied[idx] = true;
+                    _occupiedCellIndices.Add(idx);
+                }
             }
         }
     }

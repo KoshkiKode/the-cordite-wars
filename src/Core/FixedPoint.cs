@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 
 namespace CorditeWars.Core;
 
@@ -83,6 +84,8 @@ public readonly struct FixedPoint : IEquatable<FixedPoint>, IComparable<FixedPoi
 
     /// <summary>
     /// Integer square root using Newton's method. Deterministic.
+    /// Uses a bit-based initial guess to converge in ~2–3 iterations instead
+    /// of the ~17 iterations that would result from starting at <c>val</c>.
     /// </summary>
     public static FixedPoint Sqrt(FixedPoint a)
     {
@@ -90,7 +93,12 @@ public readonly struct FixedPoint : IEquatable<FixedPoint>, IComparable<FixedPoi
 
         // Scale up to maintain precision, then Newton's method
         long val = (long)a.Raw << FractionalBits;
-        long guess = val;
+
+        // Start from 2^(ceil(bits/2)) — always within 2× of the true sqrt,
+        // so Newton's method converges in 2–3 iterations rather than ~17.
+        int bits = 63 - BitOperations.LeadingZeroCount((ulong)val);
+        long guess = 1L << ((bits + 1) >> 1);
+
         long prev;
 
         do

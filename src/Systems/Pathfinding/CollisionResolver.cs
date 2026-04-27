@@ -238,6 +238,18 @@ public class CollisionResolver
     /// </summary>
     private static readonly FixedPoint MinPushEpsilon = FixedPoint.FromRaw(655);
 
+    // ── Scratch buffers (reused across calls to avoid per-call allocations) ──
+
+    /// <summary>Reusable list for spatial query results — avoids allocation per DetectCollisions call.</summary>
+    private readonly List<int> _nearbyCandidates = new List<int>(64);
+
+    /// <summary>
+    /// Reusable unitId → units-list-index lookup buffer.  Grown on demand,
+    /// never shrunk, to avoid repeated allocations.  Entries are reset only
+    /// for the IDs used in the current call, not the whole array.
+    /// </summary>
+    private int[] _unitIdToIndex = Array.Empty<int>();
+
     // ── Detection ────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -271,8 +283,8 @@ public class CollisionResolver
     {
         outPairs.Clear();
 
-        // Reusable list for spatial query results — avoids allocation per unit
-        List<int> nearbyCandidates = new List<int>(64);
+        // Reuse the per-instance scratch list — avoids allocation per call
+        List<int> nearbyCandidates = _nearbyCandidates;
 
         // Build a lookup from unitId → index in the units list.
         // We need this because the spatial hash returns unit IDs, not list indices.
@@ -287,12 +299,19 @@ public class CollisionResolver
                 maxUnitId = units[i].UnitId;
         }
 
-        // Map unitId → index in units list.  -1 means "no unit with this ID."
-        int[] unitIdToIndex = new int[maxUnitId + 1];
-        for (int i = 0; i < unitIdToIndex.Length; i++)
+        // Grow the reusable buffer only when necessary; fill newly allocated
+        // space with -1 ("no unit") to preserve the invariant.
+        if (_unitIdToIndex.Length < maxUnitId + 1)
         {
-            unitIdToIndex[i] = -1;
+            int[] newBuffer = new int[maxUnitId + 1];
+            Array.Fill(newBuffer, -1);
+            _unitIdToIndex = newBuffer;
         }
+
+        int[] unitIdToIndex = _unitIdToIndex;
+
+        // Map unitId → index in units list.  -1 means "no unit with this ID."
+        // Only touch the slots we actually use, then reset them after the loop.
         for (int i = 0; i < units.Count; i++)
         {
             unitIdToIndex[units[i].UnitId] = i;
@@ -391,6 +410,12 @@ public class CollisionResolver
                     IsCrush = isCrush
                 });
             }
+        }
+
+        // Reset only the slots we populated so the buffer is clean for the next call.
+        for (int i = 0; i < units.Count; i++)
+        {
+            unitIdToIndex[units[i].UnitId] = -1;
         }
     }
 
