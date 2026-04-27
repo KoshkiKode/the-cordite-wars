@@ -152,7 +152,7 @@ public partial class RTSCamera : Camera3D
         Vector2 mousePos = GetViewport().GetMousePosition();
         Vector2 viewportSize = GetViewport().GetVisibleRect().Size;
 
-        float panSpeed = BasePanSpeed * (_currentZoom / 30.0f) * dt * EdgeScrollSpeedMultiplier;
+        float panSpeed = BasePanSpeed * (_currentZoom / ReferenceZoomLevel) * dt * EdgeScrollSpeedMultiplier;
 
         Vector3 forward = new Vector3(Mathf.Sin(_yaw), 0.0f, Mathf.Cos(_yaw));
         Vector3 right = new Vector3(forward.Z, 0.0f, -forward.X);
