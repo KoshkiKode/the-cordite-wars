@@ -17,9 +17,13 @@ public partial class RTSCamera : Camera3D
     private const float ZoomMax = 80.0f;
     private const float ZoomStep = 3.0f;
     private const float ZoomLerpSpeed = 8.0f;
+    private const float ReferenceZoomLevel = 30.0f;
+    private const float TouchZoomMultiplier = 5.0f;
 
     // ── Pan ──────────────────────────────────────────────────────────
     private const float BasePanSpeed = 30.0f;
+    private const float MinMovementThreshold = 0.001f;
+    private const float EdgeScrollSpeedMultiplier = 0.5f;
     private const float EdgeScrollMargin = 20.0f;
 
     // ── Rotation ─────────────────────────────────────────────────────
@@ -121,7 +125,7 @@ public partial class RTSCamera : Camera3D
     private void HandleKeyboardPan(float dt)
     {
         // Pan speed scales with zoom level (faster when zoomed out)
-        float panSpeed = BasePanSpeed * (_currentZoom / 30.0f) * dt;
+        float panSpeed = BasePanSpeed * (_currentZoom / ReferenceZoomLevel) * dt;
 
         Vector3 forward = new Vector3(Mathf.Sin(_yaw), 0.0f, Mathf.Cos(_yaw));
         Vector3 right = new Vector3(forward.Z, 0.0f, -forward.X);
@@ -137,7 +141,7 @@ public partial class RTSCamera : Camera3D
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right))
             move += right;
 
-        if (move.LengthSquared() > 0.001f)
+        if (move.LengthSquared() > MinMovementThreshold)
         {
             _focusPoint += move.Normalized() * panSpeed;
         }
@@ -148,7 +152,7 @@ public partial class RTSCamera : Camera3D
         Vector2 mousePos = GetViewport().GetMousePosition();
         Vector2 viewportSize = GetViewport().GetVisibleRect().Size;
 
-        float panSpeed = BasePanSpeed * (_currentZoom / 30.0f) * dt * 0.5f;
+        float panSpeed = BasePanSpeed * (_currentZoom / ReferenceZoomLevel) * dt * EdgeScrollSpeedMultiplier;
 
         Vector3 forward = new Vector3(Mathf.Sin(_yaw), 0.0f, Mathf.Cos(_yaw));
         Vector3 right = new Vector3(forward.Z, 0.0f, -forward.X);
@@ -165,7 +169,7 @@ public partial class RTSCamera : Camera3D
         else if (mousePos.Y > viewportSize.Y - EdgeScrollMargin)
             move -= forward;
 
-        if (move.LengthSquared() > 0.001f)
+        if (move.LengthSquared() > MinMovementThreshold)
         {
             _focusPoint += move.Normalized() * panSpeed;
         }
@@ -213,7 +217,7 @@ public partial class RTSCamera : Camera3D
     private void OnPinchZoom(float zoomDelta)
     {
         // Negative delta = fingers moving apart = zoom in (decrease target zoom)
-        _targetZoom = Mathf.Clamp(_targetZoom - zoomDelta * ZoomStep * 5.0f, ZoomMin, ZoomMax);
+        _targetZoom = Mathf.Clamp(_targetZoom - zoomDelta * ZoomStep * TouchZoomMultiplier, ZoomMin, ZoomMax);
     }
 
     private void OnTwoFingerPan(Vector2 panDelta)
