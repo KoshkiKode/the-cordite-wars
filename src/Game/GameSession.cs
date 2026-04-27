@@ -174,7 +174,7 @@ public partial class GameSession : Node
     private ulong _lastAutosaveTick;
     private const ulong AutosaveIntervalTicks = 1800;
     private const float TickDeltaSeconds = 1f / 30f; // 30 Hz simulation rate
-    private const int DefaultDepotSupplyCapacity = 20; // Used when registry lookup fails during save restore
+    private const int DefaultDepotSupplyCapacity = 20; // Save-restore fallback when a depot definition cannot be resolved from the registry (e.g., stale/incompatible save data or removed content). We continue loading with this safe default capacity to keep the session recoverable rather than failing hard.
 
     // ── Music intensity management ───────────────────────────────────
 
@@ -1225,11 +1225,12 @@ public partial class GameSession : Node
     /// <summary>
     /// Returns true if <paramref name="unitId"/> belongs to a building rather
     /// than a mobile unit.  Pre-placed HQ buildings use negative IDs; player-
-    /// placed buildings use IDs ≥ 100_001 (<c>BuildingPlacer._nextBuildingId</c>
-    /// starts at 100_001).  Mobile units occupy 1..100_000 (<c>UnitSpawner</c>
-    /// starts at 1 and a match will not reach 100_000 live units simultaneously).
+    /// placed buildings use IDs ≥ <c>BuildingIdRangeStart</c> (<c>BuildingPlacer._nextBuildingId</c>
+    /// starts at <c>BuildingIdRangeStart</c>).  Mobile units occupy 1..100_000
+    /// (<c>UnitSpawner</c> starts at 1 and a match will not reach 100_000 live units simultaneously).
     /// </summary>
-    private static bool IsBuildingId(int unitId) => unitId < 0 || unitId >= 100_001;
+    private const int BuildingIdRangeStart = 100_001;
+    private static bool IsBuildingId(int unitId) => unitId < 0 || unitId >= BuildingIdRangeStart;
 
     /// <summary>
     /// Advances construction progress for every valid building in <paramref name="buildings"/>
@@ -2835,6 +2836,18 @@ public partial class GameSession : Node
     /// avoids breaking validation tests that require every unit file to
     /// belong to one of the six player factions and to use a faction-prefixed id.
     /// </summary>
+    private const int AncientGunDamage = 60;
+    private const float AncientGunRateOfFire = 0.4f;
+    private const int AncientGunRange = 14;
+    private const int AncientGunProjectileSpeed = 28;
+    private const float AncientGunAreaOfEffect = 1.5f;
+    private const int AncientGunAccuracyPercent = 85;
+    private const float AncientGunArmorModifierLight = 1.1f;
+    private const float AncientGunArmorModifierHeavy = 0.9f;
+    private const float AncientGunArmorModifierBuilding = 0.9f;
+    private const float AncientGunArmorModifierAircraft = 0.2f;
+    private const float AncientGunArmorModifierNaval = 0.8f;
+
     private void RegisterSyntheticNeutralUnits()
     {
         // Skip if a previous match in this process already registered them.
@@ -2846,23 +2859,23 @@ public partial class GameSession : Node
         {
             Id              = "ancient_gun_primary",
             Type            = WeaponType.Cannon,
-            Damage          = FixedPoint.FromInt(60),
-            RateOfFire      = FixedPoint.FromFloat(0.4f),  // 1 shot ~every 2.5s
-            Range           = FixedPoint.FromInt(14),
+            Damage          = FixedPoint.FromInt(AncientGunDamage),
+            RateOfFire      = FixedPoint.FromFloat(AncientGunRateOfFire),  // 1 shot ~every 2.5s
+            Range           = FixedPoint.FromInt(AncientGunRange),
             MinRange        = FixedPoint.Zero,
-            ProjectileSpeed = FixedPoint.FromInt(28),
-            AreaOfEffect    = FixedPoint.FromFloat(1.5f),
+            ProjectileSpeed = FixedPoint.FromInt(AncientGunProjectileSpeed),
+            AreaOfEffect    = FixedPoint.FromFloat(AncientGunAreaOfEffect),
             CanTarget       = TargetType.Ground | TargetType.Building | TargetType.Naval,
-            AccuracyPercent = FixedPoint.FromInt(85),
+            AccuracyPercent = FixedPoint.FromInt(AncientGunAccuracyPercent),
             ArmorModifiers  = new Dictionary<ArmorType, FixedPoint>
             {
                 { ArmorType.Unarmored, FixedPoint.One },
-                { ArmorType.Light,     FixedPoint.FromFloat(1.1f) },
+                { ArmorType.Light,     FixedPoint.FromFloat(AncientGunArmorModifierLight) },
                 { ArmorType.Medium,    FixedPoint.One },
-                { ArmorType.Heavy,     FixedPoint.FromFloat(0.9f) },
-                { ArmorType.Building,  FixedPoint.FromFloat(0.9f) },
-                { ArmorType.Aircraft,  FixedPoint.FromFloat(0.2f) },
-                { ArmorType.Naval,     FixedPoint.FromFloat(0.8f) },
+                { ArmorType.Heavy,     FixedPoint.FromFloat(AncientGunArmorModifierHeavy) },
+                { ArmorType.Building,  FixedPoint.FromFloat(AncientGunArmorModifierBuilding) },
+                { ArmorType.Aircraft,  FixedPoint.FromFloat(AncientGunArmorModifierAircraft) },
+                { ArmorType.Naval,     FixedPoint.FromFloat(AncientGunArmorModifierNaval) },
             }
         };
 
@@ -3079,7 +3092,9 @@ public partial class GameSession : Node
             FixedVector2 hqPos = new FixedVector2(
                 FixedPoint.FromInt(startPos.X),
                 FixedPoint.FromInt(startPos.Y));
-            int refineryId = pc.PlayerId * 1000; // Unique ID per player's starting refinery
+            // Reserve a fixed ID block per player for starting-economy entities to avoid cross-system collisions.
+            const int StartingRefineryIdMultiplier = 1000;
+            int refineryId = pc.PlayerId * StartingRefineryIdMultiplier; // Unique ID per player's starting refinery
             _harvesterSystem?.RegisterRefinery(refineryId, pc.PlayerId, hqPos);
 
             // Spawn a visual HQ building node so the base is visible on screen
@@ -3087,7 +3102,9 @@ public partial class GameSession : Node
             if (_buildingRegistry is not null && _buildingRegistry.HasBuilding(hqBuildingId))
             {
                 BuildingData hqData = _buildingRegistry.GetBuilding(hqBuildingId);
-                int buildingId = -(pc.PlayerId * 100); // Negative IDs for pre-placed HQ buildings
+                const int PreplacedHQBuildingIdMultiplier = 100;
+                // Pre-placed HQs use negative IDs; multiplier reserves a distinct per-player ID range.
+                int buildingId = -(pc.PlayerId * PreplacedHQBuildingIdMultiplier);
 
                 BuildingModelEntry? hqModelEntry = _buildingManifest.HasEntry(hqBuildingId)
                     ? _buildingManifest.GetEntry(hqBuildingId)

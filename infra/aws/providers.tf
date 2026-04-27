@@ -1,7 +1,11 @@
+locals {
+  allowed_account_ids = ["261142221895"]
+}
+
 # Default provider — used for S3, IAM, etc. Region is configurable.
 provider "aws" {
-  region             = var.region
-  allowed_account_ids = ["261142221895"]
+  region              = var.region
+  allowed_account_ids = local.allowed_account_ids
 
   default_tags {
     tags = {
@@ -19,7 +23,7 @@ provider "aws" {
 provider "aws" {
   alias               = "us_east_1"
   region              = "us-east-1"
-  allowed_account_ids = ["261142221895"]
+  allowed_account_ids = local.allowed_account_ids
 
   default_tags {
     tags = {
