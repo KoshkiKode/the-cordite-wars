@@ -47,67 +47,67 @@ jobs:
           fi
 
       - name: Download Windows EXE installer
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Windows-Setup-EXE
           path: dist/
 
       - name: Download Windows MSI installer
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Windows-MSI
           path: dist/
 
       - name: Download Windows MSIX package
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Windows-MSIX
           path: dist/
 
       - name: Download Linux export
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Linux
           path: dist/linux/
 
       - name: Download Linux Snap
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Linux-Snap
           path: dist/
 
       - name: Download Linux DEB
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Linux-DEB
           path: dist/
 
       - name: Download Linux Flatpak
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Linux-Flatpak
           path: dist/
 
       - name: Download macOS DMG
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-macOS-DMG
           path: dist/
 
       - name: Download Android APK
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Android
           path: dist/
 
       - name: Download Android AAB
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-Android-AAB
           path: dist/
 
       - name: Download iOS IPA (or Xcode zip fallback)
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: CorditeWars-iOS-IPA
           path: dist/
