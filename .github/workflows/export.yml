@@ -467,7 +467,7 @@ jobs:
           fi
 
       - name: Upload ${{ matrix.name }} export artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.build_dir }}/
@@ -777,13 +777,13 @@ jobs:
           fi
 
       - name: Upload Android APK artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Android
           path: build/android/CorditeWars.apk
 
       - name: Upload Android AAB artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Android-AAB
           path: build/android/CorditeWars.aab
@@ -845,7 +845,7 @@ jobs:
           Write-Host "EXE installer: dist\windows\CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe"
 
       - name: Upload EXE installer artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Windows-Setup-EXE
           path: dist/windows/CorditeWars_Setup_${{ needs.resolve-version.outputs.app_version }}.exe
@@ -904,7 +904,7 @@ jobs:
           Write-Host "MSI installer: dist\windows\CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi"
 
       - name: Upload MSI installer artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Windows-MSI
           path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi
@@ -961,7 +961,7 @@ jobs:
           path: versions/linux
 
       - name: Upload Snap artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Linux-Snap
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -1041,7 +1041,7 @@ jobs:
           ls -lh dist/linux/
 
       - name: Upload DEB artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Linux-DEB
           path: dist/linux/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_amd64.deb
@@ -1107,7 +1107,7 @@ jobs:
           cache-key: flatpak-builder-${{ hashFiles('versions/linux/flatpak/com.koshkikode.CorditeWars.yml') }}
 
       - name: Upload Flatpak artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Linux-Flatpak
           path: CorditeWars_${{ needs.resolve-version.outputs.app_version }}.flatpak
@@ -1247,7 +1247,7 @@ jobs:
           }
 
       - name: Upload MSIX artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Windows-MSIX
           path: dist/windows/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msix
@@ -1380,7 +1380,7 @@ jobs:
           fi
 
       - name: Upload macOS DMG artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-macOS-DMG
           path: dist/macos/CorditeWars_${{ needs.resolve-version.outputs.app_version }}.dmg
@@ -1539,7 +1539,7 @@ jobs:
 
       - name: Upload iOS IPA artifact
         if: steps.ios_secrets.outputs.has_signing == 'true'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-iOS-IPA
           path: build/ipa/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_ios.ipa
@@ -1557,7 +1557,7 @@ jobs:
 
       - name: Upload iOS Xcode zip artifact (fallback)
         if: steps.ios_secrets.outputs.has_signing != 'true'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-iOS-IPA
           path: build/ios-zip/CorditeWars_${{ needs.resolve-version.outputs.app_version }}_ios_xcode.zip
@@ -1777,7 +1777,7 @@ jobs:
           ls -la "$BUNDLE"
 
       - name: Upload Steam bundle artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-Steam-${{ matrix.platform }}
           path: dist/steam-${{ matrix.platform }}/
@@ -1856,7 +1856,7 @@ jobs:
           ls -la "$BUNDLE"
 
       - name: Upload GOG bundle artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: CorditeWars-GOG-${{ matrix.platform }}
           path: dist/gog-${{ matrix.platform }}/
