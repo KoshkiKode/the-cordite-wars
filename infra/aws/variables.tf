@@ -1,3 +1,8 @@
+variable "allowed_account_id" {
+  description = "AWS account ID that Terraform is permitted to deploy into. Prevents accidental deployments to the wrong account."
+  type        = string
+}
+
 variable "region" {
   description = "AWS region for the S3 bucket and IAM resources. CloudFront and its ACM cert always live in us-east-1."
   type        = string
