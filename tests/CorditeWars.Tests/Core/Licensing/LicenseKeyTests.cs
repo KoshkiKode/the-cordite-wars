@@ -502,6 +502,10 @@ public class LicenseKeyTests
         var store = new EntitlementStore(tempDir.Path, pk);
         store.Save(blob);
 
+        // chmod is not available on Windows; skip rather than fail.
+        if (OperatingSystem.IsWindows())
+            Assert.Skip("chmod-based permission manipulation is not supported on Windows.");
+
         // Remove read permission so File.ReadAllBytes throws.
         System.IO.File.SetAttributes(store.FilePath, System.IO.FileAttributes.ReadOnly);
         try
