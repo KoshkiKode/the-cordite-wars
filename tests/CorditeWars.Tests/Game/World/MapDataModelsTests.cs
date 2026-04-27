@@ -1,3 +1,4 @@
+using CorditeWars.Core;
 using CorditeWars.Game.World;
 
 namespace CorditeWars.Tests.Game.World;
@@ -58,7 +59,7 @@ public class MapDataModelsTests
         Assert.Equal(string.Empty, p.UnitTypeId);
         Assert.Equal(0, p.X);
         Assert.Equal(0, p.Y);
-        Assert.Equal(CorditeWars.Core.FixedPoint.Zero, p.Facing);
+        Assert.Equal(FixedPoint.Zero, p.Facing);
     }
 
     [Fact]
@@ -69,12 +70,12 @@ public class MapDataModelsTests
             UnitTypeId = "ancient_gun",
             X = 160,
             Y = 135,
-            Facing = CorditeWars.Core.FixedPoint.FromFloat(1.5708f)
+            Facing = FixedPoint.FromFloat(1.5708f)
         };
         Assert.Equal("ancient_gun", p.UnitTypeId);
         Assert.Equal(160, p.X);
         Assert.Equal(135, p.Y);
-        Assert.Equal(CorditeWars.Core.FixedPoint.FromFloat(1.5708f), p.Facing);
+        Assert.Equal(FixedPoint.FromFloat(1.5708f), p.Facing);
     }
 
     [Fact]
