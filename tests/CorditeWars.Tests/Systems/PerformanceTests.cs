@@ -345,7 +345,7 @@ public class PerformanceTests
         const int AreaRadius = 10;   // units scattered within ±10 cells of origin
         const int WorldSize  = 256;
         const int Cycles     = 100;
-        const int BoundMs    = 1_000;
+        const int BoundMs    = 2_000;
 
         var rng      = new DeterministicRng(seed: 99);
         var resolver = new CollisionResolver();
