@@ -129,9 +129,9 @@ public partial class RTSCamera : Camera3D
         Vector3 move = Vector3.Zero;
 
         if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up))
-            move -= forward;
-        if (Input.IsKeyPressed(Key.S) || Input.IsKeyPressed(Key.Down))
             move += forward;
+        if (Input.IsKeyPressed(Key.S) || Input.IsKeyPressed(Key.Down))
+            move -= forward;
         if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left))
             move -= right;
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right))
@@ -161,9 +161,9 @@ public partial class RTSCamera : Camera3D
             move += right;
 
         if (mousePos.Y < EdgeScrollMargin)
-            move -= forward;
-        else if (mousePos.Y > viewportSize.Y - EdgeScrollMargin)
             move += forward;
+        else if (mousePos.Y > viewportSize.Y - EdgeScrollMargin)
+            move -= forward;
 
         if (move.LengthSquared() > 0.001f)
         {
