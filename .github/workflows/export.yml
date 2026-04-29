@@ -1284,28 +1284,28 @@ jobs:
           ln -s /Applications "$STAGING_DIR/Applications"
           # Plain-text instructions for users who hit a Gatekeeper warning.
           APP_NAME="$(basename "$APP_PATH")"
-          cat > "$STAGING_DIR/How to Open.txt" <<INSTRUCTIONS
-Cordite Wars: Six Fronts — macOS Installation
-=============================================
-
-INSTALL
-  Drag $APP_NAME to the Applications folder shortcut in this window.
-
-IF macOS SAYS "app can't be opened" or "developer cannot be verified"
-  This is a Gatekeeper warning for apps not yet notarized with Apple.
-  The game is safe to open.
-
-  Option 1 (easiest):
-    Right-click (or Control-click) $APP_NAME -> Open -> click Open
-
-  Option 2:
-    Open System Settings -> Privacy & Security
-    Scroll down to the Cordite Wars message -> click "Open Anyway"
-
-  Option 3 (Terminal):
-    xattr -d com.apple.quarantine /Applications/$APP_NAME
-
-INSTRUCTIONS
+          {
+            echo 'Cordite Wars: Six Fronts — macOS Installation'
+            echo '============================================='
+            echo ''
+            echo 'INSTALL'
+            echo "  Drag $APP_NAME to the Applications folder shortcut in this window."
+            echo ''
+            echo "IF macOS SAYS \"app can't be opened\" or \"developer cannot be verified\""
+            echo '  This is a Gatekeeper warning for apps not yet notarized with Apple.'
+            echo '  The game is safe to open.'
+            echo ''
+            echo '  Option 1 (easiest):'
+            echo "    Right-click (or Control-click) $APP_NAME -> Open -> click Open"
+            echo ''
+            echo '  Option 2:'
+            echo '    Open System Settings -> Privacy & Security'
+            echo "    Scroll down to the Cordite Wars message -> click \"Open Anyway\""
+            echo ''
+            echo '  Option 3 (Terminal):'
+            echo "    xattr -d com.apple.quarantine /Applications/$APP_NAME"
+            echo ''
+          } > "$STAGING_DIR/How to Open.txt"
           hdiutil create \
             -volname "Cordite Wars" \
             -srcfolder "$STAGING_DIR" \
