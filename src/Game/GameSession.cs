@@ -1157,16 +1157,20 @@ public partial class GameSession : Node
             }
         }
 
-        // ── 4c-fog. Apply fog-of-war visibility to enemy buildings ────────
-        // Enemy buildings are hidden when the cell they occupy is not currently
-        // visible to the local player.  Own and neutral buildings are always shown.
+        // ── 4c-fog. Apply fog-of-war visibility to all non-own buildings ─────
+        // Own buildings (placed by the local player) are always visible — the
+        // player built them and always knows where they are.
+        // Every other building — enemy, neutral, or uncaptured civilian — is
+        // hidden unless the cell it occupies is currently in LOS.  This ensures
+        // the fog overlay covers neutral / pre-placed buildings just like
+        // enemy ones.
         if (localFog != null)
         {
             for (int bi = 0; bi < buildingSnapshot.Count; bi++)
             {
                 var b = buildingSnapshot[bi];
                 if (!GodotObject.IsInstanceValid(b)) continue;
-                if (b.PlayerId == _localPlayerId || b.PlayerId == NeutralPlayerId)
+                if (b.PlayerId == _localPlayerId)
                 {
                     b.Visible = true;
                     continue;

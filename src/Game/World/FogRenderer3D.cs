@@ -83,9 +83,12 @@ void fragment() {
         _fogBytes   = new byte[mapWidth * mapHeight]; // 1 byte per cell
         _fogTexture = ImageTexture.CreateFromImage(_fogImage);
 
-        // Build the fog shader + material
+        // Build the fog shader + material.
+        // RenderPriority = 127 makes this material sort last in the transparent
+        // render pass, so it always composites on top of building and unit meshes
+        // regardless of their world-space depth relative to the fog plane.
         var shader = new Shader { Code = FogShaderSource };
-        _material = new ShaderMaterial { Shader = shader };
+        _material = new ShaderMaterial { Shader = shader, RenderPriority = 127 };
         _material.SetShaderParameter("fog_texture", _fogTexture);
 
         // Plane mesh spanning the entire map (PlaneMesh is centred at origin)
