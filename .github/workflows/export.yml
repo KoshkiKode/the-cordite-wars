@@ -828,10 +828,11 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = "Stop"
+          $buildDir = (Resolve-Path "build\windows").Path
           wix build versions\windows\CorditeWars.wxs `
             -arch x64 `
             -ext WixToolset.UI.wixext `
-            -d BuildDir=build\windows `
+            -d "BuildDir=$buildDir" `
             -d AppVersion=${{ needs.resolve-version.outputs.app_version }} `
             -out dist\windows\CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi
           if (-not (Test-Path "dist\windows\CorditeWars_${{ needs.resolve-version.outputs.app_version }}.msi")) {
