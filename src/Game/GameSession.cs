@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using CorditeWars.Core;
 using CorditeWars.Game.AI;
@@ -1179,9 +1180,8 @@ public partial class GameSession : Node
             }
 
             // Also apply to HQ buildings from _playerHQNodes
-            foreach (var kvp in _playerHQNodes)
+            foreach (var hq in _playerHQNodes.Select(kvp => kvp.Value))
             {
-                var hq = kvp.Value;
                 if (!GodotObject.IsInstanceValid(hq)) continue;
                 if (hq.PlayerId == _localPlayerId) continue;
                 hq.Visible = localFog.IsVisible(hq.GridX, hq.GridY);
