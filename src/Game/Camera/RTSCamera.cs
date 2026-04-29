@@ -128,7 +128,9 @@ public partial class RTSCamera : Camera3D
         float panSpeed = BasePanSpeed * (_currentZoom / ReferenceZoomLevel) * dt;
 
         Vector3 forward = new Vector3(Mathf.Sin(_yaw), 0.0f, Mathf.Cos(_yaw));
-        Vector3 right = new Vector3(forward.Z, 0.0f, -forward.X);
+        // Godot's LookAt builds the camera basis with local +X = up × (pos−target), so
+        // screen-right maps to world −(forward.Z, 0, −forward.X).  Negate to match.
+        Vector3 right = new Vector3(-forward.Z, 0.0f, forward.X);
 
         Vector3 move = Vector3.Zero;
 
@@ -155,7 +157,7 @@ public partial class RTSCamera : Camera3D
         float panSpeed = BasePanSpeed * (_currentZoom / ReferenceZoomLevel) * dt * EdgeScrollSpeedMultiplier;
 
         Vector3 forward = new Vector3(Mathf.Sin(_yaw), 0.0f, Mathf.Cos(_yaw));
-        Vector3 right = new Vector3(forward.Z, 0.0f, -forward.X);
+        Vector3 right = new Vector3(-forward.Z, 0.0f, forward.X);
 
         Vector3 move = Vector3.Zero;
 
@@ -225,7 +227,7 @@ public partial class RTSCamera : Camera3D
         float panScale = TouchPanSpeed * (_currentZoom / 30.0f);
 
         Vector3 forward = new Vector3(Mathf.Sin(_yaw), 0.0f, Mathf.Cos(_yaw));
-        Vector3 right = new Vector3(forward.Z, 0.0f, -forward.X);
+        Vector3 right = new Vector3(-forward.Z, 0.0f, forward.X);
 
         // Screen space to world: X drag → right, Y drag → forward
         _focusPoint -= right * panDelta.X * panScale;
