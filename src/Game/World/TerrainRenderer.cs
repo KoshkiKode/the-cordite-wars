@@ -24,104 +24,172 @@ public partial class TerrainRenderer : Node3D
     // some GPU drivers, and keeps collision trimesh sizes manageable.
     private const int ChunkCellSize = 120;
 
-    // Biome base colors
-    private static readonly Color TemperateGrass = new(0.28f, 0.52f, 0.15f);
-    private static readonly Color TemperateDirt = new(0.45f, 0.35f, 0.22f);
-    private static readonly Color DesertSand = new(0.76f, 0.65f, 0.42f);
-    private static readonly Color DesertRock = new(0.55f, 0.45f, 0.32f);
-    private static readonly Color RockyGray = new(0.48f, 0.46f, 0.44f);
-    private static readonly Color RockyGreen = new(0.3f, 0.42f, 0.2f);
-    private static readonly Color CoastalSand = new(0.72f, 0.66f, 0.48f);
-    private static readonly Color CoastalGreen = new(0.25f, 0.48f, 0.22f);
-    private static readonly Color RiverBlue = new(0.2f, 0.35f, 0.55f);
-    private static readonly Color PathColor = new(0.6f, 0.55f, 0.42f);
-    private static readonly Color TropicalGrass = new(0.15f, 0.58f, 0.22f);
-    private static readonly Color TropicalSand = new(0.82f, 0.74f, 0.52f);
-    private static readonly Color OasisGreen = new(0.2f, 0.55f, 0.25f);
-    private static readonly Color OasisBlue = new(0.18f, 0.42f, 0.52f);
+    // Biome base colors — richer, more saturated palette for better visual variety
+    private static readonly Color TemperateGrass  = new(0.26f, 0.54f, 0.14f);
+    private static readonly Color TemperateDirt   = new(0.48f, 0.36f, 0.20f);
+    private static readonly Color TemperateMoss   = new(0.22f, 0.44f, 0.18f);
+    private static readonly Color DesertSand      = new(0.78f, 0.66f, 0.40f);
+    private static readonly Color DesertRock      = new(0.54f, 0.44f, 0.28f);
+    private static readonly Color DesertClay      = new(0.65f, 0.48f, 0.30f);
+    private static readonly Color RockyGray       = new(0.50f, 0.48f, 0.44f);
+    private static readonly Color RockyGreen      = new(0.28f, 0.42f, 0.18f);
+    private static readonly Color RockyBrown      = new(0.44f, 0.36f, 0.24f);
+    private static readonly Color CoastalSand     = new(0.74f, 0.68f, 0.46f);
+    private static readonly Color CoastalGreen    = new(0.22f, 0.50f, 0.20f);
+    private static readonly Color RiverBlue       = new(0.18f, 0.32f, 0.52f);
+    private static readonly Color PathColor       = new(0.58f, 0.52f, 0.40f);
+    private static readonly Color TropicalGrass   = new(0.12f, 0.58f, 0.20f);
+    private static readonly Color TropicalSand    = new(0.82f, 0.74f, 0.50f);
+    private static readonly Color TropicalDark    = new(0.10f, 0.46f, 0.16f);
+    private static readonly Color OasisGreen      = new(0.18f, 0.54f, 0.22f);
+    private static readonly Color OasisBlue       = new(0.16f, 0.40f, 0.52f);
 
-    // Terrain shader source — vertex-color biome tint + procedural multi-octave noise detail.
-    // No external texture files required: all detail is generated analytically in the shader.
-    // The noise produces micro-variation that reads like grass blades, sand grains, or rock
-    // facets depending on the underlying biome colour.
+    // Terrain shader source — vertex-color biome tint + rich multi-scale procedural texturing.
+    // No external texture files required: all surface detail is generated analytically.
+    // Uses layered noise, fake normal mapping via dFdx/dFdy derivatives, per-biome
+    // material tuning, and height-based colour blending to produce genuinely varied ground.
     private const string TerrainShaderSource = @"
 shader_type spatial;
 render_mode cull_back, diffuse_burley, specular_schlick_ggx;
 
 varying vec3 v_world_pos;
 varying vec3 v_biome_color;
+varying float v_elevation;
 
-// --- Procedural noise helpers -------------------------------------------------
+// ─── Noise Helpers ────────────────────────────────────────────────────────────
 
-// Hash function that maps a 2D integer coordinate to a pseudo-random float [0,1].
+// High-quality hash — avoids the visible grid artifacts from simpler hashes.
 float hash(vec2 p) {
-    p = fract(p * vec2(127.1, 311.7));
-    p += dot(p, p + 45.32);
+    p = fract(p * vec2(443.897, 441.423));
+    p += dot(p, p + 19.19);
     return fract(p.x * p.y);
 }
 
-// Smooth value noise — bicubic interpolation between hashed corners.
+// Smooth bicubic value noise.
 float valueNoise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
+    // Quintic interpolant — C2 continuous, removes grid artefacts better than cubic.
+    vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
     float a = hash(i);
     float b = hash(i + vec2(1.0, 0.0));
     float c = hash(i + vec2(0.0, 1.0));
     float d = hash(i + vec2(1.0, 1.0));
-    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
 
-// Fractional Brownian Motion — 4 octaves for natural surface variation.
+// 5-octave FBM — natural surface variation across multiple scales.
 float fbm(vec2 p) {
-    return valueNoise(p)        * 0.500
-         + valueNoise(p * 2.1)  * 0.250
-         + valueNoise(p * 4.3)  * 0.125
-         + valueNoise(p * 8.7)  * 0.063;
+    float v = 0.0;
+    float a = 0.5;
+    vec2  s = vec2(1.0);
+    for (int i = 0; i < 5; i++) {
+        v += a * valueNoise(p * s);
+        s *= 2.13;
+        a *= 0.5;
+    }
+    return v;
 }
 
-// --- Vertex stage -------------------------------------------------------------
+// Signed fbm used to generate ridged / eroded patterns.
+float ridgedFbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    vec2  s = vec2(1.0);
+    for (int i = 0; i < 4; i++) {
+        float n = valueNoise(p * s);
+        v += a * (1.0 - abs(n * 2.0 - 1.0));  // ridge inversion
+        s *= 2.07;
+        a *= 0.48;
+    }
+    return v;
+}
+
+// Procedural normal from height field — creates bumpy micro-surface lighting
+// without a normal-map texture.
+vec3 proceduralNormal(vec2 pos, float scale, float strength) {
+    float eps = 0.5;
+    float hL = fbm((pos + vec2(-eps, 0.0)) * scale);
+    float hR = fbm((pos + vec2( eps, 0.0)) * scale);
+    float hD = fbm((pos + vec2(0.0, -eps)) * scale);
+    float hU = fbm((pos + vec2(0.0,  eps)) * scale);
+    vec3 n = normalize(vec3((hL - hR) * strength, 1.0, (hD - hU) * strength));
+    return n;
+}
+
+// ─── Vertex Stage ─────────────────────────────────────────────────────────────
 
 void vertex() {
     v_world_pos   = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
     v_biome_color = COLOR.rgb;
+    v_elevation   = VERTEX.y;   // mesh elevation before model transform
 }
 
-// --- Fragment stage -----------------------------------------------------------
+// ─── Fragment Stage ───────────────────────────────────────────────────────────
 
 void fragment() {
     vec2 pos = v_world_pos.xz;
 
-    // Multi-scale noise: fine detail (micro-surface) + coarse (patches)
-    float n_fine   = fbm(pos * 10.0);   // grass-blade / grain scale
-    float n_coarse = fbm(pos * 1.8);    // soil patch / dune scale
+    // ── Multi-scale surface noise ─────────────────────────────────────────────
+    // Macro: large soil/grass patches (1–8 cell scale)
+    float n_macro  = fbm(pos * 0.25);
+    // Meso: medium clumps — rock clusters, grass tufts, sand ripples
+    float n_meso   = fbm(pos * 1.1);
+    // Micro: grain/blade level detail
+    float n_micro  = fbm(pos * 7.5);
+    // Ridge: eroded channels and rock striations
+    float n_ridge  = ridgedFbm(pos * 0.6);
 
-    // Weighted blend: fine detail dominant, coarse provides large-area variation
-    float n = n_fine * 0.55 + n_coarse * 0.45;
+    // Combine: macro sets the large patches, meso adds mid-range variation,
+    // micro and ridge add fine surface texture.
+    float n_combined = n_macro * 0.38
+                     + n_meso  * 0.32
+                     + n_micro * 0.18
+                     + n_ridge * 0.12;
 
-    // Remap to [0,1] with smooth S-curve
-    float surface = smoothstep(0.25, 0.75, n);
+    // Contrast boost — widens the dark/light range for more visual punch.
+    float surface = clamp((n_combined - 0.35) * 1.8, 0.0, 1.0);
 
-    // --- AO simulation: troughs between blades/grains appear darker
-    float ao = mix(0.50, 1.00, surface);
+    // ── Secondary colour layer ────────────────────────────────────────────────
+    // Each biome has a light and dark shade derived from the vertex colour.
+    // The noise selects between them, creating natural mottled patches.
+    vec3 base_color = v_biome_color;
 
-    // --- Specular bright peaks simulate dew / quartz / mica glints
-    float glint = pow(surface, 6.0) * 0.18;
+    // Derive a darker, more saturated variant for shaded troughs.
+    float lum = dot(base_color, vec3(0.299, 0.587, 0.114));
+    vec3 dark_shade  = mix(base_color * 0.45, vec3(lum * 0.35), 0.3);
+    // Lighter, slightly desaturated variant for exposed ridges.
+    vec3 light_shade = mix(base_color, vec3(lum * 0.9 + 0.1), 0.18) * 1.18;
+    light_shade = clamp(light_shade, 0.0, 1.0);
 
-    // --- Colour from biome vertex colour
-    vec3 base = v_biome_color;
+    vec3 base = mix(dark_shade, light_shade, surface);
 
-    // Slightly desaturate at troughs (dirt visible between grass tufts)
-    float lum = dot(base, vec3(0.299, 0.587, 0.114));
-    vec3 desaturated = mix(vec3(lum), base, 0.65);
-    base = mix(desaturated, base, surface);
+    // Height-tint: hilltops are drier / more rocky; use a slightly warmer hue.
+    float height_blend = clamp(v_elevation * 0.12, 0.0, 1.0);
+    vec3  height_tint  = mix(base, base * vec3(1.08, 1.02, 0.88), height_blend);
+    base = height_tint;
 
-    vec3 final_color = base * ao + glint * base;
+    // ── Fake ambient-occlusion from noise ─────────────────────────────────────
+    float ao = mix(0.40, 1.0, surface);
+    base *= ao;
 
-    ALBEDO    = clamp(final_color, 0.0, 1.0);
-    ROUGHNESS = mix(0.95, 0.68, surface);   // troughs rough, peaks slightly smoother
+    // ── Procedural micro-normal for lighting variation ─────────────────────
+    vec3 proc_normal = proceduralNormal(pos, 4.0, 0.6);
+    NORMAL_MAP        = proc_normal * 0.5 + 0.5;
+    NORMAL_MAP_DEPTH  = 0.8;
+
+    // ── Specular micro-highlights (dew / quartz / mica) ────────────────────
+    float glint = pow(clamp(n_micro, 0.0, 1.0), 8.0) * 0.14;
+    base = clamp(base + glint * light_shade, 0.0, 1.0);
+
+    // ── Roughness varies with surface type ────────────────────────────────────
+    // Troughs (packed dirt, wet soil): rougher.  Peaks (dry rock, sand crust): smoother.
+    float roughness = mix(0.97, 0.62, surface);
+
+    ALBEDO    = base;
+    ROUGHNESS = roughness;
     METALLIC  = 0.0;
-    SPECULAR  = 0.07;
+    SPECULAR  = 0.06;
 }
 ";
 
@@ -136,9 +204,9 @@ void fragment() {
         // Quality-dependent settings
         _noiseStrength = tier switch
         {
-            QualityTier.Potato => 0.0f,  // no noise — flat colors save fill-rate
-            QualityTier.Low    => 0.04f, // half noise
-            _                  => 0.08f  // Medium / High: full variation
+            QualityTier.Potato => 0.0f,   // no noise — flat colors save fill-rate
+            QualityTier.Low    => 0.06f,  // half noise
+            _                  => 0.12f   // Medium / High: full variation
         };
 
         bool castShadows = tier >= QualityTier.Medium;
@@ -475,13 +543,18 @@ void fragment() {
                 break;
         }
 
-        // Add subtle noise variation based on position (strength 0 on Potato, 0.04 on Low, 0.08 on Medium/High)
+        // Add position-based colour noise to break up uniform patches.
+        // Larger range than before so the variation is clearly visible.
         if (_noiseStrength > 0f)
         {
-            float noise = PseudoNoise(x, y) * _noiseStrength;
-            baseColor.R = Math.Clamp(baseColor.R + noise, 0f, 1f);
-            baseColor.G = Math.Clamp(baseColor.G + noise * 0.7f, 0f, 1f);
-            baseColor.B = Math.Clamp(baseColor.B + noise * 0.5f, 0f, 1f);
+            float noiseA = PseudoNoise(x, y)         * _noiseStrength * 2.0f;
+            float noiseB = PseudoNoise(x * 3, y * 7) * _noiseStrength * 1.5f;
+            float noiseC = PseudoNoise(x * 7, y * 3) * _noiseStrength;
+            // Vary all three channels slightly differently so we get colour shifts,
+            // not just brightness variation.
+            baseColor.R = Math.Clamp(baseColor.R + noiseA - _noiseStrength, 0f, 1f);
+            baseColor.G = Math.Clamp(baseColor.G + noiseB - _noiseStrength * 0.75f, 0f, 1f);
+            baseColor.B = Math.Clamp(baseColor.B + noiseC - _noiseStrength * 0.5f, 0f, 1f);
         }
 
         return baseColor;
@@ -491,9 +564,25 @@ void fragment() {
     {
         float elev = _elevationMap[y * width + x];
 
-        // Higher = more rocky, lower = more green
+        // Multi-scale noise for varied ground cover within the biome
+        float n1 = PseudoNoise(x / 8,  y / 8);   // large patches (moss, dirt clearings)
+        float n2 = PseudoNoise(x / 3,  y / 3);   // medium clumps
+        float n3 = PseudoNoise(x * 2,  y * 3);   // fine variation
+
+        float n = n1 * 0.5f + n2 * 0.3f + n3 * 0.2f;
+
+        // Higher = more rocky, lower = lush green
         if (elev > 3f) return TemperateDirt.Lerp(RockyGray, Math.Clamp((elev - 3f) / 4f, 0f, 1f));
-        if (elev > 1.5f) return TemperateGrass.Lerp(TemperateDirt, (elev - 1.5f) / 1.5f);
+        if (elev > 1.5f)
+        {
+            // On slopes: blend grass → dirt → rock based on elevation + noise
+            float t = (elev - 1.5f) / 1.5f + n * 0.25f;
+            return TemperateGrass.Lerp(TemperateDirt, Math.Clamp(t, 0f, 1f));
+        }
+
+        // Flat ground: mix grass with moss and dirt based on position noise
+        if (n > 0.65f) return TemperateMoss.Lerp(TemperateGrass, (n - 0.65f) / 0.35f);
+        if (n < 0.25f) return TemperateGrass.Lerp(TemperateDirt, (0.25f - n) / 0.25f * 0.6f);
 
         // Edge fade: near map borders get slight brown
         float edgeDist = Math.Min(Math.Min(x, width - 1 - x), Math.Min(y, height - 1 - y));
@@ -506,53 +595,81 @@ void fragment() {
         return TemperateGrass;
     }
 
-    private static Color GetDesertColor(int x, int y, int width, int height)
+    private Color GetDesertColor(int x, int y, int width, int height)
     {
-        // Use position-based variation
-        float variation = PseudoNoise(x * 3, y * 3);
-        if (variation > 0.3f)
-            return DesertSand.Lerp(DesertRock, (variation - 0.3f) / 0.7f * 0.5f);
-        return DesertSand;
+        float elev = _elevationMap[y * width + x];
+
+        // Multi-scale noise for dune ridges, clay patches, rocky outcrops
+        float n1 = PseudoNoise(x / 12, y / 8);
+        float n2 = PseudoNoise(x * 3,  y * 3);
+        float n3 = PseudoNoise(x,      y * 5);
+
+        float n = n1 * 0.5f + n2 * 0.3f + n3 * 0.2f;
+
+        // High elevation = rocky outcrops
+        if (elev > 2.5f) return DesertRock.Lerp(RockyGray, Math.Clamp((elev - 2.5f) * 0.3f, 0f, 1f));
+        // Low dark patches = clay / packed earth
+        if (n < 0.25f) return DesertSand.Lerp(DesertClay, (0.25f - n) / 0.25f);
+        // Light high patches = dune crests
+        if (n > 0.7f) return DesertSand.Lightened(0.08f);
+        return DesertSand.Lerp(DesertRock, Math.Clamp(n * 0.35f, 0f, 1f));
     }
 
     private Color GetRockyColor(int x, int y, int width, int height)
     {
         float elev = _elevationMap[y * width + x];
-        if (elev > 2f) return RockyGray;
 
-        float variation = PseudoNoise(x * 2, y * 2);
-        if (variation > 0.6f) return RockyGreen;
-        return RockyGray.Lerp(RockyGreen, variation * 0.3f);
+        float n1 = PseudoNoise(x / 5, y / 5);
+        float n2 = PseudoNoise(x * 2, y * 2);
+        float n  = n1 * 0.6f + n2 * 0.4f;
+
+        if (elev > 2.5f) return RockyGray.Lerp(RockyBrown, n * 0.4f);
+        if (elev > 1f)   return RockyGray;
+
+        // Ground level: mossy/green patches between rocks
+        if (n > 0.6f) return RockyGreen;
+        if (n > 0.35f) return RockyGray.Lerp(RockyGreen, (n - 0.35f) / 0.25f);
+        return RockyGray.Lerp(RockyBrown, (0.35f - n) / 0.35f * 0.5f);
     }
 
     private Color GetCoastalColor(int x, int y, int width, int height)
     {
         float elev = _elevationMap[y * width + x];
 
-        // Low elevation near edges = sand beaches
+        float n  = PseudoNoise(x / 6, y / 6) * 0.5f + PseudoNoise(x * 2, y) * 0.5f;
+
+        // Low elevation near edges = sandy beaches
         float edgeDist = Math.Min(Math.Min(x, width - 1 - x), Math.Min(y, height - 1 - y));
         if (elev < 0.5f && edgeDist < 20f)
-            return CoastalSand;
+            return CoastalSand.Lerp(CoastalGreen, Math.Clamp(n * 0.3f, 0f, 1f));
         if (elev < 1f)
-            return CoastalSand.Lerp(CoastalGreen, Math.Clamp((elev - 0.5f) * 2f, 0f, 1f));
+            return CoastalSand.Lerp(CoastalGreen, Math.Clamp((elev - 0.5f) * 2f + n * 0.2f, 0f, 1f));
 
-        return CoastalGreen;
+        // Higher ground: varied green
+        return CoastalGreen.Lerp(TemperateGrass, n * 0.4f);
     }
 
     private Color GetTropicalColor(int x, int y, int width, int height)
     {
         float elev = _elevationMap[y * width + x];
 
+        float n = PseudoNoise(x / 7, y / 5) * 0.5f + PseudoNoise(x * 2, y * 3) * 0.5f;
+
         // Sandy beaches at low elevation near map edges
         float edgeDist = Math.Min(Math.Min(x, width - 1 - x), Math.Min(y, height - 1 - y));
         if (edgeDist < 15f && elev < 1.5f)
             return TropicalSand.Lerp(TropicalGrass, MathF.Min(edgeDist / 15f, 1f) * 0.6f);
 
-        // Vibrant jungle floor; slightly darker at higher elevations
-        if (elev > 2.5f)
-            return TropicalGrass.Darkened(Math.Clamp((elev - 2.5f) * 0.12f, 0f, 0.3f));
+        // Dense jungle floor with dark and light patches
+        if (n > 0.6f) return TropicalGrass;
+        if (n < 0.3f) return TropicalDark;
 
-        return TropicalGrass;
+        // Vibrant jungle floor; slightly darker at higher elevations
+        Color baseColor2 = TropicalDark.Lerp(TropicalGrass, (n - 0.3f) / 0.3f);
+        if (elev > 2.5f)
+            return baseColor2.Darkened(Math.Clamp((elev - 2.5f) * 0.12f, 0f, 0.3f));
+
+        return baseColor2;
     }
 
     private Color GetMixedColor(int x, int y, int width, int height)

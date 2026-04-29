@@ -11,21 +11,23 @@ namespace CorditeWars.Game.World;
 ///
 /// Three fog states map to visual alpha values:
 /// <list type="bullet">
-///   <item><see cref="FogVisibility.Unexplored"/> — nearly opaque black (α = 0.93).</item>
-///   <item><see cref="FogVisibility.Explored"/>   — dim semi-transparent dark (α = 0.48).</item>
+///   <item><see cref="FogVisibility.Unexplored"/> — fully opaque black (α = 1.00).</item>
+///   <item><see cref="FogVisibility.Explored"/>   — semi-transparent dark shroud (α = 0.72).</item>
 ///   <item><see cref="FogVisibility.Visible"/>     — fully transparent (α = 0.00).</item>
 /// </list>
 /// </summary>
 public partial class FogRenderer3D : Node3D
 {
     // Fog alpha levels (0 = fully transparent, 1 = fully opaque)
-    private const float AlphaUnexplored = 0.93f;
-    private const float AlphaExplored   = 0.48f;
-    private const float AlphaVisible    = 0.00f;
+    private const float AlphaUnexplored = 1.00f;  // completely black — never visited
+    private const float AlphaExplored   = 0.72f;  // dark shroud — visited but not currently visible
+    private const float AlphaVisible    = 0.00f;  // clear — unit has line of sight here
 
-    // Height above the terrain mesh — just above the ground surface so the fog
-    // sits clearly between the terrain and unit models.
-    private const float FogPlaneY = 0.25f;
+    // Raised well above terrain peaks so the fog always renders on top of
+    // elevated geometry.  depth_test_disabled on the shader already prevents
+    // depth-buffer occlusion, but a high Y avoids transparent-sort ordering
+    // issues with other transparent meshes (e.g. water).
+    private const float FogPlaneY = 30.0f;
 
     private static readonly string FogShaderSource = @"
 shader_type spatial;
@@ -35,8 +37,11 @@ uniform sampler2D fog_texture : hint_default_black, filter_linear;
 
 void fragment() {
     vec4 fog = texture(fog_texture, UV);
-    ALBEDO = vec3(0.0);
-    ALPHA  = fog.r;
+    // Smooth the hard boundary between opacity levels using a slight blur
+    // baked into the bilinear filter_linear hint above.
+    float alpha = fog.r;
+    ALBEDO = vec3(0.0, 0.0, 0.02); // very faint blue-black tint on the shroud
+    ALPHA  = alpha;
 }
 ";
 
@@ -78,9 +83,12 @@ void fragment() {
         _fogBytes   = new byte[mapWidth * mapHeight]; // 1 byte per cell
         _fogTexture = ImageTexture.CreateFromImage(_fogImage);
 
-        // Build the fog shader + material
+        // Build the fog shader + material.
+        // RenderPriority = 127 makes this material sort last in the transparent
+        // render pass, so it always composites on top of building and unit meshes
+        // regardless of their world-space depth relative to the fog plane.
         var shader = new Shader { Code = FogShaderSource };
-        _material = new ShaderMaterial { Shader = shader };
+        _material = new ShaderMaterial { Shader = shader, RenderPriority = 127 };
         _material.SetShaderParameter("fog_texture", _fogTexture);
 
         // Plane mesh spanning the entire map (PlaneMesh is centred at origin)
