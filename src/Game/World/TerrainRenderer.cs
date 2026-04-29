@@ -46,7 +46,7 @@ public partial class TerrainRenderer : Node3D
     // facets depending on the underlying biome colour.
     private const string TerrainShaderSource = @"
 shader_type spatial;
-render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
+render_mode cull_back, diffuse_burley, specular_schlick_ggx;
 
 varying vec3 v_world_pos;
 varying vec3 v_biome_color;
