@@ -1,10 +1,12 @@
 name: "Release"
 
 on:
-  push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"        # e.g. v1.0.0
-      - "v[0-9]+.[0-9]+.[0-9]+-*"      # e.g. v1.0.0-rc.1, v1.0.0-beta.1
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to publish, e.g. v1.0.0"
+        required: true
+        type: string
 
 permissions:
   contents: write   # required to create GitHub Releases and upload assets
@@ -34,7 +36,7 @@ jobs:
       - name: Derive version from tag
         id: version
         run: |
-          TAG="${GITHUB_REF_NAME}"
+          TAG="${{ inputs.tag }}"
           # Strip leading 'v' to get the bare version number
           VERSION="${TAG#v}"
           echo "tag=$TAG"          >> "$GITHUB_OUTPUT"
@@ -209,5 +211,5 @@ jobs:
     needs: publish
     uses: ./.github/workflows/deploy-aws.yml
     with:
-      tag: ${{ github.ref_name }}
+      tag: ${{ inputs.tag }}
     secrets: inherit
