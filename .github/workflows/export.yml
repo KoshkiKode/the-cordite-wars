@@ -816,13 +816,13 @@ jobs:
         shell: powershell
         run: New-Item -ItemType Directory -Force -Path dist\windows | Out-Null
 
-      - name: Install WiX Toolset v4
+      - name: Install WiX Toolset v5
         shell: powershell
-        run: dotnet tool install --global wix --version 4.0.5
+        run: dotnet tool install --global wix --version 5.0.2
 
       - name: Add WiX UI extension
         shell: powershell
-        run: wix extension add --global WixToolset.UI.wixext/4.0.5
+        run: wix extension add --global WixToolset.UI.wixext/5.0.2
 
       - name: Build MSI installer (WiX)
         shell: powershell
@@ -1177,7 +1177,7 @@ jobs:
           } else {
             # Generate a temporary self-signed cert for CI / developer sideloading.
             # The Publisher CN in AppxManifest.xml must match this subject.
-            Write-Host "No WINDOWS_CERT_B64 secret — generating self-signed dev cert."
+            Write-Host "No WINDOWS_CERT_B64 secret - generating self-signed dev cert."
             $cert = New-SelfSignedCertificate `
               -Type Custom `
               -Subject "CN=CorditeWarsTeam" `
