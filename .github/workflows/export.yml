@@ -1030,17 +1030,24 @@ jobs:
               versions/linux/flatpak/build/linux/com.koshkikode.CorditeWars.svg
           fi
 
-      - name: Add Flathub remote
+      - name: Add Flathub remote (user)
         run: |
-          sudo flatpak remote-add --if-not-exists flathub \
+          flatpak remote-add --user --if-not-exists flathub \
             https://dl.flathub.org/repo/flathub.flatpakrepo
 
+      - name: Install Flatpak SDK and Platform
+        run: |
+          flatpak install --user -y flathub \
+            org.freedesktop.Sdk/x86_64/24.08 \
+            org.freedesktop.Platform/x86_64/24.08
+
       - name: Build Flatpak bundle
-        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
-        with:
-          bundle: CorditeWars_${{ needs.resolve-version.outputs.app_version }}.flatpak
-          manifest-path: versions/linux/flatpak/com.koshkikode.CorditeWars.yml
-          cache-key: flatpak-builder-${{ hashFiles('versions/linux/flatpak/com.koshkikode.CorditeWars.yml') }}
+        run: |
+          flatpak-builder --repo=repo --disable-rofiles-fuse --force-clean \
+            flatpak_app versions/linux/flatpak/com.koshkikode.CorditeWars.yml
+          flatpak build-bundle repo \
+            CorditeWars_${{ needs.resolve-version.outputs.app_version }}.flatpak \
+            com.koshkikode.CorditeWars
 
       - name: Upload Flatpak artifact
         uses: actions/upload-artifact@v7
