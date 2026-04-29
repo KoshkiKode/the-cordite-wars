@@ -497,11 +497,13 @@ public partial class GameSession : Node
 
             for (int i = 0; i < config.PlayerConfigs.Length; i++)
             {
+                // Use Campaign mode so the map starts fully unexplored (black).
+                // Units reveal the map as they move, matching classic C&C behaviour.
                 _playerFogs[i] = new FogGrid(
                     _terrainGrid.Width,
                     _terrainGrid.Height,
                     config.PlayerConfigs[i].PlayerId,
-                    FogMode.Skirmish);
+                    FogMode.Campaign);
                 _playerFogSnapshots[i] = new FogSnapshot();
             }
 
@@ -1048,6 +1050,7 @@ public partial class GameSession : Node
         // ProcessTick has removed dead units from simUnits (phase 8b).
         // Rebuild _persistentSimUnits from the surviving mobile entries.
         _persistentSimUnits.Clear();
+        FogGrid? localFog = GetPlayerFog(_localPlayerId);
         for (int i = 0; i < simUnits.Count; i++)
         {
             SimUnit sim = simUnits[i];
@@ -1069,6 +1072,22 @@ public partial class GameSession : Node
                     {
                         bool isOwnUnit = sim.PlayerId == _localPlayerId;
                         node.SetStealthed(sim.IsCurrentlyStealthed, isOwnUnit);
+                    }
+
+                    // Fog-of-war visibility: hide enemy units that are not in a
+                    // currently visible cell.  Own units are always visible.
+                    if (localFog != null)
+                    {
+                        if (sim.PlayerId != _localPlayerId)
+                        {
+                            int cx = sim.Movement.Position.X.ToInt();
+                            int cy = sim.Movement.Position.Y.ToInt();
+                            node.Visible = localFog.IsVisible(cx, cy);
+                        }
+                        else
+                        {
+                            node.Visible = true;
+                        }
                     }
                 }
             }
@@ -1135,6 +1154,33 @@ public partial class GameSession : Node
                     b.TakeDamage(delta);
                 }
                 break;
+            }
+        }
+
+        // ── 4c-fog. Apply fog-of-war visibility to enemy buildings ────────
+        // Enemy buildings are hidden when the cell they occupy is not currently
+        // visible to the local player.  Own and neutral buildings are always shown.
+        if (localFog != null)
+        {
+            for (int bi = 0; bi < buildingSnapshot.Count; bi++)
+            {
+                var b = buildingSnapshot[bi];
+                if (!GodotObject.IsInstanceValid(b)) continue;
+                if (b.PlayerId == _localPlayerId || b.PlayerId == NeutralPlayerId)
+                {
+                    b.Visible = true;
+                    continue;
+                }
+                b.Visible = localFog.IsVisible(b.GridX, b.GridY);
+            }
+
+            // Also apply to HQ buildings from _playerHQNodes
+            foreach (var kvp in _playerHQNodes)
+            {
+                var hq = kvp.Value;
+                if (!GodotObject.IsInstanceValid(hq)) continue;
+                if (hq.PlayerId == _localPlayerId) continue;
+                hq.Visible = localFog.IsVisible(hq.GridX, hq.GridY);
             }
         }
 
