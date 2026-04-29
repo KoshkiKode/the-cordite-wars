@@ -435,9 +435,14 @@ jobs:
         run: |
           APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -1)
           if [ -n "$APP_PATH" ]; then
+            # Clear any extended attributes (e.g. quarantine bits on individual
+            # files) before signing — stale xattrs break the signature and cause
+            # the "app is damaged" Gatekeeper error on the user's Mac.
+            xattr -cr "$APP_PATH"
             codesign --deep --force \
               --sign - "$APP_PATH"
-            echo "Ad-hoc signed: $APP_PATH"
+            codesign --verify --deep --verbose=2 "$APP_PATH"
+            echo "Ad-hoc signed and verified: $APP_PATH"
           else
             echo "WARNING: No .app bundle found to sign"
           fi
@@ -1289,6 +1294,19 @@ jobs:
             echo "ERROR: No .app bundle found in build/macos/"
             exit 1
           fi
+          # Clear any extended attributes (e.g. quarantine bits on individual
+          # files) that may have been set during download/extraction.  Stale
+          # xattrs break the code signature and cause macOS to report the app
+          # as "damaged and can't be opened".
+          xattr -cr "$APP_PATH"
+          # Ensure the main binary is executable — some artifact transports can
+          # strip the execute bit, which would silently prevent the app from launching.
+          MAIN_BIN="$APP_PATH/Contents/MacOS/$(basename "$APP_PATH" .app)"
+          if [ -f "$MAIN_BIN" ]; then
+            chmod +x "$MAIN_BIN"
+          else
+            echo "WARNING: Expected main binary not found at $MAIN_BIN — permissions may not be set correctly"
+          fi
           echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
           echo "Found app bundle: $APP_PATH"
 
@@ -1315,7 +1333,8 @@ jobs:
           codesign --deep --force \
             --sign - \
             "$APP_PATH"
-          echo "App bundle ad-hoc signed."
+          codesign --verify --deep --verbose=2 "$APP_PATH"
+          echo "App bundle ad-hoc signed and verified."
 
       - name: Create DMG
         run: |
@@ -1330,6 +1349,32 @@ jobs:
           STAGED_APP_PATH="$STAGING_DIR/$(basename "$APP_PATH")"
           ditto "$APP_PATH" "$STAGED_APP_PATH"
           codesign --verify --deep --verbose=2 "$STAGED_APP_PATH"
+          # Standard drag-to-install shortcut inside the DMG window.
+          ln -s /Applications "$STAGING_DIR/Applications"
+          # Plain-text instructions for users who hit a Gatekeeper warning.
+          APP_NAME="$(basename "$APP_PATH")"
+          cat > "$STAGING_DIR/How to Open.txt" <<INSTRUCTIONS
+Cordite Wars: Six Fronts — macOS Installation
+=============================================
+
+INSTALL
+  Drag $APP_NAME to the Applications folder shortcut in this window.
+
+IF macOS SAYS "app can't be opened" or "developer cannot be verified"
+  This is a Gatekeeper warning for apps not yet notarized with Apple.
+  The game is safe to open.
+
+  Option 1 (easiest):
+    Right-click (or Control-click) $APP_NAME -> Open -> click Open
+
+  Option 2:
+    Open System Settings -> Privacy & Security
+    Scroll down to the Cordite Wars message -> click "Open Anyway"
+
+  Option 3 (Terminal):
+    xattr -d com.apple.quarantine /Applications/$APP_NAME
+
+INSTRUCTIONS
           hdiutil create \
             -volname "Cordite Wars" \
             -srcfolder "$STAGING_DIR" \
@@ -1658,6 +1703,8 @@ jobs:
             echo "ERROR: No .app bundle found in smoke/"
             exit 1
           fi
+          # Verify the code signature is intact before trying to run.
+          codesign --verify --deep --verbose=2 "$APP"
           # The main executable inside a Godot .app bundle is always named after
           # the project (CorditeWars). Fall back to the first file only if it
           # cannot be found under the expected name.
