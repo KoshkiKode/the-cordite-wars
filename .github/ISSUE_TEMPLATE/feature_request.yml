@@ -1,0 +1,54 @@
+name: Feature Request
+description: Suggest a new gameplay feature or engine improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion! The more detail the better.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem or gap does this address?
+      placeholder: Describe the gameplay problem, missing feature, or quality-of-life issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      placeholder: What would you like to see? How would it work?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      placeholder: Any alternative approaches you've thought about?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Gameplay / units
+        - Base building / economy
+        - Multiplayer / networking
+        - Campaign / single-player
+        - UI / HUD
+        - Audio
+        - Visuals / rendering
+        - Platforms / ports
+        - Modding
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Reference games, mockups, or links that might help illustrate the idea.
