@@ -55,6 +55,7 @@ python3 generate-checksums.py verify build/checksums.txt
 
 | Document | Purpose |
 |----------|---------|
+| `docs/self-hosted-downloads.md` | Self-hosted paywalled downloads server (Caddy + Stripe Payment Links) |
 | `docs/deployment-guide.md` | Platform-specific deployment & store submission instructions |
 | `docs/store-submission-reference.md` | Quick reference for each app store (costs, requirements, timelines) |
 | `docs/platform-testing-qa.md` | Testing checklist & performance targets per platform |
@@ -133,6 +134,19 @@ The `release.yml` workflow automatically:
   ```bash
   sha256sum -c checksums.txt
   ```
+
+### 5. Publish to Downloads Server
+
+After the GitHub Release is published, mirror the artifacts to your self-hosted
+downloads server:
+
+```bash
+# On your server — mirrors artifacts from GitHub Release to local disk
+./publish-release.sh v0.1.1
+```
+
+See [docs/self-hosted-downloads.md](docs/self-hosted-downloads.md) for the full
+setup guide (Docker, Caddy, Stripe Payment Links, GoDaddy DNS).
 
 ---
 
@@ -266,34 +280,30 @@ For full secrets/variables documentation see [`docs/secrets-setup.md`](docs/secr
 
 ---
 
-## ☁️ AWS Hosting (paywalled self-hosted downloads)
+## 🌐 Self-Hosted Downloads Server
 
-Releases are mirrored from GitHub to KoshkiKode's own AWS account and gated
-behind a Stripe one-time purchase, so the official download URL lives on
-`koshkikode.com` (or e.g. `downloads.koshkikode.com`) and revenue is collected
-without a separate storefront.
+Releases are mirrored from GitHub to KoshkiKode's self-hosted downloads server and
+gated behind a Stripe Payment Link, so the official download URL lives on
+`downloads.koshkikode.com` and revenue is collected without a separate storefront.
 
 | Component | Where |
 |---|---|
-| Terraform (S3 bucket, CloudFront + Lambda paywall, DynamoDB, Secrets Manager, GitHub OIDC IAM role, optional ACM + Route 53) | [`infra/aws/`](infra/aws/) |
-| Lambda code (Stripe Checkout, webhook, presigned-URL gateway) | [`infra/aws/lambda/`](infra/aws/lambda/) |
-| Workflow (runs on `release.published`) | [`.github/workflows/deploy-aws.yml`](.github/workflows/deploy-aws.yml) |
-| Static downloads page | [`web/downloads/`](web/downloads/) |
-| Setup walkthrough | [`docs/aws-hosting-setup.md`](docs/aws-hosting-setup.md) |
+| Full setup guide (Docker, Caddy, Stripe, DDNS) | [`docs/self-hosted-downloads.md`](docs/self-hosted-downloads.md) |
+| Token server source | `docs/self-hosted-downloads.md` → Section 5 (inline) |
+| Publish script (mirrors GitHub Release → disk) | `docs/self-hosted-downloads.md` → Section 10 |
 
 After publish, visitors hit:
 
 ```
-https://<your-cdn-domain>/                          # paywalled downloads page
-https://<your-cdn-domain>/releases/latest.json      # public version manifest
-https://<your-cdn-domain>/api/checkout              # Stripe Checkout creator
-https://<your-cdn-domain>/api/webhook               # Stripe webhook target
-https://<your-cdn-domain>/api/download?session_id=&filename=
+https://downloads.koshkikode.com/                         # downloads page
+https://downloads.koshkikode.com/latest.json              # public version manifest
+https://downloads.koshkikode.com/api/webhook              # Stripe webhook target
+https://downloads.koshkikode.com/api/token?session=&file= # issues download token post-purchase
+https://downloads.koshkikode.com/api/file?token=&file=    # streams artifact (HMAC-authenticated)
 ```
 
-Paid artifacts live at `s3://<bucket>/paid/<version>/<file>` and are **never**
-served via CloudFront — they're only reachable through short-TTL S3 presigned
-URLs handed out by the Lambda after a Stripe Checkout Session is verified.
+Paid artifacts live on disk and are **never** served directly by Caddy — only through
+short-lived HMAC tokens issued after a Stripe Checkout Session is verified.
 
 ---
 
@@ -301,6 +311,7 @@ URLs handed out by the Lambda after a Stripe Checkout Session is verified.
 
 - **Build Guide**: [docs/build-guide.md](docs/build-guide.md)
 - **Deployment Guide**: [docs/deployment-guide.md](docs/deployment-guide.md)
+- **Downloads Server**: [docs/self-hosted-downloads.md](docs/self-hosted-downloads.md)
 - **Store Reference**: [docs/store-submission-reference.md](docs/store-submission-reference.md)
 - **Testing & QA**: [docs/platform-testing-qa.md](docs/platform-testing-qa.md)
 - **GitHub Actions**: [.github/workflows/](../.github/workflows/)
